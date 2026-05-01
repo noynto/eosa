@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build & Test
+        run: mvn verify -q
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports/
+
+      - name: Rapport summary
+        if: always()
+        run: |
+          echo "# 📋 Rapport CI — ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ℹ️ Informations" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Auteur** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branche** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Date** | $(date '+%d/%m/%Y %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Tests" >> $GITHUB_STEP_SUMMARY
+          if [ -d "target/surefire-reports" ]; then
+            TESTS=$(grep -h 'tests=' target/surefire-reports/*.xml | grep -o 'tests="[0-9]*"' | grep -o '[0-9]*' | awk '{s+=$1} END {print s}')
+            FAILURES=$(grep -h 'failures=' target/surefire-reports/*.xml | grep -o 'failures="[0-9]*"' | grep -o '[0-9]*' | awk '{s+=$1} END {print s}')
+            ERRORS=$(grep -h 'errors=' target/surefire-reports/*.xml | grep -o 'errors="[0-9]*"' | grep -o '[0-9]*' | awk '{s+=$1} END {print s}')
+            SKIPPED=$(grep -h 'skipped=' target/surefire-reports/*.xml | grep -o 'skipped="[0-9]*"' | grep -o '[0-9]*' | awk '{s+=$1} END {print s}')
+            echo "| | |" >> $GITHUB_STEP_SUMMARY
+            echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ **Total** | $TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ **Échecs** | $FAILURES |" >> $GITHUB_STEP_SUMMARY
+            echo "| 💥 **Erreurs** | $ERRORS |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏭️ **Ignorés** | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "> ⚠️ Aucun résultat de test disponible" >> $GITHUB_STEP_SUMMARY
+          fi
