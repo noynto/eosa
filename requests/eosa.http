@@ -1,0 +1,59 @@
+### Créer un produit — Paula
+POST http://localhost:8080/admin/products
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+name=Paula&description=Pierre rouge sur son écrin d'argent.&price=34
+
+### Créer un produit — Pauline
+POST http://localhost:8080/admin/products
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+name=Pauline&description=Anneau doré et perle de nacre.&price=28
+
+### Créer un produit — Manon
+POST http://localhost:8080/admin/products
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+name=Manon&description=Chaîne fine et quartz fumé.&price=36
+
+### Créer un produit — Lorine
+POST http://localhost:8080/admin/products
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+name=Lorine&description=Collier ras-du-cou en labradorite.&price=52
+
+### Créer un produit — Emma
+POST http://localhost:8080/admin/products
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+name=Emma&description=Bracelet tressé et améthyste rose.&price=44
+
+### Uploader des images sur un produit
+@productId =6a0b880158f695dc3484c1b9
+POST http://localhost:8080/admin/products/{{productId}}/images
+Authorization: Basic {{adminCredentials}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="collier.jpg"
+Content-Type: image/jpeg
+
+< ../docs/collier5.jpg
+--boundary--
+
+### Lister les IDs de produits (page HTML)
+GET http://localhost:8080/products
+Accept: text/html
+
+### Charger la card d'un produit (fragment HTMX)
+GET http://localhost:8080/products/{{productId}}/card
+Accept: text/html
+
+### Télécharger une image
+@imageId = variable value
+GET http://localhost:8080/images/{{imageId}}

@@ -1,225 +1,241 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lithée — Boutique</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bg: '#FDFBF7',
-                        'bg-soft': '#F4EFE5',
-                        'bg-border': '#F0E6D6',
-                        primary: '#601414',
-                        'primary-dark': '#3D0A0A',
-                        secondary: '#775546',
-                        accent: '#FFEFAE',
-                        muted: '#B8A88E',
-                        success: '#1D9E75',
-                    },
-                    fontFamily: {
-                        sans: ['DM Sans', 'system-ui', 'sans-serif'],
-                        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
-                        display: ['Bagel Fat One', 'cursive'],
-                    },
-                },
-            },
-        };
-    </script>
-</head>
-<body class="bg-bg font-sans text-primary antialiased">
+@template.layouts.main(title = "Eosa — Bijoux faits main à Lyon", content = @`
 
-<header class="px-5 md:px-8 py-5 flex items-center justify-between">
-    <a href="/" class="font-display text-3xl text-primary">lithée</a>
-    <nav class="hidden md:flex gap-7 text-sm text-secondary">
-        <a href="/" class="text-primary font-medium">Boutique</a>
-        <a href="#">Composer</a>
-        <a href="#">Pierres</a>
-    </nav>
-    <div class="flex gap-3 items-center">
-        <button class="w-9 h-9 rounded-full bg-bg-soft flex items-center justify-center" aria-label="Recherche">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        </button>
-        <a href="/cart" class="bg-primary text-accent px-4 py-2.5 rounded-full text-[13px] flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFEFAE" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            Panier · 3
+<!-- Hero -->
+<section class="grid md:grid-cols-[1.2fr_1fr] border-b border-bg-border">
+    <div class="bg-bg-soft relative overflow-hidden min-h-64 md:min-h-0 border-b md:border-b-0 md:border-r border-bg-border">
+        <svg viewBox="0 0 600 480" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <rect width="600" height="480" fill="#F4EFE5"/>
+            <ellipse cx="300" cy="420" rx="210" ry="22" fill="#775546" opacity="0.1"/>
+            <path d="M 110 160 Q 200 80 300 72 Q 400 80 490 160 Q 510 220 480 296 Q 450 360 380 400 Q 340 424 300 430 Q 260 424 220 400 Q 150 360 120 296 Q 90 220 110 160" fill="none" stroke="#B8A88E" stroke-width="1.2" opacity="0.3"/>
+            <circle cx="113" cy="177" r="20" fill="#7F77DD"/>
+            <circle cx="138" cy="124" r="22" fill="#AFA9EC"/>
+            <circle cx="186" cy="90" r="20" fill="#534AB7"/>
+            <circle cx="244" cy="74" r="22" fill="#7F77DD"/>
+            <circle cx="302" cy="72" r="20" fill="#AFA9EC"/>
+            <circle cx="360" cy="76" r="22" fill="#534AB7"/>
+            <circle cx="412" cy="96" r="20" fill="#7F77DD"/>
+            <circle cx="454" cy="130" r="22" fill="#AFA9EC"/>
+            <circle cx="480" cy="178" r="20" fill="#534AB7"/>
+            <circle cx="490" cy="234" r="21" fill="#7F77DD"/>
+            <circle cx="472" cy="290" r="20" fill="#AFA9EC"/>
+            <circle cx="436" cy="340" r="22" fill="#534AB7"/>
+            <circle cx="385" cy="378" r="20" fill="#7F77DD"/>
+            <circle cx="326" cy="400" r="22" fill="#AFA9EC"/>
+            <circle cx="264" cy="398" r="20" fill="#534AB7"/>
+            <circle cx="208" cy="376" r="22" fill="#7F77DD"/>
+            <circle cx="162" cy="340" r="20" fill="#AFA9EC"/>
+            <circle cx="127" cy="290" r="22" fill="#534AB7"/>
+            <circle cx="110" cy="234" r="20" fill="#7F77DD"/>
+            <circle cx="300" cy="240" r="42" fill="#601414"/>
+            <circle cx="300" cy="240" r="27" fill="#3D0A0A"/>
+            <circle cx="300" cy="240" r="13" fill="#775546"/>
+        </svg>
+    </div>
+    <div class="px-8 md:px-12 py-12 md:py-16 flex flex-col justify-center">
+        <p class="text-xs text-secondary tracking-widest mb-5">NOUVELLE COLLECTION</p>
+        <h1 class="font-serif text-5xl md:text-6xl font-normal leading-[1.05] mb-6">
+            Bijoux qui<br/>rayonnent.
+        </h1>
+        <p class="text-sm text-secondary leading-relaxed mb-8 max-w-xs">
+            Colliers, bracelets et pierres, faits main à Lyon. Des pièces en matières nobles, conçues pour durer.
+        </p>
+        <div class="flex gap-3 flex-wrap">
+            <a href="/products" class="bg-secondary text-bg px-6 py-3 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir la collection</a>
+            <a href="/about" class="border border-bg-border px-6 py-3 rounded-full text-sm text-secondary hover:border-secondary transition-colors">Notre histoire</a>
+        </div>
+    </div>
+</section>
+
+<!-- Nos univers -->
+<section class="px-5 md:px-8 py-10">
+    <div class="flex items-baseline gap-3 mb-6">
+        <span class="font-serif text-xs text-muted">01</span>
+        <h2 class="font-serif text-2xl font-normal">Nos univers</h2>
+        <span class="text-xs text-secondary ml-1">explorer par famille</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="#" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
+            <div class="w-14 h-14 flex-shrink-0">
+                <svg viewBox="0 0 56 56" class="w-full h-full">
+                    <path d="M8 18 Q28 50 48 18" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
+                    <circle cx="28" cy="44" r="6" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
+                    <circle cx="28" cy="44" r="3" fill="#601414"/>
+                </svg>
+            </div>
+            <div>
+                <div class="font-serif text-xl leading-tight">Colliers</div>
+                <div class="text-xs text-secondary mt-1">24 pièces · dès 28 €</div>
+            </div>
+        </a>
+        <a href="#" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
+            <div class="w-14 h-14 flex-shrink-0">
+                <svg viewBox="0 0 56 56" class="w-full h-full">
+                    <ellipse cx="28" cy="28" rx="18" ry="10" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
+                    <circle cx="10" cy="28" r="3.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
+                    <circle cx="28" cy="18" r="2.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
+                    <circle cx="46" cy="28" r="3.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
+                </svg>
+            </div>
+            <div>
+                <div class="font-serif text-xl leading-tight">Bracelets</div>
+                <div class="text-xs text-secondary mt-1">18 pièces · dès 22 €</div>
+            </div>
         </a>
     </div>
-</header>
-
-<section class="px-5 md:px-8 pt-10 pb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
-    <div>
-        <h1 class="font-serif text-4xl md:text-5xl font-normal leading-none">La collection</h1>
-        <div class="text-sm text-secondary mt-3">42 pièces</div>
-    </div>
-    <div class="bg-bg-soft px-4 py-2.5 rounded-full text-[13px] text-secondary flex items-center gap-2 cursor-pointer self-start md:self-auto">
-        Trier : Nouveautés
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#775546" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-    </div>
 </section>
 
-<div class="px-5 md:px-8 pb-6 flex gap-2 flex-wrap">
-    <span class="bg-primary text-accent px-5 py-2.5 rounded-full text-[13px] cursor-pointer">Tous</span>
-    <span class="bg-bg-soft text-primary px-5 py-2.5 rounded-full text-[13px] cursor-pointer">Bracelets</span>
-    <span class="bg-bg-soft text-primary px-5 py-2.5 rounded-full text-[13px] cursor-pointer">Colliers</span>
-    <span class="bg-bg-soft text-primary px-5 py-2.5 rounded-full text-[13px] cursor-pointer">Bagues</span>
-    <span class="bg-bg-soft text-primary px-5 py-2.5 rounded-full text-[13px] cursor-pointer">Boucles</span>
-    <span class="bg-accent text-primary px-5 py-2.5 rounded-full text-[13px] cursor-pointer flex items-center gap-1.5">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>
-    Filtrer
-  </span>
-</div>
-
-<section class="px-5 md:px-8 pb-12 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-
-    <a href="/products/1" class="group">
-        <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
-            <svg viewBox="0 0 200 200" class="w-full h-full">
-                <ellipse cx="100" cy="135" rx="58" ry="9" fill="#775546" opacity="0.2"/>
-                <g transform="translate(100, 100)">
-                    <circle cx="-50" cy="0" r="13" fill="#7F77DD"/><circle cx="-28" cy="-9" r="15" fill="#AFA9EC"/><circle cx="-3" cy="-13" r="13" fill="#534AB7"/><circle cx="22" cy="-11" r="15" fill="#7F77DD"/><circle cx="44" cy="-2" r="13" fill="#AFA9EC"/><circle cx="50" cy="20" r="14" fill="#534AB7"/><circle cx="30" cy="34" r="13" fill="#7F77DD"/><circle cx="0" cy="38" r="14" fill="#AFA9EC"/><circle cx="-30" cy="34" r="13" fill="#534AB7"/><circle cx="-50" cy="20" r="14" fill="#7F77DD"/>
-                </g>
-            </svg>
-            <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-            </button>
+<!-- Nouveautés -->
+<section class="px-5 md:px-8 pb-12">
+    <div class="flex items-baseline justify-between mb-6">
+        <div class="flex items-baseline gap-3">
+            <span class="font-serif text-xs text-muted">02</span>
+            <h2 class="font-serif text-2xl font-normal">Nouveautés</h2>
+            <span class="text-xs text-secondary ml-1">dernières arrivées</span>
         </div>
-        <div class="mt-3.5 px-1">
-            <div class="flex justify-between items-baseline mb-1">
-                <div class="font-serif text-[17px]">Sérénité</div>
-                <div class="text-[15px] font-medium">38 €</div>
+        <a href="/shop" class="text-xs text-secondary hover:text-primary transition-colors">Tout voir →</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+
+        <a href="/products/1" class="group">
+            <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                    <ellipse cx="100" cy="148" rx="52" ry="9" fill="#775546" opacity="0.15"/>
+                    <line x1="100" y1="28" x2="100" y2="72" stroke="#B8A88E" stroke-width="0.8" opacity="0.5"/>
+                    <circle cx="100" cy="106" r="38" fill="#7F77DD"/>
+                    <circle cx="100" cy="106" r="24" fill="#AFA9EC"/>
+                    <circle cx="100" cy="106" r="12" fill="#534AB7"/>
+                </svg>
+                <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+                </button>
             </div>
-            <div class="text-xs text-secondary">Améthyste</div>
-        </div>
-    </a>
-
-    <a href="/products/1" class="group">
-        <div class="bg-accent aspect-square rounded-3xl relative overflow-hidden">
-            <svg viewBox="0 0 200 200" class="w-full h-full">
-                <line x1="100" y1="30" x2="100" y2="100" stroke="#775546" stroke-width="0.6" opacity="0.5"/>
-                <circle cx="100" cy="120" r="36" fill="#ED93B1"/>
-                <circle cx="100" cy="120" r="24" fill="#F4C0D1"/>
-                <circle cx="100" cy="120" r="12" fill="#D4537E"/>
-            </svg>
-            <div class="absolute top-3.5 left-3.5 bg-primary text-accent px-3 py-1 rounded-full text-[11px]">Nouveau</div>
-            <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-            </button>
-        </div>
-        <div class="mt-3.5 px-1">
-            <div class="flex justify-between items-baseline mb-1">
-                <div class="font-serif text-[17px]">Tendresse</div>
-                <div class="text-[15px] font-medium">52 €</div>
-            </div>
-            <div class="text-xs text-secondary">Quartz rose</div>
-        </div>
-    </a>
-
-    <a href="/products/1" class="group">
-        <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
-            <svg viewBox="0 0 200 200" class="w-full h-full">
-                <ellipse cx="100" cy="135" rx="58" ry="9" fill="#775546" opacity="0.2"/>
-                <g transform="translate(100, 100)">
-                    <circle cx="-48" cy="0" r="13" fill="#854F0B"/><circle cx="-28" cy="-9" r="15" fill="#BA7517"/><circle cx="-3" cy="-13" r="13" fill="#412402"/><circle cx="20" cy="-11" r="15" fill="#BA7517"/><circle cx="42" cy="-2" r="13" fill="#854F0B"/><circle cx="48" cy="20" r="14" fill="#412402"/><circle cx="28" cy="34" r="13" fill="#BA7517"/><circle cx="0" cy="38" r="14" fill="#854F0B"/><circle cx="-28" cy="34" r="13" fill="#412402"/><circle cx="-48" cy="20" r="14" fill="#BA7517"/>
-                </g>
-            </svg>
-            <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-            </button>
-        </div>
-        <div class="mt-3.5 px-1">
-            <div class="flex justify-between items-baseline mb-1">
-                <div class="font-serif text-[17px]">Solaire</div>
-                <div class="text-[15px] font-medium">42 €</div>
-            </div>
-            <div class="text-xs text-secondary">Œil de tigre</div>
-        </div>
-    </a>
-
-    <a href="/products/1" class="group">
-        <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
-            <svg viewBox="0 0 200 200" class="w-full h-full">
-                <ellipse cx="100" cy="135" rx="58" ry="9" fill="#775546" opacity="0.2"/>
-                <g transform="translate(100, 100)">
-                    <circle cx="-50" cy="0" r="13" fill="#185FA5"/><circle cx="-28" cy="-9" r="15" fill="#378ADD"/><circle cx="-3" cy="-13" r="13" fill="#0C447C"/><circle cx="22" cy="-11" r="15" fill="#185FA5"/><circle cx="44" cy="-2" r="13" fill="#378ADD"/><circle cx="50" cy="20" r="14" fill="#0C447C"/><circle cx="30" cy="34" r="13" fill="#185FA5"/><circle cx="0" cy="38" r="14" fill="#378ADD"/><circle cx="-30" cy="34" r="13" fill="#0C447C"/><circle cx="-50" cy="20" r="14" fill="#185FA5"/>
-                </g>
-            </svg>
-            <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#601414" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-            </button>
-        </div>
-        <div class="mt-3.5 px-1">
-            <div class="flex justify-between items-baseline mb-1">
-                <div class="font-serif text-[17px]">Vérité</div>
-                <div class="text-[15px] font-medium">58 €</div>
-            </div>
-            <div class="text-xs text-secondary">Lapis-lazuli</div>
-        </div>
-    </a>
-
-    <a href="/products/1" class="group">
-        <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
-            <svg viewBox="0 0 200 200" class="w-full h-full">
-                <line x1="100" y1="40" x2="100" y2="92" stroke="#775546" stroke-width="0.6" opacity="0.5"/>
-                <ellipse cx="100" cy="120" rx="26" ry="38" fill="#1D9E75"/>
-                <ellipse cx="100" cy="120" rx="16" ry="26" fill="#5DCAA5" opacity="0.6"/>
-            </svg>
-            <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-            </button>
-        </div>
-        <div class="mt-3.5 px-1">
-            <div class="flex justify-between items-baseline mb-1">
-                <div class="font-serif text-[17px]">Abondance</div>
-                <div class="text-[15px] font-medium">48 €</div>
-            </div>
-            <div class="text-xs text-secondary">Aventurine</div>
-        </div>
-    </a>
-
-    <a href="/products/1" class="group">
-        <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
-            <svg viewBox="0 0 200 200" class="w-full h-full">
-                <ellipse cx="100" cy="135" rx="58" ry="9" fill="#775546" opacity="0.2"/>
-                <g transform="translate(100, 100)">
-                    <circle cx="-50" cy="0" r="13" fill="#601414"/><circle cx="-28" cy="-9" r="15" fill="#3D0A0A"/><circle cx="-3" cy="-13" r="13" fill="#601414"/><circle cx="22" cy="-11" r="15" fill="#3D0A0A"/><circle cx="44" cy="-2" r="13" fill="#601414"/><circle cx="50" cy="20" r="14" fill="#3D0A0A"/><circle cx="30" cy="34" r="13" fill="#601414"/><circle cx="0" cy="38" r="14" fill="#3D0A0A"/><circle cx="-30" cy="34" r="13" fill="#601414"/><circle cx="-50" cy="20" r="14" fill="#3D0A0A"/>
-                </g>
-            </svg>
-            <div class="absolute top-3.5 left-3.5 bg-primary text-accent px-3 py-1 rounded-full text-[11px]">−15%</div>
-            <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-            </button>
-        </div>
-        <div class="mt-3.5 px-1">
-            <div class="flex justify-between items-baseline mb-1">
-                <div class="font-serif text-[17px]">Grenat</div>
-                <div class="text-[15px] font-medium">
-                    <span class="text-muted line-through text-xs mr-1 font-normal">55€</span>47 €
+            <div class="mt-3.5 px-1">
+                <div class="flex justify-between items-baseline mb-1">
+                    <div class="font-serif text-[17px]">Collier Lune</div>
+                    <div class="text-[15px] font-medium">42 €</div>
                 </div>
+                <div class="text-xs text-secondary">Améthyste</div>
             </div>
-            <div class="text-xs text-secondary">Passion</div>
-        </div>
-    </a>
+        </a>
 
+        <a href="/products/2" class="group">
+            <div class="bg-accent aspect-square rounded-3xl relative overflow-hidden">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                    <ellipse cx="100" cy="148" rx="52" ry="9" fill="#775546" opacity="0.15"/>
+                    <g transform="translate(100, 100)">
+                        <circle cx="-42" cy="0" r="13" fill="#854F0B"/>
+                        <circle cx="-23" cy="-9" r="15" fill="#BA7517"/>
+                        <circle cx="0" cy="-13" r="13" fill="#412402"/>
+                        <circle cx="23" cy="-9" r="15" fill="#BA7517"/>
+                        <circle cx="42" cy="0" r="13" fill="#854F0B"/>
+                        <circle cx="42" cy="18" r="13" fill="#412402"/>
+                        <circle cx="23" cy="30" r="15" fill="#BA7517"/>
+                        <circle cx="0" cy="34" r="13" fill="#854F0B"/>
+                        <circle cx="-23" cy="30" r="15" fill="#412402"/>
+                        <circle cx="-42" cy="18" r="13" fill="#BA7517"/>
+                    </g>
+                </svg>
+                <div class="absolute top-3.5 left-3.5 bg-primary text-accent px-3 py-1 rounded-full text-[11px]">Nouveau</div>
+                <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+                </button>
+            </div>
+            <div class="mt-3.5 px-1">
+                <div class="flex justify-between items-baseline mb-1">
+                    <div class="font-serif text-[17px]">Collier Soleil</div>
+                    <div class="text-[15px] font-medium">50 €</div>
+                </div>
+                <div class="text-xs text-secondary">Œil de tigre</div>
+            </div>
+        </a>
+
+        <a href="/products/3" class="group">
+            <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                    <ellipse cx="100" cy="148" rx="52" ry="9" fill="#775546" opacity="0.15"/>
+                    <line x1="100" y1="28" x2="100" y2="72" stroke="#B8A88E" stroke-width="0.8" opacity="0.5"/>
+                    <circle cx="100" cy="106" r="36" fill="#ED93B1"/>
+                    <circle cx="100" cy="106" r="23" fill="#F4C0D1"/>
+                    <circle cx="100" cy="106" r="11" fill="#D4537E"/>
+                </svg>
+                <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+                </button>
+            </div>
+            <div class="mt-3.5 px-1">
+                <div class="flex justify-between items-baseline mb-1">
+                    <div class="font-serif text-[17px]">Collier Aurore</div>
+                    <div class="text-[15px] font-medium">58 €</div>
+                </div>
+                <div class="text-xs text-secondary">Quartz rose</div>
+            </div>
+        </a>
+
+        <a href="/products/4" class="group">
+            <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                    <ellipse cx="100" cy="148" rx="52" ry="9" fill="#775546" opacity="0.15"/>
+                    <g transform="translate(100, 100)">
+                        <circle cx="-42" cy="0" r="13" fill="#185FA5"/>
+                        <circle cx="-23" cy="-9" r="15" fill="#378ADD"/>
+                        <circle cx="0" cy="-13" r="13" fill="#0C447C"/>
+                        <circle cx="23" cy="-9" r="15" fill="#185FA5"/>
+                        <circle cx="42" cy="0" r="13" fill="#378ADD"/>
+                        <circle cx="42" cy="18" r="13" fill="#0C447C"/>
+                        <circle cx="23" cy="30" r="15" fill="#185FA5"/>
+                        <circle cx="0" cy="34" r="13" fill="#378ADD"/>
+                        <circle cx="-23" cy="30" r="15" fill="#0C447C"/>
+                        <circle cx="-42" cy="18" r="13" fill="#185FA5"/>
+                    </g>
+                </svg>
+                <button class="absolute top-3.5 right-3.5 w-9 h-9 bg-bg rounded-full flex items-center justify-center" aria-label="Favoris">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+                </button>
+            </div>
+            <div class="mt-3.5 px-1">
+                <div class="flex justify-between items-baseline mb-1">
+                    <div class="font-serif text-[17px]">Collier Marée</div>
+                    <div class="text-[15px] font-medium">46 €</div>
+                </div>
+                <div class="text-xs text-secondary">Labradorite</div>
+            </div>
+        </a>
+
+    </div>
 </section>
 
-<div class="px-5 md:px-8 pt-6 pb-10 flex justify-center items-center gap-2">
-    <span class="w-9 h-9 rounded-full bg-primary text-accent flex items-center justify-center text-[13px] cursor-pointer">1</span>
-    <span class="w-9 h-9 rounded-full bg-bg-soft text-secondary flex items-center justify-center text-[13px] cursor-pointer">2</span>
-    <span class="w-9 h-9 rounded-full bg-bg-soft text-secondary flex items-center justify-center text-[13px] cursor-pointer">3</span>
-    <span class="w-9 h-9 rounded-full bg-bg-soft text-secondary flex items-center justify-center cursor-pointer">→</span>
-</div>
+<!-- Atelier editorial -->
+<section class="grid md:grid-cols-2 border-t border-bg-border">
+    <div class="px-8 md:px-12 py-12 md:py-16 flex flex-col justify-center order-2 md:order-1">
+        <p class="text-xs text-secondary tracking-widest mb-3">L'ATELIER</p>
+        <h2 class="font-serif text-4xl font-normal leading-tight mb-5">Faits main,<br/>montés à Lyon.</h2>
+        <p class="text-sm text-secondary leading-relaxed mb-7 max-w-sm">
+            Chaque bijou est pensé, dessiné et assemblé dans notre atelier. Des matières soigneusement sélectionnées, des pièces conçues pour traverser le temps.
+        </p>
+        <a href="/about" class="border border-bg-border px-6 py-3 rounded-full text-sm text-secondary self-start hover:border-secondary transition-colors">En savoir plus</a>
+    </div>
+    <div class="bg-bg-soft relative overflow-hidden min-h-64 order-1 md:order-2 border-b md:border-b-0 md:border-l border-bg-border">
+        <svg viewBox="0 0 500 380" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <rect width="500" height="380" fill="#F4EFE5"/>
+            <ellipse cx="250" cy="340" rx="190" ry="18" fill="#775546" opacity="0.1"/>
+            <line x1="40" y1="262" x2="460" y2="262" stroke="#B8A88E" stroke-width="1.5" opacity="0.3"/>
+            <ellipse cx="250" cy="220" rx="100" ry="56" fill="none" stroke="#B8A88E" stroke-width="1" opacity="0.25" stroke-dasharray="3 3"/>
+            <circle cx="152" cy="220" r="16" fill="#7F77DD"/>
+            <circle cx="176" cy="172" r="18" fill="#AFA9EC"/>
+            <circle cx="214" cy="150" r="16" fill="#534AB7"/>
+            <circle cx="258" cy="146" r="18" fill="#7F77DD"/>
+            <circle cx="300" cy="152" r="16" fill="#AFA9EC"/>
+            <circle cx="332" cy="174" r="18" fill="#534AB7"/>
+            <circle cx="348" cy="214" r="16" fill="#7F77DD"/>
+            <circle cx="334" cy="256" r="18" fill="#AFA9EC"/>
+            <circle cx="302" cy="280" r="16" fill="#534AB7"/>
+            <circle cx="258" cy="288" r="18" fill="#7F77DD"/>
+            <circle cx="214" cy="282" r="16" fill="#AFA9EC"/>
+            <circle cx="182" cy="258" r="18" fill="#534AB7"/>
+            <line x1="100" y1="160" x2="118" y2="240" stroke="#B8A88E" stroke-width="2.5" opacity="0.3" stroke-linecap="round"/>
+            <line x1="400" y1="158" x2="382" y2="240" stroke="#B8A88E" stroke-width="2.5" opacity="0.3" stroke-linecap="round"/>
+        </svg>
+    </div>
+</section>
 
-<footer class="px-5 md:px-8 py-6 bg-primary-dark text-bg flex flex-col md:flex-row justify-between items-center gap-2 text-xs">
-    <span class="font-display text-[22px] text-accent">lithée</span>
-    <span class="opacity-70">Fait main en France</span>
-</footer>
-
-</body>
-</html>
+`)

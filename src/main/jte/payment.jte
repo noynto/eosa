@@ -1,49 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lithée — Paiement</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bg: '#FDFBF7',
-                        'bg-soft': '#F4EFE5',
-                        'bg-border': '#F0E6D6',
-                        primary: '#601414',
-                        'primary-dark': '#3D0A0A',
-                        secondary: '#775546',
-                        accent: '#FFEFAE',
-                        muted: '#B8A88E',
-                        success: '#1D9E75',
-                    },
-                    fontFamily: {
-                        sans: ['DM Sans', 'system-ui', 'sans-serif'],
-                        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
-                        display: ['Bagel Fat One', 'cursive'],
-                    },
-                },
-            },
-        };
-    </script>
-</head>
-<body class="bg-bg font-sans text-primary antialiased">
-
-<header class="px-5 md:px-8 py-5 flex items-center justify-between">
-    <a href="/cart" class="text-[13px] text-secondary">← Retour</a>
-    <a href="" class="font-display text-3xl text-primary">lithée</a>
-    <span class="text-xs text-secondary hidden md:flex items-center gap-1.5">
-    <svg width="13" height="13" viewBox="0 0 16 16"><path d="M8 1 L13 4 V8 C13 11 8 14 8 14 C8 14 3 11 3 8 V4 Z" fill="none" stroke="#775546" stroke-width="1.2"/></svg>
-    Paiement sécurisé
-  </span>
-    <span class="md:hidden"></span>
-</header>
+@template.layouts.checkout(title = "Eosa — Paiement", backHref = "/cart", backLabel = "Retour", content = @`
 
 <div class="px-5 md:px-8 pt-8 pb-6 flex flex-col md:flex-row gap-2 md:gap-3.5">
     <div class="flex-1 bg-bg-soft px-5 py-3.5 rounded-full flex items-center gap-3">
@@ -98,9 +53,9 @@
             <h2 class="font-serif text-xl font-normal mb-4">Mode de livraison</h2>
             <div class="flex flex-col gap-2.5">
                 <label class="flex items-center gap-3.5 px-5 py-4 rounded-2xl bg-accent cursor-pointer">
-          <span class="w-4 h-4 rounded-full bg-bg flex-shrink-0 relative">
-            <span class="absolute inset-1 rounded-full bg-primary"></span>
-          </span>
+                    <span class="w-4 h-4 rounded-full bg-bg flex-shrink-0 relative">
+                        <span class="absolute inset-1 rounded-full bg-primary"></span>
+                    </span>
                     <span class="flex-1 text-sm text-primary font-medium">Colissimo · 2-3 jours</span>
                     <span class="text-[13px] text-success font-medium">Offerte</span>
                 </label>
@@ -119,7 +74,6 @@
 
         <div>
             <h2 class="font-serif text-xl font-normal mb-4">Paiement</h2>
-
             <div class="bg-bg-soft rounded-2xl p-4 flex flex-col gap-2.5">
                 <input type="text" placeholder="Numéro de carte" value="•••• •••• •••• 4521" class="w-full bg-bg border-0 px-4 py-3.5 rounded-xl text-sm text-primary tracking-widest placeholder:text-muted">
                 <div class="grid grid-cols-2 gap-2.5">
@@ -127,10 +81,9 @@
                     <input type="text" placeholder="CVV" class="bg-bg border-0 px-4 py-3.5 rounded-xl text-sm text-primary placeholder:text-muted">
                 </div>
             </div>
-
             <label class="flex items-center gap-3.5 px-5 py-3.5 rounded-2xl bg-bg border border-bg-border mt-2.5 cursor-pointer">
                 <span class="bg-accent text-primary px-2.5 py-1 rounded-full text-[11px] font-medium">Klarna</span>
-                <span class="flex-1 text-[13px] text-secondary">Payer en 3× · 50,67 €</span>
+                <span class="flex-1 text-[13px] text-secondary">Payer en 3× · 30,00 €</span>
             </label>
         </div>
 
@@ -139,9 +92,7 @@
     <aside>
         <div class="bg-bg-soft p-6 rounded-3xl md:sticky md:top-5">
             <div class="font-serif text-xl mb-5">Votre commande</div>
-
             <div class="flex flex-col gap-3.5 mb-5">
-
                 <div class="grid grid-cols-[56px_1fr_auto] gap-3 items-center">
                     <div class="bg-bg aspect-square rounded-xl">
                         <svg viewBox="0 0 56 56" class="w-full h-full">
@@ -154,7 +105,6 @@
                     </div>
                     <div class="text-[13px]">38 €</div>
                 </div>
-
                 <div class="grid grid-cols-[56px_1fr_auto] gap-3 items-center">
                     <div class="bg-bg aspect-square rounded-xl">
                         <svg viewBox="0 0 56 56" class="w-full h-full">
@@ -168,33 +118,16 @@
                     </div>
                     <div class="text-[13px]">52 €</div>
                 </div>
-
-                <div class="grid grid-cols-[56px_1fr_auto] gap-3 items-center">
-                    <div class="bg-bg aspect-square rounded-xl">
-                        <svg viewBox="0 0 56 56" class="w-full h-full">
-                            <g transform="translate(28, 28)"><circle cx="-12" cy="0" r="4" fill="#854F0B"/><circle cx="-6" cy="-3" r="5" fill="#BA7517"/><circle cx="0" cy="-4" r="4" fill="#412402"/><circle cx="6" cy="-3" r="5" fill="#BA7517"/><circle cx="12" cy="0" r="4" fill="#854F0B"/><circle cx="12" cy="6" r="4" fill="#412402"/><circle cx="6" cy="9" r="5" fill="#BA7517"/><circle cx="0" cy="10" r="4" fill="#854F0B"/><circle cx="-6" cy="9" r="5" fill="#412402"/><circle cx="-12" cy="6" r="4" fill="#BA7517"/></g>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="font-serif text-sm">Solaire <span class="bg-accent px-1.5 py-px rounded-full text-[9px] font-sans ml-0.5">Sur-mesure</span></div>
-                        <div class="text-[11px] text-secondary">×1 · « M ♡ J »</div>
-                    </div>
-                    <div class="text-[13px]">62 €</div>
-                </div>
             </div>
-
-            <div class="flex flex-col gap-2 text-[13px] text-secondary pt-4 border-t border-[#D9CFB8]">
-                <div class="flex justify-between"><span>Sous-total</span><span class="text-primary">152 €</span></div>
+            <div class="flex flex-col gap-2 text-[13px] text-secondary pt-4 border-t border-bg-border">
+                <div class="flex justify-between"><span>Sous-total</span><span class="text-primary">90 €</span></div>
                 <div class="flex justify-between"><span>Livraison</span><span class="text-success font-medium">Offerte</span></div>
             </div>
-
-            <div class="flex justify-between items-baseline py-4 border-t border-[#D9CFB8] my-4">
+            <div class="flex justify-between items-baseline py-4 border-t border-bg-border my-4">
                 <span class="text-sm">Total</span>
-                <span class="font-serif text-3xl">152 €</span>
+                <span class="font-serif text-3xl">90 €</span>
             </div>
-
-            <button class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium">Confirmer la commande</button>
-
+            <button class="w-full bg-secondary text-bg py-4 rounded-full text-sm font-medium hover:bg-primary transition-colors">Confirmer la commande</button>
             <div class="mt-3.5 flex items-center gap-1.5 text-[11px] text-secondary justify-center">
                 <svg width="11" height="11" viewBox="0 0 16 16"><path d="M8 1 L13 4 V8 C13 11 8 14 8 14 C8 14 3 11 3 8 V4 Z" fill="none" stroke="#775546" stroke-width="1"/></svg>
                 Transaction chiffrée SSL
@@ -204,10 +137,4 @@
 
 </section>
 
-<footer class="px-5 md:px-8 py-6 bg-primary-dark text-bg flex flex-col md:flex-row justify-between items-center gap-2 text-xs">
-    <span class="font-display text-[22px] text-accent">lithée</span>
-    <span class="opacity-70">Fait main en France</span>
-</footer>
-
-</body>
-</html>
+`)
