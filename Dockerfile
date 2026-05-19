@@ -21,6 +21,11 @@ WORKDIR /app
 COPY --from=builder /app/target/deps  ./deps
 COPY --from=builder /app/target/*.jar ./app.jar
 
+# Required environment variables (no defaults — must be provided at runtime)
+ENV EOSA_MONGO_URL=""
+ENV EOSA_ADMIN_ID=""
+ENV EOSA_ADMIN_SECRET=""
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", \

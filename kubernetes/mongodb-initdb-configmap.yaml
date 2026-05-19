@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-initdb
+data:
+  init.js: |
+    db = db.getSiblingDB('eosa');
+    db.createUser({
+      user: _getEnv('MONGO_APP_USERNAME'),
+      pwd:  _getEnv('MONGO_APP_PASSWORD'),
+      roles: [{ role: 'readWrite', db: 'eosa' }]
+    });
