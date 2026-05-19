@@ -1,5 +1,8 @@
 target/
 .git/
 *.md
+!CLAUDE.md
+!docs/*.md
 .idea/
 *.iml
+.env
