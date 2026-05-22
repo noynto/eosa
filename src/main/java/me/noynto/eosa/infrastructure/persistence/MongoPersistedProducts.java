@@ -42,7 +42,13 @@ public record MongoPersistedProducts(
 
     @Override
     public Product read(ProductId productId) throws UnknownProduct {
-        Document result = products.find(Filters.eq(new ObjectId(productId.value()))).first();
+        ObjectId objectId;
+        try {
+            objectId = new ObjectId(productId.value());
+        } catch (IllegalArgumentException e) {
+            throw new UnknownProduct(productId);
+        }
+        Document result = products.find(Filters.eq(objectId)).first();
         if (result == null) {
             throw new UnknownProduct(productId);
         }

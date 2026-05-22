@@ -4,4 +4,4 @@ resources:
   - deployment.yaml
   - service.yaml
   - mongodb.yaml
-  - mongodb-initdb-configmap.yaml
+  - mongodb-create-user-job.yaml

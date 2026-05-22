@@ -53,21 +53,9 @@ spec:
                   key: password
             - name: MONGO_INITDB_DATABASE
               value: eosa
-            - name: MONGO_APP_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secrets
-                  key: app-username
-            - name: MONGO_APP_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secrets
-                  key: app-password
           volumeMounts:
             - name: data
               mountPath: /data/db
-            - name: initdb
-              mountPath: /docker-entrypoint-initdb.d
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -83,9 +71,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: mongodb-data
-        - name: initdb
-          configMap:
-            name: mongodb-initdb
         - name: tmp
           emptyDir: {}
         - name: run
