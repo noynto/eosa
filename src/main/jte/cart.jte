@@ -85,7 +85,7 @@
                 <span class="text-sm">Total</span>
                 <span class="font-serif text-3xl">90 €</span>
             </div>
-            <a href="/payment"><button class="w-full bg-secondary text-bg py-4 rounded-full text-sm font-medium hover:bg-primary transition-colors">Passer au paiement →</button></a>
+            <button disabled class="w-full bg-bg-soft text-muted py-4 rounded-full text-sm font-medium cursor-not-allowed opacity-60">Passer au paiement →</button>
             <div class="mt-4 flex flex-col gap-2 text-xs text-secondary">
                 <div>★ Livraison offerte dès 60 €</div>
                 <div>♡ Emballage cadeau offert</div>

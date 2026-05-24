@@ -84,7 +84,7 @@
         </div>
 
         <div class="flex gap-2.5">
-            <button class="flex-1 bg-secondary text-bg py-4 rounded-full text-sm font-medium hover:bg-primary transition-colors">Ajouter au panier — ${product.getPrice().stripTrailingZeros().toPlainString()} €</button>
+            <button disabled class="flex-1 bg-bg-soft text-muted py-4 rounded-full text-sm font-medium cursor-not-allowed opacity-60">Ajouter au panier — ${product.getPrice().stripTrailingZeros().toPlainString()} €</button>
             <button class="bg-bg-soft rounded-full flex items-center justify-center" style="width: 52px; height: 52px;" aria-label="Favoris">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
             </button>
@@ -101,7 +101,7 @@
             </div>
             <div class="flex items-center gap-2.5">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M12 2 9 9l-7 1 5 5-1 7 6-3 6 3-1-7 5-5-7-1Z"/></svg>
-                Fait main dans notre atelier à Lyon
+                Fait main dans notre atelier à Nancy
             </div>
         </div>
     </div>

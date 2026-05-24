@@ -68,6 +68,9 @@ public class Bootstrap {
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
             javalinConfig.routes.get("/cart", context -> context.render("cart.jte"));
             javalinConfig.routes.get("/payment", context -> context.render("payment.jte"));
+            javalinConfig.routes.get("/legal", context -> context.render("legal.jte"));
+            javalinConfig.routes.get("/terms", context -> context.render("cgv.jte"));
+            javalinConfig.routes.get("/privacy", context -> context.render("privacy.jte"));
             javalinConfig.routes.get("/admin/sign-in", context -> context.render("sign-in.jte"));
             javalinConfig.routes.post("/admin/products", new CreateProductHandler(createProduct, adminId, adminSecret));
             javalinConfig.routes.post("/admin/products/{id}/images", new AddImagesToProductHandler(addImagesToProduct, adminId, adminSecret));

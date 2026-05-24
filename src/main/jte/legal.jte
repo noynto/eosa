@@ -1,0 +1,58 @@
+@template.layouts.main(title = "Eosa — Mentions légales", content = @`
+
+<div class="px-5 md:px-8 py-12 max-w-3xl mx-auto">
+
+    <h1 class="font-serif text-4xl font-normal mb-10">Mentions légales</h1>
+
+    <div class="flex flex-col gap-10 text-sm text-secondary leading-relaxed">
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Éditeur du site</h2>
+            <p>Le site eosa.fr est édité par :</p>
+            <ul class="mt-2 flex flex-col gap-1 pl-4">
+                <li><span class="text-primary">Raison sociale :</span> [NOM DE LA SOCIÉTÉ]</li>
+                <li><span class="text-primary">Forme juridique :</span> [FORME JURIDIQUE]</li>
+                <li><span class="text-primary">Capital social :</span> [MONTANT] €</li>
+                <li><span class="text-primary">Siège social :</span> [ADRESSE COMPLÈTE], Nancy, France</li>
+                <li><span class="text-primary">SIRET :</span> [NUMÉRO SIRET]</li>
+                <li><span class="text-primary">N° TVA intracommunautaire :</span> [NUMÉRO TVA]</li>
+                <li><span class="text-primary">Contact :</span> <a href="mailto:contact@eosa.fr" class="underline hover:text-primary transition-colors">contact@eosa.fr</a></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Directeur de la publication</h2>
+            <p>[NOM DU DIRECTEUR DE PUBLICATION]</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Hébergement</h2>
+            <p>Ce site est hébergé par :</p>
+            <ul class="mt-2 flex flex-col gap-1 pl-4">
+                <li><span class="text-primary">Société :</span> [NOM DE L'HÉBERGEUR]</li>
+                <li><span class="text-primary">Adresse :</span> [ADRESSE DE L'HÉBERGEUR]</li>
+                <li><span class="text-primary">Site :</span> [SITE DE L'HÉBERGEUR]</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Propriété intellectuelle</h2>
+            <p>L'ensemble du contenu de ce site (textes, images, photographies, visuels, logotypes) est la propriété exclusive d'Eosa ou de ses partenaires et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle.</p>
+            <p class="mt-3">Toute reproduction, distribution, modification ou utilisation de ces contenus, même partielle, est strictement interdite sans autorisation écrite préalable.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Liens hypertextes</h2>
+            <p>La création de liens hypertextes vers le site est soumise à l'accord préalable d'Eosa. Eosa décline toute responsabilité quant au contenu des sites tiers vers lesquels des liens peuvent être proposés.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Droit applicable</h2>
+            <p>Les présentes mentions légales sont soumises au droit français. Tout litige relatif à leur interprétation sera de la compétence exclusive des tribunaux français.</p>
+        </section>
+
+    </div>
+
+</div>
+
+`)
