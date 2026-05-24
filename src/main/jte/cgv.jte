@@ -1,0 +1,68 @@
+@template.layouts.main(title = "Eosa — Conditions générales de vente", content = @`
+
+<div class="px-5 md:px-8 py-12 max-w-3xl mx-auto">
+
+    <h1 class="font-serif text-4xl font-normal mb-10">Conditions générales de vente</h1>
+
+    <div class="flex flex-col gap-10 text-sm text-secondary leading-relaxed">
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 1 — Objet</h2>
+            <p>Les présentes conditions générales de vente régissent les relations contractuelles entre Eosa ([NOM DE LA SOCIÉTÉ], [ADRESSE], [SIRET]) et tout acheteur effectuant un achat sur le site eosa.fr. Tout achat implique l'acceptation pleine et entière des présentes CGV.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 2 — Produits</h2>
+            <p>Les bijoux proposés sont fabriqués à la main dans notre atelier à Nancy à partir de matières naturelles (pierres, cristaux, métaux précieux). Chaque pièce étant artisanale, de légères variations par rapport aux visuels peuvent exister — elles font partie de leur caractère unique.</p>
+            <p class="mt-3">Les informations de chaque produit (matière, dimensions, prix) sont indiquées sur sa fiche. Eosa s'engage à expédier uniquement des produits en stock ; en cas d'indisponibilité, l'acheteur en est informé dans les meilleurs délais.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 3 — Prix</h2>
+            <p>Les prix sont indiqués en euros toutes taxes comprises (TTC). Eosa se réserve le droit de modifier ses prix à tout moment ; les produits sont facturés au tarif en vigueur au moment de la validation de la commande.</p>
+            <p class="mt-3">Les frais de livraison sont offerts dès 60 € d'achat. En dessous de ce seuil, ils sont indiqués lors du récapitulatif de commande.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 4 — Commandes</h2>
+            <p>La commande est définitivement enregistrée à la réception du paiement. Un e-mail de confirmation est envoyé à l'acheteur. Eosa se réserve le droit d'annuler ou de refuser toute commande en cas d'anomalie, de litige antérieur ou de suspicion de fraude.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 5 — Paiement</h2>
+            <p>Le paiement s'effectue en ligne via <strong class="text-primary font-medium">Stripe</strong>, solution de paiement sécurisée. Toutes les transactions sont chiffrées (SSL/TLS). Eosa ne stocke aucune donnée bancaire — celles-ci sont traitées exclusivement par Stripe conformément à sa propre politique de sécurité (certifiée PCI-DSS).</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 6 — Livraison</h2>
+            <p>Les commandes sont expédiées dans un délai de 48 heures ouvrées (hors week-ends et jours fériés) via <strong class="text-primary font-medium">Mondial Relay</strong>. Les délais de livraison indiqués sont donnés à titre indicatif et dépendent du point relais ou de l'adresse choisis.</p>
+            <p class="mt-3">En cas de colis endommagé ou de livraison manquante, l'acheteur doit contacter Eosa dans les 5 jours suivant la date de livraison estimée.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 7 — Droit de rétractation</h2>
+            <p>Conformément à l'article L.221-18 du Code de la consommation, l'acheteur dispose d'un délai de <strong class="text-primary font-medium">14 jours calendaires</strong> à compter de la réception pour exercer son droit de rétractation, sans justification ni pénalité.</p>
+            <p class="mt-3">Pour exercer ce droit, l'acheteur doit notifier sa décision par e-mail à <a href="mailto:contact@eosa.fr" class="underline hover:text-primary transition-colors">contact@eosa.fr</a>, puis retourner le produit dans son état d'origine. Les frais de retour sont à la charge d'Eosa.</p>
+            <p class="mt-3">Le remboursement est effectué dans les 14 jours suivant la réception du retour, par le même moyen de paiement que celui utilisé lors de l'achat.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 8 — Garanties</h2>
+            <p>Les produits bénéficient de la garantie légale de conformité (articles L.217-4 et suivants du Code de la consommation) et de la garantie contre les vices cachés (articles 1641 et suivants du Code civil).</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 9 — Responsabilité</h2>
+            <p>Eosa ne saurait être tenu responsable des dommages indirects liés à l'utilisation du site ou des produits. La responsabilité d'Eosa est limitée au montant de la commande concernée.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Article 10 — Litiges</h2>
+            <p>En cas de litige, une solution amiable sera recherchée en priorité. À défaut, les juridictions françaises compétentes seront saisies. L'acheteur peut également recourir à la plateforme européenne de règlement en ligne des litiges : <a href="https://ec.europa.eu/consumers/odr" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.</p>
+        </section>
+
+    </div>
+
+</div>
+
+`)
