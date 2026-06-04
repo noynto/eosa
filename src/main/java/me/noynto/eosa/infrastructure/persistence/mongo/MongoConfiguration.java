@@ -10,7 +10,7 @@ public class MongoConfiguration {
     private static final String EOSA = "eosa";
 
     public MongoProperties getProperties() {
-        String url = Objects.requireNonNull(System.getenv("EOSA_MONGO_URL"), "L'url du serveur Mongo est obligatoir.");
+        String url = Objects.requireNonNull(System.getenv("EOSA_MONGO_URL"), "L'url du serveur Mongo est obligatoire.");
         return new MongoProperties(url);
     }
 

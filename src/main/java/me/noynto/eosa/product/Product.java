@@ -10,9 +10,11 @@ import java.util.List;
 public class Product {
     private ProductId id;
     private String name;
-    private String description;
+    private String tagline;
     private BigDecimal price;
     private List<ImageId> imageIds = new ArrayList<>();
+    private ProductCategory category;
+    private ProductState state;
 
     public Product() {
     }
@@ -33,12 +35,12 @@ public class Product {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getTagline() {
+        return tagline;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTagline(String description) {
+        this.tagline = description;
     }
 
     public BigDecimal getPrice() {
@@ -55,5 +57,21 @@ public class Product {
 
     public void setImageIds(List<ImageId> imageIds) {
         this.imageIds = imageIds;
+    }
+
+    public ProductCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(ProductCategory category) {
+        this.category = category;
+    }
+
+    public ProductState getState() {
+        return state;
+    }
+
+    public void setState(ProductState state) {
+        this.state = state;
     }
 }

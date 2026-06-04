@@ -1,50 +1,23 @@
-### Créer un produit — Paula
-POST http://localhost:8080/admin/products
+### Créer un produit
+POST {{baseUrl}}/admin/products
 Authorization: Basic {{adminCredentials}}
 Content-Type: application/x-www-form-urlencoded
 
-name=Paula&description=Pierre rouge sur son écrin d'argent.&price=34
-
-### Créer un produit — Pauline
-POST http://localhost:8080/admin/products
-Authorization: Basic {{adminCredentials}}
-Content-Type: application/x-www-form-urlencoded
-
-name=Pauline&description=Anneau doré et perle de nacre.&price=28
-
-### Créer un produit — Manon
-POST http://localhost:8080/admin/products
-Authorization: Basic {{adminCredentials}}
-Content-Type: application/x-www-form-urlencoded
-
-name=Manon&description=Chaîne fine et quartz fumé.&price=36
-
-### Créer un produit — Lorine
-POST http://localhost:8080/admin/products
-Authorization: Basic {{adminCredentials}}
-Content-Type: application/x-www-form-urlencoded
-
-name=Lorine&description=Collier ras-du-cou en labradorite.&price=52
-
-### Créer un produit — Emma
-POST http://localhost:8080/admin/products
-Authorization: Basic {{adminCredentials}}
-Content-Type: application/x-www-form-urlencoded
-
-name=Emma&description=Bracelet tressé et améthyste rose.&price=44
+name=Léa
 
 ### Uploader des images sur un produit
-@productId =6a0b880158f695dc3484c1b9
-POST http://localhost:8080/admin/products/{{productId}}/images
+@productId=6a21e97c225e2b2fd3518fd5
+POST {{baseUrl}}/admin/products/{{productId}}/images
 Authorization: Basic {{adminCredentials}}
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
-Content-Disposition: form-data; name="images"; filename="collier.jpg"
+Content-Disposition: form-data; name="images"; filename="lea_collier.jpg"
 Content-Type: image/jpeg
 
-< ../docs/collier5.jpg
+< /home/noynto/Téléchargements/lea_collier_small.jpg
 --boundary--
+#< ../docs/collier5.jpg
 
 ### Lister les IDs de produits (page HTML)
 GET http://localhost:8080/products
@@ -53,6 +26,34 @@ Accept: text/html
 ### Charger la card d'un produit (fragment HTMX)
 GET http://localhost:8080/products/{{productId}}/card
 Accept: text/html
+
+### Mettre à jour l'accroche d'un produit
+PATCH {{baseUrl}}/admin/products/{{productId}}/tagline
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+tagline=Un bijou pensé pour celles qui aiment la douceur et la féminité.
+
+### Mettre à jour le prix d'un produit
+PATCH {{baseUrl}}/admin/products/{{productId}}/price
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+price=33.00
+
+### Mettre à jour la catégorie d'un produit
+PATCH {{baseUrl}}/admin/products/{{productId}}/category
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+category=NECKLACE
+
+### Mettre à jour l'état d'un produit
+PATCH {{baseUrl}}/admin/products/{{productId}}/state
+Authorization: Basic {{adminCredentials}}
+Content-Type: application/x-www-form-urlencoded
+
+state=PUBLISHED
 
 ### Télécharger une image
 @imageId = variable value

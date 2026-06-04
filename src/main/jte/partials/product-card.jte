@@ -22,8 +22,8 @@
             <div class="font-serif text-[17px]">${product.getName()}</div>
             <div class="text-[15px] font-medium">${product.getPrice().stripTrailingZeros().toPlainString()} €</div>
         </div>
-        @if(product.getDescription() != null)
-            <div class="text-xs text-secondary">${product.getDescription()}</div>
+        @if(product.getTagline() != null)
+            <div class="text-xs text-secondary">${product.getTagline()}</div>
         @endif
     </div>
 </a>
