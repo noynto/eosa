@@ -1,16 +1,23 @@
 package me.noynto.eosa.application;
 
 import me.noynto.eosa.product.ProductProvider;
+import me.noynto.eosa.product.ProductState;
 import me.noynto.eosa.shared.ProductId;
 
 import java.util.List;
+import java.util.Set;
 
 public record ReadProductIds(
         ProductProvider productProvider
 ) {
 
-    public List<ProductId> handle() {
-        return productProvider.readIds().toList();
+    public List<ProductId> handle(Query query) {
+        return productProvider.readIds(query.states).toList();
+    }
+
+    public record Query(
+            Set<ProductState> states
+    ) {
     }
 
 }

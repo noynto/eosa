@@ -2,13 +2,12 @@ package me.noynto.eosa.application;
 
 import me.noynto.eosa.product.Product;
 import me.noynto.eosa.product.ProductProvider;
+import me.noynto.eosa.product.ProductState;
 import me.noynto.eosa.shared.ProductId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -21,32 +20,27 @@ class CreateProductTest {
     @Mock ProductProvider productProvider;
 
     @Test
-    void handle_writesProductWithCommandData() {
+    void handle_writesProductWithName() {
         var expected = productWith("abc");
-        when(productProvider.write(argThat(p ->
-                "Lune".equals(p.getName()) &&
-                "Collier fin".equals(p.getDescription()) &&
-                new BigDecimal("42").equals(p.getPrice())
-        ))).thenReturn(expected);
+        when(productProvider.write(argThat(p -> "Lune".equals(p.getName()))))
+                .thenReturn(expected);
 
         var result = new CreateProduct(productProvider).handle(
-                new CreateProduct.Command("Lune", "Collier fin", new BigDecimal("42"))
+                new CreateProduct.Command("Lune")
         );
 
         assertEquals(expected, result);
     }
 
     @Test
-    void handle_delegatesWriteToProvider() {
+    void handle_setsStateToDrafted() {
         when(productProvider.write(argThat(p -> true))).thenReturn(productWith("abc"));
 
-        new CreateProduct(productProvider).handle(
-                new CreateProduct.Command("Lune", "Collier fin", new BigDecimal("42"))
-        );
+        new CreateProduct(productProvider).handle(new CreateProduct.Command("Lune"));
 
         verify(productProvider).write(argThat(p ->
                 "Lune".equals(p.getName()) &&
-                new BigDecimal("42").equals(p.getPrice())
+                ProductState.DRAFTED == p.getState()
         ));
     }
 

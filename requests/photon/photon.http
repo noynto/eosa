@@ -1,0 +1,2 @@
+### Rechercher un adresse sur Photon
+GET {{baseUrl}}/api/?q=Allée Roger Marx&limit=6&lang=de

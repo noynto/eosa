@@ -1,6 +1,7 @@
 package me.noynto.eosa.application;
 
 import me.noynto.eosa.product.ProductProvider;
+import me.noynto.eosa.product.ProductState;
 import me.noynto.eosa.shared.ProductId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,19 +22,21 @@ class ReadProductIdsTest {
 
     @Test
     void handle_returnsIdsAsList() {
+        var states = Set.of(ProductState.PUBLISHED);
         var ids = List.of(new ProductId("a"), new ProductId("b"), new ProductId("c"));
-        when(productProvider.readIds()).thenReturn(ids.stream());
+        when(productProvider.readIds(states)).thenReturn(ids.stream());
 
-        var result = new ReadProductIds(productProvider).handle();
+        var result = new ReadProductIds(productProvider).handle(new ReadProductIds.Query(states));
 
         assertEquals(ids, result);
     }
 
     @Test
     void handle_returnsEmptyListWhenNoProducts() {
-        when(productProvider.readIds()).thenReturn(Stream.empty());
+        var states = Set.of(ProductState.PUBLISHED);
+        when(productProvider.readIds(states)).thenReturn(Stream.empty());
 
-        var result = new ReadProductIds(productProvider).handle();
+        var result = new ReadProductIds(productProvider).handle(new ReadProductIds.Query(states));
 
         assertEquals(List.of(), result);
     }

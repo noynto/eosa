@@ -54,7 +54,7 @@
                 En stock
             </span>
             <h1 class="font-serif text-4xl font-normal leading-tight mb-1.5">${product.getName()}</h1>
-            <div class="text-sm text-secondary mb-3.5">${product.getDescription()}</div>
+            <div class="text-sm text-secondary mb-3.5">${product.getTagline()}</div>
             <div class="flex items-baseline gap-3">
                 <span class="font-serif text-3xl">${product.getPrice().stripTrailingZeros().toPlainString()} €</span>
                 <span class="text-xs text-secondary">ou 3× avec Klarna</span>

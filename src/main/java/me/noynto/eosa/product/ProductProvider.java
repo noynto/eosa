@@ -2,25 +2,16 @@ package me.noynto.eosa.product;
 
 import me.noynto.eosa.shared.ProductId;
 
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public interface ProductProvider {
 
-    Stream<ProductId> readIds();
+    Stream<ProductId> readIds(Set<ProductState> states);
 
-    Product read(ProductId productId) throws UnknownProduct;
+    Optional<Product> read(ProductId productId);
 
     Product write(Product product);
 
-    class UnknownProduct extends Exception {
-        private final ProductId productId;
-
-        public UnknownProduct(ProductId productId) {
-            this.productId = productId;
-        }
-
-        public ProductId getProductId() {
-            return productId;
-        }
-    }
 }

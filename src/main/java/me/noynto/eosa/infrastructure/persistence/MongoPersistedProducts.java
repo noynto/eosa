@@ -6,7 +6,9 @@ import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.InsertOneResult;
 import me.noynto.eosa.product.Product;
+import me.noynto.eosa.product.ProductCategory;
 import me.noynto.eosa.product.ProductProvider;
+import me.noynto.eosa.product.ProductState;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.ProductId;
 import org.bson.BsonValue;
@@ -16,6 +18,8 @@ import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -25,15 +29,20 @@ public record MongoPersistedProducts(
 
     public static final String ID = "_id";
     public static final String NAME = "name";
-    public static final String DESCRIPTION = "description";
+    public static final String TAGLINE = "tagline";
     public static final String PRICE = "price";
+    public static final String STATE = "state";
+    public static final String CATEGORY = "category";
     public static final String IMAGE_IDS = "imageIds";
 
     @Override
-    public Stream<ProductId> readIds() {
+    public Stream<ProductId> readIds(Set<ProductState> states) {
         Bson projection = Projections.include(ID);
+        Bson filter = (states == null || states.isEmpty())
+                ? new Document()
+                : Filters.in(STATE, states.stream().map(Enum::name).toList());
         return StreamSupport.stream(
-                        products.find().projection(projection).spliterator(),
+                        products.find(filter).projection(projection).spliterator(),
                         false
                 )
                 .map(document -> document.getObjectId(ID).toString())
@@ -41,27 +50,29 @@ public record MongoPersistedProducts(
     }
 
     @Override
-    public Product read(ProductId productId) throws UnknownProduct {
+    public Optional<Product> read(ProductId productId) {
         ObjectId objectId;
         try {
             objectId = new ObjectId(productId.value());
         } catch (IllegalArgumentException e) {
-            throw new UnknownProduct(productId);
+            return Optional.empty();
         }
         Document result = products.find(Filters.eq(objectId)).first();
         if (result == null) {
-            throw new UnknownProduct(productId);
+            return Optional.empty();
         }
         Product product = new Product();
         product.setId(new ProductId(result.get(ID, ObjectId.class).toString()));
         product.setName(result.get(NAME, String.class));
-        product.setDescription(result.get(DESCRIPTION, String.class));
-        product.setPrice(result.get(PRICE, Decimal128.class).bigDecimalValue());
+        product.setTagline(result.get(TAGLINE, String.class));
+        product.setPrice(result.get(PRICE, Decimal128.class) == null ? null :result.get(PRICE, Decimal128.class).bigDecimalValue());
+        product.setState(result.get(STATE, String.class) == null ? null : ProductState.valueOf(result.get(STATE, String.class)));
+        product.setCategory(result.get(CATEGORY, String.class) == null ? null : ProductCategory.valueOf(result.get(CATEGORY, String.class)));
         List<String> rawImageIds = result.getList(IMAGE_IDS, String.class);
         if (rawImageIds != null) {
             product.setImageIds(rawImageIds.stream().map(ImageId::new).toList());
         }
-        return product;
+        return Optional.of(product);
     }
 
     @Override
@@ -69,8 +80,7 @@ public record MongoPersistedProducts(
         if (product.getId() == null) {
             Document newDocument = new Document()
                     .append(NAME, product.getName())
-                    .append(DESCRIPTION, product.getDescription())
-                    .append(PRICE, product.getPrice());
+                    .append(STATE, product.getState());
             InsertOneResult result = products.insertOne(newDocument);
             BsonValue generatedId = result.getInsertedId();
             if (generatedId == null) {
@@ -82,8 +92,10 @@ public record MongoPersistedProducts(
                     Filters.eq(new ObjectId(product.getId().value())),
                     Updates.combine(
                             Updates.set(NAME, product.getName()),
-                            Updates.set(DESCRIPTION, product.getDescription()),
+                            Updates.set(TAGLINE, product.getTagline()),
                             Updates.set(PRICE, product.getPrice()),
+                            Updates.set(STATE, product.getState()),
+                            Updates.set(CATEGORY, product.getCategory()),
                             Updates.set(IMAGE_IDS, product.getImageIds().stream().map(ImageId::value).toList())
                     )
             );
