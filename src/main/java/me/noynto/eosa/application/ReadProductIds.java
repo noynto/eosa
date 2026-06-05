@@ -1,5 +1,6 @@
 package me.noynto.eosa.application;
 
+import me.noynto.eosa.product.ProductCategory;
 import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.product.ProductState;
 import me.noynto.eosa.shared.ProductId;
@@ -12,11 +13,12 @@ public record ReadProductIds(
 ) {
 
     public List<ProductId> handle(Query query) {
-        return productProvider.readIds(query.states).toList();
+        return productProvider.readIds(query.states, query.categories).toList();
     }
 
     public record Query(
-            Set<ProductState> states
+            Set<ProductState> states,
+            Set<ProductCategory> categories
     ) {
     }
 

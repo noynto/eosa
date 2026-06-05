@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public interface ProductProvider {
 
-    Stream<ProductId> readIds(Set<ProductState> states);
+    Stream<ProductId> readIds(Set<ProductState> states, Set<ProductCategory> categories);
 
     Optional<Product> read(ProductId productId);
 
