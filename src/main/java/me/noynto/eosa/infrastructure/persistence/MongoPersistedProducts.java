@@ -36,11 +36,16 @@ public record MongoPersistedProducts(
     public static final String IMAGE_IDS = "imageIds";
 
     @Override
-    public Stream<ProductId> readIds(Set<ProductState> states) {
+    public Stream<ProductId> readIds(Set<ProductState> states, Set<ProductCategory> categories) {
         Bson projection = Projections.include(ID);
-        Bson filter = (states == null || states.isEmpty())
-                ? new Document()
-                : Filters.in(STATE, states.stream().map(Enum::name).toList());
+        List<Bson> filters = new java.util.ArrayList<>();
+        if (states != null && !states.isEmpty()) {
+            filters.add(Filters.in(STATE, states.stream().map(Enum::name).toList()));
+        }
+        if (categories != null && !categories.isEmpty()) {
+            filters.add(Filters.in(CATEGORY, categories.stream().map(Enum::name).toList()));
+        }
+        Bson filter = filters.isEmpty() ? new Document() : Filters.and(filters);
         return StreamSupport.stream(
                         products.find(filter).projection(projection).spliterator(),
                         false

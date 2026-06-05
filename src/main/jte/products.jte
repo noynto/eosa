@@ -1,12 +1,13 @@
 @import java.util.List
 @import me.noynto.eosa.shared.ProductId
 @param List<ProductId> productIds
+@param String title
 
-@template.layouts.main(title = "Eosa — Tous les produits", content = @`
+@template.layouts.main(title = "Eosa — " + title, content = @`
 
 <section class="px-5 md:px-8 py-10">
     <div class="flex items-baseline justify-between mb-8">
-        <h1 class="font-serif text-3xl font-normal">Tous les produits</h1>
+        <h1 class="font-serif text-3xl font-normal">${title}</h1>
         <span class="text-xs text-secondary">${productIds.size()} pièces</span>
     </div>
 

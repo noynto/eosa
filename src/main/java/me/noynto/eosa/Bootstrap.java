@@ -27,10 +27,12 @@ import me.noynto.eosa.infrastructure.persistence.MongoPersistedSessions;
 import me.noynto.eosa.infrastructure.persistence.mongo.*;
 import me.noynto.eosa.infrastructure.security.SecuredCrypts;
 import me.noynto.eosa.infrastructure.web.*;
+import me.noynto.eosa.product.ProductCategory;
 import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.session.SessionProvider;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 public class Bootstrap {
 
@@ -72,9 +74,12 @@ public class Bootstrap {
         CreateAdministratorIdentity createAdministratorIdentity = new CreateAdministratorIdentity(mongoPersistedIdentities, cryptProvider);
         createAdministratorIdentity.handle(new CreateAdministratorIdentity.Command("admin", "admin"));
         var pub = Javalin.create(javalinConfig -> {
+            javalinConfig.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
             javalinConfig.fileRenderer(new JavalinJte(templateEngine));
             javalinConfig.routes.get("/", context -> context.render("index.jte"));
-            javalinConfig.routes.get("/products", new GetProductsHandler(readProductIds));
+            javalinConfig.routes.get("/products", new GetProductsHandler(readProductIds, Set.of(), "Tout les produits"));
+            javalinConfig.routes.get("/products/necklaces", new GetProductsHandler(readProductIds, Set.of(ProductCategory.NECKLACE), "Tout les colliers"));
+            javalinConfig.routes.get("/products/bracelets", new GetProductsHandler(readProductIds, Set.of(ProductCategory.BRACELET), "Tout les bracelets"));
             javalinConfig.routes.get("/products/{id}", new GetProductHandler(readProduct));
             javalinConfig.routes.get("/products/{id}/card", new GetProductCardHandler(readProduct));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));

@@ -61,28 +61,6 @@
             </div>
         </div>
 
-        <div>
-            <div class="flex justify-between items-baseline mb-2.5">
-                <span class="text-[13px] font-medium">Taille du poignet</span>
-                <span class="text-xs text-secondary underline cursor-pointer">Guide des tailles</span>
-            </div>
-            <div class="flex gap-2">
-                <span class="flex-1 text-center py-3 bg-bg-soft rounded-full text-[13px] cursor-pointer">15 cm</span>
-                <span class="flex-1 text-center py-3 bg-primary text-accent rounded-full text-[13px] cursor-pointer">17 cm</span>
-                <span class="flex-1 text-center py-3 bg-bg-soft rounded-full text-[13px] cursor-pointer">19 cm</span>
-                <span class="flex-1 text-center py-3 bg-bg-soft rounded-full text-[13px] cursor-pointer">+1 €</span>
-            </div>
-        </div>
-
-        <div>
-            <div class="text-[13px] font-medium mb-2.5">Calibre des perles</div>
-            <div class="flex gap-2">
-                <span class="flex-1 text-center py-3 bg-bg-soft rounded-full text-[13px] cursor-pointer">6 mm</span>
-                <span class="flex-1 text-center py-3 bg-primary text-accent rounded-full text-[13px] cursor-pointer">8 mm</span>
-                <span class="flex-1 text-center py-3 bg-bg-soft rounded-full text-[13px] cursor-pointer">10 mm</span>
-            </div>
-        </div>
-
         <div class="flex gap-2.5">
             <button disabled class="flex-1 bg-bg-soft text-muted py-4 rounded-full text-sm font-medium cursor-not-allowed opacity-60">Ajouter au panier — ${product.getPrice().stripTrailingZeros().toPlainString()} €</button>
             <button class="bg-bg-soft rounded-full flex items-center justify-center" style="width: 52px; height: 52px;" aria-label="Favoris">

@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -49,8 +50,8 @@
 <header class="border-b border-bg-border">
     <div class="grid grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center px-5 md:px-8 py-4 gap-4">
         <nav class="hidden md:flex gap-6 text-sm text-secondary">
-            <a href="#" class="hover:text-primary transition-colors">Colliers</a>
-            <a href="#" class="hover:text-primary transition-colors">Bracelets</a>
+            <a href="/products/necklaces" class="hover:text-primary transition-colors">Colliers</a>
+            <a href="/products/bracelets" class="hover:text-primary transition-colors">Bracelets</a>
         </nav>
         <button class="md:hidden flex flex-col gap-1.5" aria-label="Menu">
             <span class="w-5 h-px bg-primary block"></span>
