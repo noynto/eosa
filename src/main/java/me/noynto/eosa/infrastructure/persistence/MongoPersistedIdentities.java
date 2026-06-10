@@ -14,6 +14,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -27,10 +28,13 @@ public record MongoPersistedIdentities(
     public static final String ADMINISTRATOR = "administrator";
 
     @Override
-    public Stream<IdentityId> readIds() {
+    public Stream<IdentityId> readIds(Boolean isAdministrator) {
         Bson projection = Projections.include(ID);
+        Bson filter = isAdministrator != null
+                ? Filters.eq(ADMINISTRATOR, isAdministrator)
+                : new Document();
         return StreamSupport.stream(
-                        identities.find().projection(projection).spliterator(),
+                        identities.find(filter).projection(projection).spliterator(),
                         false
                 )
                 .map(document -> document.getObjectId(ID).toString())
@@ -38,17 +42,17 @@ public record MongoPersistedIdentities(
     }
 
     @Override
-    public Identity read(IdentityId identityId) throws UnknownIdentity {
+    public Optional<Identity> read(IdentityId identityId) {
         Document result = identities.find(Filters.eq(identityId.value())).first();
         if (result == null) {
-            throw new UnknownIdentity(identityId);
+            return Optional.empty();
         }
         Identity identity = new Identity();
         identity.setId(new IdentityId(result.get(ID, ObjectId.class).toString()));
         identity.setName(result.get(NAME, String.class));
         identity.setSecret(result.get(SECRET, String.class));
         identity.setAdministrator(result.getBoolean(ADMINISTRATOR));
-        return identity;
+        return Optional.of(identity);
     }
 
     @Override

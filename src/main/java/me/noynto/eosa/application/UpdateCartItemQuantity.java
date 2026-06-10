@@ -1,0 +1,57 @@
+package me.noynto.eosa.application;
+
+import me.noynto.eosa.cart.Cart;
+import me.noynto.eosa.cart.CartItem;
+import me.noynto.eosa.cart.CartProvider;
+import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.ProductId;
+
+import java.util.ArrayList;
+
+public record UpdateCartItemQuantity(
+        CartProvider cartProvider
+) {
+
+    public Cart handle(Command command) {
+        if (command.cartId == null || command.cartId.value() == null) {
+            throw new RuntimeException("L'identifiant du panier est nécessaire.");
+        }
+        if (command.productId == null || command.productId.value() == null) {
+            throw new RuntimeException("L'identifiant du produit est nécessaire.");
+        }
+        if (command.quantity < 0) {
+            throw new RuntimeException("La quantité ne peut pas être négative.");
+        }
+
+        Cart cart = cartProvider.read(command.cartId)
+                .orElseThrow(() -> new RuntimeException("Le panier " + command.cartId.value() + " n'existe pas."));
+
+        var items = new ArrayList<>(cart.getItems());
+        var existing = items.stream()
+                .filter(i -> i.productId().value().equals(command.productId.value()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Le produit " + command.productId.value() + " n'est pas dans le panier."));
+
+        items.remove(existing);
+        if (command.quantity > 0) {
+            items.add(new CartItem(
+                    existing.productId(),
+                    existing.name(),
+                    existing.price(),
+                    existing.imageId(),
+                    command.quantity
+            ));
+        }
+
+        cart.setItems(items);
+        return cartProvider.write(cart);
+    }
+
+    public record Command(
+            CartId cartId,
+            ProductId productId,
+            int quantity
+    ) {
+    }
+
+}

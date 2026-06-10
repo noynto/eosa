@@ -2,25 +2,15 @@ package me.noynto.eosa.identity;
 
 import me.noynto.eosa.shared.IdentityId;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface IdentityProvider {
 
-    Stream<IdentityId> readIds();
+    Stream<IdentityId> readIds(Boolean isAdministrator);
 
-    Identity read(IdentityId identityId) throws UnknownIdentity;
+    Optional<Identity> read(IdentityId identityId);
 
     Identity write(Identity identity);
 
-    class UnknownIdentity extends Exception {
-        private final IdentityId identityId;
-
-        public UnknownIdentity(IdentityId identityId) {
-            this.identityId = identityId;
-        }
-
-        public IdentityId getIdentityId() {
-            return identityId;
-        }
-    }
 }

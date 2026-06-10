@@ -8,7 +8,7 @@ public class MongoConfiguredImages {
 
     private static final String BUCKET = "images";
 
-    public GridFSBucket getBucket(MongoDatabase database) {
+    public static GridFSBucket getBucket(MongoDatabase database) {
         return GridFSBuckets.create(database, BUCKET);
     }
 

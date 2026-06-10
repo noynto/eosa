@@ -81,10 +81,7 @@
                     <input type="text" disabled placeholder="CVV" class="bg-bg border-0 px-4 py-3.5 rounded-xl text-sm text-primary placeholder:text-muted cursor-not-allowed opacity-60">
                 </div>
             </div>
-            <label class="flex items-center gap-3.5 px-5 py-3.5 rounded-2xl bg-bg border border-bg-border mt-2.5 pointer-events-none opacity-60">
-                <span class="bg-accent text-primary px-2.5 py-1 rounded-full text-[11px] font-medium">Klarna</span>
-                <span class="flex-1 text-[13px] text-secondary">Payer en 3× · 30,00 €</span>
-            </label>
+
         </div>
 
     </form>

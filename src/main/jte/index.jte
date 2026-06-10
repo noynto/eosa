@@ -1,3 +1,7 @@
+@import me.noynto.eosa.application.ReadCategoryStats
+@param ReadCategoryStats.Stats necklaces
+@param ReadCategoryStats.Stats bracelets
+
 @template.layouts.main(title = "Eosa — Bijoux faits main à Lyon", content = @`
 
 <!-- Hero -->
@@ -54,7 +58,7 @@
         <span class="text-xs text-secondary ml-1">explorer par famille</span>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <a href="#" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
+        <a href="/products/necklaces" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
             <div class="w-14 h-14 flex-shrink-0">
                 <svg viewBox="0 0 56 56" class="w-full h-full">
                     <path d="M8 18 Q28 50 48 18" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
@@ -64,10 +68,15 @@
             </div>
             <div>
                 <div class="font-serif text-xl leading-tight">Colliers</div>
-                <div class="text-xs text-secondary mt-1">24 pièces · dès 28 €</div>
+                <div class="text-xs text-secondary mt-1">
+                    ${necklaces.count()} pièce${necklaces.count() > 1 ? "s" : ""}
+                    @if(necklaces.minPrice() != null)
+                        · dès ${necklaces.minPrice().stripTrailingZeros().toPlainString()} €
+                    @endif
+                </div>
             </div>
         </a>
-        <a href="#" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
+        <a href="/products/bracelets" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
             <div class="w-14 h-14 flex-shrink-0">
                 <svg viewBox="0 0 56 56" class="w-full h-full">
                     <ellipse cx="28" cy="28" rx="18" ry="10" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
@@ -78,7 +87,12 @@
             </div>
             <div>
                 <div class="font-serif text-xl leading-tight">Bracelets</div>
-                <div class="text-xs text-secondary mt-1">18 pièces · dès 22 €</div>
+                <div class="text-xs text-secondary mt-1">
+                    ${bracelets.count()} pièce${bracelets.count() > 1 ? "s" : ""}
+                    @if(bracelets.minPrice() != null)
+                        · dès ${bracelets.minPrice().stripTrailingZeros().toPlainString()} €
+                    @endif
+                </div>
             </div>
         </a>
     </div>

@@ -1,0 +1,19 @@
+{
+    "name": "Eosa — Bijoux faits main",
+    "short_name": "Eosa",
+    "description": "Bijoux faits main à Nancy. Des pièces en matières nobles.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#FDFBF7",
+    "theme_color": "#601414",
+    "lang": "fr",
+    "icons": [
+        {
+            "src": "/favicon.jpg",
+            "sizes": "any",
+            "type": "image/jpeg"
+        }
+    ],
+    "screenshots": [],
+    "categories": ["shopping"]
+}
