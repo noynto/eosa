@@ -47,11 +47,10 @@ public record MongoPersistedProducts(
         }
         Bson filter = filters.isEmpty() ? new Document() : Filters.and(filters);
         return StreamSupport.stream(
-                        products.find(filter).projection(projection).spliterator(),
+                        products.find(filter).spliterator(),
                         false
                 )
-                .map(document -> document.getObjectId(ID).toString())
-                .map(ProductId::new);
+                .map(document -> new ProductId(document.getObjectId(ID).toString()));
     }
 
     @Override
@@ -67,10 +66,11 @@ public record MongoPersistedProducts(
             return Optional.empty();
         }
         Product product = new Product();
-        product.setId(new ProductId(result.get(ID, ObjectId.class).toString()));
+        ProductId pid = new ProductId(result.get(ID, ObjectId.class).toString());
+        product.setId(pid);
         product.setName(result.get(NAME, String.class));
         product.setTagline(result.get(TAGLINE, String.class));
-        product.setPrice(result.get(PRICE, Decimal128.class) == null ? null :result.get(PRICE, Decimal128.class).bigDecimalValue());
+        product.setPrice(result.get(PRICE, Decimal128.class) == null ? null : result.get(PRICE, Decimal128.class).bigDecimalValue());
         product.setState(result.get(STATE, String.class) == null ? null : ProductState.valueOf(result.get(STATE, String.class)));
         product.setCategory(result.get(CATEGORY, String.class) == null ? null : ProductCategory.valueOf(result.get(CATEGORY, String.class)));
         List<String> rawImageIds = result.getList(IMAGE_IDS, String.class);

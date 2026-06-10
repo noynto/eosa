@@ -8,7 +8,7 @@ public class MongoConfiguredIdentities {
 
     private static final String IDENTITIES = "identities";
 
-    public MongoCollection<Document> getCollection(
+    public static MongoCollection<Document> getCollection(
             MongoDatabase database
     ) {
         database.createCollection(IDENTITIES);
