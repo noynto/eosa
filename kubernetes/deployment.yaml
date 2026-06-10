@@ -34,16 +34,26 @@ spec:
                 secretKeyRef:
                   name: eosa-secrets
                   key: mongo-url
-            - name: EOSA_ADMIN_ID
+            - name: EOSA_ADMIN_NAME
               valueFrom:
                 secretKeyRef:
                   name: eosa-secrets
-                  key: admin-id
+                  key: admin-name
             - name: EOSA_ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
                   name: eosa-secrets
                   key: admin-secret
+            - name: EOSA_CLIENT_STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: stripe-secret-key
+            - name: EOSA_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: base-url
           readinessProbe:
             httpGet:
               path: /

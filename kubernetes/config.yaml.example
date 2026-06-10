@@ -1,0 +1,9 @@
+# PLACEHOLDER — do not commit real values
+# Replace with a SOPS-encrypted file or a SealedSecret before deploying to production
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eosa-configs
+type: Opaque
+stringData:
+  base-url: "http://localhost:8080"
