@@ -7,7 +7,7 @@
 <!-- Hero -->
 <section class="grid md:grid-cols-[1.2fr_1fr] border-b border-bg-border">
     <div class="bg-bg-soft relative overflow-hidden min-h-64 md:min-h-0 border-b md:border-b-0 md:border-r border-bg-border">
-        <img src="/hero.png" alt="Bijoux Eosa" class="w-full h-full object-cover"/>
+        <img src="/hero.webp" alt="Bijoux Eosa" class="w-full h-full object-cover"/>
     </div>
     <div class="px-8 md:px-12 py-12 md:py-16 flex flex-col justify-center">
         <p class="text-xs text-secondary tracking-widest mb-5">NOUVELLE COLLECTION</p>
@@ -203,7 +203,7 @@
         <a href="/about" class="border border-bg-border px-6 py-3 rounded-full text-sm text-secondary self-start hover:border-secondary transition-colors">En savoir plus</a>
     </div>
     <div class="bg-bg-soft relative overflow-hidden min-h-64 order-1 md:order-2 border-b md:border-b-0 md:border-l border-bg-border">
-        <img src="/workshop.png" alt="Atelier Eosa" class="w-full h-full object-cover"/>
+        <img src="/workshop.webp" alt="Atelier Eosa" class="w-full h-full object-cover"/>
     </div>
 </section>
 
