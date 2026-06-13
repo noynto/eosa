@@ -12,7 +12,7 @@
         </div>
         <h1 class="font-serif text-4xl font-normal mb-3">Merci pour votre commande !</h1>
         <p class="text-sm text-secondary leading-relaxed max-w-sm mb-8">
-            Votre paiement a bien été reçu. Vous allez recevoir un email de confirmation.
+            Votre paiement a bien été reçu. Vous allez recevoir un e-mail de confirmation.
         </p>
         @if(checkout.getItems() != null && !checkout.getItems().isEmpty())
             <div class="bg-bg-soft rounded-2xl px-6 py-5 mb-8 text-left w-full max-w-sm">

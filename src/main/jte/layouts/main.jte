@@ -28,16 +28,17 @@
 </div>
 
 <header class="border-b border-bg-border">
+    <input type="checkbox" id="mobile-menu-toggle" class="peer hidden">
     <div class="grid grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center px-5 md:px-8 py-4 gap-4">
         <nav class="hidden md:flex gap-6 text-sm text-secondary">
             <a href="/products/necklaces" class="hover:text-primary transition-colors">Colliers</a>
             <a href="/products/bracelets" class="hover:text-primary transition-colors">Bracelets</a>
         </nav>
-        <button class="md:hidden flex flex-col gap-1.5" aria-label="Menu">
+        <label for="mobile-menu-toggle" class="md:hidden flex flex-col gap-1.5 cursor-pointer" aria-label="Menu">
             <span class="w-5 h-px bg-primary block"></span>
             <span class="w-4 h-px bg-primary block"></span>
             <span class="w-5 h-px bg-primary block"></span>
-        </button>
+        </label>
         <div class="text-center">
             <a href="/" class="font-display text-4xl text-primary leading-none">eosa.</a>
         </div>
@@ -55,6 +56,10 @@
             </a>
         </div>
     </div>
+    <nav class="hidden peer-checked:flex md:hidden flex-col border-t border-bg-border text-sm text-secondary">
+        <a href="/products/necklaces" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Colliers</a>
+        <a href="/products/bracelets" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Bracelets</a>
+    </nav>
 </header>
 
 ${content}

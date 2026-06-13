@@ -8,7 +8,7 @@
 <section class="px-5 md:px-8 py-10">
     <div class="flex items-baseline justify-between mb-8">
         <h1 class="font-serif text-3xl font-normal">${title}</h1>
-        <span class="text-xs text-secondary">${productIds.size()} pièces</span>
+        <span class="text-xs text-secondary">${productIds.size()} pièce${productIds.size() > 1 ? "s" : ""}</span>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
