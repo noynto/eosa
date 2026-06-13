@@ -91,12 +91,11 @@
 <section class="px-5 md:px-8 py-10 border-t border-bg-border">
     <h2 class="font-serif text-2xl font-normal mb-5">Détails</h2>
     <div class="grid md:grid-cols-2">
-        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Matière</span><span class="text-[13px]">Améthyste naturelle</span></div>
-        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-[13px] text-secondary">Origine</span><span class="text-[13px]">Brésil</span></div>
-        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Calibre</span><span class="text-[13px]">8 mm</span></div>
-        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-[13px] text-secondary">Fil</span><span class="text-[13px]">Élastique tressé</span></div>
-        <div class="py-3.5 border-b border-bg-border md:border-b-0 md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Fermoir</span><span class="text-[13px]">Sans (extensible)</span></div>
-        <div class="py-3.5 md:pl-6 flex justify-between"><span class="text-[13px] text-secondary">Entretien</span><span class="text-[13px]">Eau claire, séchage doux</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Matière</span><span class="text-[13px]">Perles et pierres non précieuses</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-[13px] text-secondary">Fil</span><span class="text-[13px]">Câble tressé, gaine nylon</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Métal</span><span class="text-[13px]">Acier inoxydable</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-[13px] text-secondary">Fermoir</span><span class="text-[13px]">Acier inoxydable</span></div>
+        <div class="py-3.5 md:border-b-0 md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Entretien</span><span class="text-[13px]">Eau claire, séchage doux</span></div>
     </div>
 </section>
 
