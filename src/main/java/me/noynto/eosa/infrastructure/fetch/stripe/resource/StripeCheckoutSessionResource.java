@@ -29,6 +29,11 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
         if (clientReferenceId != null) {
             params.add("client_reference_id=" + StripeHttpClient.encode(clientReferenceId));
         }
+        params.add("phone_number_collection[enabled]=true");
+        String[] countries = {"FR", "BE", "CH", "LU"};
+        for (int i = 0; i < countries.length; i++) {
+            params.add("shipping_address_collection[allowed_countries][" + i + "]=" + countries[i]);
+        }
         return http.post("/v1/checkout/sessions", String.join("&", params), CheckoutSession.class);
     }
 

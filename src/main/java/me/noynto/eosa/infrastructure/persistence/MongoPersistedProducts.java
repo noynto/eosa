@@ -3,6 +3,7 @@ package me.noynto.eosa.infrastructure.persistence;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.InsertOneResult;
 import me.noynto.eosa.product.Product;
@@ -47,7 +48,7 @@ public record MongoPersistedProducts(
         }
         Bson filter = filters.isEmpty() ? new Document() : Filters.and(filters);
         return StreamSupport.stream(
-                        products.find(filter).spliterator(),
+                        products.find(filter).sort(Sorts.descending(ID)).projection(projection).spliterator(),
                         false
                 )
                 .map(document -> new ProductId(document.getObjectId(ID).toString()));

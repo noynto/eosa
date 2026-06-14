@@ -88,11 +88,11 @@ public class Bootstrap {
         var pub = Javalin.create(javalinConfig -> {
             javalinConfig.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
             javalinConfig.fileRenderer(new JavalinJte(templateEngine));
-            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats));
+            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readProductIds));
             javalinConfig.routes.get("/products", new GetProductsHandler(readProductIds, Set.of(), "Tout les produits"));
             javalinConfig.routes.get("/products/necklaces", new GetProductsHandler(readProductIds, Set.of(ProductCategory.NECKLACE), "Tout les colliers"));
             javalinConfig.routes.get("/products/bracelets", new GetProductsHandler(readProductIds, Set.of(ProductCategory.BRACELET), "Tout les bracelets"));
-            javalinConfig.routes.get("/products/{id}", new GetProductHandler(readProduct));
+            javalinConfig.routes.get("/products/{id}", new GetProductHandler(readProduct, readProductIds));
             javalinConfig.routes.get("/products/{id}/card", new GetProductCardHandler(readProduct));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
 
