@@ -1,4 +1,4 @@
-const CACHE = 'eosa-v2';
+const CACHE = 'eosa-admin-v1';
 
 const STATIC_ASSETS = [
     '/htmx.min.js',
@@ -6,7 +6,6 @@ const STATIC_ASSETS = [
     '/tailwind.config.js',
     '/fonts.css',
     '/favicon.jpg',
-    '/offline.html',
 ];
 
 self.addEventListener('install', event => {
@@ -26,21 +25,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    const { request } = event;
-    const url = new URL(request.url);
+    const url = new URL(event.request.url);
 
-    // Static assets + fonts → cache-first
     if (isStaticAsset(url)) {
-        event.respondWith(cacheFirst(request));
+        event.respondWith(cacheFirst(event.request));
         return;
     }
 
-    // Product images → cache-first, lazy populate
     if (url.pathname.startsWith('/images/')) {
-        event.respondWith(cacheFirst(request));
+        event.respondWith(cacheFirst(event.request));
         return;
     }
-
 });
 
 function isStaticAsset(url) {
@@ -51,12 +46,7 @@ function isStaticAsset(url) {
 async function cacheFirst(request) {
     const cached = await caches.match(request);
     if (cached) return cached;
-    try {
-        const response = await fetch(request);
-        const cache = await caches.open(CACHE);
-        cache.put(request, response.clone());
-        return response;
-    } catch {
-        return caches.match('/offline.html');
-    }
+    const response = await fetch(request);
+    caches.open(CACHE).then(cache => cache.put(request, response.clone()));
+    return response;
 }

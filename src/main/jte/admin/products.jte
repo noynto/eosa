@@ -1,0 +1,64 @@
+@import java.util.List
+@import me.noynto.eosa.shared.ProductId
+@param List<ProductId> productIds
+
+@template.layouts.admin(title = "Produits", content = @`
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-medium">Produits</h1>
+    <button onclick="document.getElementById('modal').classList.remove('hidden')"
+            class="bg-primary text-accent px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+        + Nouveau produit
+    </button>
+</div>
+
+<div class="bg-bg border border-bg-border rounded-xl overflow-hidden">
+    <div class="grid grid-cols-[1fr_auto_auto] text-xs text-muted px-4 py-2.5 border-b border-bg-border">
+        <span>Nom</span>
+        <span class="w-24 text-center">État</span>
+        <span class="w-20 text-center">Catégorie</span>
+    </div>
+    <div id="product-list">
+        @for(var productId : productIds)
+            <div hx-get="/admin/products/${productId.value()}/row"
+                 hx-trigger="load"
+                 hx-swap="outerHTML">
+                <div class="grid grid-cols-[1fr_auto_auto] px-4 py-3 border-b border-bg-border last:border-0 animate-pulse">
+                    <div class="h-3 bg-bg-border rounded w-40"></div>
+                    <div class="w-24 flex justify-center"><div class="h-3 bg-bg-border rounded w-14"></div></div>
+                    <div class="w-20 flex justify-center"><div class="h-3 bg-bg-border rounded w-12"></div></div>
+                </div>
+            </div>
+        @endfor
+        @if(productIds.isEmpty())
+            <p class="px-4 py-8 text-sm text-muted text-center">Aucun produit pour l'instant.</p>
+        @endif
+    </div>
+</div>
+
+<!-- Modal création -->
+<div id="modal" class="hidden fixed inset-0 bg-primary/30 backdrop-blur-sm flex items-center justify-center z-50"
+     onclick="if(event.target===this){this.classList.add('hidden')}">
+    <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg">
+        <h2 class="text-sm font-medium mb-4">Nouveau produit</h2>
+        <form hx-post="/admin/products" hx-target="body" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+                <label for="name" class="text-xs text-secondary">Nom</label>
+                <input id="name" name="name" type="text" required autofocus placeholder="ex. Collier Céleste"
+                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                        class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="bg-primary text-accent px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Créer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+`)

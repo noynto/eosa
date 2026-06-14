@@ -7,41 +7,36 @@ import me.noynto.eosa.identity.IdentitySessionProvider;
 import me.noynto.eosa.shared.IdentitySessionId;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public record EnsureIdentityHasValidSession(
         IdentitySessionProvider identitySessionProvider,
         IdentityProvider identityProvider
 ) {
 
-    public boolean handle(Command command) {
-        if (command.identitySessionId != null && command.identitySessionId.value() != null) {
-            return false;
+    public Optional<Identity> handle(Command command) {
+        if (command.identitySessionId == null || command.identitySessionId.value() == null) {
+            return Optional.empty();
         }
 
         IdentitySession identitySession = this.identitySessionProvider.read(command.identitySessionId)
                 .orElse(null);
 
         if (identitySession == null) {
-            return false;
+            return Optional.empty();
         }
 
         if (identitySession.getBegin().plusHours(3).isBefore(LocalDateTime.now())) {
-            return false;
+            return Optional.empty();
         }
 
         if (identitySession.getIdentityId() == null || identitySession.getIdentityId().value() == null) {
-            return false;
+            return Optional.empty();
         }
 
-        Identity identity = this.identityProvider.read(identitySession.getIdentityId())
-                .orElse(null);
-
-        return identity != null;
+        return this.identityProvider.read(identitySession.getIdentityId());
     }
 
-    public record Command(
-            IdentitySessionId identitySessionId
-    ) {
-    }
+    public record Command(IdentitySessionId identitySessionId) {}
 
 }

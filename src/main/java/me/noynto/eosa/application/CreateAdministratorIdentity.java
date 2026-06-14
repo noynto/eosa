@@ -5,7 +5,6 @@ import me.noynto.eosa.hash.Plain;
 import me.noynto.eosa.identity.Identity;
 import me.noynto.eosa.identity.IdentityProvider;
 
-import java.util.Objects;
 
 public record CreateAdministratorIdentity(
         IdentityProvider identityProvider,
@@ -19,10 +18,7 @@ public record CreateAdministratorIdentity(
         if (command.secret == null || command.secret.isBlank()) {
             throw new InvalidCommand("Le secret de l'administrateur est requis.");
         }
-        boolean identityNameAlreadyUsed = this.identityProvider
-                .readIds(null)
-                .flatMap(identityId -> this.identityProvider.read(identityId).stream())
-                .anyMatch(identity -> identity.getName() != null && Objects.deepEquals(identity.getName().toUpperCase(), command.name.toUpperCase()));
+        boolean identityNameAlreadyUsed = this.identityProvider.readIds(null, command.name).findAny().isPresent();
         if (identityNameAlreadyUsed) {
             throw new AlreadyUsedName("Le nom de l'identité est déjà utilisé.");
         }

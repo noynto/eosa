@@ -6,30 +6,25 @@ import me.noynto.eosa.application.UpdateCategoryOfProduct;
 import me.noynto.eosa.product.ProductCategory;
 import me.noynto.eosa.shared.ProductId;
 
-public record PatchCategoryOfProductHandler(
-        UpdateCategoryOfProduct updateCategoryOfProduct,
-        String adminId,
-        String adminSecret
-) implements Handler {
+public record PatchCategoryOfProductHandler(UpdateCategoryOfProduct updateCategoryOfProduct) implements Handler {
 
     @Override
     public void handle(Context ctx) throws Exception {
-        if (!BasicAuth.isAuthorized(ctx.header("Authorization"), adminId, adminSecret)) {
-            ctx.status(401);
-            return;
-        }
         ProductCategory category;
         try {
             category = ProductCategory.valueOf(ctx.formParam("category"));
-        } catch (IllegalArgumentException illegalArgumentException) {
+        } catch (IllegalArgumentException e) {
             category = null;
         }
-        var command = new UpdateCategoryOfProduct.Command(
-                new ProductId(ctx.pathParam("product-id")),
-                category
-        );
-        var product = updateCategoryOfProduct.handle(command);
-        ctx.status(200).result(product.getId().value());
+        try {
+            updateCategoryOfProduct.handle(new UpdateCategoryOfProduct.Command(
+                    new ProductId(ctx.pathParam("product-id")),
+                    category
+            ));
+            ctx.html("<span class=\"text-success text-xs\">Sauvegardé</span>");
+        } catch (RuntimeException e) {
+            ctx.status(422).html("<span class=\"text-red-600 text-xs\">" + e.getMessage() + "</span>");
+        }
     }
 
 }
