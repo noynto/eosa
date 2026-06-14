@@ -5,19 +5,14 @@ import io.javalin.http.Handler;
 import me.noynto.eosa.application.CreateProduct;
 import me.noynto.eosa.shared.IdentityId;
 
-public record CreateProductHandler(
-        CreateProduct createProduct
-) implements Handler {
+public record CreateProductHandler(CreateProduct createProduct) implements Handler {
 
     @Override
     public void handle(Context ctx) throws Exception {
         IdentityId identityId = ctx.attribute("identityId");
-        var command = new CreateProduct.Command(
-                identityId,
-                ctx.formParam("name")
-        );
-        var product = createProduct.handle(command);
-        ctx.status(201).result(product.getId().value());
+        var product = createProduct.handle(new CreateProduct.Command(identityId, ctx.formParam("name")));
+        ctx.header("HX-Redirect", "/admin/products/" + product.getId().value());
+        ctx.status(200);
     }
 
 }

@@ -14,7 +14,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -28,13 +31,13 @@ public record MongoPersistedIdentities(
     public static final String ADMINISTRATOR = "administrator";
 
     @Override
-    public Stream<IdentityId> readIds(Boolean isAdministrator) {
-        Bson projection = Projections.include(ID);
-        Bson filter = isAdministrator != null
-                ? Filters.eq(ADMINISTRATOR, isAdministrator)
-                : new Document();
+    public Stream<IdentityId> readIds(Boolean isAdministrator, String name) {
+        List<Bson> filters = new ArrayList<>();
+        if (isAdministrator != null) filters.add(Filters.eq(ADMINISTRATOR, isAdministrator));
+        if (name != null) filters.add(Filters.regex(NAME, Pattern.compile("^" + Pattern.quote(name) + "$", Pattern.CASE_INSENSITIVE)));
+        Bson filter = filters.isEmpty() ? new Document() : Filters.and(filters);
         return StreamSupport.stream(
-                        identities.find(filter).projection(projection).spliterator(),
+                        identities.find(filter).projection(Projections.include(ID)).spliterator(),
                         false
                 )
                 .map(document -> document.getObjectId(ID).toString())
@@ -43,7 +46,13 @@ public record MongoPersistedIdentities(
 
     @Override
     public Optional<Identity> read(IdentityId identityId) {
-        Document result = identities.find(Filters.eq(identityId.value())).first();
+        ObjectId objectId;
+        try {
+            objectId = new ObjectId(identityId.value());
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+        Document result = identities.find(Filters.eq(objectId)).first();
         if (result == null) {
             return Optional.empty();
         }
@@ -67,10 +76,10 @@ public record MongoPersistedIdentities(
             if (generatedId == null) {
                 throw new IllegalStateException("L'identité enregistrée n'a pas généré d'identifiant.");
             }
-            identity.setId(new IdentityId(result.getInsertedId().asObjectId().toString()));
+            identity.setId(new IdentityId(result.getInsertedId().asObjectId().getValue().toString()));
         } else {
             UpdateResult result = identities.updateOne(
-                    Filters.eq(identity.getId().value()),
+                    Filters.eq(new ObjectId(identity.getId().value())),
                     Updates.combine(
                             Updates.set(NAME, identity.getName()),
                             Updates.set(SECRET, identity.getSecret()),

@@ -25,6 +25,7 @@ import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 
 public class Bootstrap {
@@ -62,6 +63,9 @@ public class Bootstrap {
         UpdateCategoryOfProduct updateCategoryOfProduct = new UpdateCategoryOfProduct(mongoPersistedProducts);
         UpdateStateOfProduct updateStateOfProduct = new UpdateStateOfProduct(mongoPersistedProducts);
         DownloadImage downloadImage = new DownloadImage(mongoPersistedImages);
+        AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(mongoPersistedIdentities, mongoPersistedSessions, cryptProvider);
+        EnsureIdentityHasValidSession ensureIdentityHasValidSession = new EnsureIdentityHasValidSession(mongoPersistedSessions, mongoPersistedIdentities);
+        EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(ensureIdentityHasValidSession);
         ReadCategoryStats readCategoryStats = new ReadCategoryStats(mongoPersistedProducts, readProductIds);
         GetOrCreateCart getOrCreateCart = new GetOrCreateCart(mongoPersistedCarts);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(getOrCreateCart);
@@ -108,14 +112,18 @@ public class Bootstrap {
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
             javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession));
 
-            javalinConfig.routes.get("/sign-in", context -> context.render("sign-in.jte"));
-            javalinConfig.routes.before("/admin/*", ensureCartHandler);
+            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.jte", Map.of("error", ctx.queryParam("error") != null)));
+            javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
+            javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
+            javalinConfig.routes.get("/admin/products", new GetAdminProductsHandler(readProductIds));
             javalinConfig.routes.post("/admin/products", new CreateProductHandler(createProduct));
-            javalinConfig.routes.post("/admin/products/{id}/images", new AddImagesToProductHandler(addImagesToProduct, properties.adminName(), properties.adminSecret()));
-            javalinConfig.routes.patch("/admin/products/{product-id}/tagline", new PatchTaglineOfProductHandler(updateTaglineOfProduct, properties.adminName(), properties.adminSecret()));
-            javalinConfig.routes.patch("/admin/products/{product-id}/price", new PatchPriceOfProductHandler(updatePriceOfProduct, properties.adminName(), properties.adminSecret()));
-            javalinConfig.routes.patch("/admin/products/{product-id}/category", new PatchCategoryOfProductHandler(updateCategoryOfProduct, properties.adminName(), properties.adminSecret()));
-            javalinConfig.routes.patch("/admin/products/{product-id}/state", new PatchStateOfProductHandler(updateStateOfProduct, properties.adminName(), properties.adminSecret()));
+            javalinConfig.routes.get("/admin/products/{id}", new GetAdminProductHandler(readProduct));
+            javalinConfig.routes.get("/admin/products/{id}/row", new GetAdminProductRowHandler(readProduct));
+            javalinConfig.routes.post("/admin/products/{id}/images", new AddImagesToProductHandler(addImagesToProduct));
+            javalinConfig.routes.patch("/admin/products/{product-id}/tagline", new PatchTaglineOfProductHandler(updateTaglineOfProduct));
+            javalinConfig.routes.patch("/admin/products/{product-id}/price", new PatchPriceOfProductHandler(updatePriceOfProduct));
+            javalinConfig.routes.patch("/admin/products/{product-id}/category", new PatchCategoryOfProductHandler(updateCategoryOfProduct));
+            javalinConfig.routes.patch("/admin/products/{product-id}/state", new PatchStateOfProductHandler(updateStateOfProduct));
         });
         pub.start();
     }

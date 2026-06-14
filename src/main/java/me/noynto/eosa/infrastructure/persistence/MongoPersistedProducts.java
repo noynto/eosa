@@ -91,7 +91,7 @@ public record MongoPersistedProducts(
             if (generatedId == null) {
                 throw new IllegalStateException("Le produit enregistrée n'a pas généré d'identifiant.");
             }
-            product.setId(new ProductId(result.getInsertedId().asObjectId().toString()));
+            product.setId(new ProductId(result.getInsertedId().asObjectId().getValue().toString()));
         } else {
             products.updateOne(
                     Filters.eq(new ObjectId(product.getId().value())),

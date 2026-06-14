@@ -1,0 +1,57 @@
+@import gg.jte.Content
+@param String title
+@param Content content
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} — Admin</title>
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/fonts.css">
+    <script src="/tailwind.min.js"></script>
+    <script src="/htmx.min.js"></script>
+    <script src="/tailwind.config.js"></script>
+    <script>
+        htmx.config.responseHandling = [
+            {code: "204", swap: false},
+            {code: "[23]..", swap: true},
+            {code: "422", swap: true},
+            {code: "[45]..", swap: false, error: true},
+        ];
+    </script>
+</head>
+<body class="bg-bg-soft font-sans text-primary antialiased min-h-screen flex flex-col">
+
+<header class="bg-bg border-b border-bg-border px-6 py-3 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-4">
+        <a href="/" class="font-display text-2xl text-primary leading-none">eosa.</a>
+        <span class="text-xs text-muted border-l border-bg-border pl-4 tracking-widest uppercase">Admin</span>
+    </div>
+    <a href="/" class="text-xs text-secondary hover:text-primary transition-colors">← Voir le site</a>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+
+    <aside class="w-52 bg-bg border-r border-bg-border shrink-0 py-6 flex flex-col gap-1 px-3">
+        <p class="text-[10px] text-muted tracking-widest uppercase px-3 mb-2">Catalogue</p>
+        <a href="/admin/products"
+           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-secondary hover:bg-bg-soft hover:text-primary transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Produits
+        </a>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8">
+        ${content}
+    </main>
+
+</div>
+
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</body>
+</html>

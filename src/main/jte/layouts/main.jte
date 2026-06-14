@@ -8,11 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#601414">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="/fonts.css">
     <script src="/tailwind.min.js"></script>
     <script src="/htmx.min.js"></script>
@@ -116,6 +112,5 @@ ${content}
     </div>
 </footer>
 
-<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
