@@ -1,6 +1,6 @@
 @template.layouts.checkout(title = "Eosa — Paiement", backHref = "/cart", backLabel = "Retour", content = @`
 
-<div class="px-5 md:px-8 pt-8 pb-6 flex flex-col md:flex-row gap-2 md:gap-3.5">
+<div class="px-5 md:px-8 pt-8 pb-6 flex flex-col sm:flex-row gap-2 sm:gap-3.5">
     <div class="flex-1 bg-bg-soft px-5 py-3.5 rounded-full flex items-center gap-3">
         <span class="w-6 h-6 rounded-full bg-bg text-primary flex items-center justify-center text-xs">✓</span>
         <span class="text-[13px] text-secondary">Panier</span>

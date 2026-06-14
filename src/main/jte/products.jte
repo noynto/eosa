@@ -11,7 +11,7 @@
         <span class="text-xs text-secondary">${productIds.size()} pièce${productIds.size() > 1 ? "s" : ""}</span>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
         @for(var productId : productIds)
             <div hx-get="/products/${productId.value()}/card"
                  hx-trigger="load"

@@ -1,5 +1,8 @@
 @import me.noynto.eosa.product.Product
+@import me.noynto.eosa.shared.ProductId
+@import java.util.List
 @param Product product
+@param List<ProductId> relatedIds
 
 @template.layouts.main(title = "Eosa — " + product.getName(), content = @`
 
@@ -99,25 +102,20 @@
     </div>
 </section>
 
+@if(!relatedIds.isEmpty())
 <section class="px-5 md:px-8 pt-8 pb-12">
     <div class="flex justify-between items-baseline mb-5">
-        <h2 class="font-serif text-2xl font-normal">Vous aimerez aussi</h2>
+        <h2 class="font-serif text-2xl font-normal">D'autres bijoux</h2>
         <a href="/products" class="text-[13px] text-secondary hover:text-primary transition-colors">Voir tout →</a>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <div hx-get="/products/${product.getId().value()}/card" hx-trigger="load" hx-swap="outerHTML">
-            <div class="bg-bg-soft aspect-square rounded-[20px] animate-pulse"></div>
-        </div>
-        <div hx-get="/products/${product.getId().value()}/card" hx-trigger="load" hx-swap="outerHTML">
-            <div class="bg-bg-soft aspect-square rounded-[20px] animate-pulse"></div>
-        </div>
-        <div hx-get="/products/${product.getId().value()}/card" hx-trigger="load" hx-swap="outerHTML">
-            <div class="bg-bg-soft aspect-square rounded-[20px] animate-pulse"></div>
-        </div>
-        <div hx-get="/products/${product.getId().value()}/card" hx-trigger="load" hx-swap="outerHTML">
-            <div class="bg-bg-soft aspect-square rounded-[20px] animate-pulse"></div>
-        </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+        @for(var relatedId : relatedIds)
+            <div hx-get="/products/${relatedId.value()}/card" hx-trigger="load" hx-swap="outerHTML">
+                <div class="bg-bg-soft aspect-square rounded-[20px] animate-pulse"></div>
+            </div>
+        @endfor
     </div>
 </section>
+@endif
 
 `)

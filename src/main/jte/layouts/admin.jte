@@ -27,7 +27,7 @@
 </head>
 <body class="bg-bg-soft font-sans text-primary antialiased min-h-screen flex flex-col">
 
-<header class="bg-bg border-b border-bg-border px-6 py-3 flex items-center justify-between shrink-0">
+<header class="bg-bg border-b border-bg-border px-4 md:px-6 py-3 flex items-center justify-between shrink-0">
     <div class="flex items-center gap-4">
         <a href="/" class="font-display text-2xl text-primary leading-none">eosa.</a>
         <span class="text-xs text-muted border-l border-bg-border pl-4 tracking-widest uppercase">Admin</span>
@@ -35,9 +35,17 @@
     <a href="/" class="text-xs text-secondary hover:text-primary transition-colors">← Voir le site</a>
 </header>
 
+<nav class="md:hidden bg-bg border-b border-bg-border px-4 py-2 flex gap-1 overflow-x-auto shrink-0">
+    <a href="/admin/products"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-soft hover:text-primary transition-colors whitespace-nowrap">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Produits
+    </a>
+</nav>
+
 <div class="flex flex-1 overflow-hidden">
 
-    <aside class="w-52 bg-bg border-r border-bg-border shrink-0 py-6 flex flex-col gap-1 px-3">
+    <aside class="hidden md:flex w-52 bg-bg border-r border-bg-border shrink-0 py-6 flex-col gap-1 px-3">
         <p class="text-[10px] text-muted tracking-widest uppercase px-3 mb-2">Catalogue</p>
         <a href="/admin/products"
            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-secondary hover:bg-bg-soft hover:text-primary transition-colors">
@@ -46,7 +54,7 @@
         </a>
     </aside>
 
-    <main class="flex-1 overflow-y-auto p-8">
+    <main class="flex-1 overflow-y-auto p-4 md:p-8">
         ${content}
     </main>
 

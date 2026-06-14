@@ -13,13 +13,21 @@ public record ReadProductIds(
 ) {
 
     public List<ProductId> handle(Query query) {
-        return productProvider.readIds(query.states, query.categories).toList();
+        var stream = productProvider.readIds(query.states, query.categories);
+        if (query.limit != null) {
+            stream = stream.limit(query.limit);
+        }
+        return stream.toList();
     }
 
     public record Query(
             Set<ProductState> states,
-            Set<ProductCategory> categories
+            Set<ProductCategory> categories,
+            Integer limit
     ) {
+        public Query(Set<ProductState> states, Set<ProductCategory> categories) {
+            this(states, categories, null);
+        }
     }
 
 }

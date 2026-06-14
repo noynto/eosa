@@ -7,7 +7,7 @@
 
 <div class="max-w-2xl">
 
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-y-2 mb-8">
         <div class="flex items-center gap-3">
             <a href="/admin/products" class="text-xs text-muted hover:text-secondary transition-colors">← Produits</a>
             <span class="text-muted">/</span>

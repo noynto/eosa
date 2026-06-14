@@ -96,6 +96,18 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 | `EOSA_ADMIN_ID` | Yes | Admin username (HTTP Basic Auth) |
 | `EOSA_ADMIN_SECRET` | Yes | Admin password |
 
+## Responsive Design
+
+When working on any JTE template or HTML, every layout change must handle all three breakpoints:
+
+| Breakpoint | Width | Represents |
+|---|---|---|
+| Mobile | < 640 px | All phones (min target: 390 px — iPhone 15) |
+| Tablet | 640–1024 px | Tablets portrait + large phones landscape |
+| Desktop | ≥ 1024 px | Tablets landscape + computers |
+
+Always test the golden path at 390 px, 768 px, and 1280 px before considering UI work done.
+
 ## CI/CD
 
 - **CI** (`ci.yml`): runs `mvn verify` on every push/PR to `main`.
