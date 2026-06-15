@@ -22,6 +22,9 @@ public record CreateDefaultAdministratorIdentityTask(
             LOGGER.log(Level.INFO, "L'identité administratrice est créé avec l'identifiant " + identity.getId() + ".");
             LOGGER.log(Level.INFO, "Fin de la tâche de création de l'identité administratrice par défaut.");
             Runtime.getRuntime().exit(0);
+        } catch (CreateAdministratorIdentity.AlreadyUsedName e) {
+            LOGGER.log(Level.INFO, "L'identité administratrice existe déjà, aucune action nécessaire.");
+            Runtime.getRuntime().exit(0);
         } catch (Exception e) {
             LOGGER.log(Level.INFO, "L'identité administratrice n'est pas créé.", e);
             Runtime.getRuntime().exit(1);

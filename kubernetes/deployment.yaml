@@ -16,6 +16,47 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        - name: create-admin
+          image: ghcr.io/noynto/eosa:latest
+          securityContext:
+            runAsUser: 65532
+            runAsGroup: 65532
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK
+              value: "true"
+            - name: EOSA_MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: mongo-url
+            - name: EOSA_ADMIN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: admin-name
+            - name: EOSA_ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: admin-secret
+            - name: EOSA_CLIENT_STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: stripe-secret-key
+            - name: EOSA_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: base-url
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
       containers:
         - name: eosa
           image: ghcr.io/noynto/eosa:latest
