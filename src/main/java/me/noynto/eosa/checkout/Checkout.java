@@ -3,6 +3,7 @@ package me.noynto.eosa.checkout;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class Checkout {
@@ -11,6 +12,7 @@ public class Checkout {
     private List<CheckoutItem> items;
     private CheckoutStatus status;
     private CartId cartId;
+    private BigDecimal shippingAmount;
 
     public Checkout() {
     }
@@ -53,5 +55,13 @@ public class Checkout {
 
     public void setCartId(CartId cartId) {
         this.cartId = cartId;
+    }
+
+    public BigDecimal getShippingAmount() {
+        return shippingAmount;
+    }
+
+    public void setShippingAmount(BigDecimal shippingAmount) {
+        this.shippingAmount = shippingAmount;
     }
 }

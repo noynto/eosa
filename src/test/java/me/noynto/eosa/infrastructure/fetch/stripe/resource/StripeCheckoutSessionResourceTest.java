@@ -40,7 +40,7 @@ class StripeCheckoutSessionResourceTest {
                 new StripeCheckoutSessionResource.LineItem("Bracelet Soleil", new BigDecimal("22.00"), 2, null)
         );
 
-        var session = resource.post(items, null);
+        var session = resource.post(items, null, null);
 
         assertNotNull(session.id());
         assertTrue(session.id().startsWith("cs_test_"));
@@ -55,7 +55,7 @@ class StripeCheckoutSessionResourceTest {
         var items = List.of(
                 new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null)
         );
-        var created = resource.post(items, null);
+        var created = resource.post(items, null, null);
 
         var retrieved = resource.retrieveSession(created.id());
 
@@ -71,7 +71,7 @@ class StripeCheckoutSessionResourceTest {
                 new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null),
                 new StripeCheckoutSessionResource.LineItem("Bracelet Soleil", new BigDecimal("22.00"), 2, null)
         );
-        var created = resource.post(items, null);
+        var created = resource.post(items, null, null);
 
         var lineItems = resource.retrieveLineItems(created.id());
 

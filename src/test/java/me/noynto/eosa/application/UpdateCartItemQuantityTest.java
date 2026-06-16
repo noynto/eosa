@@ -3,9 +3,12 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
+import me.noynto.eosa.cart.CartShippingRule;
+import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.ProductId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,6 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +29,12 @@ import static org.mockito.Mockito.when;
 class UpdateCartItemQuantityTest {
 
     @Mock CartProvider cartProvider;
+    @Mock CartShippingRuleProvider shippingRuleProvider;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(shippingRuleProvider.get()).thenReturn(defaultRule());
+    }
 
     @Test
     void handle_updatesQuantity() {
@@ -34,7 +44,7 @@ class UpdateCartItemQuantityTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        new UpdateCartItemQuantity(cartProvider).handle(
+        new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                 new UpdateCartItemQuantity.Command(cartId, productId, 4)
         );
 
@@ -52,7 +62,7 @@ class UpdateCartItemQuantityTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        new UpdateCartItemQuantity(cartProvider).handle(
+        new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                 new UpdateCartItemQuantity.Command(cartId, productId, 0)
         );
 
@@ -67,7 +77,7 @@ class UpdateCartItemQuantityTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        new UpdateCartItemQuantity(cartProvider).handle(
+        new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                 new UpdateCartItemQuantity.Command(cartId, productId, 3)
         );
 
@@ -80,7 +90,7 @@ class UpdateCartItemQuantityTest {
     @Test
     void handle_throwsWhenQuantityIsNegative() {
         assertThrows(RuntimeException.class, () ->
-                new UpdateCartItemQuantity(cartProvider).handle(
+                new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                         new UpdateCartItemQuantity.Command(new CartId("cart1"), new ProductId("prod1"), -1)
                 )
         );
@@ -89,7 +99,7 @@ class UpdateCartItemQuantityTest {
     @Test
     void handle_throwsWhenCartIdIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new UpdateCartItemQuantity(cartProvider).handle(
+                new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                         new UpdateCartItemQuantity.Command(null, new ProductId("prod1"), 2)
                 )
         );
@@ -98,7 +108,7 @@ class UpdateCartItemQuantityTest {
     @Test
     void handle_throwsWhenProductIdIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new UpdateCartItemQuantity(cartProvider).handle(
+                new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                         new UpdateCartItemQuantity.Command(new CartId("cart1"), null, 2)
                 )
         );
@@ -110,7 +120,7 @@ class UpdateCartItemQuantityTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateCartItemQuantity(cartProvider).handle(
+                new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                         new UpdateCartItemQuantity.Command(cartId, new ProductId("prod1"), 2)
                 )
         );
@@ -124,7 +134,7 @@ class UpdateCartItemQuantityTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateCartItemQuantity(cartProvider).handle(
+                new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                         new UpdateCartItemQuantity.Command(cartId, new ProductId("unknown"), 2)
                 )
         );
@@ -135,6 +145,14 @@ class UpdateCartItemQuantityTest {
         cart.setId(cartId);
         cart.setItems(List.of(new CartItem(productId, "Lune", new BigDecimal("29.90"), new ImageId("img1"), quantity)));
         return cart;
+    }
+
+    private CartShippingRule defaultRule() {
+        var rule = new CartShippingRule();
+        
+        rule.setFreeThreshold(new BigDecimal("60"));
+        rule.setAmount(new BigDecimal("5"));
+        return rule;
     }
 
 }

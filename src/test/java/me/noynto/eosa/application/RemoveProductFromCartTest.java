@@ -3,9 +3,12 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
+import me.noynto.eosa.cart.CartShippingRule;
+import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.ProductId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,14 +21,20 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RemoveProductFromCartTest {
 
-    @Mock
-    CartProvider cartProvider;
+    @Mock CartProvider cartProvider;
+    @Mock CartShippingRuleProvider shippingRuleProvider;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(shippingRuleProvider.get()).thenReturn(defaultRule());
+    }
 
     @Test
     void handle_removesItemFromCart() {
@@ -36,7 +45,7 @@ class RemoveProductFromCartTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        new RemoveProductFromCart(cartProvider).handle(
+        new RemoveProductFromCart(cartProvider, shippingRuleProvider).handle(
                 new RemoveProductFromCart.Command(cartId, productId)
         );
 
@@ -56,20 +65,20 @@ class RemoveProductFromCartTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        new RemoveProductFromCart(cartProvider).handle(
+        new RemoveProductFromCart(cartProvider, shippingRuleProvider).handle(
                 new RemoveProductFromCart.Command(cartId, productId)
         );
 
         verify(cartProvider).write(argThat(c ->
                 c.getItems().size() == 1 &&
-                        c.getItems().getFirst().productId().equals(otherId)
+                c.getItems().getFirst().productId().equals(otherId)
         ));
     }
 
     @Test
     void handle_throwsWhenCartIdIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new RemoveProductFromCart(cartProvider).handle(
+                new RemoveProductFromCart(cartProvider, shippingRuleProvider).handle(
                         new RemoveProductFromCart.Command(null, new ProductId("prod1"))
                 )
         );
@@ -78,7 +87,7 @@ class RemoveProductFromCartTest {
     @Test
     void handle_throwsWhenProductIdIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new RemoveProductFromCart(cartProvider).handle(
+                new RemoveProductFromCart(cartProvider, shippingRuleProvider).handle(
                         new RemoveProductFromCart.Command(new CartId("cart1"), null)
                 )
         );
@@ -90,7 +99,7 @@ class RemoveProductFromCartTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () ->
-                new RemoveProductFromCart(cartProvider).handle(
+                new RemoveProductFromCart(cartProvider, shippingRuleProvider).handle(
                         new RemoveProductFromCart.Command(cartId, new ProductId("prod1"))
                 )
         );
@@ -100,6 +109,14 @@ class RemoveProductFromCartTest {
         var cart = new Cart();
         cart.setId(id);
         return cart;
+    }
+
+    private CartShippingRule defaultRule() {
+        var rule = new CartShippingRule();
+        
+        rule.setFreeThreshold(new BigDecimal("60"));
+        rule.setAmount(new BigDecimal("5"));
+        return rule;
     }
 
 }

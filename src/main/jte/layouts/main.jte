@@ -19,8 +19,8 @@
 <div class="bg-accent text-primary text-center text-xs py-2 border-b border-bg-border tracking-wide">
     Site en cours de développement — certaines fonctionnalités ne sont pas encore disponibles.
 </div>
-<div class="bg-primary text-accent text-center text-xs py-1.5 tracking-wide">
-    ✶ Livraison offerte dès 60 € ✶
+<div hx-get="/shipping/banner" hx-trigger="load" hx-swap="outerHTML" class="bg-primary py-1.5">
+    <div class="mx-auto w-48 h-3 rounded-full bg-primary-dark opacity-40 animate-pulse"></div>
 </div>
 
 <header class="border-b border-bg-border">
@@ -42,9 +42,6 @@
             <span class="hidden md:block text-xs text-secondary">FR / €</span>
             <button class="hidden md:flex w-8 h-8 rounded-full bg-bg-soft items-center justify-center" aria-label="Recherche">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            </button>
-            <button class="hidden md:flex w-8 h-8 rounded-full bg-bg-soft items-center justify-center" aria-label="Favoris">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
             </button>
             <a href="/cart" class="bg-bg-soft text-primary px-4 py-2 rounded-full text-[13px] flex items-center gap-2 hover:bg-bg-border transition-colors">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>

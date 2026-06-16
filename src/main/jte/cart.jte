@@ -3,6 +3,9 @@
 @import java.math.BigDecimal
 @param Cart cart
 
+!{var shipping = cart.getShipping();}
+!{var remaining = shipping != null ? shipping.getRule().getFreeThreshold().subtract(cart.getTotal()) : BigDecimal.ZERO;}
+
 @template.layouts.main(title = "Eosa — Votre panier", content = @`
 
 <section class="px-5 md:px-8 pt-10 pb-4">
@@ -56,16 +59,21 @@
             <div class="flex flex-col gap-3 mb-4">
                 <div class="flex justify-between text-sm text-secondary">
                     <span>Sous-total</span>
-                    <span class="text-primary">${cart.getItems().stream().map(i -> i.price().multiply(BigDecimal.valueOf(i.quantity()))).reduce(BigDecimal.ZERO, BigDecimal::add).stripTrailingZeros().toPlainString()} €</span>
+                    <span class="text-primary">${cart.getTotal().stripTrailingZeros().toPlainString()} €</span>
                 </div>
                 <div class="flex justify-between text-sm text-secondary">
-                    <span>Livraison</span><span class="text-success font-medium">Offerte</span>
+                    <span>Livraison</span>
+                    @if(shipping != null && shipping.getAmount().compareTo(BigDecimal.ZERO) > 0)
+                        <span class="text-primary font-medium">${shipping.getAmount().stripTrailingZeros().toPlainString()} €</span>
+                    @else
+                        <span class="text-success font-medium">Offerte</span>
+                    @endif
                 </div>
             </div>
 
             <div class="flex justify-between items-baseline py-4 border-t border-bg-border mb-4">
                 <span class="text-sm">Total</span>
-                <span class="font-serif text-3xl">${cart.getItems().stream().map(i -> i.price().multiply(BigDecimal.valueOf(i.quantity()))).reduce(BigDecimal.ZERO, BigDecimal::add).stripTrailingZeros().toPlainString()} €</span>
+                <span class="font-serif text-3xl">${(shipping != null ? cart.getTotal().add(shipping.getAmount()) : cart.getTotal()).stripTrailingZeros().toPlainString()} €</span>
             </div>
             @if(cart.getItems().isEmpty())
                 <button disabled class="w-full bg-bg-soft text-muted py-4 rounded-full text-sm font-medium cursor-not-allowed opacity-60">Passer au paiement →</button>
@@ -75,7 +83,11 @@
                 </form>
             @endif
             <div class="mt-4 flex flex-col gap-2 text-xs text-secondary">
-                <div>★ Livraison offerte dès 60 €</div>
+                @if(shipping != null && remaining.compareTo(BigDecimal.ZERO) > 0)
+                    <div>★ Plus que ${remaining.stripTrailingZeros().toPlainString()} € pour la livraison gratuite</div>
+                @else
+                    <div class="text-success">★ Livraison gratuite !</div>
+                @endif
                 <div>♡ Emballage cadeau offert</div>
             </div>
         </div>
