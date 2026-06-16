@@ -54,6 +54,16 @@ spec:
                 configMapKeyRef:
                   name: eosa-configs
                   key: base-url
+            - name: EOSA_SHIPPING_AMOUNT
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-amount
+            - name: EOSA_SHIPPING_FREE_THRESHOLD
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-free-threshold
           volumeMounts:
             - name: tmp
               mountPath: /tmp
@@ -95,6 +105,16 @@ spec:
                 configMapKeyRef:
                   name: eosa-configs
                   key: base-url
+            - name: EOSA_SHIPPING_AMOUNT
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-amount
+            - name: EOSA_SHIPPING_FREE_THRESHOLD
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-free-threshold
           readinessProbe:
             httpGet:
               path: /

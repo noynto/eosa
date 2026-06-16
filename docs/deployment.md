@@ -14,6 +14,8 @@ docker run \
   -e EOSA_ADMIN_NAME="admin" \
   -e EOSA_ADMIN_SECRET="change_me" \
   -e EOSA_CLIENT_STRIPE_SECRET_KEY="sk_live_..." \
+  -e EOSA_SHIPPING_AMOUNT="4.90" \
+  -e EOSA_SHIPPING_FREE_THRESHOLD="60.00" \
   -p 8080:8080 \
   eosa
 ```
@@ -84,6 +86,28 @@ Secret key for the Stripe API. Use a `sk_test_` key for test mode and `sk_live_`
 |---|---|
 | Required | Yes |
 | Example | `sk_live_...` |
+
+---
+
+### `EOSA_SHIPPING_AMOUNT`
+
+Montant des frais de livraison appliqués au panier, exprimé en euros.
+
+| Property | Value |
+|---|---|
+| Required | Yes |
+| Example | `4.90` |
+
+---
+
+### `EOSA_SHIPPING_FREE_THRESHOLD`
+
+Montant total du panier (en euros) à partir duquel la livraison est offerte.
+
+| Property | Value |
+|---|---|
+| Required | Yes |
+| Example | `60.00` |
 
 ---
 
