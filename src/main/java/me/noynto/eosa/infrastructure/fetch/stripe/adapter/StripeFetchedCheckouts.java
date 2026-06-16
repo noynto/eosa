@@ -99,7 +99,7 @@ public record StripeFetchedCheckouts(
 
             String clientReferenceId = checkout.getCartId() != null ? checkout.getCartId().value() : null;
 
-            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession = checkoutSessionResource.post(lineItems, clientReferenceId);
+            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession = checkoutSessionResource.post(lineItems, clientReferenceId, checkout.getShippingAmount());
 
             CheckoutSession checkoutSession = new CheckoutSession();
             checkoutSession.setUri(URI.create(stripeCheckoutSession.url()));

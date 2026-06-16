@@ -3,6 +3,7 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
+import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.ProductId;
@@ -10,10 +11,10 @@ import me.noynto.eosa.shared.ProductId;
 import java.util.ArrayList;
 import java.util.List;
 
-public record
-AddProductToCart(
+public record AddProductToCart(
         CartProvider cartProvider,
-        ProductProvider productProvider
+        ProductProvider productProvider,
+        CartShippingRuleProvider shippingRuleProvider
 ) {
 
     public Cart handle(Command command) {
@@ -51,6 +52,7 @@ AddProductToCart(
         }
 
         cart.setItems(items);
+        cart.applyShippingRule(shippingRuleProvider.get());
         return cartProvider.write(cart);
     }
 

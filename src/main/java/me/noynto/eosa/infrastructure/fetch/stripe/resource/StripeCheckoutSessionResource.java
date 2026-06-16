@@ -10,7 +10,7 @@ import java.util.List;
 
 public record StripeCheckoutSessionResource(StripeHttpClient http) {
 
-    public CheckoutSession post(List<LineItem> lineItems, String clientReferenceId) throws IOException, InterruptedException {
+    public CheckoutSession post(List<LineItem> lineItems, String clientReferenceId, BigDecimal shippingAmount) throws IOException, InterruptedException {
         List<String> params = new ArrayList<>();
         params.add("mode=payment");
         params.add("success_url=" + StripeHttpClient.encode(http.properties().successPath()));
@@ -33,6 +33,13 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
         String[] countries = {"FR", "BE", "CH", "LU"};
         for (int i = 0; i < countries.length; i++) {
             params.add("shipping_address_collection[allowed_countries][" + i + "]=" + countries[i]);
+        }
+        if (shippingAmount != null) {
+            String displayName = shippingAmount.compareTo(BigDecimal.ZERO) == 0 ? "Livraison offerte" : "Livraison standard";
+            params.add("shipping_options[0][shipping_rate_data][type]=fixed_amount");
+            params.add("shipping_options[0][shipping_rate_data][display_name]=" + StripeHttpClient.encode(displayName));
+            params.add("shipping_options[0][shipping_rate_data][fixed_amount][amount]=" + StripeHttpClient.toStripeAmount(shippingAmount));
+            params.add("shipping_options[0][shipping_rate_data][fixed_amount][currency]=eur");
         }
         return http.post("/v1/checkout/sessions", String.join("&", params), CheckoutSession.class);
     }

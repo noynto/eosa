@@ -7,6 +7,7 @@ import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 import me.noynto.eosa.application.*;
 import me.noynto.eosa.cart.CartProvider;
+import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.hash.CryptProvider;
 import me.noynto.eosa.identity.IdentityProvider;
 import me.noynto.eosa.identity.IdentitySessionProvider;
@@ -42,6 +43,7 @@ public class Bootstrap {
         ProductProvider mongoPersistedProducts = new MongoPersistedProducts(MongoConfiguredProducts.getCollection(mongoDatabase));
         ImageProvider mongoPersistedImages = new MongoPersistedImages(MongoConfiguredImages.getBucket(mongoDatabase));
         CartProvider mongoPersistedCarts = new MongoPersistedCarts(MongoConfiguredCarts.getCollection(mongoDatabase));
+        CartShippingRuleProvider shippingRuleProvider = new ConfiguredCartShippingRules();
 
         // CLIENTS
         StripeProperties stripeProperties = StripeConfiguration.getProperties(properties);
@@ -67,12 +69,12 @@ public class Bootstrap {
         EnsureIdentityHasValidSession ensureIdentityHasValidSession = new EnsureIdentityHasValidSession(mongoPersistedSessions, mongoPersistedIdentities);
         EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(ensureIdentityHasValidSession);
         ReadCategoryStats readCategoryStats = new ReadCategoryStats(mongoPersistedProducts, readProductIds);
-        GetOrCreateCart getOrCreateCart = new GetOrCreateCart(mongoPersistedCarts);
+        GetOrCreateCart getOrCreateCart = new GetOrCreateCart(mongoPersistedCarts, shippingRuleProvider);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(getOrCreateCart);
-        AddProductToCart addProductToCart = new AddProductToCart(mongoPersistedCarts, mongoPersistedProducts);
-        RemoveProductFromCart removeProductFromCart = new RemoveProductFromCart(mongoPersistedCarts);
-        UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity(mongoPersistedCarts);
-        InitiateCheckout initiateCheckout = new InitiateCheckout(mongoPersistedCarts, stripeFetchedCheckouts);
+        AddProductToCart addProductToCart = new AddProductToCart(mongoPersistedCarts, mongoPersistedProducts, shippingRuleProvider);
+        RemoveProductFromCart removeProductFromCart = new RemoveProductFromCart(mongoPersistedCarts, shippingRuleProvider);
+        UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity(mongoPersistedCarts, shippingRuleProvider);
+        InitiateCheckout initiateCheckout = new InitiateCheckout(mongoPersistedCarts, stripeFetchedCheckouts, shippingRuleProvider);
         ConfirmCheckoutSession confirmCheckoutSession = new ConfirmCheckoutSession(stripeFetchedCheckouts, mongoPersistedCarts);
         CreateAdministratorIdentity createAdministratorIdentity = new CreateAdministratorIdentity(mongoPersistedIdentities, cryptProvider);
 
@@ -100,6 +102,10 @@ public class Bootstrap {
             javalinConfig.routes.get("/legal", context -> context.render("legal.jte"));
             javalinConfig.routes.get("/terms", context -> context.render("cgv.jte"));
             javalinConfig.routes.get("/privacy", context -> context.render("privacy.jte"));
+
+            // SHIPPING
+            javalinConfig.routes.get("/shipping/banner", new GetShippingBannerHandler(shippingRuleProvider));
+            javalinConfig.routes.get("/shipping/info", new GetShippingInfoHandler(shippingRuleProvider));
 
             // CART PART
             javalinConfig.routes.before("/cart*", ensureCartHandler);

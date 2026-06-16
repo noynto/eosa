@@ -52,10 +52,6 @@
 
     <div class="flex flex-col gap-6 pt-2">
         <div>
-            <span class="text-xs text-success flex items-center gap-1 mb-2.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
-                En stock
-            </span>
             <h1 class="font-serif text-4xl font-normal leading-tight mb-1.5">${product.getName()}</h1>
             <div class="text-sm text-secondary mb-3.5">${product.getTagline()}</div>
             <div class="flex items-baseline gap-3">
@@ -68,15 +64,12 @@
             <button class="flex-1 bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors"
                     hx-post="/cart/items/${product.getId().value()}"
                     hx-swap="none">Ajouter au panier — ${product.getPrice().stripTrailingZeros().toPlainString()} €</button>
-            <button class="bg-bg-soft rounded-full flex items-center justify-center" style="width: 52px; height: 52px;" aria-label="Favoris">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-            </button>
         </div>
 
         <div class="bg-bg-soft px-5 py-4 rounded-2xl flex flex-col gap-2.5 text-[13px] text-secondary">
-            <div class="flex items-center gap-2.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="m16 8 4-2v10l-4-2"/></svg>
-                Livraison offerte dès 60 € · expédié sous 48h
+            <div hx-get="/shipping/info" hx-trigger="load" hx-swap="outerHTML" class="flex items-center gap-2.5">
+                <div class="w-4 h-4 rounded bg-bg-border animate-pulse flex-shrink-0"></div>
+                <div class="w-56 h-3 rounded-full bg-bg-border animate-pulse"></div>
             </div>
             <div class="flex items-center gap-2.5">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><path d="M20 12V8H4v10h16v-3"/><path d="M16 11h6"/><path d="m19 8-3 3 3 3"/></svg>
