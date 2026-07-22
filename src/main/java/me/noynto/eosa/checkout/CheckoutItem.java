@@ -1,16 +1,19 @@
 package me.noynto.eosa.checkout;
 
+import me.noynto.eosa.shared.CharmId;
 import me.noynto.eosa.shared.CheckoutItemId;
 import me.noynto.eosa.shared.ImageId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 
 import java.math.BigDecimal;
 
 public class CheckoutItem {
     private CheckoutItemId id;
-    private ProductId productId;
+    private VariantId variantId;
+    private CharmId charmId;
     private String name;
     private BigDecimal unitPrice;
+    private BigDecimal charmAdditionalPrice;
     private int quantity;
     private ImageId imageId;
 
@@ -33,12 +36,20 @@ public class CheckoutItem {
         this.quantity = quantity;
     }
 
-    public ProductId getProductId() {
-        return productId;
+    public VariantId getVariantId() {
+        return variantId;
     }
 
-    public void setProductId(ProductId productId) {
-        this.productId = productId;
+    public void setVariantId(VariantId variantId) {
+        this.variantId = variantId;
+    }
+
+    public CharmId getCharmId() {
+        return charmId;
+    }
+
+    public void setCharmId(CharmId charmId) {
+        this.charmId = charmId;
     }
 
     public String getName() {
@@ -55,6 +66,14 @@ public class CheckoutItem {
 
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public BigDecimal getCharmAdditionalPrice() {
+        return charmAdditionalPrice;
+    }
+
+    public void setCharmAdditionalPrice(BigDecimal charmAdditionalPrice) {
+        this.charmAdditionalPrice = charmAdditionalPrice;
     }
 
     public ImageId getImageId() {

@@ -8,7 +8,7 @@ import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeHttpClient;
 import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeProperties;
 import me.noynto.eosa.infrastructure.fetch.stripe.resource.StripeCheckoutSessionResource;
 import me.noynto.eosa.shared.ImageId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -101,7 +101,7 @@ class StripeFetchedCheckoutsTest {
 
     private CheckoutItem item(String name, String price, int quantity) {
         CheckoutItem item = new CheckoutItem();
-        item.setProductId(new ProductId("test-" + name));
+        item.setVariantId(new VariantId("test-" + name));
         item.setName(name);
         item.setUnitPrice(new BigDecimal(price));
         item.setQuantity(quantity);

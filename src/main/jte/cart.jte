@@ -33,17 +33,17 @@
                         <div class="flex gap-3 items-center mt-3">
                             <div class="flex items-center bg-bg-soft rounded-full">
                                 <button class="w-7 h-7 text-secondary text-sm"
-                                        hx-patch="/cart/items/${item.productId().value()}"
+                                        hx-patch="/cart/items/${item.variantId().value()}"
                                         hx-vals='{"quantity": "${item.quantity() - 1}"}'
                                         hx-target="body" hx-swap="outerHTML">−</button>
                                 <span class="px-3 text-primary text-[13px]">${item.quantity()}</span>
                                 <button class="w-7 h-7 text-secondary text-sm"
-                                        hx-patch="/cart/items/${item.productId().value()}"
+                                        hx-patch="/cart/items/${item.variantId().value()}"
                                         hx-vals='{"quantity": "${item.quantity() + 1}"}'
                                         hx-target="body" hx-swap="outerHTML">+</button>
                             </div>
                             <button class="text-xs text-muted hover:text-secondary transition-colors"
-                                    hx-delete="/cart/items/${item.productId().value()}"
+                                    hx-delete="/cart/items/${item.variantId().value()}"
                                     hx-target="body" hx-swap="outerHTML">Retirer</button>
                         </div>
                     </div>

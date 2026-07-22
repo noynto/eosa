@@ -1,18 +1,16 @@
-
 package me.noynto.eosa.application;
 
 import me.noynto.eosa.product.Product;
-import me.noynto.eosa.product.ProductCategory;
-import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.product.ProductState;
-import me.noynto.eosa.shared.ImageId;
+import me.noynto.eosa.product.ProductProvider;
+import me.noynto.eosa.product.Variant;
 import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -125,10 +123,10 @@ class UpdateStateOfProductTest {
     }
 
     @Test
-    void handle_throwsWhenPublishingWithoutCategory() {
+    void handle_throwsWhenPublishingWithoutDescription() {
         var productId = new ProductId("abc");
         var product = completeProduct(productId, ProductState.DRAFTED);
-        product.setCategory(null);
+        product.setDescription(null);
         when(productProvider.read(productId)).thenReturn(Optional.of(product));
 
         assertThrows(RuntimeException.class, () ->
@@ -139,10 +137,10 @@ class UpdateStateOfProductTest {
     }
 
     @Test
-    void handle_throwsWhenPublishingWithoutTagline() {
+    void handle_throwsWhenPublishingWithoutVariants() {
         var productId = new ProductId("abc");
         var product = completeProduct(productId, ProductState.DRAFTED);
-        product.setTagline(null);
+        product.setVariants(List.of());
         when(productProvider.read(productId)).thenReturn(Optional.of(product));
 
         assertThrows(RuntimeException.class, () ->
@@ -153,24 +151,10 @@ class UpdateStateOfProductTest {
     }
 
     @Test
-    void handle_throwsWhenPublishingWithoutPrice() {
+    void handle_throwsWhenPublishingWithoutDefaultVariant() {
         var productId = new ProductId("abc");
         var product = completeProduct(productId, ProductState.DRAFTED);
-        product.setPrice(null);
-        when(productProvider.read(productId)).thenReturn(Optional.of(product));
-
-        assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfProduct(productProvider).handle(
-                        new UpdateStateOfProduct.Command(productId, ProductState.PUBLISHED)
-                )
-        );
-    }
-
-    @Test
-    void handle_throwsWhenPublishingWithoutImages() {
-        var productId = new ProductId("abc");
-        var product = completeProduct(productId, ProductState.DRAFTED);
-        product.setImageIds(List.of());
+        product.setDefaultVariantId(null);
         when(productProvider.read(productId)).thenReturn(Optional.of(product));
 
         assertThrows(RuntimeException.class, () ->
@@ -184,11 +168,12 @@ class UpdateStateOfProductTest {
         var product = new Product();
         product.setId(id);
         product.setState(state);
-        product.setName("Lune");
-        product.setTagline("Bijou élégant");
-        product.setCategory(ProductCategory.NECKLACE);
-        product.setPrice(new BigDecimal("29.90"));
-        product.setImageIds(List.of(new ImageId("img1")));
+        product.setName("Pauline");
+        product.setDescription("Bijou élégant");
+        var variant = new Variant();
+        variant.setId(new VariantId("v1"));
+        product.setVariants(List.of(variant));
+        product.setDefaultVariantId(variant.getId());
         return product;
     }
 

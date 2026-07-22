@@ -8,8 +8,9 @@ import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.CharmId;
 import me.noynto.eosa.shared.ImageId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -24,9 +25,11 @@ public record MongoPersistedCarts(
 
     private static final String ID = "_id";
     private static final String ITEMS = "items";
-    private static final String PRODUCT_ID = "productId";
+    private static final String VARIANT_ID = "variantId";
+    private static final String CHARM_ID = "charmId";
     private static final String NAME = "name";
     private static final String PRICE = "price";
+    private static final String CHARM_ADDITIONAL_PRICE = "charmAdditionalPrice";
     private static final String IMAGE_ID = "imageId";
     private static final String QUANTITY = "quantity";
 
@@ -47,9 +50,11 @@ public record MongoPersistedCarts(
         List<Document> rawItems = result.getList(ITEMS, Document.class);
         if (rawItems != null) {
             cart.setItems(rawItems.stream().map(doc -> new CartItem(
-                    new ProductId(doc.getString(PRODUCT_ID)),
+                    new VariantId(doc.getString(VARIANT_ID)),
+                    doc.getString(CHARM_ID) != null ? new CharmId(doc.getString(CHARM_ID)) : null,
                     doc.getString(NAME),
                     new BigDecimal(doc.getString(PRICE)),
+                    doc.getString(CHARM_ADDITIONAL_PRICE) != null ? new BigDecimal(doc.getString(CHARM_ADDITIONAL_PRICE)) : null,
                     doc.getString(IMAGE_ID) != null ? new ImageId(doc.getString(IMAGE_ID)) : null,
                     doc.getInteger(QUANTITY)
             )).toList());
@@ -60,9 +65,11 @@ public record MongoPersistedCarts(
     @Override
     public Cart write(Cart cart) {
         List<Document> itemDocs = cart.getItems().stream().map(item -> new Document()
-                .append(PRODUCT_ID, item.productId().value())
+                .append(VARIANT_ID, item.variantId().value())
+                .append(CHARM_ID, item.charmId() != null ? item.charmId().value() : null)
                 .append(NAME, item.name())
                 .append(PRICE, item.price().toPlainString())
+                .append(CHARM_ADDITIONAL_PRICE, item.charmAdditionalPrice() != null ? item.charmAdditionalPrice().toPlainString() : null)
                 .append(IMAGE_ID, item.imageId() != null ? item.imageId().value() : null)
                 .append(QUANTITY, item.quantity())
         ).toList();

@@ -1,5 +1,7 @@
 @import me.noynto.eosa.product.Product
+@import me.noynto.eosa.product.Variant
 @param Product product
+@param Variant variant
 
 <section id="images-section" class="bg-bg border border-bg-border rounded-xl p-5">
     <div class="flex items-center justify-between mb-4">
@@ -7,9 +9,9 @@
         <span id="toast-images" class="text-xs"></span>
     </div>
 
-    @if(!product.getImageIds().isEmpty())
+    @if(!variant.getImageIds().isEmpty())
     <div class="grid grid-cols-4 gap-2 mb-4">
-        @for(var imageId : product.getImageIds())
+        @for(var imageId : variant.getImageIds())
         <div class="aspect-square rounded-lg overflow-hidden bg-bg-soft border border-bg-border">
             <img src="/images/${imageId.value()}" alt="" class="w-full h-full object-cover">
         </div>

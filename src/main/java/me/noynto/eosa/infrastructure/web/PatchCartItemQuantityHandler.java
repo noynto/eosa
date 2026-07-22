@@ -5,7 +5,7 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import me.noynto.eosa.application.UpdateCartItemQuantity;
 import me.noynto.eosa.shared.CartId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 
 public record PatchCartItemQuantityHandler(
         UpdateCartItemQuantity updateCartItemQuantity
@@ -27,7 +27,7 @@ public record PatchCartItemQuantityHandler(
         }
         updateCartItemQuantity.handle(new UpdateCartItemQuantity.Command(
                 new CartId(cookieValue),
-                new ProductId(ctx.pathParam("product-id")),
+                new VariantId(ctx.pathParam("product-id")),
                 quantity
         ));
         redirectOrHtmx(ctx);

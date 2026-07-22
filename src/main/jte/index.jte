@@ -1,8 +1,5 @@
-@import me.noynto.eosa.application.ReadCategoryStats
 @import me.noynto.eosa.shared.ProductId
 @import java.util.List
-@param ReadCategoryStats.Stats necklaces
-@param ReadCategoryStats.Stats bracelets
 @param List<ProductId> latestProductIds
 
 @template.layouts.main(title = "Eosa — Bijoux faits main à Nancy", content = @`
@@ -27,59 +24,11 @@
     </div>
 </section>
 
-<!-- Nos univers -->
-<section class="px-5 md:px-8 py-10">
-    <div class="flex items-baseline gap-3 mb-6">
-        <span class="font-serif text-xs text-muted">01</span>
-        <h2 class="font-serif text-2xl font-normal">Nos univers</h2>
-        <span class="text-xs text-secondary ml-1">explorer par famille</span>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <a href="/products/necklaces" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
-            <div class="w-14 h-14 flex-shrink-0">
-                <svg viewBox="0 0 56 56" class="w-full h-full">
-                    <path d="M8 18 Q28 50 48 18" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
-                    <circle cx="28" cy="44" r="6" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
-                    <circle cx="28" cy="44" r="3" fill="#601414"/>
-                </svg>
-            </div>
-            <div>
-                <div class="font-serif text-xl leading-tight">Colliers</div>
-                <div class="text-xs text-secondary mt-1">
-                    ${necklaces.count()} pièce${necklaces.count() > 1 ? "s" : ""}
-                    @if(necklaces.minPrice() != null)
-                        · dès ${necklaces.minPrice().stripTrailingZeros().toPlainString()} €
-                    @endif
-                </div>
-            </div>
-        </a>
-        <a href="/products/bracelets" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
-            <div class="w-14 h-14 flex-shrink-0">
-                <svg viewBox="0 0 56 56" class="w-full h-full">
-                    <ellipse cx="28" cy="28" rx="18" ry="10" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
-                    <circle cx="10" cy="28" r="3.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
-                    <circle cx="28" cy="18" r="2.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
-                    <circle cx="46" cy="28" r="3.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
-                </svg>
-            </div>
-            <div>
-                <div class="font-serif text-xl leading-tight">Bracelets</div>
-                <div class="text-xs text-secondary mt-1">
-                    ${bracelets.count()} pièce${bracelets.count() > 1 ? "s" : ""}
-                    @if(bracelets.minPrice() != null)
-                        · dès ${bracelets.minPrice().stripTrailingZeros().toPlainString()} €
-                    @endif
-                </div>
-            </div>
-        </a>
-    </div>
-</section>
-
 <!-- Nouveautés -->
-<section class="px-5 md:px-8 pb-12">
+<section class="px-5 md:px-8 py-10">
     <div class="flex items-baseline justify-between mb-6">
         <div class="flex items-baseline gap-3">
-            <span class="font-serif text-xs text-muted">02</span>
+            <span class="font-serif text-xs text-muted">01</span>
             <h2 class="font-serif text-2xl font-normal">Nouveautés</h2>
             <span class="text-xs text-secondary ml-1">dernières arrivées</span>
         </div>

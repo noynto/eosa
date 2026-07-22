@@ -1,8 +1,9 @@
 package me.noynto.eosa.application;
 
-import me.noynto.eosa.product.ProductCategory;
 import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.product.ProductState;
+import me.noynto.eosa.shared.OptionId;
+import me.noynto.eosa.shared.OptionValueId;
 import me.noynto.eosa.shared.ProductId;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public record ReadProductIds(
 ) {
 
     public List<ProductId> handle(Query query) {
-        var stream = productProvider.readIds(query.states, query.categories);
+        var stream = productProvider.readIds(new ProductProvider.Search(query.states, query.optionId, query.optionValueId));
         if (query.limit != null) {
             stream = stream.limit(query.limit);
         }
@@ -22,11 +23,16 @@ public record ReadProductIds(
 
     public record Query(
             Set<ProductState> states,
-            Set<ProductCategory> categories,
+            OptionId optionId,
+            OptionValueId optionValueId,
             Integer limit
     ) {
-        public Query(Set<ProductState> states, Set<ProductCategory> categories) {
-            this(states, categories, null);
+        public Query(Set<ProductState> states) {
+            this(states, null, null, null);
+        }
+
+        public Query(Set<ProductState> states, OptionId optionId, OptionValueId optionValueId) {
+            this(states, optionId, optionValueId, null);
         }
     }
 

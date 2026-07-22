@@ -1,7 +1,8 @@
 @import me.noynto.eosa.product.Product
-@import me.noynto.eosa.product.ProductCategory
 @import me.noynto.eosa.product.ProductState
+@import me.noynto.eosa.product.Variant
 @param Product product
+@param Variant defaultVariant
 
 @template.layouts.admin(title = product.getName(), content = @`
 
@@ -20,18 +21,18 @@
         </a>
     </div>
 
-    <!-- Accroche -->
+    <!-- Description -->
     <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
         <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-medium">Accroche</h2>
-            <span id="toast-tagline" class="text-xs text-success"></span>
+            <h2 class="text-sm font-medium">Description</h2>
+            <span id="toast-description" class="text-xs text-success"></span>
         </div>
-        <form hx-patch="/admin/products/${product.getId().value()}/tagline"
-              hx-target="#toast-tagline" hx-swap="innerHTML"
+        <form hx-patch="/admin/products/${product.getId().value()}/description"
+              hx-target="#toast-description" hx-swap="innerHTML"
               class="flex flex-col gap-3">
-            <textarea name="tagline" rows="3" placeholder="Une courte description du produit…"
+            <textarea name="description" rows="3" placeholder="Une courte description du produit…"
                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary resize-none w-full"
-            >${product.getTagline() != null ? product.getTagline() : ""}</textarea>
+            >${product.getDescription() != null ? product.getDescription() : ""}</textarea>
             <div class="flex justify-end">
                 <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
                     Enregistrer
@@ -51,7 +52,7 @@
               class="flex items-center gap-3">
             <div class="relative">
                 <input name="price" type="number" min="0" step="0.01"
-                       value="${product.getPrice() != null ? product.getPrice().toPlainString() : ""}"
+                       value="${defaultVariant.getPrice() != null ? defaultVariant.getPrice().toPlainString() : ""}"
                        placeholder="0.00"
                        class="bg-bg-soft border border-bg-border rounded-lg pl-3 pr-8 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary w-36">
                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">€</span>
@@ -62,29 +63,8 @@
         </form>
     </section>
 
-    <!-- Catégorie -->
-    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
-        <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-medium">Catégorie</h2>
-            <span id="toast-category" class="text-xs text-success"></span>
-        </div>
-        <form hx-patch="/admin/products/${product.getId().value()}/category"
-              hx-target="#toast-category" hx-swap="innerHTML"
-              class="flex items-center gap-3">
-            <select name="category"
-                    class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
-                <option value="">— Aucune —</option>
-                <option value="NECKLACE" selected="${product.getCategory() == ProductCategory.NECKLACE}">Collier</option>
-                <option value="BRACELET" selected="${product.getCategory() == ProductCategory.BRACELET}">Bracelet</option>
-            </select>
-            <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
-                Enregistrer
-            </button>
-        </form>
-    </section>
-
     <!-- Images -->
-    @template.admin.partials.product-images(product = product)
+    @template.admin.partials.product-images(product = product, variant = defaultVariant)
 
     <!-- État -->
     <section class="bg-bg border border-bg-border rounded-xl p-5">

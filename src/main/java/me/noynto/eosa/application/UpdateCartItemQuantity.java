@@ -5,7 +5,7 @@ import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.shared.CartId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 
 import java.util.ArrayList;
 
@@ -18,8 +18,8 @@ public record UpdateCartItemQuantity(
         if (command.cartId == null || command.cartId.value() == null) {
             throw new RuntimeException("L'identifiant du panier est nécessaire.");
         }
-        if (command.productId == null || command.productId.value() == null) {
-            throw new RuntimeException("L'identifiant du produit est nécessaire.");
+        if (command.variantId == null || command.variantId.value() == null) {
+            throw new RuntimeException("L'identifiant du variant est nécessaire.");
         }
         if (command.quantity < 0) {
             throw new RuntimeException("La quantité ne peut pas être négative.");
@@ -30,16 +30,18 @@ public record UpdateCartItemQuantity(
 
         var items = new ArrayList<>(cart.getItems());
         var existing = items.stream()
-                .filter(i -> i.productId().value().equals(command.productId.value()))
+                .filter(i -> i.variantId().value().equals(command.variantId.value()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Le produit " + command.productId.value() + " n'est pas dans le panier."));
+                .orElseThrow(() -> new RuntimeException("Le variant " + command.variantId.value() + " n'est pas dans le panier."));
 
         items.remove(existing);
         if (command.quantity > 0) {
             items.add(new CartItem(
-                    existing.productId(),
+                    existing.variantId(),
+                    existing.charmId(),
                     existing.name(),
                     existing.price(),
+                    existing.charmAdditionalPrice(),
                     existing.imageId(),
                     command.quantity
             ));
@@ -52,7 +54,7 @@ public record UpdateCartItemQuantity(
 
     public record Command(
             CartId cartId,
-            ProductId productId,
+            VariantId variantId,
             int quantity
     ) {
     }

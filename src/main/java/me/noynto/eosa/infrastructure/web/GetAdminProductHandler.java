@@ -13,7 +13,8 @@ public record GetAdminProductHandler(ReadProduct readProduct) implements Handler
     public void handle(Context ctx) {
         try {
             var product = readProduct.handle(new ReadProduct.Command(new ProductId(ctx.pathParam("id"))));
-            ctx.render("admin/product.jte", Map.of("product", product));
+            var variant = DefaultVariants.resolve(product);
+            ctx.render("admin/product.jte", Map.of("product", product, "defaultVariant", variant));
         } catch (RuntimeException e) {
             ctx.status(404);
         }

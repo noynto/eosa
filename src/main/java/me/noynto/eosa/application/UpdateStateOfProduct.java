@@ -15,12 +15,12 @@ public record UpdateStateOfProduct(
             throw new RuntimeException("L'état du produit est nécessaire.");
         }
         if (command.productId == null || command.productId.value() == null) {
-            throw new RuntimeException("L'identifiant du produit sur lequel mettre à jour l'accroche est nécessaire.");
+            throw new RuntimeException("L'identifiant du produit sur lequel mettre à jour l'état est nécessaire.");
         }
 
         // 2. Résolution du produit concerné.
         Product product = this.productProvider.read(command.productId)
-                .orElseThrow(() -> new RuntimeException("Le produit " + command.productId.value() + " sur lequel mettre à jour l'accroche n'existe pas."));
+                .orElseThrow(() -> new RuntimeException("Le produit " + command.productId.value() + " sur lequel mettre à jour l'état n'existe pas."));
 
         if (product.getState() == null) {
             product.setState(ProductState.DRAFTED);
@@ -38,17 +38,14 @@ public record UpdateStateOfProduct(
             if (product.getName() == null || product.getName().isBlank()) {
                 throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut un nom.");
             }
-            if (product.getCategory() == null) {
-                throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut une catégorie.");
+            if (product.getDescription() == null || product.getDescription().isBlank()) {
+                throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut une description.");
             }
-            if (product.getTagline() == null) {
-                throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut une accroche.");
+            if (product.getVariants() == null || product.getVariants().isEmpty()) {
+                throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut au moins un variant.");
             }
-            if (product.getPrice() == null) {
-                throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut un prix.");
-            }
-            if (product.getImageIds() == null || product.getImageIds().isEmpty()) {
-                throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut au moins une image.");
+            if (product.getDefaultVariantId() == null) {
+                throw new RuntimeException("Le produit " + product.getId().value() + " ne peut pas être publié, il lui faut un variant par défaut.");
             }
         }
 

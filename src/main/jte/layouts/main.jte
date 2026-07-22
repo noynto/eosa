@@ -27,8 +27,7 @@
     <input type="checkbox" id="mobile-menu-toggle" class="peer hidden">
     <div class="grid grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center px-5 md:px-8 py-4 gap-4">
         <nav class="hidden md:flex gap-6 text-sm text-secondary">
-            <a href="/products/necklaces" class="hover:text-primary transition-colors">Colliers</a>
-            <a href="/products/bracelets" class="hover:text-primary transition-colors">Bracelets</a>
+            <a href="/products" class="hover:text-primary transition-colors">Tous les bijoux</a>
         </nav>
         <label for="mobile-menu-toggle" class="md:hidden flex flex-col gap-1.5 cursor-pointer" aria-label="Menu">
             <span class="w-5 h-px bg-primary block"></span>
@@ -50,8 +49,7 @@
         </div>
     </div>
     <nav class="hidden peer-checked:flex md:hidden flex-col border-t border-bg-border text-sm text-secondary">
-        <a href="/products/necklaces" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Colliers</a>
-        <a href="/products/bracelets" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Bracelets</a>
+        <a href="/products" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Tous les bijoux</a>
     </nav>
 </header>
 
@@ -77,8 +75,7 @@ ${content}
         <div>
             <h3 class="text-sm font-medium mb-4">Boutique</h3>
             <ul class="flex flex-col gap-2.5 text-xs text-secondary">
-                <li><a href="/products/necklaces" class="hover:text-primary transition-colors">Colliers</a></li>
-                <li><a href="/products/bracelets" class="hover:text-primary transition-colors">Bracelets</a></li>
+                <li><a href="/products" class="hover:text-primary transition-colors">Tous les bijoux</a></li>
             </ul>
         </div>
         <div>

@@ -1,10 +1,12 @@
 @import me.noynto.eosa.product.Product
+@import me.noynto.eosa.product.Variant
 @param Product product
+@param Variant defaultVariant
 
 <a href="/products/${product.getId().value()}" class="group">
     <div class="bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
-        @if(!product.getImageIds().isEmpty())
-            <img src="/images/${product.getImageIds().getFirst().value()}"
+        @if(defaultVariant != null && !defaultVariant.getImageIds().isEmpty())
+            <img src="/images/${defaultVariant.getImageIds().getFirst().value()}"
                  alt="${product.getName()}"
                  class="w-full h-full object-cover">
         @else
@@ -17,10 +19,12 @@
     <div class="mt-3.5 px-1">
         <div class="flex justify-between items-baseline mb-1">
             <div class="font-serif text-[17px]">${product.getName()}</div>
-            <div class="text-[15px] font-medium">${product.getPrice().stripTrailingZeros().toPlainString()} €</div>
+            @if(defaultVariant != null && defaultVariant.getPrice() != null)
+                <div class="text-[15px] font-medium">${defaultVariant.getPrice().stripTrailingZeros().toPlainString()} €</div>
+            @endif
         </div>
-        @if(product.getTagline() != null)
-            <div class="text-xs text-secondary">${product.getTagline()}</div>
+        @if(product.getDescription() != null)
+            <div class="text-xs text-secondary">${product.getDescription()}</div>
         @endif
     </div>
 </a>

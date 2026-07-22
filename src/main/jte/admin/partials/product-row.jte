@@ -2,7 +2,7 @@
 @param Product product
 
 <a href="/admin/products/${product.getId().value()}"
-   class="grid grid-cols-[1fr_auto_auto] px-4 py-3 border-b border-bg-border last:border-0 hover:bg-bg-soft transition-colors items-center">
+   class="grid grid-cols-[1fr_auto] px-4 py-3 border-b border-bg-border last:border-0 hover:bg-bg-soft transition-colors items-center">
     <span class="text-sm text-primary">${product.getName()}</span>
     <span class="w-24 flex justify-center">
         @if(product.getState() != null)
@@ -14,8 +14,5 @@
                 ${product.getState().name().toLowerCase()}
             </span>
         @endif
-    </span>
-    <span class="w-20 text-center text-xs text-muted">
-        @if(product.getCategory() != null)${product.getCategory().name().toLowerCase()}@endif
     </span>
 </a>

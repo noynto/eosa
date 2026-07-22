@@ -8,6 +8,7 @@ import io.javalin.rendering.template.JavalinJte;
 import me.noynto.eosa.application.*;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
+import me.noynto.eosa.charm.CharmProvider;
 import me.noynto.eosa.hash.CryptProvider;
 import me.noynto.eosa.identity.IdentityProvider;
 import me.noynto.eosa.identity.IdentitySessionProvider;
@@ -21,13 +22,12 @@ import me.noynto.eosa.infrastructure.persistence.*;
 import me.noynto.eosa.infrastructure.persistence.mongo.*;
 import me.noynto.eosa.infrastructure.security.SecuredCrypts;
 import me.noynto.eosa.infrastructure.web.*;
-import me.noynto.eosa.product.ProductCategory;
+import me.noynto.eosa.option.OptionProvider;
 import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
 
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Set;
 
 public class Bootstrap {
 
@@ -43,6 +43,8 @@ public class Bootstrap {
         ProductProvider mongoPersistedProducts = new MongoPersistedProducts(MongoConfiguredProducts.getCollection(mongoDatabase));
         ImageProvider mongoPersistedImages = new MongoPersistedImages(MongoConfiguredImages.getBucket(mongoDatabase));
         CartProvider mongoPersistedCarts = new MongoPersistedCarts(MongoConfiguredCarts.getCollection(mongoDatabase));
+        OptionProvider mongoPersistedOptions = new MongoPersistedOptions(MongoConfiguredOptions.getCollection(mongoDatabase));
+        CharmProvider mongoPersistedCharms = new MongoPersistedCharms(MongoConfiguredCharms.getCollection(mongoDatabase));
         CartShippingRuleProvider shippingRuleProvider = new ConfiguredCartShippingRules();
 
         // CLIENTS
@@ -57,22 +59,22 @@ public class Bootstrap {
 
         // HANDLER
         CreateProduct createProduct = new CreateProduct(mongoPersistedIdentities, mongoPersistedProducts);
-        AddImagesToProduct addImagesToProduct = new AddImagesToProduct(mongoPersistedProducts, mongoPersistedImages);
+        CreateVariant createVariant = new CreateVariant(mongoPersistedProducts);
+        SetDefaultVariantOfProduct setDefaultVariantOfProduct = new SetDefaultVariantOfProduct(mongoPersistedProducts);
+        AddImagesToVariant addImagesToVariant = new AddImagesToVariant(mongoPersistedProducts, mongoPersistedImages);
         ReadProductIds readProductIds = new ReadProductIds(mongoPersistedProducts);
         ReadProduct readProduct = new ReadProduct(mongoPersistedProducts);
-        UpdateTaglineOfProduct updateTaglineOfProduct = new UpdateTaglineOfProduct(mongoPersistedProducts);
-        UpdatePriceOfProduct updatePriceOfProduct = new UpdatePriceOfProduct(mongoPersistedProducts);
-        UpdateCategoryOfProduct updateCategoryOfProduct = new UpdateCategoryOfProduct(mongoPersistedProducts);
+        UpdateDescriptionOfProduct updateDescriptionOfProduct = new UpdateDescriptionOfProduct(mongoPersistedProducts);
+        UpdatePriceOfVariant updatePriceOfVariant = new UpdatePriceOfVariant(mongoPersistedProducts);
         UpdateStateOfProduct updateStateOfProduct = new UpdateStateOfProduct(mongoPersistedProducts);
         DownloadImage downloadImage = new DownloadImage(mongoPersistedImages);
         AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(mongoPersistedIdentities, mongoPersistedSessions, cryptProvider);
         EnsureIdentityHasValidSession ensureIdentityHasValidSession = new EnsureIdentityHasValidSession(mongoPersistedSessions, mongoPersistedIdentities);
         EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(ensureIdentityHasValidSession);
-        ReadCategoryStats readCategoryStats = new ReadCategoryStats(mongoPersistedProducts, readProductIds);
         GetOrCreateCart getOrCreateCart = new GetOrCreateCart(mongoPersistedCarts, shippingRuleProvider);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(getOrCreateCart);
-        AddProductToCart addProductToCart = new AddProductToCart(mongoPersistedCarts, mongoPersistedProducts, shippingRuleProvider);
-        RemoveProductFromCart removeProductFromCart = new RemoveProductFromCart(mongoPersistedCarts, shippingRuleProvider);
+        AddVariantToCart addVariantToCart = new AddVariantToCart(mongoPersistedCarts, mongoPersistedProducts, mongoPersistedOptions, mongoPersistedCharms, shippingRuleProvider);
+        RemoveVariantFromCart removeVariantFromCart = new RemoveVariantFromCart(mongoPersistedCarts, shippingRuleProvider);
         UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity(mongoPersistedCarts, shippingRuleProvider);
         InitiateCheckout initiateCheckout = new InitiateCheckout(mongoPersistedCarts, stripeFetchedCheckouts, shippingRuleProvider);
         ConfirmCheckoutSession confirmCheckoutSession = new ConfirmCheckoutSession(stripeFetchedCheckouts, mongoPersistedCarts);
@@ -90,10 +92,8 @@ public class Bootstrap {
         var pub = Javalin.create(javalinConfig -> {
             javalinConfig.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
             javalinConfig.fileRenderer(new JavalinJte(templateEngine));
-            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readProductIds));
-            javalinConfig.routes.get("/products", new GetProductsHandler(readProductIds, Set.of(), "Tous les produits"));
-            javalinConfig.routes.get("/products/necklaces", new GetProductsHandler(readProductIds, Set.of(ProductCategory.NECKLACE), "Tous les colliers"));
-            javalinConfig.routes.get("/products/bracelets", new GetProductsHandler(readProductIds, Set.of(ProductCategory.BRACELET), "Tous les bracelets"));
+            javalinConfig.routes.get("/", new GetIndexHandler(readProductIds));
+            javalinConfig.routes.get("/products", new GetProductsHandler(readProductIds, "Tous les produits"));
             javalinConfig.routes.get("/products/{id}", new GetProductHandler(readProduct, readProductIds));
             javalinConfig.routes.get("/products/{id}/card", new GetProductCardHandler(readProduct));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
@@ -110,9 +110,9 @@ public class Bootstrap {
             // CART PART
             javalinConfig.routes.before("/cart*", ensureCartHandler);
             javalinConfig.routes.get("/cart", new GetCartHandler(getOrCreateCart));
-            javalinConfig.routes.post("/cart/items/{product-id}", new PostCartItemHandler(getOrCreateCart, addProductToCart));
+            javalinConfig.routes.post("/cart/items/{product-id}", new PostCartItemHandler(getOrCreateCart, readProduct, addVariantToCart));
             javalinConfig.routes.patch("/cart/items/{product-id}", new PatchCartItemQuantityHandler(updateCartItemQuantity));
-            javalinConfig.routes.delete("/cart/items/{product-id}", new DeleteCartItemHandler(removeProductFromCart));
+            javalinConfig.routes.delete("/cart/items/{product-id}", new DeleteCartItemHandler(removeVariantFromCart));
 
             // CHECKOUT PART
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
@@ -122,13 +122,12 @@ public class Bootstrap {
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
             javalinConfig.routes.get("/admin/products", new GetAdminProductsHandler(readProductIds));
-            javalinConfig.routes.post("/admin/products", new CreateProductHandler(createProduct));
+            javalinConfig.routes.post("/admin/products", new CreateProductHandler(createProduct, createVariant, setDefaultVariantOfProduct));
             javalinConfig.routes.get("/admin/products/{id}", new GetAdminProductHandler(readProduct));
             javalinConfig.routes.get("/admin/products/{id}/row", new GetAdminProductRowHandler(readProduct));
-            javalinConfig.routes.post("/admin/products/{id}/images", new AddImagesToProductHandler(addImagesToProduct));
-            javalinConfig.routes.patch("/admin/products/{product-id}/tagline", new PatchTaglineOfProductHandler(updateTaglineOfProduct));
-            javalinConfig.routes.patch("/admin/products/{product-id}/price", new PatchPriceOfProductHandler(updatePriceOfProduct));
-            javalinConfig.routes.patch("/admin/products/{product-id}/category", new PatchCategoryOfProductHandler(updateCategoryOfProduct));
+            javalinConfig.routes.post("/admin/products/{id}/images", new AddImagesToProductHandler(readProduct, addImagesToVariant));
+            javalinConfig.routes.patch("/admin/products/{product-id}/description", new PatchDescriptionOfProductHandler(updateDescriptionOfProduct));
+            javalinConfig.routes.patch("/admin/products/{product-id}/price", new PatchPriceOfProductHandler(readProduct, updatePriceOfVariant));
             javalinConfig.routes.patch("/admin/products/{product-id}/state", new PatchStateOfProductHandler(updateStateOfProduct));
         });
         pub.start();

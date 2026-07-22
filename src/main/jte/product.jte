@@ -1,7 +1,9 @@
 @import me.noynto.eosa.product.Product
+@import me.noynto.eosa.product.Variant
 @import me.noynto.eosa.shared.ProductId
 @import java.util.List
 @param Product product
+@param Variant defaultVariant
 @param List<ProductId> relatedIds
 
 @template.layouts.main(title = "Eosa — " + product.getName(), content = @`
@@ -14,7 +16,7 @@
 
     <div class="flex flex-col-reverse md:flex-row gap-3.5">
         <div class="flex md:flex-col gap-2.5 overflow-x-auto md:overflow-visible">
-            @if(product.getImageIds().isEmpty())
+            @if(defaultVariant == null || defaultVariant.getImageIds().isEmpty())
                 <div class="w-16 h-16 bg-bg-soft rounded-xl border-2 border-primary relative overflow-hidden flex-shrink-0">
                     <svg viewBox="0 0 64 64" class="w-full h-full">
                         <circle cx="32" cy="32" r="20" fill="#B8A88E" opacity="0.4"/>
@@ -22,10 +24,10 @@
                 </div>
             @else
                 <div class="w-16 h-16 bg-bg-soft rounded-xl border-2 border-primary relative overflow-hidden flex-shrink-0 cursor-pointer"
-                     onclick="document.getElementById('main-image').src='/images/${product.getImageIds().getFirst().value()}'">
-                    <img src="/images/${product.getImageIds().getFirst().value()}" class="w-full h-full object-cover" alt="${product.getName()}">
+                     onclick="document.getElementById('main-image').src='/images/${defaultVariant.getImageIds().getFirst().value()}'">
+                    <img src="/images/${defaultVariant.getImageIds().getFirst().value()}" class="w-full h-full object-cover" alt="${product.getName()}">
                 </div>
-                @for(var imageId : product.getImageIds().subList(1, product.getImageIds().size()))
+                @for(var imageId : defaultVariant.getImageIds().subList(1, defaultVariant.getImageIds().size()))
                     <div class="w-16 h-16 bg-bg-soft rounded-xl relative overflow-hidden flex-shrink-0 cursor-pointer"
                          onclick="document.getElementById('main-image').src='/images/${imageId.value()}'">
                         <img src="/images/${imageId.value()}" class="w-full h-full object-cover" alt="${product.getName()}">
@@ -35,8 +37,8 @@
         </div>
 
         <div class="flex-1 bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
-            @if(!product.getImageIds().isEmpty())
-                <img id="main-image" src="/images/${product.getImageIds().getFirst().value()}" class="w-full h-full object-cover" alt="${product.getName()}">
+            @if(defaultVariant != null && !defaultVariant.getImageIds().isEmpty())
+                <img id="main-image" src="/images/${defaultVariant.getImageIds().getFirst().value()}" class="w-full h-full object-cover" alt="${product.getName()}">
             @else
                 <svg viewBox="0 0 400 400" class="w-full h-full">
                     <ellipse cx="200" cy="280" rx="120" ry="16" fill="#775546" opacity="0.2"/>
@@ -53,18 +55,22 @@
     <div class="flex flex-col gap-6 pt-2">
         <div>
             <h1 class="font-serif text-4xl font-normal leading-tight mb-1.5">${product.getName()}</h1>
-            <div class="text-sm text-secondary mb-3.5">${product.getTagline()}</div>
+            <div class="text-sm text-secondary mb-3.5">${product.getDescription()}</div>
+            @if(defaultVariant != null && defaultVariant.getPrice() != null)
             <div class="flex items-baseline gap-3">
-                <span class="font-serif text-3xl">${product.getPrice().stripTrailingZeros().toPlainString()} €</span>
+                <span class="font-serif text-3xl">${defaultVariant.getPrice().stripTrailingZeros().toPlainString()} €</span>
 
             </div>
+            @endif
         </div>
 
+        @if(defaultVariant != null && defaultVariant.getPrice() != null)
         <div class="flex gap-2.5">
             <button class="flex-1 bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors"
                     hx-post="/cart/items/${product.getId().value()}"
-                    hx-swap="none">Ajouter au panier — ${product.getPrice().stripTrailingZeros().toPlainString()} €</button>
+                    hx-swap="none">Ajouter au panier — ${defaultVariant.getPrice().stripTrailingZeros().toPlainString()} €</button>
         </div>
+        @endif
 
         <div class="bg-bg-soft px-5 py-4 rounded-2xl flex flex-col gap-2.5 text-[13px] text-secondary">
             <div hx-get="/shipping/info" hx-trigger="load" hx-swap="outerHTML" class="flex items-center gap-2.5">

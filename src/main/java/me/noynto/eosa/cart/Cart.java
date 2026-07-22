@@ -37,7 +37,10 @@ public class Cart {
 
     public BigDecimal getTotal() {
         return items.stream()
-                .map(i -> i.price().multiply(BigDecimal.valueOf(i.quantity())))
+                .map(i -> {
+                    BigDecimal unitPrice = i.price().add(i.charmAdditionalPrice() == null ? BigDecimal.ZERO : i.charmAdditionalPrice());
+                    return unitPrice.multiply(BigDecimal.valueOf(i.quantity()));
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

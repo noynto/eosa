@@ -1,20 +1,20 @@
 package me.noynto.eosa.product;
 
-import me.noynto.eosa.shared.ImageId;
+import me.noynto.eosa.shared.OptionId;
 import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Product {
     private ProductId id;
     private String name;
-    private String tagline;
-    private BigDecimal price;
-    private List<ImageId> imageIds = new ArrayList<>();
-    private ProductCategory category;
+    private String description;
     private ProductState state;
+    private List<OptionId> optionIds = new ArrayList<>();
+    private List<Variant> variants = new ArrayList<>();
+    private VariantId defaultVariantId;
 
     public Product() {
     }
@@ -35,36 +35,12 @@ public class Product {
         this.name = name;
     }
 
-    public String getTagline() {
-        return tagline;
+    public String getDescription() {
+        return description;
     }
 
-    public void setTagline(String description) {
-        this.tagline = description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public List<ImageId> getImageIds() {
-        return imageIds;
-    }
-
-    public void setImageIds(List<ImageId> imageIds) {
-        this.imageIds = imageIds;
-    }
-
-    public ProductCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(ProductCategory category) {
-        this.category = category;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public ProductState getState() {
@@ -73,5 +49,29 @@ public class Product {
 
     public void setState(ProductState state) {
         this.state = state;
+    }
+
+    public List<OptionId> getOptionIds() {
+        return optionIds;
+    }
+
+    public void setOptionIds(List<OptionId> optionIds) {
+        this.optionIds = optionIds;
+    }
+
+    public List<Variant> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(List<Variant> variants) {
+        this.variants = variants;
+    }
+
+    public VariantId getDefaultVariantId() {
+        return defaultVariantId;
+    }
+
+    public void setDefaultVariantId(VariantId defaultVariantId) {
+        this.defaultVariantId = defaultVariantId;
     }
 }

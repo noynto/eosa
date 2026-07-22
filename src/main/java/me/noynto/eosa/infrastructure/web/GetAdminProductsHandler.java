@@ -11,7 +11,7 @@ public record GetAdminProductsHandler(ReadProductIds readProductIds) implements 
 
     @Override
     public void handle(Context ctx) {
-        var ids = readProductIds.handle(new ReadProductIds.Query(Set.of(), Set.of()));
+        var ids = readProductIds.handle(new ReadProductIds.Query(Set.of()));
         ctx.render("admin/products.jte", Map.of("productIds", ids));
     }
 

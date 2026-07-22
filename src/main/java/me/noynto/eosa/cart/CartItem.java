@@ -1,15 +1,17 @@
 package me.noynto.eosa.cart;
 
+import me.noynto.eosa.shared.CharmId;
 import me.noynto.eosa.shared.ImageId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.VariantId;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 public class CartItem {
-    private ProductId productId;
+    private VariantId variantId;
+    private CharmId charmId;
     private String name;
     private BigDecimal price;
+    private BigDecimal charmAdditionalPrice;
     private ImageId imageId;
     private int quantity;
 
@@ -17,21 +19,29 @@ public class CartItem {
     }
 
     public CartItem(
-            ProductId productId,
+            VariantId variantId,
+            CharmId charmId,
             String name,
             BigDecimal price,
+            BigDecimal charmAdditionalPrice,
             ImageId imageId,
             int quantity
     ) {
-        this.productId = productId;
+        this.variantId = variantId;
+        this.charmId = charmId;
         this.name = name;
         this.price = price;
+        this.charmAdditionalPrice = charmAdditionalPrice;
         this.imageId = imageId;
         this.quantity = quantity;
     }
 
-    public ProductId productId() {
-        return productId;
+    public VariantId variantId() {
+        return variantId;
+    }
+
+    public CharmId charmId() {
+        return charmId;
     }
 
     public String name() {
@@ -42,6 +52,10 @@ public class CartItem {
         return price;
     }
 
+    public BigDecimal charmAdditionalPrice() {
+        return charmAdditionalPrice;
+    }
+
     public ImageId imageId() {
         return imageId;
     }
@@ -50,12 +64,20 @@ public class CartItem {
         return quantity;
     }
 
-    public ProductId getProductId() {
-        return productId;
+    public VariantId getVariantId() {
+        return variantId;
     }
 
-    public void setProductId(ProductId productId) {
-        this.productId = productId;
+    public void setVariantId(VariantId variantId) {
+        this.variantId = variantId;
+    }
+
+    public CharmId getCharmId() {
+        return charmId;
+    }
+
+    public void setCharmId(CharmId charmId) {
+        this.charmId = charmId;
     }
 
     public String getName() {
@@ -72,6 +94,14 @@ public class CartItem {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public BigDecimal getCharmAdditionalPrice() {
+        return charmAdditionalPrice;
+    }
+
+    public void setCharmAdditionalPrice(BigDecimal charmAdditionalPrice) {
+        this.charmAdditionalPrice = charmAdditionalPrice;
     }
 
     public ImageId getImageId() {
