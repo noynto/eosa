@@ -1,5 +1,5 @@
 # ── Stage 1 : Build ───────────────────────────────────────────────────────────
-FROM --platform=$BUILDPLATFORM maven:3.9-eclipse-temurin-21 AS builder
+FROM --platform=$BUILDPLATFORM maven:3.9-eclipse-temurin-25 AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/root/.m2 \
     mvn package -DskipTests -q
 
 # ── Stage 2 : distroless ──────────────────────────────────────────────────────
-FROM gcr.io/distroless/java21-debian12:nonroot
+FROM gcr.io/distroless/java25-debian13:nonroot
 
 WORKDIR /app
 
@@ -32,6 +32,5 @@ ENTRYPOINT ["java", \
   "-XX:+UseContainerSupport", \
   "-XX:MaxRAMPercentage=75.0", \
   "-XX:+UseZGC", \
-  "-XX:+ZGenerational", \
   "-cp", "app.jar:deps/*", \
   "me.noynto.eosa.Bootstrap"]
