@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`eosa` is a Java 21 e-commerce web application (`me.noynto:eosa`). It exposes a public storefront and a password-protected admin area.
+`eosa` is a Java 25 e-commerce web application (`me.noynto:eosa`). It exposes a public storefront and a password-protected admin area.
 
 The `pom.xml` and `src/` are at the repository root (there is no `server/` subdirectory).
 
@@ -18,8 +18,8 @@ The `pom.xml` and `src/` are at the repository root (there is no `server/` subdi
 | Password hashing | jBCrypt 0.4 |
 | Logging | SLF4J 2.0.17 + slf4j-simple |
 | Metrics | Micrometer (javalin-micrometer) |
-| Tests | JUnit Jupiter 5.11.0 + Mockito 5.12.0 |
-| Runtime | Java 21 (distroless Docker image) |
+| Tests | JUnit Jupiter 5.11.0 + Mockito 5.18.0 |
+| Runtime | Java 25 (distroless Docker image) |
 
 ## Common Commands
 
