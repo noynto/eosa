@@ -14,7 +14,22 @@
             <dependency>
                 <groupId>io.javalin</groupId>
                 <artifactId>javalin-bom</artifactId>
-                <version>7.2.0</version>
+                <version>7.2.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Jetty pinned above Javalin's bundled 12.1.8 to fix CVE-2026-10050 (jetty-security digest auth bypass) -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-bom</artifactId>
+                <version>12.1.11</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-bom</artifactId>
+                <version>12.1.11</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
