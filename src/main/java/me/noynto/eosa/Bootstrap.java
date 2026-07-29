@@ -1,10 +1,9 @@
 package me.noynto.eosa;
 
+import com.github.mustachejava.DefaultMustacheFactory;
 import com.mongodb.client.MongoDatabase;
-import gg.jte.ContentType;
-import gg.jte.TemplateEngine;
 import io.javalin.Javalin;
-import io.javalin.rendering.template.JavalinJte;
+import io.javalin.rendering.template.JavalinMustache;
 import me.noynto.eosa.application.*;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
@@ -25,7 +24,6 @@ import me.noynto.eosa.product.ProductCategory;
 import me.noynto.eosa.product.ProductProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
 
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,13 +81,9 @@ public class Bootstrap {
             new CreateDefaultAdministratorIdentityTask(createAdministratorIdentity, properties).task();
         }
 
-        // JTE
-        Path targetDirectory = Path.of("jte-classes"); // This is the directory where compiled templates are located.
-        TemplateEngine templateEngine = TemplateEngine.createPrecompiled(targetDirectory, ContentType.Html);
-
         var pub = Javalin.create(javalinConfig -> {
             javalinConfig.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
-            javalinConfig.fileRenderer(new JavalinJte(templateEngine));
+            javalinConfig.fileRenderer(new JavalinMustache(new DefaultMustacheFactory("templates")));
             javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readProductIds));
             javalinConfig.routes.get("/products", new GetProductsHandler(readProductIds, Set.of(), "Tous les produits"));
             javalinConfig.routes.get("/products/necklaces", new GetProductsHandler(readProductIds, Set.of(ProductCategory.NECKLACE), "Tous les colliers"));
@@ -99,9 +93,9 @@ public class Bootstrap {
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
 
             // LEGAL PART
-            javalinConfig.routes.get("/legal", context -> context.render("legal.jte"));
-            javalinConfig.routes.get("/terms", context -> context.render("cgv.jte"));
-            javalinConfig.routes.get("/privacy", context -> context.render("privacy.jte"));
+            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales")));
+            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente")));
+            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité")));
 
             // SHIPPING
             javalinConfig.routes.get("/shipping/banner", new GetShippingBannerHandler(shippingRuleProvider));
@@ -118,7 +112,7 @@ public class Bootstrap {
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
             javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession));
 
-            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.jte", Map.of("error", ctx.queryParam("error") != null)));
+            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "hasError", ctx.queryParam("error") != null)));
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
             javalinConfig.routes.get("/admin/products", new GetAdminProductsHandler(readProductIds));

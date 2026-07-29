@@ -1,8 +1,4 @@
-@import java.util.List
-@import me.noynto.eosa.shared.ProductId
-@param List<ProductId> productIds
-
-@template.layouts.admin(title = "Produits", content = @`
+{{> ../partials/header-admin}}
 
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-xl font-medium">Produits</h1>
@@ -19,8 +15,8 @@
         <span class="w-20 text-center">Catégorie</span>
     </div>
     <div id="product-list">
-        @for(var productId : productIds)
-            <div hx-get="/admin/products/${productId.value()}/row"
+        {{#productIds}}
+            <div hx-get="/admin/products/{{id}}/row"
                  hx-trigger="load"
                  hx-swap="outerHTML">
                 <div class="grid grid-cols-[1fr_auto_auto] px-4 py-3 border-b border-bg-border last:border-0 animate-pulse">
@@ -29,10 +25,10 @@
                     <div class="w-20 flex justify-center"><div class="h-3 bg-bg-border rounded w-12"></div></div>
                 </div>
             </div>
-        @endfor
-        @if(productIds.isEmpty())
+        {{/productIds}}
+        {{^productIds}}
             <p class="px-4 py-8 text-sm text-muted text-center">Aucun produit pour l'instant.</p>
-        @endif
+        {{/productIds}}
     </div>
 </div>
 
@@ -61,4 +57,4 @@
     </div>
 </div>
 
-`)
+{{> ../partials/footer-admin}}

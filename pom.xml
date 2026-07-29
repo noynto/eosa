@@ -58,10 +58,10 @@
             <groupId>io.javalin</groupId>
             <artifactId>javalin</artifactId>
         </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/io.javalin/javalin-rendering-jte -->
+        <!-- Source: https://mvnrepository.com/artifact/io.javalin/javalin-rendering-mustache -->
         <dependency>
             <groupId>io.javalin</groupId>
-            <artifactId>javalin-rendering-jte</artifactId>
+            <artifactId>javalin-rendering-mustache</artifactId>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/io.javalin/javalin-micrometer -->
         <dependency>
@@ -118,23 +118,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.3.1</version>
-            </plugin>
-            <plugin>
-                <groupId>gg.jte</groupId>
-                <artifactId>jte-maven-plugin</artifactId>
-                <version>3.2.3</version>
-                <configuration>
-                    <sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-                    <contentType>Html</contentType>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
