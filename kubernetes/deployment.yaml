@@ -29,6 +29,8 @@ spec:
           env:
             - name: EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK
               value: "true"
+            - name: EOSA_MIGRATE_PRODUCTS_TO_JEWELS_TASK
+              value: "true"
             - name: EOSA_MONGO_URL
               valueFrom:
                 secretKeyRef:
