@@ -1,19 +1,14 @@
-@import java.util.List
-@import me.noynto.eosa.shared.ProductId
-@param List<ProductId> productIds
-@param String title
-
-@template.layouts.main(title = "Eosa — " + title, content = @`
+{{> partials/header-main}}
 
 <section class="px-5 md:px-8 py-10">
     <div class="flex items-baseline justify-between mb-8">
-        <h1 class="font-serif text-3xl font-normal">${title}</h1>
-        <span class="text-xs text-secondary">${productIds.size()} pièce${productIds.size() > 1 ? "s" : ""}</span>
+        <h1 class="font-serif text-3xl font-normal">{{heading}}</h1>
+        <span class="text-xs text-secondary">{{countLabel}}</span>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-        @for(var productId : productIds)
-            <div hx-get="/products/${productId.value()}/card"
+        {{#productIds}}
+            <div hx-get="/products/{{id}}/card"
                  hx-trigger="load"
                  hx-swap="outerHTML">
                 <div class="bg-bg-soft aspect-square rounded-3xl animate-pulse"></div>
@@ -22,8 +17,8 @@
                     <div class="h-3 bg-bg-soft rounded-full animate-pulse w-1/3"></div>
                 </div>
             </div>
-        @endfor
+        {{/productIds}}
     </div>
 </section>
 
-`)
+{{> partials/footer-main}}

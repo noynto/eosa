@@ -10,7 +10,8 @@ public record GetShippingBannerHandler(CartShippingRuleProvider shippingRuleProv
 
     @Override
     public void handle(Context ctx) {
-        ctx.render("shipping-banner.jte", Map.of("rule", shippingRuleProvider.get()));
+        var rule = shippingRuleProvider.get();
+        ctx.render("shipping-banner.mustache", Map.of("freeThreshold", rule.getFreeThreshold().stripTrailingZeros().toPlainString()));
     }
 
 }

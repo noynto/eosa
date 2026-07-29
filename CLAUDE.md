@@ -13,7 +13,7 @@ The `pom.xml` and `src/` are at the repository root (there is no `server/` subdi
 | Layer | Technology |
 |---|---|
 | Web framework | Javalin 7.2.0 |
-| Templates | JTE 3.2.3 (pre-compiled at build time) |
+| Templates | Mustache (`javalin-rendering-mustache`, `com.github.spullara.mustache.java`) |
 | Persistence | MongoDB (driver-sync 5.7.0) |
 | Password hashing | jBCrypt 0.4 |
 | Logging | SLF4J 2.0.17 + slf4j-simple |
@@ -58,7 +58,9 @@ infrastructure/
   persistence/mongo/        — MongoDB config (MongoConfiguration reads EOSA_MONGO_URL)
   security/                 — SecuredCrypts (BCrypt)
   web/                      — Javalin handlers + BasicAuth helper
-src/main/jte/               — JTE templates (pre-compiled to jte-classes/ at build)
+src/main/resources/templates/ — Mustache templates; partials/ holds header-main/footer-main
+  and header-admin/footer-admin (no JTE-style layout wrapping — each page includes its own
+  header/footer partial)
 src/test/java/application/  — use case unit tests (Mockito mocks)
 docs/                       — documentation
 requests/                   — HTTP client requests (.http files)
@@ -70,6 +72,8 @@ requests/                   — HTTP client requests (.http files)
 `Bootstrap.java` is the single composition root: it reads env vars, wires all dependencies manually (no DI framework), and registers Javalin routes.
 
 Domain packages (`product/`, `identity/`, etc.) define interfaces and records only — no infrastructure code. Infrastructure implementations live in `infrastructure/`.
+
+View models passed to `ctx.render(...)` are plain `Map<String, Object>` (no view-model classes) built by hand in each handler — Mustache is logic-less, so anything JTE could compute inline (formatting, enum comparisons, pluralization, conditional CSS classes) must be precomputed in Java before it reaches the template. `{{> partial}}` paths inside a template resolve relative to *that template's own directory*, not the templates root — a template under `admin/` or `checkout/` must reference `partials/...` as `../partials/...`.
 
 ## Routes
 

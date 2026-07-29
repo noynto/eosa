@@ -1,23 +1,20 @@
-@import me.noynto.eosa.product.Product
-@param Product product
-
 <section id="images-section" class="bg-bg border border-bg-border rounded-xl p-5">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-medium">Images</h2>
         <span id="toast-images" class="text-xs"></span>
     </div>
 
-    @if(!product.getImageIds().isEmpty())
+    {{#hasImages}}
     <div class="grid grid-cols-4 gap-2 mb-4">
-        @for(var imageId : product.getImageIds())
+        {{#images}}
         <div class="aspect-square rounded-lg overflow-hidden bg-bg-soft border border-bg-border">
-            <img src="/images/${imageId.value()}" alt="" class="w-full h-full object-cover">
+            <img src="/images/{{id}}" alt="" class="w-full h-full object-cover">
         </div>
-        @endfor
+        {{/images}}
     </div>
-    @endif
+    {{/hasImages}}
 
-    <form hx-post="/admin/products/${product.getId().value()}/images"
+    <form hx-post="/admin/products/{{productId}}/images"
           hx-target="#images-section"
           hx-swap="outerHTML"
           hx-encoding="multipart/form-data"

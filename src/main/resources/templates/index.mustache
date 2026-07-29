@@ -1,11 +1,4 @@
-@import me.noynto.eosa.application.ReadCategoryStats
-@import me.noynto.eosa.shared.ProductId
-@import java.util.List
-@param ReadCategoryStats.Stats necklaces
-@param ReadCategoryStats.Stats bracelets
-@param List<ProductId> latestProductIds
-
-@template.layouts.main(title = "Eosa — Bijoux faits main à Nancy", content = @`
+{{> partials/header-main}}
 
 <!-- Hero -->
 <section class="grid md:grid-cols-[1.2fr_1fr] border-b border-bg-border">
@@ -46,10 +39,10 @@
             <div>
                 <div class="font-serif text-xl leading-tight">Colliers</div>
                 <div class="text-xs text-secondary mt-1">
-                    ${necklaces.count()} pièce${necklaces.count() > 1 ? "s" : ""}
-                    @if(necklaces.minPrice() != null)
-                        · dès ${necklaces.minPrice().stripTrailingZeros().toPlainString()} €
-                    @endif
+                    {{necklacesCountLabel}}
+                    {{#necklacesHasMinPrice}}
+                        · dès {{necklacesMinPrice}} €
+                    {{/necklacesHasMinPrice}}
                 </div>
             </div>
         </a>
@@ -65,10 +58,10 @@
             <div>
                 <div class="font-serif text-xl leading-tight">Bracelets</div>
                 <div class="text-xs text-secondary mt-1">
-                    ${bracelets.count()} pièce${bracelets.count() > 1 ? "s" : ""}
-                    @if(bracelets.minPrice() != null)
-                        · dès ${bracelets.minPrice().stripTrailingZeros().toPlainString()} €
-                    @endif
+                    {{braceletsCountLabel}}
+                    {{#braceletsHasMinPrice}}
+                        · dès {{braceletsMinPrice}} €
+                    {{/braceletsHasMinPrice}}
                 </div>
             </div>
         </a>
@@ -86,8 +79,8 @@
         <a href="/products" class="text-xs text-secondary hover:text-primary transition-colors">Tout voir →</a>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-        @for(var productId : latestProductIds)
-            <div hx-get="/products/${productId.value()}/card"
+        {{#latestProductIds}}
+            <div hx-get="/products/{{id}}/card"
                  hx-trigger="load"
                  hx-swap="outerHTML">
                 <div class="bg-bg-soft aspect-square rounded-3xl animate-pulse"></div>
@@ -96,7 +89,7 @@
                     <div class="h-3 bg-bg-soft rounded-full animate-pulse w-1/3"></div>
                 </div>
             </div>
-        @endfor
+        {{/latestProductIds}}
     </div>
 </section>
 
@@ -115,4 +108,4 @@
     </div>
 </section>
 
-`)
+{{> partials/footer-main}}
