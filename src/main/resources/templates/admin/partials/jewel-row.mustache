@@ -1,0 +1,14 @@
+<a href="/admin/jewels/{{jewelId}}"
+   class="grid grid-cols-[1fr_auto_auto] px-4 py-3 border-b border-bg-border last:border-0 hover:bg-bg-soft transition-colors items-center">
+    <span class="text-sm text-primary">{{name}}</span>
+    <span class="w-24 flex justify-center">
+        {{#hasState}}
+            <span class="text-[11px] px-2 py-0.5 rounded-full {{stateBadgeClass}}">
+                {{stateLabel}}
+            </span>
+        {{/hasState}}
+    </span>
+    <span class="w-20 text-center text-xs text-muted">
+        {{#hasCategory}}{{categoryLabel}}{{/hasCategory}}
+    </span>
+</a>

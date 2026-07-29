@@ -2,13 +2,13 @@ package me.noynto.eosa.checkout;
 
 import me.noynto.eosa.shared.CheckoutItemId;
 import me.noynto.eosa.shared.ImageId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.JewelId;
 
 import java.math.BigDecimal;
 
 public class CheckoutItem {
     private CheckoutItemId id;
-    private ProductId productId;
+    private JewelId jewelId;
     private String name;
     private BigDecimal unitPrice;
     private int quantity;
@@ -33,12 +33,12 @@ public class CheckoutItem {
         this.quantity = quantity;
     }
 
-    public ProductId getProductId() {
-        return productId;
+    public JewelId getJewelId() {
+        return jewelId;
     }
 
-    public void setProductId(ProductId productId) {
-        this.productId = productId;
+    public void setJewelId(JewelId jewelId) {
+        this.jewelId = jewelId;
     }
 
     public String getName() {

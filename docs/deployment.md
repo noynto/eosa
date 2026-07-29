@@ -32,7 +32,7 @@ docker run --env-file .env -p 8080:8080 eosa
 
 ### `EOSA_BASE_URL`
 
-Public base URL of the server, without trailing slash. Used to build Stripe redirect URLs and product image URLs.
+Public base URL of the server, without trailing slash. Used to build Stripe redirect URLs and jewel image URLs.
 
 | Property | Value |
 |---|---|

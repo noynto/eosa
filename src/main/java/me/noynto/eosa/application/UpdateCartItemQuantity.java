@@ -5,7 +5,7 @@ import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.shared.CartId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.JewelId;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ public record UpdateCartItemQuantity(
         if (command.cartId == null || command.cartId.value() == null) {
             throw new RuntimeException("L'identifiant du panier est nécessaire.");
         }
-        if (command.productId == null || command.productId.value() == null) {
+        if (command.jewelId == null || command.jewelId.value() == null) {
             throw new RuntimeException("L'identifiant du produit est nécessaire.");
         }
         if (command.quantity < 0) {
@@ -30,14 +30,14 @@ public record UpdateCartItemQuantity(
 
         var items = new ArrayList<>(cart.getItems());
         var existing = items.stream()
-                .filter(i -> i.productId().value().equals(command.productId.value()))
+                .filter(i -> i.jewelId().value().equals(command.jewelId.value()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Le produit " + command.productId.value() + " n'est pas dans le panier."));
+                .orElseThrow(() -> new RuntimeException("Le produit " + command.jewelId.value() + " n'est pas dans le panier."));
 
         items.remove(existing);
         if (command.quantity > 0) {
             items.add(new CartItem(
-                    existing.productId(),
+                    existing.jewelId(),
                     existing.name(),
                     existing.price(),
                     existing.imageId(),
@@ -52,7 +52,7 @@ public record UpdateCartItemQuantity(
 
     public record Command(
             CartId cartId,
-            ProductId productId,
+            JewelId jewelId,
             int quantity
     ) {
     }

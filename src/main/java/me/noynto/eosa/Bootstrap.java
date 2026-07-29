@@ -20,8 +20,8 @@ import me.noynto.eosa.infrastructure.persistence.*;
 import me.noynto.eosa.infrastructure.persistence.mongo.*;
 import me.noynto.eosa.infrastructure.security.SecuredCrypts;
 import me.noynto.eosa.infrastructure.web.*;
-import me.noynto.eosa.product.ProductCategory;
-import me.noynto.eosa.product.ProductProvider;
+import me.noynto.eosa.jewel.JewelCategory;
+import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
 
 import java.util.Map;
@@ -38,7 +38,7 @@ public class Bootstrap {
         //// PROVIDERS
         IdentityProvider mongoPersistedIdentities = new MongoPersistedIdentities(MongoConfiguredIdentities.getCollection(mongoDatabase));
         IdentitySessionProvider mongoPersistedSessions = new MongoPersistedIdentitySessions(MongoConfiguredIdentitySessions.getCollection(mongoDatabase));
-        ProductProvider mongoPersistedProducts = new MongoPersistedProducts(MongoConfiguredProducts.getCollection(mongoDatabase));
+        JewelProvider mongoPersistedJewels = new MongoPersistedJewels(MongoConfiguredJewels.getCollection(mongoDatabase));
         ImageProvider mongoPersistedImages = new MongoPersistedImages(MongoConfiguredImages.getBucket(mongoDatabase));
         CartProvider mongoPersistedCarts = new MongoPersistedCarts(MongoConfiguredCarts.getCollection(mongoDatabase));
         CartShippingRuleProvider shippingRuleProvider = new ConfiguredCartShippingRules();
@@ -54,23 +54,23 @@ public class Bootstrap {
         CryptProvider cryptProvider = new SecuredCrypts();
 
         // HANDLER
-        CreateProduct createProduct = new CreateProduct(mongoPersistedIdentities, mongoPersistedProducts);
-        AddImagesToProduct addImagesToProduct = new AddImagesToProduct(mongoPersistedProducts, mongoPersistedImages);
-        ReadProductIds readProductIds = new ReadProductIds(mongoPersistedProducts);
-        ReadProduct readProduct = new ReadProduct(mongoPersistedProducts);
-        UpdateTaglineOfProduct updateTaglineOfProduct = new UpdateTaglineOfProduct(mongoPersistedProducts);
-        UpdatePriceOfProduct updatePriceOfProduct = new UpdatePriceOfProduct(mongoPersistedProducts);
-        UpdateCategoryOfProduct updateCategoryOfProduct = new UpdateCategoryOfProduct(mongoPersistedProducts);
-        UpdateStateOfProduct updateStateOfProduct = new UpdateStateOfProduct(mongoPersistedProducts);
+        CreateJewel createJewel = new CreateJewel(mongoPersistedIdentities, mongoPersistedJewels);
+        AddImagesToJewel addImagesToJewel = new AddImagesToJewel(mongoPersistedJewels, mongoPersistedImages);
+        ReadJewelIds readJewelIds = new ReadJewelIds(mongoPersistedJewels);
+        ReadJewel readJewel = new ReadJewel(mongoPersistedJewels);
+        UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(mongoPersistedJewels);
+        UpdatePriceOfJewel updatePriceOfJewel = new UpdatePriceOfJewel(mongoPersistedJewels);
+        UpdateCategoryOfJewel updateCategoryOfJewel = new UpdateCategoryOfJewel(mongoPersistedJewels);
+        UpdateStateOfJewel updateStateOfJewel = new UpdateStateOfJewel(mongoPersistedJewels);
         DownloadImage downloadImage = new DownloadImage(mongoPersistedImages);
         AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(mongoPersistedIdentities, mongoPersistedSessions, cryptProvider);
         EnsureIdentityHasValidSession ensureIdentityHasValidSession = new EnsureIdentityHasValidSession(mongoPersistedSessions, mongoPersistedIdentities);
         EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(ensureIdentityHasValidSession);
-        ReadCategoryStats readCategoryStats = new ReadCategoryStats(mongoPersistedProducts, readProductIds);
+        ReadCategoryStats readCategoryStats = new ReadCategoryStats(mongoPersistedJewels, readJewelIds);
         GetOrCreateCart getOrCreateCart = new GetOrCreateCart(mongoPersistedCarts, shippingRuleProvider);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(getOrCreateCart);
-        AddProductToCart addProductToCart = new AddProductToCart(mongoPersistedCarts, mongoPersistedProducts, shippingRuleProvider);
-        RemoveProductFromCart removeProductFromCart = new RemoveProductFromCart(mongoPersistedCarts, shippingRuleProvider);
+        AddJewelToCart addJewelToCart = new AddJewelToCart(mongoPersistedCarts, mongoPersistedJewels, shippingRuleProvider);
+        RemoveJewelFromCart removeJewelFromCart = new RemoveJewelFromCart(mongoPersistedCarts, shippingRuleProvider);
         UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity(mongoPersistedCarts, shippingRuleProvider);
         InitiateCheckout initiateCheckout = new InitiateCheckout(mongoPersistedCarts, stripeFetchedCheckouts, shippingRuleProvider);
         ConfirmCheckoutSession confirmCheckoutSession = new ConfirmCheckoutSession(stripeFetchedCheckouts, mongoPersistedCarts);
@@ -84,12 +84,12 @@ public class Bootstrap {
         var pub = Javalin.create(javalinConfig -> {
             javalinConfig.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
             javalinConfig.fileRenderer(new JavalinMustache(new DefaultMustacheFactory("templates")));
-            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readProductIds));
-            javalinConfig.routes.get("/products", new GetProductsHandler(readProductIds, Set.of(), "Tous les produits"));
-            javalinConfig.routes.get("/products/necklaces", new GetProductsHandler(readProductIds, Set.of(ProductCategory.NECKLACE), "Tous les colliers"));
-            javalinConfig.routes.get("/products/bracelets", new GetProductsHandler(readProductIds, Set.of(ProductCategory.BRACELET), "Tous les bracelets"));
-            javalinConfig.routes.get("/products/{id}", new GetProductHandler(readProduct, readProductIds));
-            javalinConfig.routes.get("/products/{id}/card", new GetProductCardHandler(readProduct));
+            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readJewelIds));
+            javalinConfig.routes.get("/jewels", new GetJewelsHandler(readJewelIds, Set.of(), "Tous les produits"));
+            javalinConfig.routes.get("/jewels/necklaces", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.NECKLACE), "Tous les colliers"));
+            javalinConfig.routes.get("/jewels/bracelets", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.BRACELET), "Tous les bracelets"));
+            javalinConfig.routes.get("/jewels/{id}", new GetJewelHandler(readJewel, readJewelIds));
+            javalinConfig.routes.get("/jewels/{id}/card", new GetJewelCardHandler(readJewel));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
 
             // LEGAL PART
@@ -104,9 +104,9 @@ public class Bootstrap {
             // CART PART
             javalinConfig.routes.before("/cart*", ensureCartHandler);
             javalinConfig.routes.get("/cart", new GetCartHandler(getOrCreateCart));
-            javalinConfig.routes.post("/cart/items/{product-id}", new PostCartItemHandler(getOrCreateCart, addProductToCart));
-            javalinConfig.routes.patch("/cart/items/{product-id}", new PatchCartItemQuantityHandler(updateCartItemQuantity));
-            javalinConfig.routes.delete("/cart/items/{product-id}", new DeleteCartItemHandler(removeProductFromCart));
+            javalinConfig.routes.post("/cart/items/{jewel-id}", new PostCartItemHandler(getOrCreateCart, addJewelToCart));
+            javalinConfig.routes.patch("/cart/items/{jewel-id}", new PatchCartItemQuantityHandler(updateCartItemQuantity));
+            javalinConfig.routes.delete("/cart/items/{jewel-id}", new DeleteCartItemHandler(removeJewelFromCart));
 
             // CHECKOUT PART
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
@@ -115,15 +115,15 @@ public class Bootstrap {
             javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "hasError", ctx.queryParam("error") != null)));
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
-            javalinConfig.routes.get("/admin/products", new GetAdminProductsHandler(readProductIds));
-            javalinConfig.routes.post("/admin/products", new CreateProductHandler(createProduct));
-            javalinConfig.routes.get("/admin/products/{id}", new GetAdminProductHandler(readProduct));
-            javalinConfig.routes.get("/admin/products/{id}/row", new GetAdminProductRowHandler(readProduct));
-            javalinConfig.routes.post("/admin/products/{id}/images", new AddImagesToProductHandler(addImagesToProduct));
-            javalinConfig.routes.patch("/admin/products/{product-id}/tagline", new PatchTaglineOfProductHandler(updateTaglineOfProduct));
-            javalinConfig.routes.patch("/admin/products/{product-id}/price", new PatchPriceOfProductHandler(updatePriceOfProduct));
-            javalinConfig.routes.patch("/admin/products/{product-id}/category", new PatchCategoryOfProductHandler(updateCategoryOfProduct));
-            javalinConfig.routes.patch("/admin/products/{product-id}/state", new PatchStateOfProductHandler(updateStateOfProduct));
+            javalinConfig.routes.get("/admin/jewels", new GetAdminJewelsHandler(readJewelIds));
+            javalinConfig.routes.post("/admin/jewels", new CreateJewelHandler(createJewel));
+            javalinConfig.routes.get("/admin/jewels/{id}", new GetAdminJewelHandler(readJewel));
+            javalinConfig.routes.get("/admin/jewels/{id}/row", new GetAdminJewelRowHandler(readJewel));
+            javalinConfig.routes.post("/admin/jewels/{id}/images", new AddImagesToJewelHandler(addImagesToJewel));
+            javalinConfig.routes.patch("/admin/jewels/{jewel-id}/tagline", new PatchTaglineOfJewelHandler(updateTaglineOfJewel));
+            javalinConfig.routes.patch("/admin/jewels/{jewel-id}/price", new PatchPriceOfJewelHandler(updatePriceOfJewel));
+            javalinConfig.routes.patch("/admin/jewels/{jewel-id}/category", new PatchCategoryOfJewelHandler(updateCategoryOfJewel));
+            javalinConfig.routes.patch("/admin/jewels/{jewel-id}/state", new PatchStateOfJewelHandler(updateStateOfJewel));
         });
         pub.start();
     }

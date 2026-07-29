@@ -1,0 +1,33 @@
+<section id="images-section" class="bg-bg border border-bg-border rounded-xl p-5">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-medium">Images</h2>
+        <span id="toast-images" class="text-xs"></span>
+    </div>
+
+    {{#hasImages}}
+    <div class="grid grid-cols-4 gap-2 mb-4">
+        {{#images}}
+        <div class="aspect-square rounded-lg overflow-hidden bg-bg-soft border border-bg-border">
+            <img src="/images/{{id}}" alt="" class="w-full h-full object-cover">
+        </div>
+        {{/images}}
+    </div>
+    {{/hasImages}}
+
+    <form hx-post="/admin/jewels/{{jewelId}}/images"
+          hx-target="#images-section"
+          hx-swap="outerHTML"
+          hx-encoding="multipart/form-data"
+          class="flex items-center gap-3">
+        <label class="flex-1 flex items-center gap-2 bg-bg-soft border border-bg-border border-dashed rounded-lg px-3 py-2 cursor-pointer hover:border-secondary transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span class="file-label text-xs text-secondary">Choisir des fichiers…</span>
+            <input type="file" name="images" accept="image/*" multiple class="hidden"
+                   onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files.length===1?this.files[0].name:this.files.length+' fichiers sélectionnés'; l.classList.replace('text-secondary','text-primary');">
+        </label>
+        <button type="submit"
+                class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors shrink-0">
+            Uploader
+        </button>
+    </form>
+</section>

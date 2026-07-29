@@ -16,7 +16,7 @@ public record PostSignInHandler(
                     new AuthenticateIdentity.Command(ctx.formParam("name"), ctx.formParam("secret"))
             );
             ctx.cookie("identity-session-id", session.getId().value());
-            ctx.redirect("/admin/products");
+            ctx.redirect("/admin/jewels");
         } catch (AuthenticateIdentity.InvalidCredentials e) {
             ctx.redirect("/sign-in?error=1");
         }

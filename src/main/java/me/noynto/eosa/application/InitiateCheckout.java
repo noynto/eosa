@@ -35,7 +35,7 @@ public record InitiateCheckout(
                     checkoutItem.setName(item.name());
                     checkoutItem.setUnitPrice(item.price());
                     checkoutItem.setQuantity(item.quantity());
-                    checkoutItem.setProductId(item.productId());
+                    checkoutItem.setJewelId(item.jewelId());
                     checkoutItem.setImageId(item.imageId());
                     return checkoutItem;
                 })

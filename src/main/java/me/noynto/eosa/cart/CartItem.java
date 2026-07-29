@@ -1,13 +1,13 @@
 package me.noynto.eosa.cart;
 
 import me.noynto.eosa.shared.ImageId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.JewelId;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class CartItem {
-    private ProductId productId;
+    private JewelId jewelId;
     private String name;
     private BigDecimal price;
     private ImageId imageId;
@@ -17,21 +17,21 @@ public class CartItem {
     }
 
     public CartItem(
-            ProductId productId,
+            JewelId jewelId,
             String name,
             BigDecimal price,
             ImageId imageId,
             int quantity
     ) {
-        this.productId = productId;
+        this.jewelId = jewelId;
         this.name = name;
         this.price = price;
         this.imageId = imageId;
         this.quantity = quantity;
     }
 
-    public ProductId productId() {
-        return productId;
+    public JewelId jewelId() {
+        return jewelId;
     }
 
     public String name() {
@@ -50,12 +50,12 @@ public class CartItem {
         return quantity;
     }
 
-    public ProductId getProductId() {
-        return productId;
+    public JewelId getJewelId() {
+        return jewelId;
     }
 
-    public void setProductId(ProductId productId) {
-        this.productId = productId;
+    public void setJewelId(JewelId jewelId) {
+        this.jewelId = jewelId;
     }
 
     public String getName() {

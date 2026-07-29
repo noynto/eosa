@@ -3,14 +3,14 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
-import me.noynto.eosa.application.AddProductToCart;
+import me.noynto.eosa.application.AddJewelToCart;
 import me.noynto.eosa.application.GetOrCreateCart;
 import me.noynto.eosa.shared.CartId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.JewelId;
 
 public record PostCartItemHandler(
         GetOrCreateCart getOrCreateCart,
-        AddProductToCart addProductToCart
+        AddJewelToCart addJewelToCart
 ) implements Handler {
 
     @Override
@@ -20,9 +20,9 @@ public record PostCartItemHandler(
                 cookieValue != null ? new CartId(cookieValue) : null
         ));
         ctx.cookie("cart", cart.getId().value());
-        addProductToCart.handle(new AddProductToCart.Command(
+        addJewelToCart.handle(new AddJewelToCart.Command(
                 cart.getId(),
-                new ProductId(ctx.pathParam("product-id"))
+                new JewelId(ctx.pathParam("jewel-id"))
         ));
         redirectOrHtmx(ctx);
     }

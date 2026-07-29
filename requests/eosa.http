@@ -1,13 +1,13 @@
 ### Créer un produit
-POST {{baseUrl}}/admin/products
+POST {{baseUrl}}/admin/jewels
 Authorization: Basic {{adminCredentials}}
 Content-Type: application/x-www-form-urlencoded
 
 name=Chloé
 
 ### Uploader des images sur un produit
-@productId=6a225da7ae80b0e0d7f8b0c0
-POST {{baseUrl}}/admin/products/{{productId}}/images
+@jewelId=6a225da7ae80b0e0d7f8b0c0
+POST {{baseUrl}}/admin/jewels/{{jewelId}}/images
 Authorization: Basic {{adminCredentials}}
 Content-Type: multipart/form-data; boundary=boundary
 
@@ -20,36 +20,36 @@ Content-Type: image/jpeg
 #< ../docs/collier5.jpg
 
 ### Lister les IDs de produits (page HTML)
-GET http://localhost:8080/products
+GET http://localhost:8080/jewels
 Accept: text/html
 
 ### Charger la card d'un produit (fragment HTMX)
-GET http://localhost:8080/products/{{productId}}/card
+GET http://localhost:8080/jewels/{{jewelId}}/card
 Accept: text/html
 
 ### Mettre à jour l'accroche d'un produit
-PATCH {{baseUrl}}/admin/products/{{productId}}/tagline
+PATCH {{baseUrl}}/admin/jewels/{{jewelId}}/tagline
 Authorization: Basic {{adminCredentials}}
 Content-Type: application/x-www-form-urlencoded
 
 tagline=Un bijou pensé pour celles qui aiment les pièces uniques, solaires et pleines de caractère.
 
 ### Mettre à jour le prix d'un produit
-PATCH {{baseUrl}}/admin/products/{{productId}}/price
+PATCH {{baseUrl}}/admin/jewels/{{jewelId}}/price
 Authorization: Basic {{adminCredentials}}
 Content-Type: application/x-www-form-urlencoded
 
 price=33.00
 
 ### Mettre à jour la catégorie d'un produit
-PATCH {{baseUrl}}/admin/products/{{productId}}/category
+PATCH {{baseUrl}}/admin/jewels/{{jewelId}}/category
 Authorization: Basic {{adminCredentials}}
 Content-Type: application/x-www-form-urlencoded
 
 category=NECKLACE
 
 ### Mettre à jour l'état d'un produit
-PATCH {{baseUrl}}/admin/products/{{productId}}/state
+PATCH {{baseUrl}}/admin/jewels/{{jewelId}}/state
 Authorization: Basic {{adminCredentials}}
 Content-Type: application/x-www-form-urlencoded
 

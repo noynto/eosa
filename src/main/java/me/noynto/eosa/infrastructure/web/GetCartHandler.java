@@ -34,7 +34,7 @@ public record GetCartHandler(GetOrCreateCart getOrCreateCart) implements Handler
         var items = cart.getItems().stream().map(item -> {
             boolean hasImage = item.imageId() != null;
             Map<String, Object> line = new HashMap<>();
-            line.put("productId", item.productId().value());
+            line.put("jewelId", item.jewelId().value());
             line.put("hasImage", hasImage);
             line.put("imageId", hasImage ? item.imageId().value() : "");
             line.put("name", item.name());
