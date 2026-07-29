@@ -32,7 +32,7 @@ docker run --env-file .env -p 8080:8080 eosa
 
 ### `EOSA_BASE_URL`
 
-Public base URL of the server, without trailing slash. Used to build Stripe redirect URLs and product image URLs.
+Public base URL of the server, without trailing slash. Used to build Stripe redirect URLs and jewel image URLs.
 
 | Property | Value |
 |---|---|
@@ -114,6 +114,17 @@ Montant total du panier (en euros) à partir duquel la livraison est offerte.
 ### `EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK`
 
 When set to `true`, the application creates the default administrator identity on startup and exits. Intended for one-shot initialisation jobs.
+
+| Property | Value |
+|---|---|
+| Required | No |
+| Default | `false` |
+
+---
+
+### `EOSA_MIGRATE_PRODUCTS_TO_JEWELS_TASK`
+
+When set to `true`, the application copies every document from the legacy `products` collection into `jewels` (skipped if `jewels` already has documents) and exits. The `products` collection is left untouched as a backup. One-shot job, run once after upgrading to the `Jewel` rename if the deployment has pre-existing catalog data.
 
 | Property | Value |
 |---|---|

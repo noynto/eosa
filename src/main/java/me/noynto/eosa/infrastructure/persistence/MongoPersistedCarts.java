@@ -9,7 +9,7 @@ import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.ImageId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.JewelId;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -24,7 +24,7 @@ public record MongoPersistedCarts(
 
     private static final String ID = "_id";
     private static final String ITEMS = "items";
-    private static final String PRODUCT_ID = "productId";
+    private static final String JEWEL_ID = "jewelId";
     private static final String NAME = "name";
     private static final String PRICE = "price";
     private static final String IMAGE_ID = "imageId";
@@ -47,7 +47,7 @@ public record MongoPersistedCarts(
         List<Document> rawItems = result.getList(ITEMS, Document.class);
         if (rawItems != null) {
             cart.setItems(rawItems.stream().map(doc -> new CartItem(
-                    new ProductId(doc.getString(PRODUCT_ID)),
+                    new JewelId(doc.getString(JEWEL_ID)),
                     doc.getString(NAME),
                     new BigDecimal(doc.getString(PRICE)),
                     doc.getString(IMAGE_ID) != null ? new ImageId(doc.getString(IMAGE_ID)) : null,
@@ -60,7 +60,7 @@ public record MongoPersistedCarts(
     @Override
     public Cart write(Cart cart) {
         List<Document> itemDocs = cart.getItems().stream().map(item -> new Document()
-                .append(PRODUCT_ID, item.productId().value())
+                .append(JEWEL_ID, item.jewelId().value())
                 .append(NAME, item.name())
                 .append(PRICE, item.price().toPlainString())
                 .append(IMAGE_ID, item.imageId() != null ? item.imageId().value() : null)

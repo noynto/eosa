@@ -14,7 +14,7 @@
             Colliers, bracelets et pierres, faits main à Nancy. Des pièces en matières nobles, conçues pour durer.
         </p>
         <div class="flex gap-3 flex-wrap">
-            <a href="/products" class="bg-secondary text-bg px-6 py-3 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir la collection</a>
+            <a href="/jewels" class="bg-secondary text-bg px-6 py-3 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir la collection</a>
             <a href="/about" class="border border-bg-border px-6 py-3 rounded-full text-sm text-secondary hover:border-secondary transition-colors">Notre histoire</a>
         </div>
     </div>
@@ -28,7 +28,7 @@
         <span class="text-xs text-secondary ml-1">explorer par famille</span>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <a href="/products/necklaces" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
+        <a href="/jewels/necklaces" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
             <div class="w-14 h-14 flex-shrink-0">
                 <svg viewBox="0 0 56 56" class="w-full h-full">
                     <path d="M8 18 Q28 50 48 18" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
@@ -46,7 +46,7 @@
                 </div>
             </div>
         </a>
-        <a href="/products/bracelets" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
+        <a href="/jewels/bracelets" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
             <div class="w-14 h-14 flex-shrink-0">
                 <svg viewBox="0 0 56 56" class="w-full h-full">
                     <ellipse cx="28" cy="28" rx="18" ry="10" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
@@ -76,11 +76,11 @@
             <h2 class="font-serif text-2xl font-normal">Nouveautés</h2>
             <span class="text-xs text-secondary ml-1">dernières arrivées</span>
         </div>
-        <a href="/products" class="text-xs text-secondary hover:text-primary transition-colors">Tout voir →</a>
+        <a href="/jewels" class="text-xs text-secondary hover:text-primary transition-colors">Tout voir →</a>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
         {{#latestProductIds}}
-            <div hx-get="/products/{{id}}/card"
+            <div hx-get="/jewels/{{id}}/card"
                  hx-trigger="load"
                  hx-swap="outerHTML">
                 <div class="bg-bg-soft aspect-square rounded-3xl animate-pulse"></div>

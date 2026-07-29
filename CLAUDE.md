@@ -50,7 +50,7 @@ mvn clean package
 ```
 Bootstrap.java              — composition root, all wiring done here
 application/                — use cases (one class per command)
-product/, identity/,        — domain: interfaces + records
+jewel/, identity/,          — domain: interfaces + records
   image/, session/, hash/
 shared/                     — value objects (IDs as records)
 infrastructure/
@@ -71,7 +71,7 @@ requests/                   — HTTP client requests (.http files)
 
 `Bootstrap.java` is the single composition root: it reads env vars, wires all dependencies manually (no DI framework), and registers Javalin routes.
 
-Domain packages (`product/`, `identity/`, etc.) define interfaces and records only — no infrastructure code. Infrastructure implementations live in `infrastructure/`.
+Domain packages (`jewel/`, `identity/`, etc.) define interfaces and records only — no infrastructure code. Infrastructure implementations live in `infrastructure/`.
 
 View models passed to `ctx.render(...)` are plain `Map<String, Object>` (no view-model classes) built by hand in each handler — Mustache is logic-less, so anything JTE could compute inline (formatting, enum comparisons, pluralization, conditional CSS classes) must be precomputed in Java before it reaches the template. `{{> partial}}` paths inside a template resolve relative to *that template's own directory*, not the templates root — a template under `admin/` or `checkout/` must reference `partials/...` as `../partials/...`.
 
@@ -80,15 +80,15 @@ View models passed to `ctx.render(...)` are plain `Map<String, Object>` (no view
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | GET | `/` | — | Home page |
-| GET | `/products` | — | Product list |
-| GET | `/products/{id}` | — | Product detail |
-| GET | `/products/{id}/card` | — | Product card partial |
+| GET | `/jewels` | — | Jewel list |
+| GET | `/jewels/{id}` | — | Jewel detail |
+| GET | `/jewels/{id}/card` | — | Jewel card partial |
 | GET | `/images/{id}` | — | Image download |
 | GET | `/cart` | — | Cart page |
 | GET | `/payment` | — | Payment page |
 | GET | `/admin/sign-in` | — | Admin login page |
-| POST | `/admin/products` | Basic Auth | Create product |
-| POST | `/admin/products/{id}/images` | Basic Auth | Add images to product |
+| POST | `/admin/jewels` | Basic Auth | Create jewel |
+| POST | `/admin/jewels/{id}/images` | Basic Auth | Add images to jewel |
 
 ## Environment Variables
 

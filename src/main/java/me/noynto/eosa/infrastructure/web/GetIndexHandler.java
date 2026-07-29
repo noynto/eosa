@@ -3,22 +3,22 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadCategoryStats;
-import me.noynto.eosa.application.ReadProductIds;
-import me.noynto.eosa.product.ProductCategory;
-import me.noynto.eosa.product.ProductState;
+import me.noynto.eosa.application.ReadJewelIds;
+import me.noynto.eosa.jewel.JewelCategory;
+import me.noynto.eosa.jewel.JewelState;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadProductIds readProductIds) implements Handler {
+public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadJewelIds readJewelIds) implements Handler {
 
     @Override
     public void handle(Context ctx) {
-        var necklaces = readCategoryStats.handle(ProductCategory.NECKLACE);
-        var bracelets = readCategoryStats.handle(ProductCategory.BRACELET);
-        var latestProductIds = readProductIds.handle(new ReadProductIds.Query(
-                Set.of(ProductState.PUBLISHED), Set.of(), 4
+        var necklaces = readCategoryStats.handle(JewelCategory.NECKLACE);
+        var bracelets = readCategoryStats.handle(JewelCategory.BRACELET);
+        var latestJewelIds = readJewelIds.handle(new ReadJewelIds.Query(
+                Set.of(JewelState.PUBLISHED), Set.of(), 4
         ));
 
         Map<String, Object> model = new HashMap<>();
@@ -29,7 +29,7 @@ public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadProductId
         model.put("braceletsCountLabel", pieceLabel(bracelets.count()));
         model.put("braceletsHasMinPrice", bracelets.minPrice() != null);
         model.put("braceletsMinPrice", bracelets.minPrice() != null ? bracelets.minPrice().stripTrailingZeros().toPlainString() : "");
-        model.put("latestProductIds", latestProductIds.stream().map(id -> Map.of("id", id.value())).toList());
+        model.put("latestJewelIds", latestJewelIds.stream().map(id -> Map.of("id", id.value())).toList());
         ctx.render("index.mustache", model);
     }
 

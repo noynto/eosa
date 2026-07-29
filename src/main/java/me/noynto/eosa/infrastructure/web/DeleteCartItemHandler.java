@@ -3,12 +3,12 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
-import me.noynto.eosa.application.RemoveProductFromCart;
+import me.noynto.eosa.application.RemoveJewelFromCart;
 import me.noynto.eosa.shared.CartId;
-import me.noynto.eosa.shared.ProductId;
+import me.noynto.eosa.shared.JewelId;
 
 public record DeleteCartItemHandler(
-        RemoveProductFromCart removeProductFromCart
+        RemoveJewelFromCart removeJewelFromCart
 ) implements Handler {
 
     @Override
@@ -18,9 +18,9 @@ public record DeleteCartItemHandler(
             ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
-        removeProductFromCart.handle(new RemoveProductFromCart.Command(
+        removeJewelFromCart.handle(new RemoveJewelFromCart.Command(
                 new CartId(cookieValue),
-                new ProductId(ctx.pathParam("product-id"))
+                new JewelId(ctx.pathParam("jewel-id"))
         ));
         redirectOrHtmx(ctx);
     }
