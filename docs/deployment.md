@@ -119,3 +119,14 @@ When set to `true`, the application creates the default administrator identity o
 |---|---|
 | Required | No |
 | Default | `false` |
+
+---
+
+### `EOSA_MIGRATE_PRODUCTS_TO_JEWELS_TASK`
+
+When set to `true`, the application copies every document from the legacy `products` collection into `jewels` (skipped if `jewels` already has documents) and exits. The `products` collection is left untouched as a backup. One-shot job, run once after upgrading to the `Jewel` rename if the deployment has pre-existing catalog data.
+
+| Property | Value |
+|---|---|
+| Required | No |
+| Default | `false` |

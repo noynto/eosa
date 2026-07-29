@@ -23,6 +23,7 @@ import me.noynto.eosa.infrastructure.web.*;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import me.noynto.eosa.task.MigrateProductsCollectionToJewelsTask;
 
 import java.util.Map;
 import java.util.Set;
@@ -79,6 +80,9 @@ public class Bootstrap {
         // TASK
         if (CreateDefaultAdministratorIdentityTask.activate()) {
             new CreateDefaultAdministratorIdentityTask(createAdministratorIdentity, properties).task();
+        }
+        if (MigrateProductsCollectionToJewelsTask.activate()) {
+            new MigrateProductsCollectionToJewelsTask(mongoDatabase).task();
         }
 
         var pub = Javalin.create(javalinConfig -> {
