@@ -79,11 +79,21 @@ public class Bootstrap {
         CreateAdministratorIdentity createAdministratorIdentity = new CreateAdministratorIdentity(mongoPersistedIdentities, cryptProvider);
 
         // TASK
+        // Runs every activated one-shot task before exiting once — each task used to call
+        // Runtime.getRuntime().exit() itself, which killed the JVM before a second activated
+        // task ever ran.
+        boolean ranOneShotTask = false;
+        boolean oneShotTasksSucceeded = true;
         if (CreateDefaultAdministratorIdentityTask.activate()) {
-            new CreateDefaultAdministratorIdentityTask(createAdministratorIdentity, properties).task();
+            oneShotTasksSucceeded &= new CreateDefaultAdministratorIdentityTask(createAdministratorIdentity, properties).task();
+            ranOneShotTask = true;
         }
         if (MigrateProductsCollectionToJewelsTask.activate()) {
-            new MigrateProductsCollectionToJewelsTask(mongoDatabase).task();
+            oneShotTasksSucceeded &= new MigrateProductsCollectionToJewelsTask(mongoDatabase).task();
+            ranOneShotTask = true;
+        }
+        if (ranOneShotTask) {
+            Runtime.getRuntime().exit(oneShotTasksSucceeded ? 0 : 1);
         }
 
         var pub = Javalin.create(javalinConfig -> {
