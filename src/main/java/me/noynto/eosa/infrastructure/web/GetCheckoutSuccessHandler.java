@@ -40,6 +40,7 @@ public record GetCheckoutSuccessHandler(
         model.put("title", "Eosa — Commande confirmée");
         model.put("description", "Confirmation de votre commande Eosa.");
         model.put("ogImageUrl", baseUrl + "/hero.webp");
+        model.put("canonicalUrl", baseUrl + ctx.path());
         model.put("isCompleted", isCompleted);
         model.put("isExpired", isExpired);
         model.put("hasItems", hasItems);

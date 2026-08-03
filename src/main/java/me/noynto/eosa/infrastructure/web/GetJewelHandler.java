@@ -44,6 +44,7 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, St
             model.put("tagline", jewel.getTagline() != null ? jewel.getTagline() : "");
             model.put("description", jewel.getTagline() != null ? jewel.getTagline() : "Bijoux faits main à Nancy — colliers, bracelets et pierres en matières nobles, conçus pour durer.");
             model.put("ogImageUrl", hasImages ? baseUrl + "/images/" + jewel.getImageIds().getFirst().value() : baseUrl + "/hero.webp");
+            model.put("canonicalUrl", baseUrl + ctx.path());
             model.put("price", jewel.getPrice().stripTrailingZeros().toPlainString());
             model.put("jewelId", jewel.getId().value());
             model.put("hasImages", hasImages);

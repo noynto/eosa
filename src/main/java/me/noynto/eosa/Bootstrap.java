@@ -107,9 +107,9 @@ public class Bootstrap {
             ));
 
             // LEGAL PART
-            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales", "description", "Mentions légales du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp")));
-            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente", "description", "Conditions générales de vente du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp")));
-            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité", "description", "Politique de confidentialité du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp")));
+            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales", "description", "Mentions légales du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
+            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente", "description", "Conditions générales de vente du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
+            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité", "description", "Politique de confidentialité du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
 
             // SHIPPING
             javalinConfig.routes.get("/shipping/banner", new GetShippingBannerHandler(shippingRuleProvider));
@@ -126,7 +126,14 @@ public class Bootstrap {
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
             javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession, baseUrl));
 
-            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "description", "Connexion à l'espace administrateur Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "hasError", ctx.queryParam("error") != null, "noindex", true)));
+            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.ofEntries(
+                    Map.entry("title", "Connexion — Eosa"),
+                    Map.entry("description", "Connexion à l'espace administrateur Eosa."),
+                    Map.entry("ogImageUrl", baseUrl + "/hero.webp"),
+                    Map.entry("canonicalUrl", baseUrl + ctx.path()),
+                    Map.entry("hasError", ctx.queryParam("error") != null),
+                    Map.entry("noindex", true)
+            )));
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
             javalinConfig.routes.get("/admin/jewels", new GetAdminJewelsHandler(readJewelIds));

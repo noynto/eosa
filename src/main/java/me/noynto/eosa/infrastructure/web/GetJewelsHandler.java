@@ -25,6 +25,7 @@ public record GetJewelsHandler(
         model.put("heading", title);
         model.put("description", title + " — bijoux faits main à Nancy, en matières nobles, conçus pour durer.");
         model.put("ogImageUrl", baseUrl + "/hero.webp");
+        model.put("canonicalUrl", baseUrl + ctx.path());
         model.put("countLabel", jewelIds.size() + " pièce" + (jewelIds.size() > 1 ? "s" : ""));
         model.put("jewelIds", jewelIds.stream().map(id -> Map.of("id", id.value())).toList());
         ctx.render("jewels.mustache", model);

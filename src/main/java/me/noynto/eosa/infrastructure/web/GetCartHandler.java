@@ -49,6 +49,7 @@ public record GetCartHandler(GetOrCreateCart getOrCreateCart, String baseUrl) im
         model.put("title", "Eosa — Votre panier");
         model.put("description", "Votre panier Eosa — bijoux faits main à Nancy.");
         model.put("ogImageUrl", baseUrl + "/hero.webp");
+        model.put("canonicalUrl", baseUrl + ctx.path());
         model.put("itemCountLabel", cart.getItems().size() + " article" + (cart.getItems().size() > 1 ? "s" : ""));
         model.put("hasItems", hasItems);
         model.put("items", items);
