@@ -96,6 +96,15 @@ public class Bootstrap {
             javalinConfig.routes.get("/jewels/{id}/card", new GetJewelCardHandler(readJewel));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
 
+            // SEO
+            javalinConfig.routes.get("/robots.txt", ctx -> ctx.contentType("text/plain").result(
+                    "User-agent: *\n" +
+                    "Disallow: /admin/\n" +
+                    "Disallow: /sign-in\n" +
+                    "Disallow: /cart\n" +
+                    "Disallow: /checkout/\n"
+            ));
+
             // LEGAL PART
             javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales")));
             javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente")));
