@@ -125,7 +125,7 @@ public class Bootstrap {
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
             javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession));
 
-            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "hasError", ctx.queryParam("error") != null)));
+            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "hasError", ctx.queryParam("error") != null, "noindex", true)));
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
             javalinConfig.routes.get("/admin/jewels", new GetAdminJewelsHandler(readJewelIds));
