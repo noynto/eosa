@@ -1,5 +1,22 @@
 {{> partials/header-main}}
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{name}}",
+  "description": "{{description}}",
+  "image": "{{ogImageUrl}}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{canonicalUrl}}",
+    "priceCurrency": "EUR",
+    "price": "{{price}}",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+
 <nav class="px-5 md:px-8 py-3.5 text-xs text-muted border-b border-bg-border">
     <a href="/" class="hover:text-secondary transition-colors">Boutique</a><span class="mx-1.5">›</span><a href="/jewels" class="hover:text-secondary transition-colors">Produits</a><span class="mx-1.5">›</span><span class="text-primary">{{name}}</span>
 </nav>
