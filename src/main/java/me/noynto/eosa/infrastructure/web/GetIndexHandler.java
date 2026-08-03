@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadJewelIds readJewelIds) implements Handler {
+public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadJewelIds readJewelIds, String baseUrl) implements Handler {
 
     @Override
     public void handle(Context ctx) {
@@ -23,6 +23,9 @@ public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadJewelIds 
 
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Bijoux faits main à Nancy");
+        model.put("description", "Bijoux faits main à Nancy — colliers, bracelets et pierres en matières nobles, conçus pour durer.");
+        model.put("ogImageUrl", baseUrl + "/hero.webp");
+        model.put("canonicalUrl", baseUrl + ctx.path());
         model.put("necklacesCountLabel", pieceLabel(necklaces.count()));
         model.put("necklacesHasMinPrice", necklaces.minPrice() != null);
         model.put("necklacesMinPrice", necklaces.minPrice() != null ? necklaces.minPrice().stripTrailingZeros().toPlainString() : "");

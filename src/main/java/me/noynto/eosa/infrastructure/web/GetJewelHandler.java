@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds) implements Handler {
+public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, String baseUrl) implements Handler {
 
     private static final String THUMB_ACTIVE = "w-16 h-16 bg-bg-soft rounded-xl border-2 border-primary relative overflow-hidden flex-shrink-0 cursor-pointer";
     private static final String THUMB_INACTIVE = "w-16 h-16 bg-bg-soft rounded-xl relative overflow-hidden flex-shrink-0 cursor-pointer";
@@ -42,6 +42,9 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds) im
             model.put("title", "Eosa — " + jewel.getName());
             model.put("name", jewel.getName());
             model.put("tagline", jewel.getTagline() != null ? jewel.getTagline() : "");
+            model.put("description", jewel.getTagline() != null ? jewel.getTagline() : "Bijoux faits main à Nancy — colliers, bracelets et pierres en matières nobles, conçus pour durer.");
+            model.put("ogImageUrl", hasImages ? baseUrl + "/images/" + jewel.getImageIds().getFirst().value() : baseUrl + "/hero.webp");
+            model.put("canonicalUrl", baseUrl + ctx.path());
             model.put("price", jewel.getPrice().stripTrailingZeros().toPlainString());
             model.put("jewelId", jewel.getId().value());
             model.put("hasImages", hasImages);

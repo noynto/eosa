@@ -32,6 +32,7 @@ public class Bootstrap {
 
     public static void main(String[] args) {
         Properties properties = Configuration.getProperties();
+        String baseUrl = properties.baseUrl().toString();
 
         // DATASOURCES
         MongoProperties mongoProperties = MongoConfiguration.getProperties();
@@ -88,18 +89,30 @@ public class Bootstrap {
         var pub = Javalin.create(javalinConfig -> {
             javalinConfig.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
             javalinConfig.fileRenderer(new JavalinMustache(new DefaultMustacheFactory("templates")));
-            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readJewelIds));
-            javalinConfig.routes.get("/jewels", new GetJewelsHandler(readJewelIds, Set.of(), "Tous les produits"));
-            javalinConfig.routes.get("/jewels/necklaces", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.NECKLACE), "Tous les colliers"));
-            javalinConfig.routes.get("/jewels/bracelets", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.BRACELET), "Tous les bracelets"));
-            javalinConfig.routes.get("/jewels/{id}", new GetJewelHandler(readJewel, readJewelIds));
+            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readJewelIds, baseUrl));
+            javalinConfig.routes.get("/jewels", new GetJewelsHandler(readJewelIds, Set.of(), "Tous les produits", baseUrl));
+            javalinConfig.routes.get("/jewels/necklaces", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.NECKLACE), "Tous les colliers", baseUrl));
+            javalinConfig.routes.get("/jewels/bracelets", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.BRACELET), "Tous les bracelets", baseUrl));
+            javalinConfig.routes.get("/jewels/{id}", new GetJewelHandler(readJewel, readJewelIds, baseUrl));
             javalinConfig.routes.get("/jewels/{id}/card", new GetJewelCardHandler(readJewel));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
 
+            // SEO
+            javalinConfig.routes.get("/robots.txt", ctx -> ctx.contentType("text/plain").result(
+                    "User-agent: *\n" +
+                    "Disallow: /admin/\n" +
+                    "Disallow: /sign-in\n" +
+                    "Disallow: /cart\n" +
+                    "Disallow: /checkout/\n" +
+                    "\n" +
+                    "Sitemap: " + baseUrl + "/sitemap.xml\n"
+            ));
+            javalinConfig.routes.get("/sitemap.xml", new GetSitemapHandler(readJewelIds, baseUrl));
+
             // LEGAL PART
-            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales")));
-            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente")));
-            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité")));
+            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales", "description", "Mentions légales du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
+            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente", "description", "Conditions générales de vente du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
+            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité", "description", "Politique de confidentialité du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
 
             // SHIPPING
             javalinConfig.routes.get("/shipping/banner", new GetShippingBannerHandler(shippingRuleProvider));
@@ -107,16 +120,23 @@ public class Bootstrap {
 
             // CART PART
             javalinConfig.routes.before("/cart*", ensureCartHandler);
-            javalinConfig.routes.get("/cart", new GetCartHandler(getOrCreateCart));
+            javalinConfig.routes.get("/cart", new GetCartHandler(getOrCreateCart, baseUrl));
             javalinConfig.routes.post("/cart/items/{jewel-id}", new PostCartItemHandler(getOrCreateCart, addJewelToCart));
             javalinConfig.routes.patch("/cart/items/{jewel-id}", new PatchCartItemQuantityHandler(updateCartItemQuantity));
             javalinConfig.routes.delete("/cart/items/{jewel-id}", new DeleteCartItemHandler(removeJewelFromCart));
 
             // CHECKOUT PART
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
-            javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession));
+            javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession, baseUrl));
 
-            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "hasError", ctx.queryParam("error") != null)));
+            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.ofEntries(
+                    Map.entry("title", "Connexion — Eosa"),
+                    Map.entry("description", "Connexion à l'espace administrateur Eosa."),
+                    Map.entry("ogImageUrl", baseUrl + "/hero.webp"),
+                    Map.entry("canonicalUrl", baseUrl + ctx.path()),
+                    Map.entry("hasError", ctx.queryParam("error") != null),
+                    Map.entry("noindex", true)
+            )));
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
             javalinConfig.routes.get("/admin/jewels", new GetAdminJewelsHandler(readJewelIds));
