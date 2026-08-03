@@ -32,6 +32,7 @@ public class Bootstrap {
 
     public static void main(String[] args) {
         Properties properties = Configuration.getProperties();
+        String baseUrl = properties.baseUrl().toString();
 
         // DATASOURCES
         MongoProperties mongoProperties = MongoConfiguration.getProperties();
@@ -88,11 +89,11 @@ public class Bootstrap {
         var pub = Javalin.create(javalinConfig -> {
             javalinConfig.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
             javalinConfig.fileRenderer(new JavalinMustache(new DefaultMustacheFactory("templates")));
-            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readJewelIds));
-            javalinConfig.routes.get("/jewels", new GetJewelsHandler(readJewelIds, Set.of(), "Tous les produits"));
-            javalinConfig.routes.get("/jewels/necklaces", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.NECKLACE), "Tous les colliers"));
-            javalinConfig.routes.get("/jewels/bracelets", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.BRACELET), "Tous les bracelets"));
-            javalinConfig.routes.get("/jewels/{id}", new GetJewelHandler(readJewel, readJewelIds));
+            javalinConfig.routes.get("/", new GetIndexHandler(readCategoryStats, readJewelIds, baseUrl));
+            javalinConfig.routes.get("/jewels", new GetJewelsHandler(readJewelIds, Set.of(), "Tous les produits", baseUrl));
+            javalinConfig.routes.get("/jewels/necklaces", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.NECKLACE), "Tous les colliers", baseUrl));
+            javalinConfig.routes.get("/jewels/bracelets", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.BRACELET), "Tous les bracelets", baseUrl));
+            javalinConfig.routes.get("/jewels/{id}", new GetJewelHandler(readJewel, readJewelIds, baseUrl));
             javalinConfig.routes.get("/jewels/{id}/card", new GetJewelCardHandler(readJewel));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
 
@@ -106,9 +107,9 @@ public class Bootstrap {
             ));
 
             // LEGAL PART
-            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales", "description", "Mentions légales du site Eosa.")));
-            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente", "description", "Conditions générales de vente du site Eosa.")));
-            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité", "description", "Politique de confidentialité du site Eosa.")));
+            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales", "description", "Mentions légales du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp")));
+            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente", "description", "Conditions générales de vente du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp")));
+            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité", "description", "Politique de confidentialité du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp")));
 
             // SHIPPING
             javalinConfig.routes.get("/shipping/banner", new GetShippingBannerHandler(shippingRuleProvider));
@@ -116,16 +117,16 @@ public class Bootstrap {
 
             // CART PART
             javalinConfig.routes.before("/cart*", ensureCartHandler);
-            javalinConfig.routes.get("/cart", new GetCartHandler(getOrCreateCart));
+            javalinConfig.routes.get("/cart", new GetCartHandler(getOrCreateCart, baseUrl));
             javalinConfig.routes.post("/cart/items/{jewel-id}", new PostCartItemHandler(getOrCreateCart, addJewelToCart));
             javalinConfig.routes.patch("/cart/items/{jewel-id}", new PatchCartItemQuantityHandler(updateCartItemQuantity));
             javalinConfig.routes.delete("/cart/items/{jewel-id}", new DeleteCartItemHandler(removeJewelFromCart));
 
             // CHECKOUT PART
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
-            javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession));
+            javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession, baseUrl));
 
-            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "description", "Connexion à l'espace administrateur Eosa.", "hasError", ctx.queryParam("error") != null, "noindex", true)));
+            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "description", "Connexion à l'espace administrateur Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "hasError", ctx.queryParam("error") != null, "noindex", true)));
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
             javalinConfig.routes.get("/admin/jewels", new GetAdminJewelsHandler(readJewelIds));

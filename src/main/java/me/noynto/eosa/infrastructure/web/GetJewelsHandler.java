@@ -13,7 +13,8 @@ import java.util.Set;
 public record GetJewelsHandler(
         ReadJewelIds readJewelIds,
         Set<JewelCategory> categories,
-        String title
+        String title,
+        String baseUrl
 ) implements Handler {
 
     @Override
@@ -23,6 +24,7 @@ public record GetJewelsHandler(
         model.put("title", "Eosa — " + title);
         model.put("heading", title);
         model.put("description", title + " — bijoux faits main à Nancy, en matières nobles, conçus pour durer.");
+        model.put("ogImageUrl", baseUrl + "/hero.webp");
         model.put("countLabel", jewelIds.size() + " pièce" + (jewelIds.size() > 1 ? "s" : ""));
         model.put("jewelIds", jewelIds.stream().map(id -> Map.of("id", id.value())).toList());
         ctx.render("jewels.mustache", model);

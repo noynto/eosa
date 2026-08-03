@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-public record GetCartHandler(GetOrCreateCart getOrCreateCart) implements Handler {
+public record GetCartHandler(GetOrCreateCart getOrCreateCart, String baseUrl) implements Handler {
 
     @Override
     public void handle(Context ctx) {
@@ -48,6 +48,7 @@ public record GetCartHandler(GetOrCreateCart getOrCreateCart) implements Handler
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Votre panier");
         model.put("description", "Votre panier Eosa — bijoux faits main à Nancy.");
+        model.put("ogImageUrl", baseUrl + "/hero.webp");
         model.put("itemCountLabel", cart.getItems().size() + " article" + (cart.getItems().size() > 1 ? "s" : ""));
         model.put("hasItems", hasItems);
         model.put("items", items);

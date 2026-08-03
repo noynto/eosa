@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public record GetCheckoutSuccessHandler(
-        ConfirmCheckoutSession confirmCheckoutSession
+        ConfirmCheckoutSession confirmCheckoutSession,
+        String baseUrl
 ) implements Handler {
 
     @Override
@@ -38,6 +39,7 @@ public record GetCheckoutSuccessHandler(
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Commande confirmée");
         model.put("description", "Confirmation de votre commande Eosa.");
+        model.put("ogImageUrl", baseUrl + "/hero.webp");
         model.put("isCompleted", isCompleted);
         model.put("isExpired", isExpired);
         model.put("hasItems", hasItems);
