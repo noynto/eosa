@@ -103,8 +103,11 @@ public class Bootstrap {
                     "Disallow: /admin/\n" +
                     "Disallow: /sign-in\n" +
                     "Disallow: /cart\n" +
-                    "Disallow: /checkout/\n"
+                    "Disallow: /checkout/\n" +
+                    "\n" +
+                    "Sitemap: " + baseUrl + "/sitemap.xml\n"
             ));
+            javalinConfig.routes.get("/sitemap.xml", new GetSitemapHandler(readJewelIds, baseUrl));
 
             // LEGAL PART
             javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales", "description", "Mentions légales du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
