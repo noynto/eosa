@@ -37,6 +37,7 @@ public record GetCheckoutSuccessHandler(
 
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Commande confirmée");
+        model.put("description", "Confirmation de votre commande Eosa.");
         model.put("isCompleted", isCompleted);
         model.put("isExpired", isExpired);
         model.put("hasItems", hasItems);

@@ -22,6 +22,7 @@ public record GetJewelsHandler(
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — " + title);
         model.put("heading", title);
+        model.put("description", title + " — bijoux faits main à Nancy, en matières nobles, conçus pour durer.");
         model.put("countLabel", jewelIds.size() + " pièce" + (jewelIds.size() > 1 ? "s" : ""));
         model.put("jewelIds", jewelIds.stream().map(id -> Map.of("id", id.value())).toList());
         ctx.render("jewels.mustache", model);

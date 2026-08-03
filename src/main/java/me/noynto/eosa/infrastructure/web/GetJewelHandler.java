@@ -42,6 +42,7 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds) im
             model.put("title", "Eosa — " + jewel.getName());
             model.put("name", jewel.getName());
             model.put("tagline", jewel.getTagline() != null ? jewel.getTagline() : "");
+            model.put("description", jewel.getTagline() != null ? jewel.getTagline() : "Bijoux faits main à Nancy — colliers, bracelets et pierres en matières nobles, conçus pour durer.");
             model.put("price", jewel.getPrice().stripTrailingZeros().toPlainString());
             model.put("jewelId", jewel.getId().value());
             model.put("hasImages", hasImages);

@@ -23,6 +23,7 @@ public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadJewelIds 
 
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Bijoux faits main à Nancy");
+        model.put("description", "Bijoux faits main à Nancy — colliers, bracelets et pierres en matières nobles, conçus pour durer.");
         model.put("necklacesCountLabel", pieceLabel(necklaces.count()));
         model.put("necklacesHasMinPrice", necklaces.minPrice() != null);
         model.put("necklacesMinPrice", necklaces.minPrice() != null ? necklaces.minPrice().stripTrailingZeros().toPlainString() : "");

@@ -47,6 +47,7 @@ public record GetCartHandler(GetOrCreateCart getOrCreateCart) implements Handler
 
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Votre panier");
+        model.put("description", "Votre panier Eosa — bijoux faits main à Nancy.");
         model.put("itemCountLabel", cart.getItems().size() + " article" + (cart.getItems().size() > 1 ? "s" : ""));
         model.put("hasItems", hasItems);
         model.put("items", items);

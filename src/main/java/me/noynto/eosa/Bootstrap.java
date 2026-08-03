@@ -106,9 +106,9 @@ public class Bootstrap {
             ));
 
             // LEGAL PART
-            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales")));
-            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente")));
-            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité")));
+            javalinConfig.routes.get("/legal", context -> context.render("legal.mustache", Map.of("title", "Eosa — Mentions légales", "description", "Mentions légales du site Eosa.")));
+            javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente", "description", "Conditions générales de vente du site Eosa.")));
+            javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité", "description", "Politique de confidentialité du site Eosa.")));
 
             // SHIPPING
             javalinConfig.routes.get("/shipping/banner", new GetShippingBannerHandler(shippingRuleProvider));
@@ -125,7 +125,7 @@ public class Bootstrap {
             javalinConfig.routes.post("/checkout", new PostCheckoutSessionHandler(initiateCheckout));
             javalinConfig.routes.get("/checkout/success", new GetCheckoutSuccessHandler(confirmCheckoutSession));
 
-            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "hasError", ctx.queryParam("error") != null, "noindex", true)));
+            javalinConfig.routes.get("/sign-in", ctx -> ctx.render("sign-in.mustache", Map.of("title", "Connexion — Eosa", "description", "Connexion à l'espace administrateur Eosa.", "hasError", ctx.queryParam("error") != null, "noindex", true)));
             javalinConfig.routes.post("/sign-in", new PostSignInHandler(authenticateIdentity));
             javalinConfig.routes.before("/admin/*", ensureIdentityHandler);
             javalinConfig.routes.get("/admin/jewels", new GetAdminJewelsHandler(readJewelIds));
