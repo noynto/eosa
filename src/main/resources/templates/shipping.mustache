@@ -1,0 +1,33 @@
+{{> partials/header-main}}
+
+<div class="px-5 md:px-8 py-12 max-w-3xl mx-auto">
+
+    <h1 class="font-serif text-4xl font-normal mb-10">Livraison</h1>
+
+    <div class="flex flex-col gap-10 text-sm text-secondary leading-relaxed">
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Zone de livraison</h2>
+            <p>Nous livrons actuellement en France métropolitaine uniquement.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Transporteur et délais</h2>
+            <p>Vos commandes sont expédiées à domicile via <strong class="text-primary font-medium">Mondial Relay</strong>, dans un délai de 48 heures ouvrées (hors week-ends et jours fériés) après validation du paiement.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Suivi de commande</h2>
+            <p>Dès l'expédition de votre colis, vous recevez un e-mail contenant un lien de suivi pour suivre sa livraison en temps réel.</p>
+        </section>
+
+        <section>
+            <h2 class="font-serif text-xl font-normal text-primary mb-3">Frais de livraison</h2>
+            <p>Les frais de livraison s'élèvent à {{shippingAmount}} € et sont offerts dès {{freeThreshold}} € d'achat. Le montant est calculé automatiquement dans votre panier.</p>
+        </section>
+
+    </div>
+
+</div>
+
+{{> partials/footer-main}}
