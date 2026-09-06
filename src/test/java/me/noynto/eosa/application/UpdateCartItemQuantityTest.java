@@ -6,6 +6,7 @@ import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRule;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.CartItemId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,13 +40,13 @@ class UpdateCartItemQuantityTest {
     @Test
     void handle_updatesQuantity() {
         var cartId = new CartId("cart1");
-        var jewelId = new JewelId("prod1");
-        var cart = cartWithItem(cartId, jewelId, 1);
+        var itemId = new CartItemId("item1");
+        var cart = cartWithItem(cartId, itemId, 1);
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
-                new UpdateCartItemQuantity.Command(cartId, jewelId, 4)
+                new UpdateCartItemQuantity.Command(cartId, itemId, 4)
         );
 
         verify(cartProvider).write(argThat(c ->
@@ -57,13 +58,13 @@ class UpdateCartItemQuantityTest {
     @Test
     void handle_removesItemWhenQuantityIsZero() {
         var cartId = new CartId("cart1");
-        var jewelId = new JewelId("prod1");
-        var cart = cartWithItem(cartId, jewelId, 2);
+        var itemId = new CartItemId("item1");
+        var cart = cartWithItem(cartId, itemId, 2);
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
-                new UpdateCartItemQuantity.Command(cartId, jewelId, 0)
+                new UpdateCartItemQuantity.Command(cartId, itemId, 0)
         );
 
         verify(cartProvider).write(argThat(c -> c.getItems().isEmpty()));
@@ -72,13 +73,13 @@ class UpdateCartItemQuantityTest {
     @Test
     void handle_preservesSnapshotData() {
         var cartId = new CartId("cart1");
-        var jewelId = new JewelId("prod1");
-        var cart = cartWithItem(cartId, jewelId, 1);
+        var itemId = new CartItemId("item1");
+        var cart = cartWithItem(cartId, itemId, 1);
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
-                new UpdateCartItemQuantity.Command(cartId, jewelId, 3)
+                new UpdateCartItemQuantity.Command(cartId, itemId, 3)
         );
 
         verify(cartProvider).write(argThat(c ->
@@ -91,7 +92,7 @@ class UpdateCartItemQuantityTest {
     void handle_throwsWhenQuantityIsNegative() {
         assertThrows(RuntimeException.class, () ->
                 new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
-                        new UpdateCartItemQuantity.Command(new CartId("cart1"), new JewelId("prod1"), -1)
+                        new UpdateCartItemQuantity.Command(new CartId("cart1"), new CartItemId("item1"), -1)
                 )
         );
     }
@@ -100,13 +101,13 @@ class UpdateCartItemQuantityTest {
     void handle_throwsWhenCartIdIsNull() {
         assertThrows(RuntimeException.class, () ->
                 new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
-                        new UpdateCartItemQuantity.Command(null, new JewelId("prod1"), 2)
+                        new UpdateCartItemQuantity.Command(null, new CartItemId("item1"), 2)
                 )
         );
     }
 
     @Test
-    void handle_throwsWhenJewelIdIsNull() {
+    void handle_throwsWhenItemIdIsNull() {
         assertThrows(RuntimeException.class, () ->
                 new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
                         new UpdateCartItemQuantity.Command(new CartId("cart1"), null, 2)
@@ -121,13 +122,13 @@ class UpdateCartItemQuantityTest {
 
         assertThrows(RuntimeException.class, () ->
                 new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
-                        new UpdateCartItemQuantity.Command(cartId, new JewelId("prod1"), 2)
+                        new UpdateCartItemQuantity.Command(cartId, new CartItemId("item1"), 2)
                 )
         );
     }
 
     @Test
-    void handle_throwsWhenJewelNotInCart() {
+    void handle_throwsWhenItemNotInCart() {
         var cartId = new CartId("cart1");
         var cart = new Cart();
         cart.setId(cartId);
@@ -135,21 +136,24 @@ class UpdateCartItemQuantityTest {
 
         assertThrows(RuntimeException.class, () ->
                 new UpdateCartItemQuantity(cartProvider, shippingRuleProvider).handle(
-                        new UpdateCartItemQuantity.Command(cartId, new JewelId("unknown"), 2)
+                        new UpdateCartItemQuantity.Command(cartId, new CartItemId("unknown"), 2)
                 )
         );
     }
 
-    private Cart cartWithItem(CartId cartId, JewelId jewelId, int quantity) {
+    private Cart cartWithItem(CartId cartId, CartItemId itemId, int quantity) {
         var cart = new Cart();
         cart.setId(cartId);
-        cart.setItems(List.of(new CartItem(jewelId, "Lune", new BigDecimal("29.90"), new ImageId("img1"), quantity)));
+        cart.setItems(List.of(new CartItem(
+                itemId, new JewelId("prod1"), "Lune", new BigDecimal("29.90"), new ImageId("img1"), quantity,
+                null, null, null
+        )));
         return cart;
     }
 
     private CartShippingRule defaultRule() {
         var rule = new CartShippingRule();
-        
+
         rule.setFreeThreshold(new BigDecimal("60"));
         rule.setAmount(new BigDecimal("5"));
         return rule;

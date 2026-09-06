@@ -1,0 +1,63 @@
+{{> ../partials/header-admin}}
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-medium">Couleurs de métal</h1>
+    <button onclick="document.getElementById('modal').classList.remove('hidden')"
+            class="bg-primary text-accent px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+        + Nouvelle couleur
+    </button>
+</div>
+
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    {{#metalColors}}
+    <div class="bg-bg border border-bg-border rounded-xl p-4 flex flex-col gap-3">
+        <div class="aspect-square rounded-lg overflow-hidden bg-bg-soft">
+            {{#hasImage}}<img src="/images/{{imageId}}" alt="{{name}}" class="w-full h-full object-cover">{{/hasImage}}
+        </div>
+        <div class="text-sm font-medium">{{name}}</div>
+        <form hx-post="/admin/metal-colors/{{id}}/image"
+              hx-encoding="multipart/form-data"
+              class="flex items-center gap-2">
+            <label class="flex-1 flex items-center gap-2 bg-bg-soft border border-bg-border border-dashed rounded-lg px-3 py-2 cursor-pointer hover:border-secondary transition-colors">
+                <span class="file-label text-xs text-secondary truncate">Choisir une image…</span>
+                <input type="file" name="image" accept="image/*" class="hidden"
+                       onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files[0]?.name??'Choisir une image…'; l.classList.replace('text-secondary','text-primary');">
+            </label>
+            <button type="submit"
+                    class="bg-primary text-accent px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors shrink-0">
+                Uploader
+            </button>
+        </form>
+    </div>
+    {{/metalColors}}
+    {{^hasMetalColors}}
+    <p class="col-span-full px-4 py-8 text-sm text-muted text-center">Aucune couleur pour l'instant.</p>
+    {{/hasMetalColors}}
+</div>
+
+<!-- Modal création -->
+<div id="modal" class="hidden fixed inset-0 bg-primary/30 backdrop-blur-sm flex items-center justify-center z-50"
+     onclick="if(event.target===this){this.classList.add('hidden')}">
+    <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg">
+        <h2 class="text-sm font-medium mb-4">Nouvelle couleur</h2>
+        <form hx-post="/admin/metal-colors" hx-target="body" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+                <label for="name" class="text-xs text-secondary">Nom</label>
+                <input id="name" name="name" type="text" required autofocus placeholder="ex. Argent"
+                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                        class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="bg-primary text-accent px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Créer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{> ../partials/footer-admin}}

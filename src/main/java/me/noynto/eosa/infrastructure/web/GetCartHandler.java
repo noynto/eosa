@@ -33,11 +33,18 @@ public record GetCartHandler(GetOrCreateCart getOrCreateCart, String baseUrl) im
 
         var items = cart.getItems().stream().map(item -> {
             boolean hasImage = item.imageId() != null;
+            boolean hasMetalColor = item.metalColorName() != null;
+            boolean hasMetalColorImage = item.metalColorImageId() != null;
             Map<String, Object> line = new HashMap<>();
+            line.put("id", item.id().value());
             line.put("jewelId", item.jewelId().value());
             line.put("hasImage", hasImage);
             line.put("imageId", hasImage ? item.imageId().value() : "");
             line.put("name", item.name());
+            line.put("hasMetalColor", hasMetalColor);
+            line.put("metalColorName", hasMetalColor ? item.metalColorName() : "");
+            line.put("hasMetalColorImage", hasMetalColorImage);
+            line.put("metalColorImageId", hasMetalColorImage ? item.metalColorImageId().value() : "");
             line.put("quantity", item.quantity());
             line.put("decrementedQuantity", item.quantity() - 1);
             line.put("incrementedQuantity", item.quantity() + 1);

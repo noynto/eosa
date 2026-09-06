@@ -4,6 +4,7 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadJewel;
 import me.noynto.eosa.application.ReadJewelIds;
+import me.noynto.eosa.application.ReadMetalColors;
 import me.noynto.eosa.jewel.JewelState;
 import me.noynto.eosa.shared.JewelId;
 
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, String baseUrl) implements Handler {
+public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, ReadMetalColors readMetalColors, String baseUrl) implements Handler {
 
     private static final String THUMB_ACTIVE = "w-16 h-16 bg-bg-soft rounded-xl border-2 border-primary relative overflow-hidden flex-shrink-0 cursor-pointer";
     private static final String THUMB_INACTIVE = "w-16 h-16 bg-bg-soft rounded-xl relative overflow-hidden flex-shrink-0 cursor-pointer";
@@ -52,6 +53,23 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, St
             model.put("images", images);
             model.put("hasRelated", !relatedIds.isEmpty());
             model.put("relatedIds", relatedIds.stream().map(id -> Map.of("id", id.value())).toList());
+
+            var metalColors = readMetalColors.handle();
+            List<Map<String, Object>> metalColorOptions = new ArrayList<>();
+            for (int i = 0; i < metalColors.size(); i++) {
+                var metalColor = metalColors.get(i);
+                boolean hasMetalColorImage = metalColor.getImageId() != null;
+                Map<String, Object> option = new HashMap<>();
+                option.put("id", metalColor.getId().value());
+                option.put("name", metalColor.getName());
+                option.put("hasImage", hasMetalColorImage);
+                option.put("imageId", hasMetalColorImage ? metalColor.getImageId().value() : "");
+                option.put("selected", i == 0);
+                metalColorOptions.add(option);
+            }
+            model.put("hasMetalColors", !metalColorOptions.isEmpty());
+            model.put("metalColors", metalColorOptions);
+
             ctx.render("jewel.mustache", model);
         } catch (RuntimeException e) {
             ctx.status(404);

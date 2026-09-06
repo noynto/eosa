@@ -5,6 +5,7 @@ import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentities;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentitySessions;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedImages;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedJewels;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedMetalColors;
 import org.flywaydb.core.Flyway;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -65,6 +66,10 @@ public class JdbcConfiguration {
 
     public JdbcPersistedCarts carts() {
         return new JdbcPersistedCarts(dataSource);
+    }
+
+    public JdbcPersistedMetalColors metalColors() {
+        return new JdbcPersistedMetalColors(dataSource);
     }
 
 }

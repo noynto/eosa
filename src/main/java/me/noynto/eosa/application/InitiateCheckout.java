@@ -32,7 +32,9 @@ public record InitiateCheckout(
                 .stream()
                 .map(item -> {
                     CheckoutItem checkoutItem = new CheckoutItem();
-                    checkoutItem.setName(item.name());
+                    checkoutItem.setName(item.metalColorName() != null
+                            ? item.name() + " — " + item.metalColorName()
+                            : item.name());
                     checkoutItem.setUnitPrice(item.price());
                     checkoutItem.setQuantity(item.quantity());
                     checkoutItem.setJewelId(item.jewelId());

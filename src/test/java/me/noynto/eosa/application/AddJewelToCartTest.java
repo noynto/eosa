@@ -7,7 +7,9 @@ import me.noynto.eosa.cart.CartShippingRule;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.jewel.Jewel;
 import me.noynto.eosa.jewel.JewelProvider;
+import me.noynto.eosa.metal.MetalColorProvider;
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.CartItemId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,7 @@ class AddJewelToCartTest {
 
     @Mock CartProvider cartProvider;
     @Mock JewelProvider jewelProvider;
+    @Mock MetalColorProvider metalColorProvider;
     @Mock CartShippingRuleProvider shippingRuleProvider;
 
     @BeforeEach
@@ -49,8 +52,8 @@ class AddJewelToCartTest {
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        new AddJewelToCart(cartProvider, jewelProvider, shippingRuleProvider).handle(
-                new AddJewelToCart.Command(cartId, jewelId)
+        new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, shippingRuleProvider).handle(
+                new AddJewelToCart.Command(cartId, jewelId, null)
         );
 
         verify(cartProvider).write(argThat(c ->
@@ -67,14 +70,17 @@ class AddJewelToCartTest {
         var cartId = new CartId("cart1");
         var jewelId = new JewelId("prod1");
         var cart = cartWith(cartId);
-        cart.setItems(List.of(new CartItem(jewelId, "Lune", new BigDecimal("29.90"), new ImageId("img1"), 2)));
+        cart.setItems(List.of(new CartItem(
+                new CartItemId("item1"), jewelId, "Lune", new BigDecimal("29.90"), new ImageId("img1"), 2,
+                null, null, null
+        )));
         var jewel = jewelWith(jewelId, "Lune", new BigDecimal("29.90"), "img1");
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        new AddJewelToCart(cartProvider, jewelProvider, shippingRuleProvider).handle(
-                new AddJewelToCart.Command(cartId, jewelId)
+        new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, shippingRuleProvider).handle(
+                new AddJewelToCart.Command(cartId, jewelId, null)
         );
 
         verify(cartProvider).write(argThat(c ->
@@ -86,8 +92,8 @@ class AddJewelToCartTest {
     @Test
     void handle_throwsWhenCartIdIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new AddJewelToCart(cartProvider, jewelProvider, shippingRuleProvider).handle(
-                        new AddJewelToCart.Command(null, new JewelId("prod1"))
+                new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, shippingRuleProvider).handle(
+                        new AddJewelToCart.Command(null, new JewelId("prod1"), null)
                 )
         );
     }
@@ -95,8 +101,8 @@ class AddJewelToCartTest {
     @Test
     void handle_throwsWhenJewelIdIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new AddJewelToCart(cartProvider, jewelProvider, shippingRuleProvider).handle(
-                        new AddJewelToCart.Command(new CartId("cart1"), null)
+                new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, shippingRuleProvider).handle(
+                        new AddJewelToCart.Command(new CartId("cart1"), null, null)
                 )
         );
     }
@@ -107,8 +113,8 @@ class AddJewelToCartTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () ->
-                new AddJewelToCart(cartProvider, jewelProvider, shippingRuleProvider).handle(
-                        new AddJewelToCart.Command(cartId, new JewelId("prod1"))
+                new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, shippingRuleProvider).handle(
+                        new AddJewelToCart.Command(cartId, new JewelId("prod1"), null)
                 )
         );
     }
@@ -121,8 +127,8 @@ class AddJewelToCartTest {
         when(jewelProvider.read(jewelId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () ->
-                new AddJewelToCart(cartProvider, jewelProvider, shippingRuleProvider).handle(
-                        new AddJewelToCart.Command(cartId, jewelId)
+                new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, shippingRuleProvider).handle(
+                        new AddJewelToCart.Command(cartId, jewelId, null)
                 )
         );
     }
@@ -144,7 +150,7 @@ class AddJewelToCartTest {
 
     private CartShippingRule defaultRule() {
         var rule = new CartShippingRule();
-        
+
         rule.setFreeThreshold(new BigDecimal("60"));
         rule.setAmount(new BigDecimal("5"));
         return rule;
