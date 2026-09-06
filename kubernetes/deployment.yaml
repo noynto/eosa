@@ -31,6 +31,23 @@ spec:
               value: "true"
             - name: EOSA_MIGRATE_PRODUCTS_TO_JEWELS_TASK
               value: "true"
+            - name: EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK
+              value: "true"
+            - name: EOSA_JDBC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: jdbc-url
+            - name: EOSA_JDBC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: jdbc-username
+            - name: EOSA_JDBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: jdbc-password
             - name: EOSA_MONGO_URL
               valueFrom:
                 secretKeyRef:
@@ -82,11 +99,21 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: EOSA_MONGO_URL
+            - name: EOSA_JDBC_URL
               valueFrom:
                 secretKeyRef:
                   name: eosa-secrets
-                  key: mongo-url
+                  key: jdbc-url
+            - name: EOSA_JDBC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: jdbc-username
+            - name: EOSA_JDBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: jdbc-password
             - name: EOSA_ADMIN_NAME
               valueFrom:
                 secretKeyRef:

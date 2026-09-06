@@ -14,7 +14,7 @@ The `pom.xml` and `src/` are at the repository root (there is no `server/` subdi
 |---|---|
 | Web framework | Javalin 7.2.0 |
 | Templates | Mustache (`javalin-rendering-mustache`, `com.github.spullara.mustache.java`) |
-| Persistence | MongoDB (driver-sync 5.7.0) |
+| Persistence | PostgreSQL via JDBC brut (no ORM) + Flyway for schema migrations |
 | Password hashing | jBCrypt 0.4 |
 | Logging | SLF4J 2.0.17 + slf4j-simple |
 | Metrics | Micrometer (javalin-micrometer) |
@@ -54,13 +54,15 @@ jewel/, identity/,          — domain: interfaces + records
   image/, session/, hash/
 shared/                     — value objects (IDs as records)
 infrastructure/
-  persistence/              — MongoPersistedX implements domain interfaces
-  persistence/mongo/        — MongoDB config (MongoConfiguration reads EOSA_MONGO_URL)
+  persistence/              — JdbcPersistedX implements domain interfaces (plain JDBC, upsert via ON CONFLICT)
+  persistence/jdbc/         — Postgres config (JdbcConfiguration reads EOSA_JDBC_URL/USERNAME/PASSWORD, runs Flyway)
+  persistence/mongo/        — legacy MongoDB config/classes, only used by the one-shot MigrateMongoToPostgresTask
   security/                 — SecuredCrypts (BCrypt)
   web/                      — Javalin handlers + BasicAuth helper
 src/main/resources/templates/ — Mustache templates; partials/ holds header-main/footer-main
   and header-admin/footer-admin (no JTE-style layout wrapping — each page includes its own
   header/footer partial)
+src/main/resources/db/migration/ — Flyway SQL migrations (Vn__description.sql), run automatically on boot
 src/test/java/application/  — use case unit tests (Mockito mocks)
 docs/                       — documentation
 requests/                   — HTTP client requests (.http files)
@@ -96,7 +98,10 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 
 | Variable | Required | Description |
 |---|---|---|
-| `EOSA_MONGO_URL` | Yes | MongoDB connection URL |
+| `EOSA_JDBC_URL` | Yes | PostgreSQL JDBC connection URL |
+| `EOSA_JDBC_USERNAME` | Yes | PostgreSQL username |
+| `EOSA_JDBC_PASSWORD` | Yes | PostgreSQL password |
+| `EOSA_MONGO_URL` | No | Legacy MongoDB connection URL — only needed to run `EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK` |
 | `EOSA_ADMIN_ID` | Yes | Admin username (HTTP Basic Auth) |
 | `EOSA_ADMIN_SECRET` | Yes | Admin password |
 

@@ -3,14 +3,16 @@
 ## Prerequisites
 
 - Docker
-- A running MongoDB instance (v6+)
+- A running PostgreSQL instance (v15+)
 
 ## Running the image
 
 ```bash
 docker run \
   -e EOSA_BASE_URL="https://eosa.me" \
-  -e EOSA_MONGO_URL="mongodb://user:password@host:27017/eosa?authSource=admin" \
+  -e EOSA_JDBC_URL="jdbc:postgresql://host:5432/eosa" \
+  -e EOSA_JDBC_USERNAME="user" \
+  -e EOSA_JDBC_PASSWORD="password" \
   -e EOSA_ADMIN_NAME="admin" \
   -e EOSA_ADMIN_SECRET="change_me" \
   -e EOSA_CLIENT_STRIPE_SECRET_KEY="sk_live_..." \
@@ -41,13 +43,35 @@ Public base URL of the server, without trailing slash. Used to build Stripe redi
 
 ---
 
-### `EOSA_MONGO_URL`
+### `EOSA_JDBC_URL`
 
-Connection URL to the MongoDB server.
+JDBC connection URL to the PostgreSQL server. The schema is created/updated automatically via Flyway on startup.
 
 | Property | Value |
 |---|---|
 | Required | Yes — the application crashes on startup if absent |
+| Format | `jdbc:postgresql://[host]:[port]/[database]` |
+| Example | `jdbc:postgresql://localhost:5432/eosa` |
+
+---
+
+### `EOSA_JDBC_USERNAME` / `EOSA_JDBC_PASSWORD`
+
+Credentials for the PostgreSQL connection.
+
+| Property | Value |
+|---|---|
+| Required | Yes |
+
+---
+
+### `EOSA_MONGO_URL`
+
+Connection URL to the legacy MongoDB server. Only required when running `EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK` — not used otherwise.
+
+| Property | Value |
+|---|---|
+| Required | No — only during the one-shot Mongo → Postgres migration |
 | Format | `mongodb://[user]:[password]@[host]:[port]/[database]?authSource=admin` |
 | Example | `mongodb://root:root@localhost:27017/eosa?authSource=admin` |
 
@@ -125,6 +149,17 @@ When set to `true`, the application creates the default administrator identity o
 ### `EOSA_MIGRATE_PRODUCTS_TO_JEWELS_TASK`
 
 When set to `true`, the application copies every document from the legacy `products` collection into `jewels` (skipped if `jewels` already has documents) and exits. The `products` collection is left untouched as a backup. One-shot job, run once after upgrading to the `Jewel` rename if the deployment has pre-existing catalog data.
+
+| Property | Value |
+|---|---|
+| Required | No |
+| Default | `false` |
+
+---
+
+### `EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK`
+
+When set to `true`, the application copies every `identity`, `identity_session`, `jewel` (with its images and image order), `cart` (with its items) from MongoDB (including the `images` GridFS bucket) into the PostgreSQL database, then exits. Skipped if the PostgreSQL tables already contain data. Requires `EOSA_MONGO_URL` to be set. One-shot job, run once when cutting a deployment over from MongoDB to PostgreSQL.
 
 | Property | Value |
 |---|---|
