@@ -3,10 +3,12 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
+import me.noynto.eosa.cart.SelectedCharm;
 import me.noynto.eosa.checkout.*;
 import me.noynto.eosa.shared.CartId;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public record InitiateCheckout(
         CartProvider cartProvider,
@@ -31,11 +33,18 @@ public record InitiateCheckout(
         List<CheckoutItem> checkoutItems = cart.getItems()
                 .stream()
                 .map(item -> {
+                    StringBuilder name = new StringBuilder(item.name());
+                    if (item.metalColorName() != null) {
+                        name.append(" — ").append(item.metalColorName());
+                    }
+                    if (!item.charms().isEmpty()) {
+                        name.append(" (+ ").append(item.charms().stream()
+                                .map(SelectedCharm::name)
+                                .collect(Collectors.joining(", "))).append(")");
+                    }
                     CheckoutItem checkoutItem = new CheckoutItem();
-                    checkoutItem.setName(item.metalColorName() != null
-                            ? item.name() + " — " + item.metalColorName()
-                            : item.name());
-                    checkoutItem.setUnitPrice(item.price());
+                    checkoutItem.setName(name.toString());
+                    checkoutItem.setUnitPrice(item.effectiveUnitPrice());
                     checkoutItem.setQuantity(item.quantity());
                     checkoutItem.setJewelId(item.jewelId());
                     checkoutItem.setImageId(item.imageId());

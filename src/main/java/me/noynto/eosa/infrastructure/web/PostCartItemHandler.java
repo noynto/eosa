@@ -6,6 +6,7 @@ import io.javalin.http.HttpStatus;
 import me.noynto.eosa.application.AddJewelToCart;
 import me.noynto.eosa.application.GetOrCreateCart;
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.CharmId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.MetalColorId;
 
@@ -22,10 +23,15 @@ public record PostCartItemHandler(
         ));
         ctx.cookie("cart", cart.getId().value());
         String metalColorId = ctx.formParam("metalColorId");
+        var charmIds = ctx.formParams("charmIds").stream()
+                .filter(value -> !value.isBlank())
+                .map(CharmId::new)
+                .toList();
         addJewelToCart.handle(new AddJewelToCart.Command(
                 cart.getId(),
                 new JewelId(ctx.pathParam("jewel-id")),
-                metalColorId != null && !metalColorId.isBlank() ? new MetalColorId(metalColorId) : null
+                metalColorId != null && !metalColorId.isBlank() ? new MetalColorId(metalColorId) : null,
+                charmIds
         ));
         redirectOrHtmx(ctx);
     }

@@ -2,6 +2,7 @@ package me.noynto.eosa.infrastructure.web;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import me.noynto.eosa.application.ReadCharms;
 import me.noynto.eosa.application.ReadJewel;
 import me.noynto.eosa.application.ReadJewelIds;
 import me.noynto.eosa.application.ReadMetalColors;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, ReadMetalColors readMetalColors, String baseUrl) implements Handler {
+public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, ReadMetalColors readMetalColors, ReadCharms readCharms, String baseUrl) implements Handler {
 
     private static final String THUMB_ACTIVE = "w-16 h-16 bg-bg-soft rounded-xl border-2 border-primary relative overflow-hidden flex-shrink-0 cursor-pointer";
     private static final String THUMB_INACTIVE = "w-16 h-16 bg-bg-soft rounded-xl relative overflow-hidden flex-shrink-0 cursor-pointer";
@@ -69,6 +70,20 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, Re
             }
             model.put("hasMetalColors", !metalColorOptions.isEmpty());
             model.put("metalColors", metalColorOptions);
+
+            var charms = readCharms.handle();
+            List<Map<String, Object>> charmOptions = charms.stream().map(charm -> {
+                boolean hasCharmImage = charm.getImageId() != null;
+                Map<String, Object> option = new HashMap<>();
+                option.put("id", charm.getId().value());
+                option.put("name", charm.getName());
+                option.put("hasImage", hasCharmImage);
+                option.put("imageId", hasCharmImage ? charm.getImageId().value() : "");
+                option.put("price", charm.getPrice().stripTrailingZeros().toPlainString());
+                return option;
+            }).toList();
+            model.put("hasCharms", !charmOptions.isEmpty());
+            model.put("charms", charmOptions);
 
             ctx.render("jewel.mustache", model);
         } catch (RuntimeException e) {

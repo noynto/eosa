@@ -83,6 +83,20 @@
                 </div>
             </div>
             {{/hasMetalColors}}
+            {{#hasCharms}}
+            <div class="flex flex-col gap-2">
+                <span class="text-xs text-secondary">Breloques (optionnel)</span>
+                <div class="flex flex-wrap gap-2">
+                    {{#charms}}
+                    <label class="flex items-center gap-2 bg-bg-soft border border-bg-border rounded-full px-3 py-1.5 cursor-pointer text-xs">
+                        <input type="checkbox" name="charmIds" value="{{id}}">
+                        {{#hasImage}}<img src="/images/{{imageId}}" class="w-5 h-5 rounded-full object-cover">{{/hasImage}}
+                        <span>{{name}} (+{{price}} €)</span>
+                    </label>
+                    {{/charms}}
+                </div>
+            </div>
+            {{/hasCharms}}
             <button type="submit" class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">Ajouter au panier — {{price}} €</button>
         </form>
 

@@ -6,6 +6,8 @@ import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.MetalColorId;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CartItem {
     private CartItemId id;
@@ -17,6 +19,7 @@ public class CartItem {
     private MetalColorId metalColorId;
     private String metalColorName;
     private ImageId metalColorImageId;
+    private List<SelectedCharm> charms = new ArrayList<>();
 
     public CartItem() {
     }
@@ -30,7 +33,8 @@ public class CartItem {
             int quantity,
             MetalColorId metalColorId,
             String metalColorName,
-            ImageId metalColorImageId
+            ImageId metalColorImageId,
+            List<SelectedCharm> charms
     ) {
         this.id = id;
         this.jewelId = jewelId;
@@ -41,6 +45,7 @@ public class CartItem {
         this.metalColorId = metalColorId;
         this.metalColorName = metalColorName;
         this.metalColorImageId = metalColorImageId;
+        this.charms = charms != null ? charms : new ArrayList<>();
     }
 
     public CartItemId id() {
@@ -77,6 +82,16 @@ public class CartItem {
 
     public ImageId metalColorImageId() {
         return metalColorImageId;
+    }
+
+    public List<SelectedCharm> charms() {
+        return charms;
+    }
+
+    public BigDecimal effectiveUnitPrice() {
+        return charms.stream()
+                .map(SelectedCharm::price)
+                .reduce(price, BigDecimal::add);
     }
 
     public CartItemId getId() {
@@ -149,5 +164,13 @@ public class CartItem {
 
     public void setMetalColorImageId(ImageId metalColorImageId) {
         this.metalColorImageId = metalColorImageId;
+    }
+
+    public List<SelectedCharm> getCharms() {
+        return charms;
+    }
+
+    public void setCharms(List<SelectedCharm> charms) {
+        this.charms = charms != null ? charms : new ArrayList<>();
     }
 }

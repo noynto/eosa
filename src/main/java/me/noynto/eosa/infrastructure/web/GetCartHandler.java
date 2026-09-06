@@ -9,6 +9,7 @@ import me.noynto.eosa.shared.CartId;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public record GetCartHandler(GetOrCreateCart getOrCreateCart, String baseUrl) implements Handler {
@@ -48,7 +49,18 @@ public record GetCartHandler(GetOrCreateCart getOrCreateCart, String baseUrl) im
             line.put("quantity", item.quantity());
             line.put("decrementedQuantity", item.quantity() - 1);
             line.put("incrementedQuantity", item.quantity() + 1);
-            line.put("lineTotal", item.price().multiply(BigDecimal.valueOf(item.quantity())).stripTrailingZeros().toPlainString());
+            line.put("lineTotal", item.effectiveUnitPrice().multiply(BigDecimal.valueOf(item.quantity())).stripTrailingZeros().toPlainString());
+            List<Map<String, Object>> charms = item.charms().stream().map(charm -> {
+                boolean hasCharmImage = charm.imageId() != null;
+                Map<String, Object> charmLine = new HashMap<>();
+                charmLine.put("name", charm.name());
+                charmLine.put("price", charm.price().stripTrailingZeros().toPlainString());
+                charmLine.put("hasImage", hasCharmImage);
+                charmLine.put("imageId", hasCharmImage ? charm.imageId().value() : "");
+                return charmLine;
+            }).toList();
+            line.put("hasCharms", !charms.isEmpty());
+            line.put("charms", charms);
             return line;
         }).toList();
 
