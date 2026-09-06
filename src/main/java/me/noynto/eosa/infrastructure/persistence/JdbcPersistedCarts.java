@@ -3,8 +3,10 @@ package me.noynto.eosa.infrastructure.persistence;
 import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
+import me.noynto.eosa.cart.SelectedCharm;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CartItemId;
+import me.noynto.eosa.shared.CharmId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.MetalColorId;
@@ -15,7 +17,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,43 +37,61 @@ public record JdbcPersistedCarts(
         }
         String sql = """
                 SELECT c.id, ci.id AS item_id, ci.jewel_id, ci.name, ci.price, ci.image_id, ci.quantity,
-                       ci.metal_color_id, ci.metal_color_name, ci.metal_color_image_id
+                       ci.metal_color_id, ci.metal_color_name, ci.metal_color_image_id,
+                       cic.charm_id, cic.charm_name, cic.charm_price, cic.charm_image_id
                 FROM carts c
                 LEFT JOIN cart_items ci ON ci.cart_id = c.id
+                LEFT JOIN cart_item_charms cic ON cic.cart_item_id = ci.id
                 WHERE c.id = ?
-                ORDER BY ci.position
+                ORDER BY ci.position, cic.position
                 """;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 boolean found = false;
-                List<CartItem> items = new ArrayList<>();
+                Map<String, CartItem> itemsById = new LinkedHashMap<>();
                 while (resultSet.next()) {
                     found = true;
                     String itemId = resultSet.getString("item_id");
                     if (itemId == null) continue;
-                    String imageId = resultSet.getString("image_id");
-                    String metalColorId = resultSet.getString("metal_color_id");
-                    String metalColorImageId = resultSet.getString("metal_color_image_id");
-                    items.add(new CartItem(
-                            new CartItemId(itemId),
-                            new JewelId(resultSet.getString("jewel_id")),
-                            resultSet.getString("name"),
-                            resultSet.getBigDecimal("price"),
-                            imageId != null ? new ImageId(imageId) : null,
-                            resultSet.getInt("quantity"),
-                            metalColorId != null ? new MetalColorId(metalColorId) : null,
-                            resultSet.getString("metal_color_name"),
-                            metalColorImageId != null ? new ImageId(metalColorImageId) : null
-                    ));
+
+                    if (!itemsById.containsKey(itemId)) {
+                        String imageId = resultSet.getString("image_id");
+                        String metalColorId = resultSet.getString("metal_color_id");
+                        String metalColorImageId = resultSet.getString("metal_color_image_id");
+                        itemsById.put(itemId, new CartItem(
+                                new CartItemId(itemId),
+                                new JewelId(resultSet.getString("jewel_id")),
+                                resultSet.getString("name"),
+                                resultSet.getBigDecimal("price"),
+                                imageId != null ? new ImageId(imageId) : null,
+                                resultSet.getInt("quantity"),
+                                metalColorId != null ? new MetalColorId(metalColorId) : null,
+                                resultSet.getString("metal_color_name"),
+                                metalColorImageId != null ? new ImageId(metalColorImageId) : null,
+                                new ArrayList<>()
+                        ));
+                    }
+                    CartItem item = itemsById.get(itemId);
+
+                    String charmId = resultSet.getString("charm_id");
+                    if (charmId != null) {
+                        String charmImageId = resultSet.getString("charm_image_id");
+                        item.getCharms().add(new SelectedCharm(
+                                new CharmId(charmId),
+                                resultSet.getString("charm_name"),
+                                resultSet.getBigDecimal("charm_price"),
+                                charmImageId != null ? new ImageId(charmImageId) : null
+                        ));
+                    }
                 }
                 if (!found) {
                     return Optional.empty();
                 }
                 Cart cart = new Cart();
                 cart.setId(new CartId(id.toString()));
-                cart.setItems(items);
+                cart.setItems(new ArrayList<>(itemsById.values()));
                 return Optional.of(cart);
             }
         } catch (SQLException e) {
@@ -119,6 +141,31 @@ public record JdbcPersistedCarts(
                             statement.addBatch();
                         }
                         statement.executeBatch();
+                    }
+
+                    String insertCharm = """
+                            INSERT INTO cart_item_charms (cart_item_id, charm_id, charm_name, charm_price, charm_image_id, position)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                            """;
+                    try (PreparedStatement statement = connection.prepareStatement(insertCharm)) {
+                        boolean hasAnyCharm = false;
+                        for (CartItem item : items) {
+                            List<SelectedCharm> charms = item.charms();
+                            for (int position = 0; position < charms.size(); position++) {
+                                SelectedCharm charm = charms.get(position);
+                                statement.setObject(1, UUID.fromString(item.id().value()));
+                                statement.setObject(2, UUID.fromString(charm.charmId().value()));
+                                statement.setString(3, charm.name());
+                                statement.setBigDecimal(4, charm.price());
+                                statement.setObject(5, charm.imageId() != null ? UUID.fromString(charm.imageId().value()) : null);
+                                statement.setInt(6, position);
+                                statement.addBatch();
+                                hasAnyCharm = true;
+                            }
+                        }
+                        if (hasAnyCharm) {
+                            statement.executeBatch();
+                        }
                     }
                 }
                 connection.commit();

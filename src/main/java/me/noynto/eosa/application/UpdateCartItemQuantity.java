@@ -45,7 +45,8 @@ public record UpdateCartItemQuantity(
                     command.quantity,
                     existing.metalColorId(),
                     existing.metalColorName(),
-                    existing.metalColorImageId()
+                    existing.metalColorImageId(),
+                    existing.charms()
             ));
         }
 

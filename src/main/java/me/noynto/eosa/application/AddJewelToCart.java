@@ -4,23 +4,31 @@ import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
+import me.noynto.eosa.cart.SelectedCharm;
+import me.noynto.eosa.charm.Charm;
+import me.noynto.eosa.charm.CharmProvider;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColor;
 import me.noynto.eosa.metal.MetalColorProvider;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CartItemId;
+import me.noynto.eosa.shared.CharmId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.MetalColorId;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public record AddJewelToCart(
         CartProvider cartProvider,
         JewelProvider jewelProvider,
         MetalColorProvider metalColorProvider,
+        CharmProvider charmProvider,
         CartShippingRuleProvider shippingRuleProvider
 ) {
 
@@ -42,11 +50,20 @@ public record AddJewelToCart(
                 ? metalColorProvider.read(command.metalColorId).orElse(null)
                 : null;
 
+        List<CharmId> requestedCharmIds = command.charmIds() != null ? command.charmIds() : List.of();
+        List<SelectedCharm> selectedCharms = requestedCharmIds.stream()
+                .map(charmProvider::read)
+                .flatMap(Optional::stream)
+                .map(charm -> new SelectedCharm(charm.getId(), charm.getName(), charm.getPrice(), charm.getImageId()))
+                .toList();
+        Set<String> requestedCharmIdValues = selectedCharms.stream().map(c -> c.charmId().value()).collect(Collectors.toSet());
+
         List<CartItem> items = new ArrayList<>(cart.getItems());
 
         var existing = items.stream()
                 .filter(i -> i.jewelId().equals(command.jewelId))
                 .filter(i -> Objects.equals(i.metalColorId(), command.metalColorId))
+                .filter(i -> i.charms().stream().map(c -> c.charmId().value()).collect(Collectors.toSet()).equals(requestedCharmIdValues))
                 .findFirst();
 
         if (existing.isPresent()) {
@@ -60,7 +77,8 @@ public record AddJewelToCart(
                     existing.get().quantity() + 1,
                     existing.get().metalColorId(),
                     existing.get().metalColorName(),
-                    existing.get().metalColorImageId()
+                    existing.get().metalColorImageId(),
+                    existing.get().charms()
             ));
         } else {
             var imageId = jewel.getImageIds().isEmpty() ? null : jewel.getImageIds().getFirst();
@@ -73,7 +91,8 @@ public record AddJewelToCart(
                     1,
                     metalColor != null ? metalColor.getId() : null,
                     metalColor != null ? metalColor.getName() : null,
-                    metalColor != null ? metalColor.getImageId() : null
+                    metalColor != null ? metalColor.getImageId() : null,
+                    selectedCharms
             ));
         }
 
@@ -85,7 +104,8 @@ public record AddJewelToCart(
     public record Command(
             CartId cartId,
             JewelId jewelId,
-            MetalColorId metalColorId
+            MetalColorId metalColorId,
+            List<CharmId> charmIds
     ) {
     }
 

@@ -1,6 +1,7 @@
 package me.noynto.eosa.infrastructure.persistence.jdbc;
 
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedCarts;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedCharms;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentities;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentitySessions;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedImages;
@@ -70,6 +71,10 @@ public class JdbcConfiguration {
 
     public JdbcPersistedMetalColors metalColors() {
         return new JdbcPersistedMetalColors(dataSource);
+    }
+
+    public JdbcPersistedCharms charms() {
+        return new JdbcPersistedCharms(dataSource);
     }
 
 }

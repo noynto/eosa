@@ -146,7 +146,7 @@ class UpdateCartItemQuantityTest {
         cart.setId(cartId);
         cart.setItems(List.of(new CartItem(
                 itemId, new JewelId("prod1"), "Lune", new BigDecimal("29.90"), new ImageId("img1"), quantity,
-                null, null, null
+                null, null, null, List.of()
         )));
         return cart;
     }

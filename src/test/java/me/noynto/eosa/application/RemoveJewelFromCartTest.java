@@ -44,7 +44,7 @@ class RemoveJewelFromCartTest {
         var cart = cartWith(cartId);
         cart.setItems(List.of(new CartItem(
                 itemId, new JewelId("prod1"), "Lune", new BigDecimal("29.90"), new ImageId("img1"), 1,
-                null, null, null
+                null, null, null, List.of()
         )));
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -63,8 +63,8 @@ class RemoveJewelFromCartTest {
         var otherItemId = new CartItemId("item2");
         var cart = cartWith(cartId);
         cart.setItems(List.of(
-                new CartItem(itemId, new JewelId("prod1"), "Lune", new BigDecimal("29.90"), new ImageId("img1"), 1, null, null, null),
-                new CartItem(otherItemId, new JewelId("prod2"), "Soleil", new BigDecimal("39.90"), new ImageId("img2"), 1, null, null, null)
+                new CartItem(itemId, new JewelId("prod1"), "Lune", new BigDecimal("29.90"), new ImageId("img1"), 1, null, null, null, List.of()),
+                new CartItem(otherItemId, new JewelId("prod2"), "Soleil", new BigDecimal("39.90"), new ImageId("img2"), 1, null, null, null, List.of())
         ));
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));

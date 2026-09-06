@@ -19,6 +19,7 @@ import me.noynto.eosa.infrastructure.persistence.*;
 import me.noynto.eosa.infrastructure.persistence.jdbc.JdbcConfiguration;
 import me.noynto.eosa.infrastructure.security.SecuredCrypts;
 import me.noynto.eosa.infrastructure.web.*;
+import me.noynto.eosa.charm.CharmProvider;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
@@ -42,6 +43,7 @@ public class Bootstrap {
         ImageProvider imageProvider = jdbcConfiguration.images();
         CartProvider cartProvider = jdbcConfiguration.carts();
         MetalColorProvider metalColorProvider = jdbcConfiguration.metalColors();
+        CharmProvider charmProvider = jdbcConfiguration.charms();
         CartShippingRuleProvider shippingRuleProvider = new ConfiguredCartShippingRules();
 
         // CLIENTS
@@ -70,7 +72,7 @@ public class Bootstrap {
         ReadCategoryStats readCategoryStats = new ReadCategoryStats(jewelProvider, readJewelIds);
         GetOrCreateCart getOrCreateCart = new GetOrCreateCart(cartProvider, shippingRuleProvider);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(getOrCreateCart);
-        AddJewelToCart addJewelToCart = new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, shippingRuleProvider);
+        AddJewelToCart addJewelToCart = new AddJewelToCart(cartProvider, jewelProvider, metalColorProvider, charmProvider, shippingRuleProvider);
         RemoveJewelFromCart removeJewelFromCart = new RemoveJewelFromCart(cartProvider, shippingRuleProvider);
         UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity(cartProvider, shippingRuleProvider);
         InitiateCheckout initiateCheckout = new InitiateCheckout(cartProvider, stripeFetchedCheckouts, shippingRuleProvider);
@@ -79,6 +81,9 @@ public class Bootstrap {
         CreateMetalColor createMetalColor = new CreateMetalColor(metalColorProvider);
         AddImageToMetalColor addImageToMetalColor = new AddImageToMetalColor(metalColorProvider, imageProvider);
         ReadMetalColors readMetalColors = new ReadMetalColors(metalColorProvider);
+        CreateCharm createCharm = new CreateCharm(charmProvider);
+        AddImageToCharm addImageToCharm = new AddImageToCharm(charmProvider, imageProvider);
+        ReadCharms readCharms = new ReadCharms(charmProvider);
 
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
@@ -101,7 +106,7 @@ public class Bootstrap {
             javalinConfig.routes.get("/jewels", new GetJewelsHandler(readJewelIds, Set.of(), "Tous les produits", baseUrl));
             javalinConfig.routes.get("/jewels/necklaces", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.NECKLACE), "Tous les colliers", baseUrl));
             javalinConfig.routes.get("/jewels/bracelets", new GetJewelsHandler(readJewelIds, Set.of(JewelCategory.BRACELET), "Tous les bracelets", baseUrl));
-            javalinConfig.routes.get("/jewels/{id}", new GetJewelHandler(readJewel, readJewelIds, readMetalColors, baseUrl));
+            javalinConfig.routes.get("/jewels/{id}", new GetJewelHandler(readJewel, readJewelIds, readMetalColors, readCharms, baseUrl));
             javalinConfig.routes.get("/jewels/{id}/card", new GetJewelCardHandler(readJewel));
             javalinConfig.routes.get("/images/{id}", new GetImageHandler(downloadImage));
 
@@ -165,6 +170,9 @@ public class Bootstrap {
             javalinConfig.routes.get("/admin/metal-colors", new GetAdminMetalColorsHandler(readMetalColors));
             javalinConfig.routes.post("/admin/metal-colors", new CreateMetalColorHandler(createMetalColor));
             javalinConfig.routes.post("/admin/metal-colors/{id}/image", new AddImageToMetalColorHandler(addImageToMetalColor));
+            javalinConfig.routes.get("/admin/charms", new GetAdminCharmsHandler(readCharms));
+            javalinConfig.routes.post("/admin/charms", new CreateCharmHandler(createCharm));
+            javalinConfig.routes.post("/admin/charms/{id}/image", new AddImageToCharmHandler(addImageToCharm));
         });
         pub.start();
     }

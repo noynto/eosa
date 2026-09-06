@@ -37,7 +37,7 @@ public class Cart {
 
     public BigDecimal getTotal() {
         return items.stream()
-                .map(i -> i.price().multiply(BigDecimal.valueOf(i.quantity())))
+                .map(i -> i.effectiveUnitPrice().multiply(BigDecimal.valueOf(i.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
