@@ -5,7 +5,7 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import me.noynto.eosa.application.RemoveJewelFromCart;
 import me.noynto.eosa.shared.CartId;
-import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.CartItemId;
 
 public record DeleteCartItemHandler(
         RemoveJewelFromCart removeJewelFromCart
@@ -20,7 +20,7 @@ public record DeleteCartItemHandler(
         }
         removeJewelFromCart.handle(new RemoveJewelFromCart.Command(
                 new CartId(cookieValue),
-                new JewelId(ctx.pathParam("jewel-id"))
+                new CartItemId(ctx.pathParam("item-id"))
         ));
         redirectOrHtmx(ctx);
     }

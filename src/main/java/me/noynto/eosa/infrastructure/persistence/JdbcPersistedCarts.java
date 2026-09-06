@@ -4,8 +4,10 @@ import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartItem;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.CartItemId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.MetalColorId;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -30,7 +32,8 @@ public record JdbcPersistedCarts(
             return Optional.empty();
         }
         String sql = """
-                SELECT c.id, ci.jewel_id, ci.name, ci.price, ci.image_id, ci.quantity
+                SELECT c.id, ci.id AS item_id, ci.jewel_id, ci.name, ci.price, ci.image_id, ci.quantity,
+                       ci.metal_color_id, ci.metal_color_name, ci.metal_color_image_id
                 FROM carts c
                 LEFT JOIN cart_items ci ON ci.cart_id = c.id
                 WHERE c.id = ?
@@ -44,15 +47,21 @@ public record JdbcPersistedCarts(
                 List<CartItem> items = new ArrayList<>();
                 while (resultSet.next()) {
                     found = true;
-                    String jewelId = resultSet.getString("jewel_id");
-                    if (jewelId == null) continue;
+                    String itemId = resultSet.getString("item_id");
+                    if (itemId == null) continue;
                     String imageId = resultSet.getString("image_id");
+                    String metalColorId = resultSet.getString("metal_color_id");
+                    String metalColorImageId = resultSet.getString("metal_color_image_id");
                     items.add(new CartItem(
-                            new JewelId(jewelId),
+                            new CartItemId(itemId),
+                            new JewelId(resultSet.getString("jewel_id")),
                             resultSet.getString("name"),
                             resultSet.getBigDecimal("price"),
                             imageId != null ? new ImageId(imageId) : null,
-                            resultSet.getInt("quantity")
+                            resultSet.getInt("quantity"),
+                            metalColorId != null ? new MetalColorId(metalColorId) : null,
+                            resultSet.getString("metal_color_name"),
+                            metalColorImageId != null ? new ImageId(metalColorImageId) : null
                     ));
                 }
                 if (!found) {
@@ -89,19 +98,24 @@ public record JdbcPersistedCarts(
                 List<CartItem> items = cart.getItems();
                 if (items != null && !items.isEmpty()) {
                     String insertItem = """
-                            INSERT INTO cart_items (cart_id, position, jewel_id, name, price, image_id, quantity)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO cart_items (id, cart_id, position, jewel_id, name, price, image_id, quantity,
+                                                     metal_color_id, metal_color_name, metal_color_image_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             """;
                     try (PreparedStatement statement = connection.prepareStatement(insertItem)) {
                         for (int position = 0; position < items.size(); position++) {
                             CartItem item = items.get(position);
-                            statement.setObject(1, id);
-                            statement.setInt(2, position);
-                            statement.setObject(3, UUID.fromString(item.jewelId().value()));
-                            statement.setString(4, item.name());
-                            statement.setBigDecimal(5, item.price());
-                            statement.setObject(6, item.imageId() != null ? UUID.fromString(item.imageId().value()) : null);
-                            statement.setInt(7, item.quantity());
+                            statement.setObject(1, UUID.fromString(item.id().value()));
+                            statement.setObject(2, id);
+                            statement.setInt(3, position);
+                            statement.setObject(4, UUID.fromString(item.jewelId().value()));
+                            statement.setString(5, item.name());
+                            statement.setBigDecimal(6, item.price());
+                            statement.setObject(7, item.imageId() != null ? UUID.fromString(item.imageId().value()) : null);
+                            statement.setInt(8, item.quantity());
+                            statement.setObject(9, item.metalColorId() != null ? UUID.fromString(item.metalColorId().value()) : null);
+                            statement.setString(10, item.metalColorName());
+                            statement.setObject(11, item.metalColorImageId() != null ? UUID.fromString(item.metalColorImageId().value()) : null);
                             statement.addBatch();
                         }
                         statement.executeBatch();

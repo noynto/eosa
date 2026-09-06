@@ -1,6 +1,6 @@
 package me.noynto.eosa.shared;
 
-public record JewelId(
+public record MetalColorId(
         String value
 ) {
 }

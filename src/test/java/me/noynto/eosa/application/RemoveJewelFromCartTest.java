@@ -6,6 +6,7 @@ import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRule;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.CartItemId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,14 +40,17 @@ class RemoveJewelFromCartTest {
     @Test
     void handle_removesItemFromCart() {
         var cartId = new CartId("cart1");
-        var jewelId = new JewelId("prod1");
+        var itemId = new CartItemId("item1");
         var cart = cartWith(cartId);
-        cart.setItems(List.of(new CartItem(jewelId, "Lune", new BigDecimal("29.90"), new ImageId("img1"), 1)));
+        cart.setItems(List.of(new CartItem(
+                itemId, new JewelId("prod1"), "Lune", new BigDecimal("29.90"), new ImageId("img1"), 1,
+                null, null, null
+        )));
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         new RemoveJewelFromCart(cartProvider, shippingRuleProvider).handle(
-                new RemoveJewelFromCart.Command(cartId, jewelId)
+                new RemoveJewelFromCart.Command(cartId, itemId)
         );
 
         verify(cartProvider).write(argThat(c -> c.getItems().isEmpty()));
@@ -55,23 +59,23 @@ class RemoveJewelFromCartTest {
     @Test
     void handle_keepsOtherItemsIntact() {
         var cartId = new CartId("cart1");
-        var jewelId = new JewelId("prod1");
-        var otherId = new JewelId("prod2");
+        var itemId = new CartItemId("item1");
+        var otherItemId = new CartItemId("item2");
         var cart = cartWith(cartId);
         cart.setItems(List.of(
-                new CartItem(jewelId, "Lune", new BigDecimal("29.90"), new ImageId("img1"), 1),
-                new CartItem(otherId, "Soleil", new BigDecimal("39.90"), new ImageId("img2"), 1)
+                new CartItem(itemId, new JewelId("prod1"), "Lune", new BigDecimal("29.90"), new ImageId("img1"), 1, null, null, null),
+                new CartItem(otherItemId, new JewelId("prod2"), "Soleil", new BigDecimal("39.90"), new ImageId("img2"), 1, null, null, null)
         ));
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
         when(cartProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         new RemoveJewelFromCart(cartProvider, shippingRuleProvider).handle(
-                new RemoveJewelFromCart.Command(cartId, jewelId)
+                new RemoveJewelFromCart.Command(cartId, itemId)
         );
 
         verify(cartProvider).write(argThat(c ->
                 c.getItems().size() == 1 &&
-                c.getItems().getFirst().jewelId().equals(otherId)
+                c.getItems().getFirst().id().equals(otherItemId)
         ));
     }
 
@@ -79,13 +83,13 @@ class RemoveJewelFromCartTest {
     void handle_throwsWhenCartIdIsNull() {
         assertThrows(RuntimeException.class, () ->
                 new RemoveJewelFromCart(cartProvider, shippingRuleProvider).handle(
-                        new RemoveJewelFromCart.Command(null, new JewelId("prod1"))
+                        new RemoveJewelFromCart.Command(null, new CartItemId("item1"))
                 )
         );
     }
 
     @Test
-    void handle_throwsWhenJewelIdIsNull() {
+    void handle_throwsWhenItemIdIsNull() {
         assertThrows(RuntimeException.class, () ->
                 new RemoveJewelFromCart(cartProvider, shippingRuleProvider).handle(
                         new RemoveJewelFromCart.Command(new CartId("cart1"), null)
@@ -100,7 +104,7 @@ class RemoveJewelFromCartTest {
 
         assertThrows(RuntimeException.class, () ->
                 new RemoveJewelFromCart(cartProvider, shippingRuleProvider).handle(
-                        new RemoveJewelFromCart.Command(cartId, new JewelId("prod1"))
+                        new RemoveJewelFromCart.Command(cartId, new CartItemId("item1"))
                 )
         );
     }
@@ -113,7 +117,7 @@ class RemoveJewelFromCartTest {
 
     private CartShippingRule defaultRule() {
         var rule = new CartShippingRule();
-        
+
         rule.setFreeThreshold(new BigDecimal("60"));
         rule.setAmount(new BigDecimal("5"));
         return rule;
