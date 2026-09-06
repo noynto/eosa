@@ -1,7 +1,6 @@
 package me.noynto.eosa;
 
 import com.github.mustachejava.DefaultMustacheFactory;
-import com.mongodb.client.MongoDatabase;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinMustache;
 import me.noynto.eosa.application.*;
@@ -18,14 +17,11 @@ import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeProperties;
 import me.noynto.eosa.infrastructure.fetch.stripe.resource.StripeCheckoutSessionResource;
 import me.noynto.eosa.infrastructure.persistence.*;
 import me.noynto.eosa.infrastructure.persistence.jdbc.JdbcConfiguration;
-import me.noynto.eosa.infrastructure.persistence.mongo.*;
 import me.noynto.eosa.infrastructure.security.SecuredCrypts;
 import me.noynto.eosa.infrastructure.web.*;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
-import me.noynto.eosa.task.MigrateMongoToPostgresTask;
-import me.noynto.eosa.task.MigrateProductsCollectionToJewelsTask;
 
 import java.util.Map;
 import java.util.Set;
@@ -88,18 +84,6 @@ public class Bootstrap {
         if (CreateDefaultAdministratorIdentityTask.activate()) {
             oneShotTasksSucceeded &= new CreateDefaultAdministratorIdentityTask(createAdministratorIdentity, properties).task();
             ranOneShotTask = true;
-        }
-        if (MigrateProductsCollectionToJewelsTask.activate() || MigrateMongoToPostgresTask.activate()) {
-            MongoProperties mongoProperties = MongoConfiguration.getProperties();
-            MongoDatabase mongoDatabase = MongoConfiguration.getDatabase(mongoProperties);
-            if (MigrateProductsCollectionToJewelsTask.activate()) {
-                oneShotTasksSucceeded &= new MigrateProductsCollectionToJewelsTask(mongoDatabase).task();
-                ranOneShotTask = true;
-            }
-            if (MigrateMongoToPostgresTask.activate()) {
-                oneShotTasksSucceeded &= new MigrateMongoToPostgresTask(mongoDatabase, jdbcConfiguration.dataSource()).task();
-                ranOneShotTask = true;
-            }
         }
         if (ranOneShotTask) {
             Runtime.getRuntime().exit(oneShotTasksSucceeded ? 0 : 1);
