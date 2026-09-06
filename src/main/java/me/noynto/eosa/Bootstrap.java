@@ -84,6 +84,8 @@ public class Bootstrap {
         CreateCharm createCharm = new CreateCharm(charmProvider);
         AddImageToCharm addImageToCharm = new AddImageToCharm(charmProvider, imageProvider);
         ReadCharms readCharms = new ReadCharms(charmProvider);
+        UpdateCharm updateCharm = new UpdateCharm(charmProvider);
+        DeleteCharm deleteCharm = new DeleteCharm(charmProvider);
 
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
@@ -173,6 +175,8 @@ public class Bootstrap {
             javalinConfig.routes.get("/admin/charms", new GetAdminCharmsHandler(readCharms));
             javalinConfig.routes.post("/admin/charms", new CreateCharmHandler(createCharm));
             javalinConfig.routes.post("/admin/charms/{id}/image", new AddImageToCharmHandler(addImageToCharm));
+            javalinConfig.routes.patch("/admin/charms/{id}", new UpdateCharmHandler(updateCharm));
+            javalinConfig.routes.delete("/admin/charms/{id}", new DeleteCharmHandler(deleteCharm));
         });
         pub.start();
     }
