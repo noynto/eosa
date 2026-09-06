@@ -88,10 +88,12 @@
                 <span class="text-xs text-secondary">Breloques (optionnel)</span>
                 <div class="flex flex-wrap gap-2">
                     {{#charms}}
-                    <label class="flex items-center gap-2 bg-bg-soft border border-bg-border rounded-full px-3 py-1.5 cursor-pointer text-xs">
-                        <input type="checkbox" name="charmIds" value="{{id}}">
-                        {{#hasImage}}<img src="/images/{{imageId}}" class="w-5 h-5 rounded-full object-cover">{{/hasImage}}
-                        <span>{{name}} (+{{price}} €)</span>
+                    <label class="cursor-pointer">
+                        <input type="checkbox" name="charmIds" value="{{id}}" class="peer hidden">
+                        <div class="flex items-center gap-2 bg-bg-soft border-2 border-transparent rounded-full px-3 py-1.5 text-xs peer-checked:border-primary peer-checked:bg-primary/10 transition-colors">
+                            {{#hasImage}}<img src="/images/{{imageId}}" class="w-5 h-5 rounded-full object-cover">{{/hasImage}}
+                            <span>{{name}} (+{{price}} €)</span>
+                        </div>
                     </label>
                     {{/charms}}
                 </div>
