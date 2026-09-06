@@ -17,12 +17,14 @@ import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeHttpClient;
 import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeProperties;
 import me.noynto.eosa.infrastructure.fetch.stripe.resource.StripeCheckoutSessionResource;
 import me.noynto.eosa.infrastructure.persistence.*;
+import me.noynto.eosa.infrastructure.persistence.jdbc.JdbcConfiguration;
 import me.noynto.eosa.infrastructure.persistence.mongo.*;
 import me.noynto.eosa.infrastructure.security.SecuredCrypts;
 import me.noynto.eosa.infrastructure.web.*;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import me.noynto.eosa.task.MigrateMongoToPostgresTask;
 import me.noynto.eosa.task.MigrateProductsCollectionToJewelsTask;
 
 import java.util.Map;
@@ -35,14 +37,13 @@ public class Bootstrap {
         String baseUrl = properties.baseUrl().toString();
 
         // DATASOURCES
-        MongoProperties mongoProperties = MongoConfiguration.getProperties();
-        MongoDatabase mongoDatabase = MongoConfiguration.getDatabase(mongoProperties);
+        JdbcConfiguration jdbcConfiguration = JdbcConfiguration.fromEnvironment();
         //// PROVIDERS
-        IdentityProvider mongoPersistedIdentities = new MongoPersistedIdentities(MongoConfiguredIdentities.getCollection(mongoDatabase));
-        IdentitySessionProvider mongoPersistedSessions = new MongoPersistedIdentitySessions(MongoConfiguredIdentitySessions.getCollection(mongoDatabase));
-        JewelProvider mongoPersistedJewels = new MongoPersistedJewels(MongoConfiguredJewels.getCollection(mongoDatabase));
-        ImageProvider mongoPersistedImages = new MongoPersistedImages(MongoConfiguredImages.getBucket(mongoDatabase));
-        CartProvider mongoPersistedCarts = new MongoPersistedCarts(MongoConfiguredCarts.getCollection(mongoDatabase));
+        IdentityProvider identityProvider = jdbcConfiguration.identities();
+        IdentitySessionProvider identitySessionProvider = jdbcConfiguration.identitySessions();
+        JewelProvider jewelProvider = jdbcConfiguration.jewels();
+        ImageProvider imageProvider = jdbcConfiguration.images();
+        CartProvider cartProvider = jdbcConfiguration.carts();
         CartShippingRuleProvider shippingRuleProvider = new ConfiguredCartShippingRules();
 
         // CLIENTS
@@ -56,27 +57,27 @@ public class Bootstrap {
         CryptProvider cryptProvider = new SecuredCrypts();
 
         // HANDLER
-        CreateJewel createJewel = new CreateJewel(mongoPersistedIdentities, mongoPersistedJewels);
-        AddImagesToJewel addImagesToJewel = new AddImagesToJewel(mongoPersistedJewels, mongoPersistedImages);
-        ReadJewelIds readJewelIds = new ReadJewelIds(mongoPersistedJewels);
-        ReadJewel readJewel = new ReadJewel(mongoPersistedJewels);
-        UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(mongoPersistedJewels);
-        UpdatePriceOfJewel updatePriceOfJewel = new UpdatePriceOfJewel(mongoPersistedJewels);
-        UpdateCategoryOfJewel updateCategoryOfJewel = new UpdateCategoryOfJewel(mongoPersistedJewels);
-        UpdateStateOfJewel updateStateOfJewel = new UpdateStateOfJewel(mongoPersistedJewels);
-        DownloadImage downloadImage = new DownloadImage(mongoPersistedImages);
-        AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(mongoPersistedIdentities, mongoPersistedSessions, cryptProvider);
-        EnsureIdentityHasValidSession ensureIdentityHasValidSession = new EnsureIdentityHasValidSession(mongoPersistedSessions, mongoPersistedIdentities);
+        CreateJewel createJewel = new CreateJewel(identityProvider, jewelProvider);
+        AddImagesToJewel addImagesToJewel = new AddImagesToJewel(jewelProvider, imageProvider);
+        ReadJewelIds readJewelIds = new ReadJewelIds(jewelProvider);
+        ReadJewel readJewel = new ReadJewel(jewelProvider);
+        UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(jewelProvider);
+        UpdatePriceOfJewel updatePriceOfJewel = new UpdatePriceOfJewel(jewelProvider);
+        UpdateCategoryOfJewel updateCategoryOfJewel = new UpdateCategoryOfJewel(jewelProvider);
+        UpdateStateOfJewel updateStateOfJewel = new UpdateStateOfJewel(jewelProvider);
+        DownloadImage downloadImage = new DownloadImage(imageProvider);
+        AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(identityProvider, identitySessionProvider, cryptProvider);
+        EnsureIdentityHasValidSession ensureIdentityHasValidSession = new EnsureIdentityHasValidSession(identitySessionProvider, identityProvider);
         EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(ensureIdentityHasValidSession);
-        ReadCategoryStats readCategoryStats = new ReadCategoryStats(mongoPersistedJewels, readJewelIds);
-        GetOrCreateCart getOrCreateCart = new GetOrCreateCart(mongoPersistedCarts, shippingRuleProvider);
+        ReadCategoryStats readCategoryStats = new ReadCategoryStats(jewelProvider, readJewelIds);
+        GetOrCreateCart getOrCreateCart = new GetOrCreateCart(cartProvider, shippingRuleProvider);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(getOrCreateCart);
-        AddJewelToCart addJewelToCart = new AddJewelToCart(mongoPersistedCarts, mongoPersistedJewels, shippingRuleProvider);
-        RemoveJewelFromCart removeJewelFromCart = new RemoveJewelFromCart(mongoPersistedCarts, shippingRuleProvider);
-        UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity(mongoPersistedCarts, shippingRuleProvider);
-        InitiateCheckout initiateCheckout = new InitiateCheckout(mongoPersistedCarts, stripeFetchedCheckouts, shippingRuleProvider);
-        ConfirmCheckoutSession confirmCheckoutSession = new ConfirmCheckoutSession(stripeFetchedCheckouts, mongoPersistedCarts);
-        CreateAdministratorIdentity createAdministratorIdentity = new CreateAdministratorIdentity(mongoPersistedIdentities, cryptProvider);
+        AddJewelToCart addJewelToCart = new AddJewelToCart(cartProvider, jewelProvider, shippingRuleProvider);
+        RemoveJewelFromCart removeJewelFromCart = new RemoveJewelFromCart(cartProvider, shippingRuleProvider);
+        UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity(cartProvider, shippingRuleProvider);
+        InitiateCheckout initiateCheckout = new InitiateCheckout(cartProvider, stripeFetchedCheckouts, shippingRuleProvider);
+        ConfirmCheckoutSession confirmCheckoutSession = new ConfirmCheckoutSession(stripeFetchedCheckouts, cartProvider);
+        CreateAdministratorIdentity createAdministratorIdentity = new CreateAdministratorIdentity(identityProvider, cryptProvider);
 
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
@@ -88,9 +89,17 @@ public class Bootstrap {
             oneShotTasksSucceeded &= new CreateDefaultAdministratorIdentityTask(createAdministratorIdentity, properties).task();
             ranOneShotTask = true;
         }
-        if (MigrateProductsCollectionToJewelsTask.activate()) {
-            oneShotTasksSucceeded &= new MigrateProductsCollectionToJewelsTask(mongoDatabase).task();
-            ranOneShotTask = true;
+        if (MigrateProductsCollectionToJewelsTask.activate() || MigrateMongoToPostgresTask.activate()) {
+            MongoProperties mongoProperties = MongoConfiguration.getProperties();
+            MongoDatabase mongoDatabase = MongoConfiguration.getDatabase(mongoProperties);
+            if (MigrateProductsCollectionToJewelsTask.activate()) {
+                oneShotTasksSucceeded &= new MigrateProductsCollectionToJewelsTask(mongoDatabase).task();
+                ranOneShotTask = true;
+            }
+            if (MigrateMongoToPostgresTask.activate()) {
+                oneShotTasksSucceeded &= new MigrateMongoToPostgresTask(mongoDatabase, jdbcConfiguration.dataSource()).task();
+                ranOneShotTask = true;
+            }
         }
         if (ranOneShotTask) {
             Runtime.getRuntime().exit(oneShotTasksSucceeded ? 0 : 1);

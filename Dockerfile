@@ -22,9 +22,14 @@ COPY --from=builder /app/target/deps  ./deps
 COPY --from=builder /app/target/*.jar ./app.jar
 
 # Required environment variables (no defaults — must be provided at runtime)
-ENV EOSA_MONGO_URL=""
+ENV EOSA_JDBC_URL=""
+ENV EOSA_JDBC_USERNAME=""
+ENV EOSA_JDBC_PASSWORD=""
 ENV EOSA_ADMIN_ID=""
 ENV EOSA_ADMIN_SECRET=""
+
+# Only required when running the one-shot EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK
+ENV EOSA_MONGO_URL=""
 
 EXPOSE 8080
 
