@@ -56,7 +56,6 @@ shared/                     — value objects (IDs as records)
 infrastructure/
   persistence/              — JdbcPersistedX implements domain interfaces (plain JDBC, upsert via ON CONFLICT)
   persistence/jdbc/         — Postgres config (JdbcConfiguration reads EOSA_JDBC_URL/USERNAME/PASSWORD, runs Flyway)
-  persistence/mongo/        — legacy MongoDB config/classes, only used by the one-shot MigrateMongoToPostgresTask
   security/                 — SecuredCrypts (BCrypt)
   web/                      — Javalin handlers + BasicAuth helper
 src/main/resources/templates/ — Mustache templates; partials/ holds header-main/footer-main
@@ -101,7 +100,6 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 | `EOSA_JDBC_URL` | Yes | PostgreSQL JDBC connection URL |
 | `EOSA_JDBC_USERNAME` | Yes | PostgreSQL username |
 | `EOSA_JDBC_PASSWORD` | Yes | PostgreSQL password |
-| `EOSA_MONGO_URL` | No | Legacy MongoDB connection URL — only needed to run `EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK` |
 | `EOSA_ADMIN_ID` | Yes | Admin username (HTTP Basic Auth) |
 | `EOSA_ADMIN_SECRET` | Yes | Admin password |
 

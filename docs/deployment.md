@@ -65,20 +65,6 @@ Credentials for the PostgreSQL connection.
 
 ---
 
-### `EOSA_MONGO_URL`
-
-Connection URL to the legacy MongoDB server. Only required when running `EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK` — not used otherwise.
-
-| Property | Value |
-|---|---|
-| Required | No — only during the one-shot Mongo → Postgres migration |
-| Format | `mongodb://[user]:[password]@[host]:[port]/[database]?authSource=admin` |
-| Example | `mongodb://root:root@localhost:27017/eosa?authSource=admin` |
-
-The database name in the URL is ignored — the application always connects to the `eosa` database.
-
----
-
 ### `EOSA_ADMIN_NAME`
 
 Username for the administrator account, used to authenticate against protected routes (`POST /admin/*`) via HTTP Basic Auth.
@@ -138,28 +124,6 @@ Montant total du panier (en euros) à partir duquel la livraison est offerte.
 ### `EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK`
 
 When set to `true`, the application creates the default administrator identity on startup and exits. Intended for one-shot initialisation jobs.
-
-| Property | Value |
-|---|---|
-| Required | No |
-| Default | `false` |
-
----
-
-### `EOSA_MIGRATE_PRODUCTS_TO_JEWELS_TASK`
-
-When set to `true`, the application copies every document from the legacy `products` collection into `jewels` (skipped if `jewels` already has documents) and exits. The `products` collection is left untouched as a backup. One-shot job, run once after upgrading to the `Jewel` rename if the deployment has pre-existing catalog data.
-
-| Property | Value |
-|---|---|
-| Required | No |
-| Default | `false` |
-
----
-
-### `EOSA_MIGRATE_MONGO_TO_POSTGRES_TASK`
-
-When set to `true`, the application copies every `identity`, `identity_session`, `jewel` (with its images and image order), `cart` (with its items) from MongoDB (including the `images` GridFS bucket) into the PostgreSQL database, then exits. Skipped if the PostgreSQL tables already contain data. Requires `EOSA_MONGO_URL` to be set. One-shot job, run once when cutting a deployment over from MongoDB to PostgreSQL.
 
 | Property | Value |
 |---|---|

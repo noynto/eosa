@@ -41,14 +41,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-bom -->
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-bom</artifactId>
-                <version>5.7.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <!-- Source: https://mvnrepository.com/artifact/org.flywaydb/flyway-core -->
             <dependency>
                 <groupId>org.flywaydb</groupId>
@@ -105,11 +97,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-        </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync -->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <!-- 42.7.13 (not 42.7.7) to fix CVE-2026-42198/CVE-2026-54291 (SCRAM-SHA-256 auth DoS / MITM downgrade) -->

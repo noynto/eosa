@@ -4,5 +4,3 @@ resources:
   - deployment.yaml
   - service.yaml
   - postgres.yaml
-  - mongodb.yaml
-  - mongodb-create-user-job.yaml
