@@ -82,6 +82,23 @@ public record JdbcPersistedCharms(
         return charm;
     }
 
+    @Override
+    public void delete(CharmId charmId) {
+        UUID id;
+        try {
+            id = UUID.fromString(charmId.value());
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("DELETE FROM charms WHERE id = ?")) {
+            statement.setObject(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Impossible de supprimer la breloque " + charmId.value() + ".", e);
+        }
+    }
+
     private Charm toCharm(ResultSet resultSet) throws SQLException {
         Charm charm = new Charm();
         charm.setId(new CharmId(resultSet.getString("id")));

@@ -13,4 +13,6 @@ public interface CharmProvider {
 
     Charm write(Charm charm);
 
+    void delete(CharmId charmId);
+
 }
