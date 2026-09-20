@@ -1,5 +1,7 @@
 package me.noynto.eosa.infrastructure.persistence.jdbc;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedCarts;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedCharms;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentities;
@@ -8,7 +10,6 @@ import me.noynto.eosa.infrastructure.persistence.JdbcPersistedImages;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedJewels;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedMetalColors;
 import org.flywaydb.core.Flyway;
-import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
 import java.util.Objects;
@@ -22,11 +23,26 @@ public class JdbcConfiguration {
     private final DataSource dataSource;
 
     public JdbcConfiguration(String url, String username, String password) {
-        PGSimpleDataSource pgDataSource = new PGSimpleDataSource();
-        pgDataSource.setUrl(url);
-        pgDataSource.setUser(username);
-        pgDataSource.setPassword(password);
-        this.dataSource = pgDataSource;
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setPoolName("eosa");
+        hikariConfig.setJdbcUrl(url);
+        hikariConfig.setUsername(username);
+        hikariConfig.setPassword(password);
+        hikariConfig.setMinimumIdle(2);
+        hikariConfig.setMaximumPoolSize(10);
+        // Fail a borrow fast rather than queue the HTTP request thread for the 30s default.
+        hikariConfig.setConnectionTimeout(10_000);
+        // Shrink back down to minimumIdle a couple of minutes after a traffic burst.
+        hikariConfig.setIdleTimeout(120_000);
+        hikariConfig.setMaxLifetime(1_800_000);
+        // Keep idle connections alive through any network path that silently drops idle TCP.
+        hikariConfig.setKeepaliveTime(300_000);
+        // Tolerate Postgres not being ready yet at pod startup instead of failing on the first try.
+        hikariConfig.setInitializationFailTimeout(30_000);
+        // Safety net: every JdbcPersistedX call already uses try-with-resources, so this should
+        // never fire — it's here to catch a future regression rather than silently starve the pool.
+        hikariConfig.setLeakDetectionThreshold(30_000);
+        this.dataSource = new HikariDataSource(hikariConfig);
         migrate();
     }
 
