@@ -14,7 +14,7 @@ The `pom.xml` and `src/` are at the repository root (there is no `server/` subdi
 |---|---|
 | Web framework | Javalin 7.2.0 |
 | Templates | Mustache (`javalin-rendering-mustache`, `com.github.spullara.mustache.java`) |
-| Persistence | PostgreSQL via JDBC brut (no ORM) + Flyway for schema migrations |
+| Persistence | PostgreSQL via JDBC brut (no ORM), HikariCP connection pool + Flyway for schema migrations |
 | Password hashing | jBCrypt 0.4 |
 | Logging | SLF4J 2.0.17 + slf4j-simple |
 | Metrics | Micrometer (javalin-micrometer) |
