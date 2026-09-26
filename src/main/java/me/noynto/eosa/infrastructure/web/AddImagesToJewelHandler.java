@@ -33,6 +33,9 @@ public record AddImagesToJewelHandler(AddImagesToJewel addImagesToJewel) impleme
             model.put("images", jewel.getImageIds().stream().map(id -> Map.of("id", id.value())).toList());
             ctx.render("admin/partials/jewel-images.mustache", model);
         } catch (RuntimeException e) {
+            // Show the error in the section toast instead of replacing the whole images section.
+            ctx.header("HX-Retarget", "#toast-images");
+            ctx.header("HX-Reswap", "innerHTML");
             ctx.status(422).html("<span class=\"text-red-600 text-xs\">" + e.getMessage() + "</span>");
         }
     }
