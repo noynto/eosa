@@ -28,6 +28,7 @@ import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import org.eclipse.jetty.util.thread.VirtualThreadPool;
 
 public class Bootstrap {
 
@@ -180,6 +181,10 @@ public class Bootstrap {
 
         var pub = Javalin.create(javalinConfig -> {
             javalinConfig.jetty.port = properties.publicPort();
+            // Virtual threads (Java 25): one cheap thread per request, capped at 250 concurrent requests.
+            VirtualThreadPool publicThreadPool = new VirtualThreadPool(250);
+            publicThreadPool.setName("public");
+            javalinConfig.jetty.threadPool = publicThreadPool;
             javalinConfig.staticFiles.add(
                 "/public",
                 io.javalin.http.staticfiles.Location.CLASSPATH
@@ -415,6 +420,10 @@ public class Bootstrap {
         // Administration runs on its own port so it can be kept off the public network.
         var admin = Javalin.create(javalinConfig -> {
             javalinConfig.jetty.port = properties.adminPort();
+            // Single-user back office: virtual threads capped at 16 concurrent requests.
+            VirtualThreadPool adminThreadPool = new VirtualThreadPool(16);
+            adminThreadPool.setName("admin");
+            javalinConfig.jetty.threadPool = adminThreadPool;
             javalinConfig.staticFiles.add(
                 "/public",
                 io.javalin.http.staticfiles.Location.CLASSPATH
