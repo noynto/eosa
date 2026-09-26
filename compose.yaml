@@ -1,0 +1,65 @@
+# Local environment mirroring kubernetes/ (postgres + create-admin init + eosa).
+# Usage: docker compose up --build  →  http://localhost:8080
+# Every value can be overridden from a .env file next to this one (see .env.example).
+
+x-eosa-environment: &eosa-environment
+  EOSA_JDBC_URL: jdbc:postgresql://postgres:5432/eosa
+  EOSA_JDBC_USERNAME: ${POSTGRES_USER:-eosa}
+  EOSA_JDBC_PASSWORD: ${POSTGRES_PASSWORD:-eosa}
+  EOSA_ADMIN_NAME: ${EOSA_ADMIN_NAME:-admin}
+  EOSA_ADMIN_SECRET: ${EOSA_ADMIN_SECRET:-admin}
+  EOSA_CLIENT_STRIPE_SECRET_KEY: ${EOSA_CLIENT_STRIPE_SECRET_KEY:-secret}
+  EOSA_BASE_URL: ${EOSA_BASE_URL:-http://localhost:8080}
+  EOSA_SHIPPING_AMOUNT: ${EOSA_SHIPPING_AMOUNT:-4.90}
+  EOSA_SHIPPING_FREE_THRESHOLD: ${EOSA_SHIPPING_FREE_THRESHOLD:-60.00}
+
+x-eosa-hardening: &eosa-hardening
+  build: .
+  image: eosa:local
+  pull_policy: build
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs: [/tmp]
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-eosa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eosa}
+      POSTGRES_DB: eosa
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d eosa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Equivalent of the create-admin initContainer: exits once the admin exists.
+  create-admin:
+    <<: *eosa-hardening
+    environment:
+      <<: *eosa-environment
+      EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  eosa:
+    <<: *eosa-hardening
+    environment: *eosa-environment
+    ports:
+      - "8080:8080"
+    depends_on:
+      create-admin:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
