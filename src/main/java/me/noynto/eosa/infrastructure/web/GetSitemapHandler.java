@@ -13,7 +13,7 @@ import java.util.Set;
 public record GetSitemapHandler(ReadJewelIds readJewelIds, String baseUrl) implements Handler {
 
     private static final List<String> STATIC_PATHS = List.of(
-            "/", "/jewels", "/jewels/necklaces", "/jewels/bracelets", "/legal", "/terms", "/privacy"
+            "/", "/jewels", "/jewels/necklaces", "/jewels/bracelets", "/about", "/legal", "/terms", "/privacy"
     );
 
     @Override
