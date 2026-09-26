@@ -10,4 +10,6 @@ public interface ImageProvider {
 
     Optional<Image> download(ImageId imageId);
 
+    void delete(ImageId imageId);
+
 }

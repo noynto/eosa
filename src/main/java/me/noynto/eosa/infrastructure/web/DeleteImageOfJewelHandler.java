@@ -2,30 +2,25 @@ package me.noynto.eosa.infrastructure.web;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import me.noynto.eosa.application.AddImagesToJewel;
-import me.noynto.eosa.image.Image;
+import me.noynto.eosa.application.RemoveImageFromJewel;
 import me.noynto.eosa.jewel.Jewel;
+import me.noynto.eosa.shared.IdentityId;
+import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public record AddImagesToJewelHandler(AddImagesToJewel addImagesToJewel) implements Handler {
+public record DeleteImageOfJewelHandler(RemoveImageFromJewel removeImageFromJewel) implements Handler {
 
     @Override
     public void handle(Context ctx) throws Exception {
-        var images = ctx.uploadedFiles("images").stream().map(file -> {
-            Image image = new Image();
-            image.setName(file.filename());
-            image.setFormat(file.contentType());
-            image.setContent(file.content());
-            return image;
-        }).toList();
         try {
-            Jewel jewel = addImagesToJewel.handle(new AddImagesToJewel.Command(
-                    new JewelId(ctx.pathParam("id")),
-                    images
+            IdentityId identityId = ctx.attribute("identityId");
+            Jewel jewel = removeImageFromJewel.handle(new RemoveImageFromJewel.Command(
+                    identityId,
+                    new JewelId(ctx.pathParam("jewel-id")),
+                    new ImageId(ctx.pathParam("image-id"))
             ));
             Map<String, Object> model = new HashMap<>();
             model.put("jewelId", jewel.getId().value());

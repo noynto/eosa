@@ -7,8 +7,17 @@
     {{#hasImages}}
     <div class="grid grid-cols-4 gap-2 mb-4">
         {{#images}}
-        <div class="aspect-square rounded-lg overflow-hidden bg-bg-soft border border-bg-border">
+        <div class="relative aspect-square rounded-lg overflow-hidden bg-bg-soft border border-bg-border">
             <img src="/images/{{id}}" alt="" class="w-full h-full object-cover">
+            <button type="button"
+                    hx-delete="/admin/jewels/{{jewelId}}/images/{{id}}"
+                    hx-confirm="Supprimer définitivement cette image ?"
+                    hx-target="#images-section"
+                    hx-swap="outerHTML"
+                    aria-label="Supprimer l'image"
+                    class="absolute top-1 right-1 w-7 h-7 rounded-full bg-bg/90 border border-bg-border flex items-center justify-center text-primary hover:bg-primary hover:text-accent transition-colors">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
         </div>
         {{/images}}
     </div>

@@ -2,6 +2,44 @@
 
 </div>
 
+<!-- Confirmation modal: replaces the native confirm() used by hx-confirm -->
+<dialog id="confirm-dialog"
+        class="w-[calc(100%-2rem)] max-w-sm rounded-xl border border-bg-border bg-bg p-0 text-primary shadow-xl backdrop:bg-primary-dark/40 backdrop:backdrop-blur-sm">
+    <form method="dialog" class="p-5 flex flex-col gap-5">
+        <div class="flex items-start gap-3">
+            <div class="w-9 h-9 shrink-0 rounded-full bg-bg-soft flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+            </div>
+            <div>
+                <h2 class="text-sm font-medium mb-1">Confirmation</h2>
+                <p id="confirm-dialog-question" class="text-sm text-secondary leading-relaxed"></p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2">
+            <button value="cancel" autofocus
+                    class="border border-bg-border px-4 py-1.5 rounded-lg text-xs text-secondary hover:border-secondary transition-colors">
+                Annuler
+            </button>
+            <button value="confirm"
+                    class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                Confirmer
+            </button>
+        </div>
+    </form>
+</dialog>
+<script>
+    document.addEventListener('htmx:confirm', (event) => {
+        if (!event.detail.question) return;
+        event.preventDefault();
+        const dialog = document.getElementById('confirm-dialog');
+        document.getElementById('confirm-dialog-question').textContent = event.detail.question;
+        dialog.returnValue = '';
+        dialog.addEventListener('close', () => {
+            if (dialog.returnValue === 'confirm') event.detail.issueRequest(true);
+        }, {once: true});
+        dialog.showModal();
+    });
+</script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
