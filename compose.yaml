@@ -40,6 +40,9 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    # Same limits as kubernetes/postgres.yaml
+    mem_limit: 512m
+    cpus: 0.5
 
   # Equivalent of the create-admin initContainer: exits once the admin exists.
   create-admin:
@@ -63,6 +66,9 @@ services:
       create-admin:
         condition: service_completed_successfully
     restart: unless-stopped
+    # Same limits as kubernetes/deployment.yaml
+    mem_limit: 512m
+    cpus: 0.5
 
 volumes:
   postgres-data:
