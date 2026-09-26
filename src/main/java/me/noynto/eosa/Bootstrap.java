@@ -59,6 +59,7 @@ public class Bootstrap {
         // HANDLER
         CreateJewel createJewel = new CreateJewel(identityProvider, jewelProvider);
         AddImagesToJewel addImagesToJewel = new AddImagesToJewel(jewelProvider, imageProvider);
+        RemoveImageFromJewel removeImageFromJewel = new RemoveImageFromJewel(identityProvider, jewelProvider, imageProvider);
         ReadJewelIds readJewelIds = new ReadJewelIds(jewelProvider);
         ReadJewel readJewel = new ReadJewel(jewelProvider);
         UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(jewelProvider);
@@ -165,6 +166,7 @@ public class Bootstrap {
             javalinConfig.routes.get("/admin/jewels/{id}", new GetAdminJewelHandler(readJewel));
             javalinConfig.routes.get("/admin/jewels/{id}/row", new GetAdminJewelRowHandler(readJewel));
             javalinConfig.routes.post("/admin/jewels/{id}/images", new AddImagesToJewelHandler(addImagesToJewel));
+            javalinConfig.routes.delete("/admin/jewels/{jewel-id}/images/{image-id}", new DeleteImageOfJewelHandler(removeImageFromJewel));
             javalinConfig.routes.patch("/admin/jewels/{jewel-id}/tagline", new PatchTaglineOfJewelHandler(updateTaglineOfJewel));
             javalinConfig.routes.patch("/admin/jewels/{jewel-id}/price", new PatchPriceOfJewelHandler(updatePriceOfJewel));
             javalinConfig.routes.patch("/admin/jewels/{jewel-id}/category", new PatchCategoryOfJewelHandler(updateCategoryOfJewel));

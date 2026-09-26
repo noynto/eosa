@@ -71,4 +71,16 @@ public record JdbcPersistedImages(
         }
     }
 
+    @Override
+    public void delete(ImageId imageId) {
+        String sql = "DELETE FROM images WHERE id = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setObject(1, UUID.fromString(imageId.value()));
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Impossible de supprimer l'image " + imageId.value() + ".", e);
+        }
+    }
+
 }
