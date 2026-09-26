@@ -130,6 +130,9 @@ public class Bootstrap {
             javalinConfig.routes.get("/terms", context -> context.render("cgv.mustache", Map.of("title", "Eosa — Conditions générales de vente", "description", "Conditions générales de vente du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
             javalinConfig.routes.get("/privacy", context -> context.render("privacy.mustache", Map.of("title", "Eosa — Politique de confidentialité", "description", "Politique de confidentialité du site Eosa.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
 
+            // BRAND PAGES
+            javalinConfig.routes.get("/about", context -> context.render("about.mustache", Map.of("title", "Eosa — Notre histoire", "description", "EOSA, ce sont des bijoux en pierres naturelles faits main à Nancy par Chloé, un par un.", "ogImageUrl", baseUrl + "/story.webp", "canonicalUrl", baseUrl + context.path())));
+
             // HELP PAGES
             javalinConfig.routes.get("/returns", context -> context.render("returns.mustache", Map.of("title", "Eosa — Retours", "description", "14 jours pour changer d'avis, frais de retour offerts.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
             javalinConfig.routes.get("/faq", context -> context.render("faq.mustache", Map.of("title", "Eosa — Questions fréquentes", "description", "Livraison, retours, entretien des bijoux : toutes les réponses à vos questions.", "ogImageUrl", baseUrl + "/hero.webp", "canonicalUrl", baseUrl + context.path())));
