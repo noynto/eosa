@@ -11,7 +11,7 @@ public record CreateJewelHandler(CreateJewel createJewel) implements Handler {
     public void handle(Context ctx) throws Exception {
         IdentityId identityId = ctx.attribute("identityId");
         var jewel = createJewel.handle(new CreateJewel.Command(identityId, ctx.formParam("name")));
-        ctx.header("HX-Redirect", "/admin/jewels/" + jewel.getId().value());
+        ctx.header("HX-Redirect", "/jewels/" + jewel.getId().value());
         ctx.status(200);
     }
 

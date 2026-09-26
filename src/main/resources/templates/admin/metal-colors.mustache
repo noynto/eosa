@@ -15,7 +15,7 @@
             {{#hasImage}}<img src="/images/{{imageId}}" alt="{{name}}" class="w-full h-full object-cover">{{/hasImage}}
         </div>
         <div class="text-sm font-medium">{{name}}</div>
-        <form hx-post="/admin/metal-colors/{{id}}/image"
+        <form hx-post="/metal-colors/{{id}}/image"
               hx-encoding="multipart/form-data"
               class="flex flex-col gap-2">
             <label class="flex items-center gap-2 bg-bg-soft border border-bg-border border-dashed rounded-lg px-3 py-2 cursor-pointer hover:border-secondary transition-colors">
@@ -40,7 +40,7 @@
      onclick="if(event.target===this){this.classList.add('hidden')}">
     <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg">
         <h2 class="text-sm font-medium mb-4">Nouvelle couleur</h2>
-        <form hx-post="/admin/metal-colors" hx-target="body" class="flex flex-col gap-4">
+        <form hx-post="/metal-colors" hx-target="body" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
                 <label for="name" class="text-xs text-secondary">Nom</label>
                 <input id="name" name="name" type="text" required autofocus placeholder="ex. Argent"

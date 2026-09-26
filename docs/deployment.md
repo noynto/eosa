@@ -9,7 +9,8 @@
 
 ```bash
 docker run \
-  -e EOSA_BASE_URL="https://eosa.me" \
+  -e EOSA_PUBLIC_BASE_URL="https://eosa.me" \
+  -e EOSA_ADMIN_BASE_URL="http://localhost:18080" \
   -e EOSA_JDBC_URL="jdbc:postgresql://host:5432/eosa" \
   -e EOSA_JDBC_USERNAME="user" \
   -e EOSA_JDBC_PASSWORD="password" \
@@ -19,6 +20,7 @@ docker run \
   -e EOSA_SHIPPING_AMOUNT="4.90" \
   -e EOSA_SHIPPING_FREE_THRESHOLD="60.00" \
   -p 8080:8080 \
+  -p 127.0.0.1:18080:18080 \
   eosa
 ```
 
@@ -27,12 +29,12 @@ Or using an env file:
 ```bash
 cp .env.example .env
 # edit .env with your values
-docker run --env-file .env -p 8080:8080 eosa
+docker run --env-file .env -p 8080:8080 -p 127.0.0.1:18080:18080 eosa
 ```
 
 ## Environment variables
 
-### `EOSA_BASE_URL`
+### `EOSA_PUBLIC_BASE_URL`
 
 Public base URL of the server, without trailing slash. Used to build Stripe redirect URLs and jewel image URLs.
 
@@ -67,7 +69,7 @@ Credentials for the PostgreSQL connection.
 
 ### `EOSA_ADMIN_NAME`
 
-Username for the administrator account, used to authenticate against protected routes (`POST /admin/*`) via HTTP Basic Auth.
+Username of the default administrator identity, used to sign in on the administration server (`/sign-in`).
 
 | Property | Value |
 |---|---|
@@ -129,3 +131,25 @@ When set to `true`, the application creates the default administrator identity o
 |---|---|
 | Required | No |
 | Default | `false` |
+
+---
+
+### `EOSA_ADMIN_BASE_URL`
+
+Base URL of the administration server, without trailing slash. Administration (`/sign-in`, `/jewels`, `/charms`…) runs on a separate Javalin server so it can be kept off the public network: bind its port to localhost, or reach it through `kubectl port-forward svc/eosa-admin 18080:18080`.
+
+| Property | Value |
+|---|---|
+| Required | Yes |
+| Example | `http://localhost:18080` |
+
+---
+
+### `EOSA_PUBLIC_SERVER_PORT` / `EOSA_ADMIN_SERVER_PORT`
+
+Ports the public storefront and the administration servers listen on.
+
+| Property | Value |
+|---|---|
+| Required | No |
+| Default | `8080` (public) / `18080` (admin) |

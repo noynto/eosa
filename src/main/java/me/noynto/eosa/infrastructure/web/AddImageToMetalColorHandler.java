@@ -23,7 +23,7 @@ public record AddImageToMetalColorHandler(AddImageToMetalColor addImageToMetalCo
                     new MetalColorId(ctx.pathParam("id")),
                     image
             ));
-            ctx.header("HX-Redirect", "/admin/metal-colors");
+            ctx.header("HX-Redirect", "/metal-colors");
             ctx.status(200);
         } catch (RuntimeException e) {
             ctx.status(422).html("<span class=\"text-red-600 text-xs\">" + e.getMessage() + "</span>");

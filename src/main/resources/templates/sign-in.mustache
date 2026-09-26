@@ -1,30 +1,79 @@
-{{> partials/header-main}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#601414">
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+    <link rel="stylesheet" href="/fonts.css">
+    <script src="/tailwind.min.js"></script>
+    <script src="/tailwind.config.js"></script>
+</head>
+<body class="bg-bg-soft font-sans text-primary antialiased min-h-screen flex items-center justify-center p-5">
 
-<main class="min-h-[60vh] flex items-center justify-center px-5 py-16">
-    <div class="w-full max-w-sm">
-        <h1 class="font-serif text-3xl text-primary mb-8 text-center">Administration</h1>
+<main class="w-full max-w-sm lg:max-w-4xl grid lg:grid-cols-2 bg-bg border border-bg-border rounded-xl shadow-lg overflow-hidden">
+
+    <!-- Brand panel (desktop only) -->
+    <div class="hidden lg:block relative bg-bg-soft border-r border-bg-border">
+        <img src="/hero.webp" alt="" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-primary-dark/70 via-primary-dark/10 to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-8">
+            <p class="font-serif text-3xl text-bg leading-tight">Bijoux faits main,<br/>un par un.</p>
+            <p class="text-xs text-bg/80 mt-2 tracking-widest uppercase">Espace de gestion</p>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="p-6 md:p-10 flex flex-col">
+        <span class="font-display text-2xl text-primary leading-none mb-8">eosa.</span>
+
+        <h1 class="font-serif text-3xl font-normal leading-tight">Connexion</h1>
+        <p class="text-sm text-secondary mt-1 mb-6">Accédez à la gestion du catalogue.</p>
 
         {{#hasError}}
-        <p class="text-sm text-red-600 text-center mb-6">Identifiants incorrects.</p>
+        <div role="alert" class="flex items-start gap-2.5 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 mb-5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0 mt-px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <span>Nom ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.</span>
+        </div>
         {{/hasError}}
 
-        <form method="post" action="/sign-in" class="flex flex-col gap-4">
+        <form method="post" action="/sign-in" class="flex flex-col gap-4"
+              onsubmit="const b=this.querySelector('button[type=submit]'); b.disabled=true; b.querySelector('span').textContent='Connexion…';">
             <div class="flex flex-col gap-1.5">
-                <label for="name" class="text-xs text-secondary tracking-wide">Nom</label>
-                <input id="name" name="name" type="text" autocomplete="username" required
-                       class="bg-bg border border-bg-border rounded-full px-4 py-2.5 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                <label for="name" class="text-xs text-secondary">Nom</label>
+                <input id="name" name="name" type="text" autocomplete="username" required autofocus
+                       {{#hasError}}aria-invalid="true"{{/hasError}}
+                       class="bg-bg-soft border {{#hasError}}border-red-300{{/hasError}}{{^hasError}}border-bg-border{{/hasError}} rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
             </div>
             <div class="flex flex-col gap-1.5">
-                <label for="secret" class="text-xs text-secondary tracking-wide">Mot de passe</label>
-                <input id="secret" name="secret" type="password" autocomplete="current-password" required
-                       class="bg-bg border border-bg-border rounded-full px-4 py-2.5 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                <label for="secret" class="text-xs text-secondary">Mot de passe</label>
+                <div class="relative">
+                    <input id="secret" name="secret" type="password" autocomplete="current-password" required
+                           {{#hasError}}aria-invalid="true"{{/hasError}}
+                           class="w-full bg-bg-soft border {{#hasError}}border-red-300{{/hasError}}{{^hasError}}border-bg-border{{/hasError}} rounded-lg pl-3 pr-10 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                    <button type="button" aria-label="Afficher le mot de passe" aria-pressed="false"
+                            onclick="const i=document.getElementById('secret'); const show=i.type==='password'; i.type=show?'text':'password'; this.setAttribute('aria-pressed', show); this.setAttribute('aria-label', show?'Masquer le mot de passe':'Afficher le mot de passe'); this.querySelector('.eye-off').classList.toggle('hidden', !show); this.querySelector('.eye').classList.toggle('hidden', show);"
+                            class="absolute inset-y-0 right-0 w-10 flex items-center justify-center text-muted hover:text-secondary transition-colors">
+                        <svg class="eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg class="eye-off hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 3 18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-2.2 3.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.9 0 3.6-.6 5-1.4"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+                    </button>
+                </div>
             </div>
             <button type="submit"
-                    class="mt-2 bg-primary text-accent px-6 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
-                Se connecter
+                    class="mt-2 bg-primary text-accent px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-wait">
+                <span>Se connecter</span>
             </button>
         </form>
+
+        <div class="mt-8 pt-5 border-t border-bg-border flex items-center justify-between gap-4 text-xs">
+            <a href="{{publicUrl}}" class="text-secondary hover:text-primary transition-colors">← Retour au site</a>
+            <span class="text-muted">Session valable 3 h</span>
+        </div>
     </div>
+
 </main>
 
-{{> partials/footer-main}}
+</body>
+</html>

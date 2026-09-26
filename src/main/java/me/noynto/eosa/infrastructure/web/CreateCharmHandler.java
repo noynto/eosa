@@ -18,7 +18,7 @@ public record CreateCharmHandler(CreateCharm createCharm) implements Handler {
             return;
         }
         createCharm.handle(new CreateCharm.Command(ctx.formParam("name"), price));
-        ctx.header("HX-Redirect", "/admin/charms");
+        ctx.header("HX-Redirect", "/charms");
         ctx.status(200);
     }
 

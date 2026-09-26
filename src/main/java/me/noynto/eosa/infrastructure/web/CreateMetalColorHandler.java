@@ -9,7 +9,7 @@ public record CreateMetalColorHandler(CreateMetalColor createMetalColor) impleme
     @Override
     public void handle(Context ctx) {
         createMetalColor.handle(new CreateMetalColor.Command(ctx.formParam("name")));
-        ctx.header("HX-Redirect", "/admin/metal-colors");
+        ctx.header("HX-Redirect", "/metal-colors");
         ctx.status(200);
     }
 

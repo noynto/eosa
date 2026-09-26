@@ -19,7 +19,7 @@ public class StripeConfiguration {
 
     public static StripeProperties getProperties(Properties properties) {
         String secretKey = Objects.requireNonNull(System.getenv(SECRET), "La clé secrète Stripe est obligatoire.");
-        String baseUrl = properties.baseUrl().toString();
+        String baseUrl = properties.publicBaseUrl().toString();
         return new StripeProperties(
                 secretKey,
                 baseUrl + "/checkout/success?session_id={CHECKOUT_SESSION_ID}",

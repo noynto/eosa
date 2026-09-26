@@ -4,7 +4,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-y-2 mb-8">
         <div class="flex items-center gap-3">
-            <a href="/admin/jewels" class="text-xs text-muted hover:text-secondary transition-colors">← Produits</a>
+            <a href="/jewels" class="text-xs text-muted hover:text-secondary transition-colors">← Produits</a>
             <span class="text-muted">/</span>
             <h1 class="text-xl font-medium">{{name}}</h1>
         </div>
@@ -21,7 +21,7 @@
             <h2 class="text-sm font-medium">Accroche</h2>
             <span id="toast-tagline" class="text-xs text-success"></span>
         </div>
-        <form hx-patch="/admin/jewels/{{jewelId}}/tagline"
+        <form hx-patch="/jewels/{{jewelId}}/tagline"
               hx-target="#toast-tagline" hx-swap="innerHTML"
               class="flex flex-col gap-3">
             <textarea name="tagline" rows="3" placeholder="Une courte description du produit…"
@@ -41,7 +41,7 @@
             <h2 class="text-sm font-medium">Prix</h2>
             <span id="toast-price" class="text-xs text-success"></span>
         </div>
-        <form hx-patch="/admin/jewels/{{jewelId}}/price"
+        <form hx-patch="/jewels/{{jewelId}}/price"
               hx-target="#toast-price" hx-swap="innerHTML"
               class="flex items-center gap-3">
             <div class="relative">
@@ -63,7 +63,7 @@
             <h2 class="text-sm font-medium">Catégorie</h2>
             <span id="toast-category" class="text-xs text-success"></span>
         </div>
-        <form hx-patch="/admin/jewels/{{jewelId}}/category"
+        <form hx-patch="/jewels/{{jewelId}}/category"
               hx-target="#toast-category" hx-swap="innerHTML"
               class="flex items-center gap-3">
             <select name="category"
@@ -87,7 +87,7 @@
             <h2 class="text-sm font-medium">État</h2>
             <span id="toast-state" class="text-xs text-success"></span>
         </div>
-        <form hx-patch="/admin/jewels/{{jewelId}}/state"
+        <form hx-patch="/jewels/{{jewelId}}/state"
               hx-target="#toast-state" hx-swap="innerHTML"
               class="flex items-center gap-3">
             <select name="state"
