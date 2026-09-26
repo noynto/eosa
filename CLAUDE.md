@@ -78,18 +78,28 @@ View models passed to `ctx.render(...)` are plain `Map<String, Object>` (no view
 
 ## Routes
 
+`Bootstrap` starts two Javalin servers: the public storefront on `EOSA_PUBLIC_SERVER_PORT` (default `8080`) and the administration on `EOSA_ADMIN_SERVER_PORT` (default `18080`), meant to stay off the public network. Admin routes have no `/admin` prefix; `EnsureIdentityHandler` guards every admin route except `/sign-in`, `/images/*` and static assets. Admin templates receive `publicUrl` (the storefront base URL) through a wrapping `FileRenderer`.
+
+Public server (`8080`):
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/` | Home page |
+| GET | `/jewels` | Jewel list |
+| GET | `/jewels/{id}` | Jewel detail |
+| GET | `/jewels/{id}/card` | Jewel card partial |
+| GET | `/images/{id}` | Image download |
+| GET | `/about` | Brand story page |
+| GET | `/cart` | Cart page |
+
+Admin server (`18080`):
+
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/` | — | Home page |
-| GET | `/jewels` | — | Jewel list |
-| GET | `/jewels/{id}` | — | Jewel detail |
-| GET | `/jewels/{id}/card` | — | Jewel card partial |
-| GET | `/images/{id}` | — | Image download |
-| GET | `/cart` | — | Cart page |
-| GET | `/payment` | — | Payment page |
-| GET | `/admin/sign-in` | — | Admin login page |
-| POST | `/admin/jewels` | Basic Auth | Create jewel |
-| POST | `/admin/jewels/{id}/images` | Basic Auth | Add images to jewel |
+| GET/POST | `/sign-in` | — | Admin login (sets the `identity-session-id` cookie) |
+| GET | `/` | Session cookie | Redirects to `/jewels` |
+| * | `/jewels*`, `/metal-colors*`, `/charms*` | Session cookie | Admin pages and actions |
+| GET | `/images/{id}` | — | Image download (for admin thumbnails) |
 
 ## Environment Variables
 
@@ -100,8 +110,12 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 | `EOSA_JDBC_URL` | Yes | PostgreSQL JDBC connection URL |
 | `EOSA_JDBC_USERNAME` | Yes | PostgreSQL username |
 | `EOSA_JDBC_PASSWORD` | Yes | PostgreSQL password |
-| `EOSA_ADMIN_ID` | Yes | Admin username (HTTP Basic Auth) |
-| `EOSA_ADMIN_SECRET` | Yes | Admin password |
+| `EOSA_ADMIN_NAME` | Yes | Default admin username |
+| `EOSA_ADMIN_SECRET` | Yes | Default admin password |
+| `EOSA_PUBLIC_BASE_URL` | Yes | Public storefront base URL (Stripe redirects, admin "Voir le site" link) |
+| `EOSA_ADMIN_BASE_URL` | Yes | Administration base URL |
+| `EOSA_PUBLIC_SERVER_PORT` | No | Public server port (default `8080`) |
+| `EOSA_ADMIN_SERVER_PORT` | No | Admin server port (default `18080`) |
 
 ## Responsive Design
 

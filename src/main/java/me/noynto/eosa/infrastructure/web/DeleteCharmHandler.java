@@ -10,7 +10,7 @@ public record DeleteCharmHandler(DeleteCharm deleteCharm) implements Handler {
     @Override
     public void handle(Context ctx) {
         deleteCharm.handle(new DeleteCharm.Command(new CharmId(ctx.pathParam("id"))));
-        ctx.header("HX-Redirect", "/admin/charms");
+        ctx.header("HX-Redirect", "/charms");
         ctx.status(200);
     }
 

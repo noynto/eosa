@@ -3,8 +3,10 @@ package me.noynto.eosa;
 import java.net.URI;
 
 public record Properties(
-        URI baseUrl,
-        String adminName,
-        String adminSecret
-) {
-}
+    URI publicBaseUrl,
+    int publicPort,
+    URI adminBaseUrl,
+    int adminPort,
+    String adminName,
+    String adminSecret
+) {}

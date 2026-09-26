@@ -16,7 +16,7 @@
     </div>
     <div id="jewel-list">
         {{#jewelIds}}
-            <div hx-get="/admin/jewels/{{id}}/row"
+            <div hx-get="/jewels/{{id}}/row"
                  hx-trigger="load"
                  hx-swap="outerHTML">
                 <div class="grid grid-cols-[1fr_auto_auto] px-4 py-3 border-b border-bg-border last:border-0 animate-pulse">
@@ -37,7 +37,7 @@
      onclick="if(event.target===this){this.classList.add('hidden')}">
     <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg">
         <h2 class="text-sm font-medium mb-4">Nouveau produit</h2>
-        <form hx-post="/admin/jewels" hx-target="body" class="flex flex-col gap-4">
+        <form hx-post="/jewels" hx-target="body" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
                 <label for="name" class="text-xs text-secondary">Nom</label>
                 <input id="name" name="name" type="text" required autofocus placeholder="ex. Collier Céleste"

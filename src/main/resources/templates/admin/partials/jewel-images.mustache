@@ -10,7 +10,7 @@
         <div class="relative aspect-square rounded-lg overflow-hidden bg-bg-soft border border-bg-border">
             <img src="/images/{{id}}" alt="" class="w-full h-full object-cover">
             <button type="button"
-                    hx-delete="/admin/jewels/{{jewelId}}/images/{{id}}"
+                    hx-delete="/jewels/{{jewelId}}/images/{{id}}"
                     hx-confirm="Supprimer définitivement cette image ?"
                     hx-target="#images-section"
                     hx-swap="outerHTML"
@@ -23,7 +23,7 @@
     </div>
     {{/hasImages}}
 
-    <form hx-post="/admin/jewels/{{jewelId}}/images"
+    <form hx-post="/jewels/{{jewelId}}/images"
           hx-target="#images-section"
           hx-swap="outerHTML"
           hx-encoding="multipart/form-data"

@@ -28,7 +28,8 @@ ENV EOSA_JDBC_PASSWORD=""
 ENV EOSA_ADMIN_ID=""
 ENV EOSA_ADMIN_SECRET=""
 
-EXPOSE 8080
+# 8080: public storefront (EOSA_PUBLIC_SERVER_PORT) — 18080: administration (EOSA_ADMIN_SERVER_PORT), keep it off the public network
+EXPOSE 8080 18080
 
 ENTRYPOINT ["java", \
   "-XX:+UseContainerSupport", \

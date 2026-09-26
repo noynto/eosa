@@ -1,5 +1,5 @@
 # Local environment mirroring kubernetes/ (postgres + create-admin init + eosa).
-# Usage: docker compose up --build  →  http://localhost:8080
+# Usage: docker compose up --build  →  http://localhost:8080 (site), http://localhost:18080 (admin)
 # Every value can be overridden from a .env file next to this one (see .env.example).
 
 x-eosa-environment: &eosa-environment
@@ -9,7 +9,8 @@ x-eosa-environment: &eosa-environment
   EOSA_ADMIN_NAME: ${EOSA_ADMIN_NAME:-admin}
   EOSA_ADMIN_SECRET: ${EOSA_ADMIN_SECRET:-admin}
   EOSA_CLIENT_STRIPE_SECRET_KEY: ${EOSA_CLIENT_STRIPE_SECRET_KEY:-secret}
-  EOSA_BASE_URL: ${EOSA_BASE_URL:-http://localhost:8080}
+  EOSA_PUBLIC_BASE_URL: ${EOSA_PUBLIC_BASE_URL:-http://localhost:8080}
+  EOSA_ADMIN_BASE_URL: ${EOSA_ADMIN_BASE_URL:-http://localhost:18080}
   EOSA_SHIPPING_AMOUNT: ${EOSA_SHIPPING_AMOUNT:-4.90}
   EOSA_SHIPPING_FREE_THRESHOLD: ${EOSA_SHIPPING_FREE_THRESHOLD:-60.00}
 
@@ -56,6 +57,8 @@ services:
     environment: *eosa-environment
     ports:
       - "8080:8080"
+      # Administration, bound to localhost only
+      - "127.0.0.1:18080:18080"
     depends_on:
       create-admin:
         condition: service_completed_successfully

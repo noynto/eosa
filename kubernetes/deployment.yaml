@@ -59,11 +59,16 @@ spec:
                 secretKeyRef:
                   name: eosa-secrets
                   key: stripe-secret-key
-            - name: EOSA_BASE_URL
+            - name: EOSA_PUBLIC_BASE_URL
               valueFrom:
                 configMapKeyRef:
                   name: eosa-configs
-                  key: base-url
+                  key: public-base-url
+            - name: EOSA_ADMIN_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: admin-base-url
             - name: EOSA_SHIPPING_AMOUNT
               valueFrom:
                 configMapKeyRef:
@@ -88,7 +93,10 @@ spec:
             capabilities:
               drop: ["ALL"]
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+            - name: admin
+              containerPort: 18080
           env:
             - name: EOSA_JDBC_URL
               valueFrom:
@@ -120,11 +128,16 @@ spec:
                 secretKeyRef:
                   name: eosa-secrets
                   key: stripe-secret-key
-            - name: EOSA_BASE_URL
+            - name: EOSA_PUBLIC_BASE_URL
               valueFrom:
                 configMapKeyRef:
                   name: eosa-configs
-                  key: base-url
+                  key: public-base-url
+            - name: EOSA_ADMIN_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: admin-base-url
             - name: EOSA_SHIPPING_AMOUNT
               valueFrom:
                 configMapKeyRef:
@@ -138,14 +151,14 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: http
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: http
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 3
