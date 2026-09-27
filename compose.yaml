@@ -1,52 +1,67 @@
-# Local environment mirroring kubernetes/ (postgres + create-admin init + eosa).
-# Usage: docker compose up --build  →  http://localhost:8080 (site), http://localhost:18080 (admin)
-# Every value can be overridden from a .env file next to this one (see .env.example).
+# Local environment mirroring kubernetes/: postgres + one-shot create-admin + eosa.
+#
+#   docker compose up --build -d
+#   → storefront      http://localhost:8080
+#   → administration  http://localhost:18080  (admin / admin by default)
+#
+# Works without any configuration. To override a value, set it in a .env file next to
+# this one (see .env.example); unset variables fall back to the defaults below.
 
+name: eosa
+
+# Configuration shared by create-admin and eosa. The JDBC URL always targets the
+# compose "postgres" service, whatever EOSA_JDBC_URL says in .env.
 x-eosa-environment: &eosa-environment
-  EOSA_JDBC_URL: jdbc:postgresql://postgres:5432/eosa
-  EOSA_JDBC_USERNAME: ${POSTGRES_USER:-eosa}
-  EOSA_JDBC_PASSWORD: ${POSTGRES_PASSWORD:-eosa}
+  EOSA_PUBLIC_BASE_URL: ${EOSA_PUBLIC_BASE_URL:-http://localhost:8080}
+  EOSA_PUBLIC_SERVER_PORT: ${EOSA_PUBLIC_SERVER_PORT:-8080}
+  EOSA_ADMIN_BASE_URL: ${EOSA_ADMIN_BASE_URL:-http://localhost:18080}
+  EOSA_ADMIN_SERVER_PORT: ${EOSA_ADMIN_SERVER_PORT:-18080}
   EOSA_ADMIN_NAME: ${EOSA_ADMIN_NAME:-admin}
   EOSA_ADMIN_SECRET: ${EOSA_ADMIN_SECRET:-admin}
-  EOSA_CLIENT_STRIPE_SECRET_KEY: ${EOSA_CLIENT_STRIPE_SECRET_KEY:-secret}
-  EOSA_PUBLIC_BASE_URL: ${EOSA_PUBLIC_BASE_URL:-http://localhost:8080}
-  EOSA_ADMIN_BASE_URL: ${EOSA_ADMIN_BASE_URL:-http://localhost:18080}
+  EOSA_JDBC_URL: jdbc:postgresql://postgres:5432/eosa
+  EOSA_JDBC_USERNAME: ${EOSA_JDBC_USERNAME:-eosa}
+  EOSA_JDBC_PASSWORD: ${EOSA_JDBC_PASSWORD:-eosa}
+  EOSA_CLIENT_STRIPE_SECRET_KEY: ${EOSA_CLIENT_STRIPE_SECRET_KEY:-not-configured}
   EOSA_SHIPPING_AMOUNT: ${EOSA_SHIPPING_AMOUNT:-4.90}
   EOSA_SHIPPING_FREE_THRESHOLD: ${EOSA_SHIPPING_FREE_THRESHOLD:-60.00}
 
-x-eosa-hardening: &eosa-hardening
-  build: .
+# Same hardening as the Kubernetes securityContext (read-only root fs, no capabilities).
+x-eosa-container: &eosa-container
   image: eosa:local
-  pull_policy: build
   read_only: true
   cap_drop: [ALL]
   security_opt: [no-new-privileges:true]
   tmpfs: [/tmp]
 
 services:
+
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-eosa}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eosa}
       POSTGRES_DB: eosa
+      POSTGRES_USER: ${EOSA_JDBC_USERNAME:-eosa}
+      POSTGRES_PASSWORD: ${EOSA_JDBC_PASSWORD:-eosa}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      # Local tools only (psql, IDE); the app reaches it through the compose network.
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d eosa"]
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d eosa"]
       interval: 5s
       timeout: 3s
       retries: 10
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
     # Same limits as kubernetes/postgres.yaml
     mem_limit: 512m
     cpus: 0.5
 
-  # Equivalent of the create-admin initContainer: exits once the admin exists.
+  # Equivalent of the create-admin initContainer: creates the default administrator
+  # (no-op if it already exists) then exits.
   create-admin:
-    <<: *eosa-hardening
+    <<: *eosa-container
     environment:
       <<: *eosa-environment
       EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK: "true"
@@ -56,12 +71,15 @@ services:
     restart: "no"
 
   eosa:
-    <<: *eosa-hardening
+    <<: *eosa-container
+    # Built once here and reused by create-admin (images are built before any container starts).
+    build: .
+    pull_policy: build
     environment: *eosa-environment
     ports:
-      - "8080:8080"
-      # Administration, bound to localhost only
-      - "127.0.0.1:18080:18080"
+      - "${EOSA_PUBLIC_SERVER_PORT:-8080}:${EOSA_PUBLIC_SERVER_PORT:-8080}"
+      # Administration: localhost only, never publish it on all interfaces.
+      - "127.0.0.1:${EOSA_ADMIN_SERVER_PORT:-18080}:${EOSA_ADMIN_SERVER_PORT:-18080}"
     depends_on:
       create-admin:
         condition: service_completed_successfully
