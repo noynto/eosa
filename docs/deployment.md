@@ -136,12 +136,12 @@ When set to `true`, the application creates the default administrator identity o
 
 ### `EOSA_ADMIN_BASE_URL`
 
-Base URL of the administration server, without trailing slash. Administration (`/sign-in`, `/jewels`, `/charms`…) runs on a separate Javalin server so it can be kept off the public network: bind its port to localhost, or reach it through `kubectl port-forward svc/eosa-admin 18080:18080`.
+Base URL of the administration server, without trailing slash. Administration (`/sign-in`, `/jewels`, `/charms`…) runs on a separate Javalin server, served on its own host (e.g. `https://admin.eosa.me`) as an installable PWA. With an `https` URL the session cookie is marked `Secure`; always use HTTPS when the admin is reachable from the internet.
 
 | Property | Value |
 |---|---|
 | Required | Yes |
-| Example | `http://localhost:18080` |
+| Example | `https://admin.eosa.me` (production), `http://localhost:18080` (local) |
 
 ---
 

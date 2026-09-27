@@ -113,7 +113,7 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 | `EOSA_ADMIN_NAME` | Yes | Default admin username |
 | `EOSA_ADMIN_SECRET` | Yes | Default admin password |
 | `EOSA_PUBLIC_BASE_URL` | Yes | Public storefront base URL (Stripe redirects, admin "Voir le site" link) |
-| `EOSA_ADMIN_BASE_URL` | Yes | Administration base URL |
+| `EOSA_ADMIN_BASE_URL` | Yes | Administration base URL; an `https` scheme marks the session cookie `Secure` |
 | `EOSA_PUBLIC_SERVER_PORT` | No | Public server port (default `8080`) |
 | `EOSA_ADMIN_SERVER_PORT` | No | Admin server port (default `18080`) |
 

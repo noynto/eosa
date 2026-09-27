@@ -465,7 +465,10 @@ public class Bootstrap {
             );
             javalinConfig.routes.post(
                 "/sign-in",
-                new PostSignInHandler(authenticateIdentity)
+                new PostSignInHandler(
+                    authenticateIdentity,
+                    "https".equalsIgnoreCase(properties.adminBaseUrl().getScheme())
+                )
             );
             javalinConfig.routes.before(ensureIdentityHandler);
             javalinConfig.routes.get(
