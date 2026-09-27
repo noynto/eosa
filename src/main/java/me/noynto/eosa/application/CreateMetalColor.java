@@ -9,7 +9,7 @@ public record CreateMetalColor(
 
     public MetalColor handle(Command command) {
         if (command.name == null || command.name.isBlank()) {
-            throw new InvalidCommand("Le nom de la couleur est requis.");
+            throw new InvalidCommand("Le nom de la couleur de métal est requis.");
         }
 
         MetalColor metalColor = new MetalColor();

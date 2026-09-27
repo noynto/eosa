@@ -13,14 +13,14 @@ public record AddImageToMetalColor(
 
     public MetalColor handle(Command command) {
         if (command.metalColorId == null || command.metalColorId.value() == null) {
-            throw new RuntimeException("L'identifiant de la couleur sur laquelle ajouter une image est nécessaire.");
+            throw new RuntimeException("L'identifiant de la couleur de métal sur laquelle ajouter une image est nécessaire.");
         }
         if (command.image == null) {
             throw new RuntimeException("Une image est nécessaire.");
         }
 
         MetalColor metalColor = metalColorProvider.read(command.metalColorId())
-                .orElseThrow(() -> new RuntimeException("La couleur " + command.metalColorId.value() + " n'existe pas."));
+                .orElseThrow(() -> new RuntimeException("La couleur de métal " + command.metalColorId.value() + " n'existe pas."));
 
         Image uploaded = imageProvider.upload(command.image());
         metalColor.setImageId(uploaded.getId());
