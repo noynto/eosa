@@ -59,7 +59,7 @@ infrastructure/
   security/                 — SecuredCrypts (BCrypt)
   web/                      — Javalin handlers + BasicAuth helper
 src/main/resources/templates/ — Mustache templates; partials/ holds header-main/footer-main
-  and header-admin/footer-admin (no JTE-style layout wrapping — each page includes its own
+  and header-admin/footer-admin (no layout wrapping — each page includes its own
   header/footer partial)
 src/main/resources/db/migration/ — Flyway SQL migrations (Vn__description.sql), run automatically on boot
 src/test/java/application/  — use case unit tests (Mockito mocks)
@@ -74,7 +74,7 @@ requests/                   — HTTP client requests (.http files)
 
 Domain packages (`jewel/`, `identity/`, etc.) define interfaces and records only — no infrastructure code. Infrastructure implementations live in `infrastructure/`.
 
-View models passed to `ctx.render(...)` are plain `Map<String, Object>` (no view-model classes) built by hand in each handler — Mustache is logic-less, so anything JTE could compute inline (formatting, enum comparisons, pluralization, conditional CSS classes) must be precomputed in Java before it reaches the template. `{{> partial}}` paths inside a template resolve relative to *that template's own directory*, not the templates root — a template under `admin/` or `checkout/` must reference `partials/...` as `../partials/...`.
+View models passed to `ctx.render(...)` are plain `Map<String, Object>` (no view-model classes) built by hand in each handler — Mustache is logic-less, so anything computed (formatting, enum comparisons, pluralization, conditional CSS classes) must be precomputed in Java before it reaches the template. `{{> partial}}` paths inside a template resolve relative to *that template's own directory*, not the templates root — a template under `admin/` or `checkout/` must reference `partials/...` as `../partials/...`.
 
 ## Routes
 
@@ -119,7 +119,7 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 
 ## Responsive Design
 
-When working on any JTE template or HTML, every layout change must handle all three breakpoints:
+When working on any Mustache template or HTML, every layout change must handle all three breakpoints:
 
 | Breakpoint | Width | Represents |
 |---|---|---|
