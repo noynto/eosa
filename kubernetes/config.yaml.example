@@ -10,3 +10,7 @@ stringData:
   admin-base-url: "http://localhost:18080"
   shipping-amount: "4.90"
   shipping-free-threshold: "60.00"
+  smtp-host: "mail.infomaniak.com"
+  smtp-port: "465"
+  smtp-security: "ssl"
+  mail-from: "contact@eosa.me"

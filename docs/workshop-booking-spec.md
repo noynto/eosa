@@ -226,8 +226,8 @@ Principes de robustesse :
 
 Conformément à l'architecture existante :
 
-- **Domaine `workshop/`** : records `WorkshopVenue`, `WorkshopSession`, `WorkshopBooking`, `WorkshopWaitlistEntry`, enums d'état, interfaces `…Provider`, et `WorkshopHolds` (interface de l'empreinte, implémentée par Stripe).
-- **Domaine `mail/`** : record `Mail` (destinataire, sujet, HTML, texte) et interface `Mailer`.
+- **Domaine `workshop/`** : records `WorkshopVenue`, `WorkshopSession`, `WorkshopBooking`, `WorkshopWaitlistEntry`, enums d'état, interfaces `…Provider`, et `WorkshopHoldProvider` (interface de l'empreinte, implémentée par Stripe).
+- **Domaine `mail/`** : record `Mail` (destinataire, sujet, gabarit, modèle) et interface `MailProvider`.
 - **`application/`** : un cas d'usage par commande, chacun avec ses tests unitaires Mockito :
   - lieux : `CreateWorkshopVenue`, `UpdateWorkshopVenue`, `AddImageToWorkshopVenue`, `ArchiveWorkshopVenue`, `ReadWorkshopVenues` ;
   - sessions : `CreateWorkshopSession`, `UpdateWorkshopSession`, `CancelWorkshopSession`, `ReadUpcomingWorkshopSessions` ;
@@ -235,8 +235,8 @@ Conformément à l'architecture existante :
   - liste d'attente : `JoinWorkshopWaitlist`, `LeaveWorkshopWaitlist`, `NotifyWorkshopWaitlist` ;
   - e-mails : `SendWorkshopReminders`, `RetryWorkshopEmails`.
 - **`infrastructure/persistence/`** : `JdbcPersistedWorkshopVenues`, `JdbcPersistedWorkshopSessions`, `JdbcPersistedWorkshopBookings`, `JdbcPersistedWorkshopWaitlistEntries`.
-- **`infrastructure/fetch/stripe/`** : `StripeWorkshopHoldResource` + adaptateur `StripeWorkshopHolds`.
-- **`infrastructure/mail/`** : `SmtpMailer` (Jakarta Mail, dépendance `org.eclipse.angus:angus-mail`) + rendu des templates `templates/mail/`.
+- **`infrastructure/fetch/stripe/`** : `StripeWorkshopHoldResource` + adaptateur `StripeFetchedWorkshopHolds`.
+- **`infrastructure/mail/`** : `SmtpSentMails` (Jakarta Mail, dépendance `org.eclipse.angus:angus-mail`) + rendu des templates `templates/mail/`.
 - **`task/`** : `ExpirePendingWorkshopBookingsTask`, `SendWorkshopRemindersTask`, `RetryWorkshopEmailsTask`, sur le modèle de `CreateDefaultAdministratorIdentityTask`, enregistrées dans le bloc `// TASK` de `Bootstrap`.
 - **`kubernetes/`** : `workshop-cronjobs.yaml`, plus les clés SMTP dans `secret.yaml.example` et `config.yaml.example`, et dans le `Deployment`.
 - **Templates** : section dans `workshops.mustache`, `workshop-session.mustache`, `workshop-booking-success.mustache`, `workshop-booking-cancel.mustache`, `workshop-waitlist-leave.mustache`, `admin/workshops.mustache`, `admin/workshop.mustache`, `admin/workshop-venues.mustache`, `admin/workshop-venue.mustache`, `mail/*.mustache`. Tous responsives (390 / 768 / 1280 px).
@@ -255,11 +255,13 @@ Nouvelles variables d'environnement (à ajouter à `.env.example` et `docs/deplo
 | `EOSA_SMTP_PASSWORD` | Non | mot de passe de la boîte, ou mot de passe d'application si la double authentification est active | absente |
 | `EOSA_MAIL_FROM` | Non (défaut `contact@eosa.me`) | `contact@eosa.me` | `contact@eosa.me` |
 
-Sans `EOSA_SMTP_USERNAME`, `SmtpMailer` se connecte sans authentification, ce qui est le cas de Mailpit. `EOSA_SMTP_SECURITY=none` n'est fait que pour le local.
+Sans `EOSA_SMTP_USERNAME`, `SmtpSentMails` se connecte sans authentification, ce qui est le cas de Mailpit. `EOSA_SMTP_SECURITY=none` n'est fait que pour le local.
 
 L'empreinte utilise la clé Stripe existante (`EOSA_CLIENT_STRIPE_SECRET_KEY`).
 
 Les variables d'activation des tâches (`EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK`, `false` par défaut) ne sont définies qu'à `"true"`, et uniquement dans leur CronJob. Elles ne doivent jamais l'être dans le `Deployment`.
+
+`EOSA_SEND_TEST_EMAIL_TO=<adresse>` lance la tâche one-shot `SendTestEmailTask` : elle envoie un e-mail de test à cette adresse puis quitte. En local : `docker compose run --rm send-test-email` (vers Mailpit, sauf si les variables SMTP sont surchargées dans `.env`).
 
 Côté Kubernetes : `EOSA_SMTP_USERNAME` et `EOSA_SMTP_PASSWORD` vont dans le secret `eosa-secrets` (clés `smtp-username`, `smtp-password`) ; `EOSA_SMTP_HOST`, `EOSA_SMTP_PORT`, `EOSA_SMTP_SECURITY` et `EOSA_MAIL_FROM` vont dans la ConfigMap `eosa-configs`.
 
@@ -325,7 +327,7 @@ Chaque étape donne lieu à une PR indépendante, mergeable et déployable, avec
 
 ### Étape 3 — Brique e-mail
 
-- Dépendance `angus-mail`, `Mailer` + `SmtpMailer`, variables `EOSA_SMTP_*`, mise à jour de `.env.example`, `docs/deployment.md` et des manifestes `kubernetes/` (secret, ConfigMap, `Deployment`).
+- Dépendance `angus-mail`, `MailProvider` + `SmtpSentMails`, variables `EOSA_SMTP_*`, mise à jour de `.env.example`, `docs/deployment.md` et des manifestes `kubernetes/` (secret, ConfigMap, `Deployment`).
 - Service Mailpit dans `compose.yaml`, avec les valeurs SMTP par défaut qui pointent dessus.
 - Gabarit commun des e-mails (`templates/mail/`), aux couleurs d'EOSA.
 - **Terminé quand** : en local, un e-mail de test apparaît dans Mailpit (`http://localhost:8025`) ; avec le SMTP Infomaniak, il part de `contact@eosa.me` et arrive en boîte de réception (pas en spam) sur Gmail et sur une adresse Infomaniak.

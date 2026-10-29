@@ -19,6 +19,9 @@ docker run \
   -e EOSA_CLIENT_STRIPE_SECRET_KEY="sk_live_..." \
   -e EOSA_SHIPPING_AMOUNT="4.90" \
   -e EOSA_SHIPPING_FREE_THRESHOLD="60.00" \
+  -e EOSA_SMTP_HOST="mail.infomaniak.com" \
+  -e EOSA_SMTP_USERNAME="contact@eosa.me" \
+  -e EOSA_SMTP_PASSWORD="change_me" \
   -p 8080:8080 \
   -p 127.0.0.1:18080:18080 \
   eosa
@@ -131,6 +134,61 @@ When set to `true`, the application creates the default administrator identity o
 |---|---|
 | Required | No |
 | Default | `false` |
+
+---
+
+### `EOSA_SMTP_HOST`
+
+SMTP server used to send e-mails (workshop bookings). In production: Infomaniak, with the `contact@eosa.me` mailbox. Locally, `docker compose` points to Mailpit (`mailpit`), which captures the e-mails (web UI on `http://localhost:8025`).
+
+| Property | Value |
+|---|---|
+| Required | Yes |
+| Example | `mail.infomaniak.com` (production), `mailpit` (compose) |
+
+---
+
+### `EOSA_SMTP_PORT` / `EOSA_SMTP_SECURITY`
+
+SMTP port and transport security: `ssl` (TLS from the start, port `465`), `starttls` (port `587`) or `none` (plain text, local Mailpit only — never in production).
+
+| Property | Value |
+|---|---|
+| Required | No |
+| Default | `465` / `ssl` |
+
+---
+
+### `EOSA_SMTP_USERNAME` / `EOSA_SMTP_PASSWORD`
+
+SMTP credentials. Leave both unset for a server without authentication (Mailpit). With Infomaniak, use an app password if two-factor authentication is enabled on the mailbox.
+
+| Property | Value |
+|---|---|
+| Required | No (the password is required when the username is set) |
+| Example | `contact@eosa.me` |
+
+---
+
+### `EOSA_MAIL_FROM`
+
+Sender address of every e-mail, displayed as « EOSA ». Replies go to the same address.
+
+| Property | Value |
+|---|---|
+| Required | No |
+| Default | `contact@eosa.me` |
+
+---
+
+### `EOSA_SEND_TEST_EMAIL_TO`
+
+When set, the application sends a test e-mail to this address and exits instead of starting the servers. Use it to check the SMTP configuration, the deliverability (spam folder, sender name) and the e-mail layout. Locally: `docker compose run --rm send-test-email` (sent to Mailpit unless the SMTP variables are overridden in `.env`).
+
+| Property | Value |
+|---|---|
+| Required | No |
+| Example | `you@example.com` |
 
 ---
 

@@ -79,6 +79,36 @@ spec:
                 configMapKeyRef:
                   name: eosa-configs
                   key: shipping-free-threshold
+            - name: EOSA_SMTP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: smtp-host
+            - name: EOSA_SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: smtp-port
+            - name: EOSA_SMTP_SECURITY
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: smtp-security
+            - name: EOSA_MAIL_FROM
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: mail-from
+            - name: EOSA_SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: smtp-username
+            - name: EOSA_SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: smtp-password
           volumeMounts:
             - name: tmp
               mountPath: /tmp
@@ -148,6 +178,36 @@ spec:
                 configMapKeyRef:
                   name: eosa-configs
                   key: shipping-free-threshold
+            - name: EOSA_SMTP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: smtp-host
+            - name: EOSA_SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: smtp-port
+            - name: EOSA_SMTP_SECURITY
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: smtp-security
+            - name: EOSA_MAIL_FROM
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: mail-from
+            - name: EOSA_SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: smtp-username
+            - name: EOSA_SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: smtp-password
           readinessProbe:
             httpGet:
               path: /

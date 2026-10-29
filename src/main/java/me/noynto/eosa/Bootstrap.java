@@ -28,7 +28,12 @@ import me.noynto.eosa.infrastructure.web.*;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
+import me.noynto.eosa.infrastructure.mail.MailTemplates;
+import me.noynto.eosa.infrastructure.mail.SmtpSentMails;
+import me.noynto.eosa.infrastructure.mail.config.SmtpConfiguration;
+import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import me.noynto.eosa.task.SendTestEmailTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
@@ -60,6 +65,10 @@ public class Bootstrap {
             new ConfiguredCartShippingRules();
 
         // CLIENTS
+        MailProvider mailProvider = new SmtpSentMails(
+            SmtpConfiguration.getProperties(),
+            new MailTemplates()
+        );
         StripeProperties stripeProperties = StripeConfiguration.getProperties(
             properties
         );
@@ -205,6 +214,8 @@ public class Bootstrap {
             clock
         );
 
+        SendTestEmail sendTestEmail = new SendTestEmail(mailProvider);
+
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
         // Runtime.getRuntime().exit() itself, which killed the JVM before a second activated
@@ -216,6 +227,10 @@ public class Bootstrap {
                 createAdministratorIdentity,
                 properties
             ).task();
+            ranOneShotTask = true;
+        }
+        if (SendTestEmailTask.activate()) {
+            oneShotTasksSucceeded &= new SendTestEmailTask(sendTestEmail).task();
             ranOneShotTask = true;
         }
         if (ranOneShotTask) {
