@@ -3,6 +3,7 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.shared.WorkshopSessionId;
 import me.noynto.eosa.shared.WorkshopVenueId;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
+import me.noynto.eosa.workshop.WorkshopBookingState;
 import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopSessionState;
@@ -12,6 +13,7 @@ import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 
 public record UpdateWorkshopSession(
         WorkshopVenueProvider workshopVenueProvider,
@@ -57,7 +59,16 @@ public record UpdateWorkshopSession(
             throw new RuntimeException("La session doit commencer dans le futur.");
         }
 
-        int occupiedPlaces = workshopBookingProvider.countOccupiedPlaces(workshopSession.getId());
+        int occupiedPlaces = (int) workshopBookingProvider.readIds(
+                        workshopSession.getId(),
+                        EnumSet.of(WorkshopBookingState.PENDING, WorkshopBookingState.CONFIRMED,
+                                WorkshopBookingState.ATTENDED, WorkshopBookingState.NO_SHOW),
+                        null,
+                        null
+                )
+                .map(id -> workshopBookingProvider.read(id).orElseThrow())
+                .filter(booking -> booking.occupiesAPlace(now))
+                .count();
         if (occupiedPlaces > 0 && (venueChanged || startChanged)) {
             throw new RuntimeException("Le lieu et la date ne peuvent plus changer : " + occupiedPlaces
                     + " place(s) déjà réservée(s). Annulez la session et créez-en une nouvelle.");

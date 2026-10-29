@@ -1,13 +1,23 @@
 package me.noynto.eosa.workshop;
 
+import me.noynto.eosa.shared.WorkshopBookingId;
 import me.noynto.eosa.shared.WorkshopSessionId;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public interface WorkshopBookingProvider {
 
     /**
-     * Places occupées sur une session : réservations confirmées (ou déjà passées en présente/absente)
-     * et réservations en cours sur Stripe dont l'empreinte n'a pas encore expiré.
+     * Identifiants des réservations, de la plus ancienne à la plus récente. Chaque filtre est ignoré
+     * s'il est null ; l'e-mail est comparé sans tenir compte de la casse.
      */
-    int countOccupiedPlaces(WorkshopSessionId workshopSessionId);
+    Stream<WorkshopBookingId> readIds(WorkshopSessionId sessionId, Set<WorkshopBookingState> states,
+                                      String email, String token);
+
+    Optional<WorkshopBooking> read(WorkshopBookingId workshopBookingId);
+
+    WorkshopBooking write(WorkshopBooking workshopBooking);
 
 }

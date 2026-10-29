@@ -1,8 +1,11 @@
 package me.noynto.eosa.application;
 
+import me.noynto.eosa.shared.WorkshopBookingId;
 import me.noynto.eosa.shared.WorkshopSessionId;
 import me.noynto.eosa.shared.WorkshopVenueId;
+import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
+import me.noynto.eosa.workshop.WorkshopBookingState;
 import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopSessionState;
@@ -17,11 +20,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,7 +51,7 @@ class UpdateWorkshopSessionTest {
     void handle_updatesEverythingWhenNoPlaceIsBooked() {
         when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(scheduledSession()));
         when(workshopVenueProvider.read(otherVenueId)).thenReturn(Optional.of(venue(otherVenueId, false)));
-        when(workshopBookingProvider.countOccupiedPlaces(sessionId)).thenReturn(0);
+        bookedPlaces(0);
         when(workshopSessionProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         WorkshopSession result = updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
@@ -60,7 +67,7 @@ class UpdateWorkshopSessionTest {
     @Test
     void handle_allowsDurationAndCapacityChangesWhenPlacesAreBooked() {
         when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(scheduledSession()));
-        when(workshopBookingProvider.countOccupiedPlaces(sessionId)).thenReturn(3);
+        bookedPlaces(3);
         when(workshopSessionProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         WorkshopSession result = updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
@@ -74,7 +81,7 @@ class UpdateWorkshopSessionTest {
     @Test
     void handle_refusesDateChangeWhenPlacesAreBooked() {
         when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(scheduledSession()));
-        when(workshopBookingProvider.countOccupiedPlaces(sessionId)).thenReturn(1);
+        bookedPlaces(1);
 
         assertThrows(RuntimeException.class, () -> updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
                 sessionId, venueId, startsAt.plusDays(1), 120, 8
@@ -86,7 +93,7 @@ class UpdateWorkshopSessionTest {
     void handle_refusesVenueChangeWhenPlacesAreBooked() {
         when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(scheduledSession()));
         when(workshopVenueProvider.read(otherVenueId)).thenReturn(Optional.of(venue(otherVenueId, false)));
-        when(workshopBookingProvider.countOccupiedPlaces(sessionId)).thenReturn(1);
+        bookedPlaces(1);
 
         assertThrows(RuntimeException.class, () -> updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
                 sessionId, otherVenueId, startsAt, 120, 8
@@ -97,7 +104,7 @@ class UpdateWorkshopSessionTest {
     @Test
     void handle_refusesCapacityBelowBookedPlaces() {
         when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(scheduledSession()));
-        when(workshopBookingProvider.countOccupiedPlaces(sessionId)).thenReturn(5);
+        bookedPlaces(5);
 
         assertThrows(RuntimeException.class, () -> updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
                 sessionId, venueId, startsAt, 120, 4
@@ -144,6 +151,19 @@ class UpdateWorkshopSessionTest {
         assertThrows(RuntimeException.class, () -> updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
                 sessionId, venueId, startsAt, 120, 8
         )));
+    }
+
+    private void bookedPlaces(int count) {
+        List<WorkshopBookingId> ids = IntStream.range(0, count)
+                .mapToObj(i -> new WorkshopBookingId("booking-" + i))
+                .toList();
+        when(workshopBookingProvider.readIds(eq(sessionId), any(), isNull(), isNull())).thenReturn(ids.stream());
+        ids.forEach(id -> {
+            var booking = new WorkshopBooking();
+            booking.setId(id);
+            booking.setState(WorkshopBookingState.CONFIRMED);
+            when(workshopBookingProvider.read(id)).thenReturn(Optional.of(booking));
+        });
     }
 
     private UpdateWorkshopSession updateWorkshopSession() {

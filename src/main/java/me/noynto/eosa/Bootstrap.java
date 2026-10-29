@@ -5,6 +5,7 @@ import io.javalin.Javalin;
 import io.javalin.rendering.FileRenderer;
 import io.javalin.rendering.template.JavalinMustache;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,8 @@ import me.noynto.eosa.infrastructure.mail.SmtpSentMails;
 import me.noynto.eosa.infrastructure.mail.config.SmtpConfiguration;
 import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
+import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
@@ -192,7 +195,8 @@ public class Bootstrap {
         ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
             workshopSessionProvider,
             workshopVenueProvider,
-            workshopBookingProvider
+            workshopBookingProvider,
+            clock
         );
         ReadWorkshopSession readWorkshopSession = new ReadWorkshopSession(
             workshopSessionProvider,
@@ -215,6 +219,40 @@ public class Bootstrap {
         );
 
         SendTestEmail sendTestEmail = new SendTestEmail(mailProvider);
+        RequestWorkshopBooking requestWorkshopBooking = new RequestWorkshopBooking(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        ReadWorkshopBooking readWorkshopBooking = new ReadWorkshopBooking(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider
+        );
+        ReadWorkshopBookings readWorkshopBookings = new ReadWorkshopBookings(workshopBookingProvider);
+        SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation = new SendWorkshopBookingConfirmation(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        ConfirmWorkshopBooking confirmWorkshopBooking = new ConfirmWorkshopBooking(
+            workshopBookingProvider,
+            sendWorkshopBookingConfirmation,
+            clock
+        );
+        ExpirePendingWorkshopBookings expirePendingWorkshopBookings =
+            new ExpirePendingWorkshopBookings(workshopBookingProvider, clock);
+        RetryWorkshopEmails retryWorkshopEmails = new RetryWorkshopEmails(
+            workshopBookingProvider,
+            sendWorkshopBookingConfirmation,
+            clock
+        );
 
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
@@ -231,6 +269,14 @@ public class Bootstrap {
         }
         if (SendTestEmailTask.activate()) {
             oneShotTasksSucceeded &= new SendTestEmailTask(sendTestEmail).task();
+            ranOneShotTask = true;
+        }
+        if (ExpirePendingWorkshopBookingsTask.activate()) {
+            oneShotTasksSucceeded &= new ExpirePendingWorkshopBookingsTask(expirePendingWorkshopBookings).task();
+            ranOneShotTask = true;
+        }
+        if (RetryWorkshopEmailsTask.activate()) {
+            oneShotTasksSucceeded &= new RetryWorkshopEmailsTask(retryWorkshopEmails).task();
             ranOneShotTask = true;
         }
         if (ranOneShotTask) {
@@ -308,6 +354,7 @@ public class Bootstrap {
                         "User-agent: *\n" +
                             "Disallow: /cart\n" +
                             "Disallow: /checkout/\n" +
+                            "Disallow: /workshops/bookings/\n" +
                             "\n" +
                             "Sitemap: " +
                             baseUrl +
@@ -381,6 +428,28 @@ public class Bootstrap {
                         baseUrl + context.path()
                     )
                 )
+            );
+            GetWorkshopSessionHandler getWorkshopSessionHandler =
+                new GetWorkshopSessionHandler(readWorkshopSession, clock, baseUrl);
+            javalinConfig.routes.get("/workshops/sessions/{id}", getWorkshopSessionHandler);
+            javalinConfig.routes.post(
+                "/workshops/sessions/{id}/bookings",
+                new PostWorkshopBookingHandler(
+                    requestWorkshopBooking,
+                    readWorkshopSession,
+                    getWorkshopSessionHandler,
+                    // 5 demandes de réservation par heure et par adresse IP.
+                    new RequestRateLimiter(5, Duration.ofHours(1), clock),
+                    baseUrl
+                )
+            );
+            javalinConfig.routes.get(
+                "/workshops/bookings/{token}/confirm",
+                new GetWorkshopBookingConfirmHandler(readWorkshopBooking, clock, baseUrl)
+            );
+            javalinConfig.routes.post(
+                "/workshops/bookings/{token}/confirm",
+                new PostWorkshopBookingConfirmHandler(confirmWorkshopBooking)
             );
             javalinConfig.routes.get("/workshops", context ->
                 context.render(
@@ -639,7 +708,7 @@ public class Bootstrap {
             );
             javalinConfig.routes.get(
                 "/workshops/{id}",
-                new GetAdminWorkshopSessionHandler(readWorkshopSession, readWorkshopVenues, clock)
+                new GetAdminWorkshopSessionHandler(readWorkshopSession, readWorkshopVenues, readWorkshopBookings, clock)
             );
             javalinConfig.routes.patch(
                 "/workshops/{id}",

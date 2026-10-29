@@ -1,0 +1,124 @@
+{{> partials/header-main}}
+
+<!-- Lieu -->
+<section class="grid md:grid-cols-[1.1fr_1fr] border-b border-bg-border">
+    <div class="bg-bg-soft relative overflow-hidden min-h-56 md:min-h-[440px] border-b md:border-b-0 md:border-r border-bg-border">
+        {{#hasVenueImage}}
+        <img src="/images/{{venueImageId}}" alt="{{venueName}}" class="w-full h-full object-cover md:absolute md:inset-0"/>
+        {{/hasVenueImage}}
+        {{^hasVenueImage}}
+        <img src="/workshops.webp" alt="La sélection de pierres naturelles et de perles proposée pendant l'atelier" class="w-full h-full object-cover md:absolute md:inset-0"/>
+        {{/hasVenueImage}}
+    </div>
+    <div class="px-6 md:px-12 py-10 md:py-14 flex flex-col justify-center">
+        <a href="/workshops" class="text-xs text-secondary hover:text-primary transition-colors mb-6 self-start">← Tous les ateliers</a>
+        <p class="text-xs text-secondary tracking-widest mb-3">ATELIER EN COLLABORATION AVEC</p>
+        <h1 class="font-serif text-4xl md:text-5xl font-normal leading-[1.05] mb-4">Chez {{venueName}}</h1>
+        {{#hasVenueDescription}}
+        <p class="text-sm text-secondary leading-relaxed max-w-md mb-5">{{venueDescription}}</p>
+        {{/hasVenueDescription}}
+        <div class="flex flex-col gap-1 text-sm mb-5">
+            <span class="font-medium">{{date}}</span>
+            <span class="text-secondary">{{timeRange}} · {{duration}}</span>
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+            <a href="{{mapUrl}}" target="_blank" rel="noopener" class="text-secondary underline underline-offset-4 hover:text-primary transition-colors">{{venueAddress}}</a>
+            {{#hasVenueLink}}
+            <a href="{{venueLinkUrl}}" target="_blank" rel="noopener" class="text-secondary underline underline-offset-4 hover:text-primary transition-colors">Découvrir le lieu</a>
+            {{/hasVenueLink}}
+        </div>
+    </div>
+</section>
+
+<!-- Réservation -->
+<section class="px-5 md:px-8 py-12 md:py-16">
+    <div class="max-w-xl mx-auto">
+
+        {{#hasError}}
+        <p role="alert" class="border border-red-600 text-red-700 rounded-xl px-4 py-3 text-sm mb-6">{{error}}</p>
+        {{/hasError}}
+
+        {{#cancelled}}
+        <div class="border border-bg-border rounded-2xl p-6 text-center">
+            <h2 class="font-serif text-2xl font-normal mb-2">Cette session est annulée</h2>
+            <p class="text-sm text-secondary mb-6">Retrouvez les prochaines dates sur la page des ateliers.</p>
+            <a href="/workshops" class="bg-secondary text-bg px-6 py-3 rounded-full text-sm font-medium hover:bg-primary transition-colors inline-block">Voir les ateliers</a>
+        </div>
+        {{/cancelled}}
+
+        {{#started}}
+        <div class="border border-bg-border rounded-2xl p-6 text-center">
+            <h2 class="font-serif text-2xl font-normal mb-2">Cet atelier a déjà eu lieu</h2>
+            <p class="text-sm text-secondary mb-6">Retrouvez les prochaines dates sur la page des ateliers.</p>
+            <a href="/workshops" class="bg-secondary text-bg px-6 py-3 rounded-full text-sm font-medium hover:bg-primary transition-colors inline-block">Voir les ateliers</a>
+        </div>
+        {{/started}}
+
+        {{#notOpenYet}}
+        <div class="border border-bg-border rounded-2xl p-6 text-center">
+            <h2 class="font-serif text-2xl font-normal mb-2">Bientôt</h2>
+            <p class="text-sm text-secondary">Les réservations ouvriront le {{bookingOpensAt}}.</p>
+        </div>
+        {{/notOpenYet}}
+
+        {{#full}}
+        <div class="border border-bg-border rounded-2xl p-6 text-center">
+            <h2 class="font-serif text-2xl font-normal mb-2">Complet</h2>
+            <p class="text-sm text-secondary">Toutes les places de cette session sont réservées.</p>
+        </div>
+        {{/full}}
+
+        {{#open}}
+        <div class="flex items-baseline justify-between gap-3 mb-6">
+            <h2 class="font-serif text-3xl font-normal">Réserver ma place</h2>
+            <span class="text-xs text-secondary shrink-0">{{remainingPlaces}}</span>
+        </div>
+
+        <form method="post" action="/workshops/sessions/{{sessionId}}/bookings" class="flex flex-col gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="firstName" class="text-xs text-secondary">Prénom</label>
+                    <input id="firstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
+                           class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="lastName" class="text-xs text-secondary">Nom</label>
+                    <input id="lastName" name="lastName" type="text" required maxlength="100" autocomplete="family-name" value="{{lastName}}"
+                           class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="email" class="text-xs text-secondary">E-mail</label>
+                <input id="email" name="email" type="email" required autocomplete="email" value="{{email}}"
+                       class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                <span class="text-xs text-muted">Vous y recevrez le lien pour confirmer votre place.</span>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="phone" class="text-xs text-secondary">Téléphone <span class="text-muted">(facultatif)</span></label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel" value="{{phone}}"
+                       class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                <span class="text-xs text-muted">Pour vous prévenir en cas d'imprévu.</span>
+            </div>
+            <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
+            <div class="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+                <label for="website">Ne pas remplir</label>
+                <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+            <label class="flex items-start gap-3 text-xs text-secondary leading-relaxed">
+                <input name="acceptedConditions" type="checkbox" required class="mt-0.5 accent-primary">
+                <span>J'accepte les conditions : annulation libre jusqu'à 48 h avant l'atelier ; en cas d'absence sans prévenir, la réservation en ligne ne me sera plus proposée.</span>
+            </label>
+            <p class="text-xs text-muted leading-relaxed">
+                Aucun paiement en ligne : l'atelier se règle sur place (collier 33 €, bracelet 23 €, choix sur place).
+                Après l'envoi, confirmez votre place grâce à l'e-mail que vous allez recevoir.
+            </p>
+            <button type="submit" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">
+                Réserver ma place
+            </button>
+        </form>
+        {{/open}}
+
+    </div>
+</section>
+
+{{> partials/footer-main}}

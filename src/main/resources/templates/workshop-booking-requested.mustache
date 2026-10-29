@@ -1,0 +1,22 @@
+{{> partials/header-main}}
+
+<section class="px-5 md:px-8 py-16 md:py-20 flex flex-col items-center text-center">
+    <div class="w-16 h-16 rounded-full bg-bg-soft border border-bg-border flex items-center justify-center mb-6">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+    </div>
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Vérifiez votre boîte mail</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-2">
+        Merci {{firstName}} ! Nous venons d'envoyer un e-mail à <span class="text-primary font-medium break-all">{{email}}</span>.
+    </p>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        Votre place chez {{venueName}} ({{date}}, {{timeRange}}) est retenue pendant <strong class="font-medium text-primary">{{confirmationDelayMinutes}} minutes</strong> :
+        cliquez sur « Confirmer ma place » dans l'e-mail pour la garder.
+    </p>
+    <div class="bg-bg-soft rounded-2xl px-6 py-5 text-left w-full max-w-md text-xs text-secondary leading-relaxed mb-8">
+        <p class="mb-2">Pas d'e-mail ? Regardez dans les spams ou les promotions.</p>
+        <p>Une erreur dans l'adresse ? <a href="/workshops/sessions/{{sessionId}}" class="underline underline-offset-4 hover:text-primary">Recommencez la réservation</a> avec la bonne adresse.</p>
+    </div>
+    <a href="/workshops" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors">Retour aux ateliers</a>
+</section>
+
+{{> partials/footer-main}}
