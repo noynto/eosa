@@ -1,0 +1,35 @@
+{{> partials/header.html.mustache}}
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                        {{#sessionCancelled}}Atelier annulé{{/sessionCancelled}}{{^sessionCancelled}}Réservation annulée{{/sessionCancelled}}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        {{#sessionCancelled}}
+                        Bonjour {{firstName}}, nous sommes désolées : l'atelier auquel vous étiez inscrite est annulé.
+                        {{/sessionCancelled}}
+                        {{^sessionCancelled}}
+                        Bonjour {{firstName}}, votre réservation est bien annulée.
+                        {{/sessionCancelled}}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5" width="100%">
+                            <tr>
+                                <td style="padding:16px 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    <span style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:26px;color:#601414;">Chez {{venueName}}</span><br>
+                                    {{date}} · {{timeRange}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        Retrouvez les prochaines dates sur <a href="{{workshopsUrl}}" style="color:#601414;">la page des ateliers</a> :
+                        on espère vous y voir bientôt !
+                    </td>
+                </tr>
+{{> partials/footer.html.mustache}}

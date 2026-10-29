@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 class RetryWorkshopEmailsTest {
 
     @Mock SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation;
+    @Mock SendWorkshopBookingCancellation sendWorkshopBookingCancellation;
 
     private final Instant now = Instant.parse("2026-11-10T10:00:00Z");
     private final InMemoryWorkshopBookings bookings = new InMemoryWorkshopBookings();
@@ -36,13 +37,42 @@ class RetryWorkshopEmailsTest {
         doThrow(new RuntimeException("SMTP")).when(sendWorkshopBookingConfirmation)
                 .handle(new SendWorkshopBookingConfirmation.Command(failing.getId()));
 
-        var result = new RetryWorkshopEmails(bookings, sendWorkshopBookingConfirmation, Clock.fixed(now, ZoneOffset.UTC)).handle();
+        var result = retryWorkshopEmails().handle();
 
         assertEquals(1, result.sent());
         assertEquals(1, result.failed());
         verify(sendWorkshopBookingConfirmation).handle(new SendWorkshopBookingConfirmation.Command(unsent.getId()));
         verify(sendWorkshopBookingConfirmation).handle(new SendWorkshopBookingConfirmation.Command(failing.getId()));
         verifyNoMoreInteractions(sendWorkshopBookingConfirmation);
+    }
+
+    @Test
+    void handle_resendsOnlyUnsentCancellationEmailsOlderThanFiveMinutes() {
+        var unsent = cancelled("unsent", now.minus(Duration.ofMinutes(20)), null);
+        cancelled("just-cancelled", now.minus(Duration.ofMinutes(2)), null);
+        cancelled("already-sent", now.minus(Duration.ofMinutes(20)), now.minus(Duration.ofMinutes(20)));
+
+        var result = retryWorkshopEmails().handle();
+
+        assertEquals(1, result.sent());
+        verify(sendWorkshopBookingCancellation).handle(new SendWorkshopBookingCancellation.Command(unsent.getId()));
+        verifyNoMoreInteractions(sendWorkshopBookingCancellation);
+    }
+
+    private RetryWorkshopEmails retryWorkshopEmails() {
+        return new RetryWorkshopEmails(bookings, sendWorkshopBookingConfirmation, sendWorkshopBookingCancellation,
+                Clock.fixed(now, ZoneOffset.UTC));
+    }
+
+    private WorkshopBooking cancelled(String id, Instant cancelledAt, Instant sentAt) {
+        var booking = new WorkshopBooking();
+        booking.setId(new WorkshopBookingId(id));
+        booking.setSessionId(new WorkshopSessionId("session"));
+        booking.setState(WorkshopBookingState.CANCELLED);
+        booking.setCreatedAt(cancelledAt.minus(Duration.ofDays(1)));
+        booking.setCancelledAt(cancelledAt);
+        booking.setCancellationEmailSentAt(sentAt);
+        return bookings.write(booking);
     }
 
     private WorkshopBooking confirmed(String id, Instant confirmedAt, Instant sentAt) {

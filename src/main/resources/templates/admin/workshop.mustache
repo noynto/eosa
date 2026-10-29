@@ -98,6 +98,15 @@
             <div class="flex items-center justify-between sm:flex-col sm:items-end gap-1 shrink-0">
                 <span class="text-xs font-medium">{{state}}</span>
                 <span class="text-[11px] text-muted">le {{bookedAt}}</span>
+                {{#canCancel}}
+                <button hx-post="/workshops/{{workshopSessionId}}/bookings/{{id}}/cancel"
+                        hx-target="#toast-booking-{{id}}" hx-swap="innerHTML"
+                        hx-confirm="Annuler la réservation de {{name}} ? Elle sera prévenue par e-mail."
+                        class="text-[11px] text-secondary underline underline-offset-4 hover:text-red-600 transition-colors">
+                    Annuler
+                </button>
+                <span id="toast-booking-{{id}}" class="text-xs"></span>
+                {{/canCancel}}
             </div>
         </div>
         {{/bookings}}
@@ -113,10 +122,10 @@
             <h2 class="text-sm font-medium">Annulation</h2>
             <span id="toast-cancel" class="text-xs"></span>
         </div>
-        <p class="text-xs text-muted mb-3">La session n'est plus proposée à la réservation. Cette action est irréversible.</p>
+        <p class="text-xs text-muted mb-3">La session n'est plus proposée à la réservation, et ses inscrites sont prévenues par e-mail. Cette action est irréversible.</p>
         <button hx-post="/workshops/{{workshopSessionId}}/cancel"
                 hx-target="#toast-cancel" hx-swap="innerHTML"
-                hx-confirm="Annuler la session du {{date}} chez {{venueName}} ?"
+                hx-confirm="Annuler la session du {{date}} chez {{venueName}} ? Les inscrites seront prévenues par e-mail."
                 class="border border-bg-border px-4 py-1.5 rounded-lg text-xs text-secondary hover:border-red-600 hover:text-red-600 transition-colors">
             Annuler la session
         </button>

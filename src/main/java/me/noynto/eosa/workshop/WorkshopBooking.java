@@ -14,6 +14,11 @@ public class WorkshopBooking {
      */
     public static final Duration CONFIRMATION_DELAY = Duration.ofMinutes(30);
 
+    /**
+     * La participante peut annuler elle-même jusqu'à ce délai avant le début ; au-delà, elle contacte EOSA.
+     */
+    public static final Duration SELF_CANCELLATION_DEADLINE = Duration.ofHours(48);
+
     private WorkshopBookingId id;
     private WorkshopSessionId sessionId;
     private String firstName;
@@ -27,8 +32,16 @@ public class WorkshopBooking {
     private Instant confirmedAt;
     private Instant cancelledAt;
     private Instant confirmationEmailSentAt;
+    private Instant cancellationEmailSentAt;
 
     public WorkshopBooking() {
+    }
+
+    /**
+     * Réservation encore valable (en attente de confirmation ou confirmée), donc annulable.
+     */
+    public boolean isActive(Instant now) {
+        return state == WorkshopBookingState.CONFIRMED || isAwaitingConfirmation(now);
     }
 
     /**
@@ -144,5 +157,13 @@ public class WorkshopBooking {
 
     public void setConfirmationEmailSentAt(Instant confirmationEmailSentAt) {
         this.confirmationEmailSentAt = confirmationEmailSentAt;
+    }
+
+    public Instant getCancellationEmailSentAt() {
+        return cancellationEmailSentAt;
+    }
+
+    public void setCancellationEmailSentAt(Instant cancellationEmailSentAt) {
+        this.cancellationEmailSentAt = cancellationEmailSentAt;
     }
 }

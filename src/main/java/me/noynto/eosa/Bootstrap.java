@@ -213,8 +213,29 @@ public class Bootstrap {
             workshopBookingProvider,
             clock
         );
+        SendWorkshopBookingCancellation sendWorkshopBookingCancellation = new SendWorkshopBookingCancellation(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
         CancelWorkshopSession cancelWorkshopSession = new CancelWorkshopSession(
             workshopSessionProvider,
+            workshopBookingProvider,
+            sendWorkshopBookingCancellation,
+            clock
+        );
+        CancelWorkshopBookingByAdmin cancelWorkshopBookingByAdmin = new CancelWorkshopBookingByAdmin(
+            workshopBookingProvider,
+            sendWorkshopBookingCancellation,
+            clock
+        );
+        CancelWorkshopBookingByParticipant cancelWorkshopBookingByParticipant = new CancelWorkshopBookingByParticipant(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            sendWorkshopBookingCancellation,
             clock
         );
 
@@ -251,6 +272,7 @@ public class Bootstrap {
         RetryWorkshopEmails retryWorkshopEmails = new RetryWorkshopEmails(
             workshopBookingProvider,
             sendWorkshopBookingConfirmation,
+            sendWorkshopBookingCancellation,
             clock
         );
 
@@ -450,6 +472,14 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/workshops/bookings/{token}/confirm",
                 new PostWorkshopBookingConfirmHandler(confirmWorkshopBooking)
+            );
+            javalinConfig.routes.get(
+                "/workshops/bookings/{token}/cancel",
+                new GetWorkshopBookingCancelHandler(readWorkshopBooking, clock, baseUrl)
+            );
+            javalinConfig.routes.post(
+                "/workshops/bookings/{token}/cancel",
+                new PostWorkshopBookingCancelHandler(cancelWorkshopBookingByParticipant)
             );
             javalinConfig.routes.get("/workshops", context ->
                 context.render(
@@ -717,6 +747,10 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/workshops/{id}/cancel",
                 new CancelWorkshopSessionHandler(cancelWorkshopSession)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/bookings/{bookingId}/cancel",
+                new CancelWorkshopBookingByAdminHandler(cancelWorkshopBookingByAdmin)
             );
         });
         admin.start();

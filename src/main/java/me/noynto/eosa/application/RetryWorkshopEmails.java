@@ -12,11 +12,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Renvoie les e-mails récapitulatifs qui ne sont pas partis au moment de la confirmation.
+ * Renvoie les e-mails récapitulatifs et d'annulation qui ne sont pas partis sur le moment.
  */
 public record RetryWorkshopEmails(
         WorkshopBookingProvider workshopBookingProvider,
         SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation,
+        SendWorkshopBookingCancellation sendWorkshopBookingCancellation,
         Clock clock
 ) {
 
@@ -42,6 +43,22 @@ public record RetryWorkshopEmails(
                 sent++;
             } catch (RuntimeException e) {
                 LOGGER.log(Level.WARNING, "L'e-mail récapitulatif de la réservation " + id.value() + " n'est toujours pas parti.", e);
+                failed++;
+            }
+        }
+        var cancelledIds = workshopBookingProvider.readIds(null, EnumSet.of(WorkshopBookingState.CANCELLED), null, null).toList();
+        for (var id : cancelledIds) {
+            WorkshopBooking workshopBooking = workshopBookingProvider.read(id).orElseThrow();
+            if (workshopBooking.getCancellationEmailSentAt() != null
+                    || workshopBooking.getCancelledAt() == null
+                    || !workshopBooking.getCancelledAt().isBefore(retryBefore)) {
+                continue;
+            }
+            try {
+                sendWorkshopBookingCancellation.handle(new SendWorkshopBookingCancellation.Command(id));
+                sent++;
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.WARNING, "L'e-mail d'annulation de la réservation " + id.value() + " n'est toujours pas parti.", e);
                 failed++;
             }
         }

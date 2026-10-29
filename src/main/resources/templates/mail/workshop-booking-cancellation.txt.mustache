@@ -1,0 +1,12 @@
+{{#sessionCancelled}}Atelier annulé
+
+Bonjour {{{firstName}}}, nous sommes désolées : l'atelier auquel vous étiez inscrite est annulé.{{/sessionCancelled}}{{^sessionCancelled}}Réservation annulée
+
+Bonjour {{{firstName}}}, votre réservation est bien annulée.{{/sessionCancelled}}
+
+Chez {{{venueName}}}
+{{{date}}} · {{{timeRange}}}
+
+Retrouvez les prochaines dates sur la page des ateliers, on espère vous y voir bientôt :
+{{{workshopsUrl}}}
+{{> partials/footer.txt.mustache}}

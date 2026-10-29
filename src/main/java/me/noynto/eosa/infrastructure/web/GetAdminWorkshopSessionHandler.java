@@ -78,6 +78,8 @@ public record GetAdminWorkshopSessionHandler(
         var bookings = readWorkshopBookings.handle(new ReadWorkshopBookings.Command(session.getId())).stream()
                 .map(booking -> {
                     Map<String, Object> row = new HashMap<>();
+                    row.put("id", booking.getId().value());
+                    row.put("canCancel", !cancelled && booking.isActive(now) && now.isBefore(session.getStartsAt()));
                     row.put("name", booking.getFirstName() + " " + booking.getLastName());
                     row.put("email", booking.getEmail());
                     row.put("hasPhone", booking.getPhone() != null);

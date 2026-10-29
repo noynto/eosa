@@ -16,7 +16,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +31,6 @@ public record SendWorkshopBookingConfirmation(
         URI publicBaseUrl
 ) {
 
-    /** Délai d'annulation en ligne avant le début de l'atelier. */
-    private static final Duration CANCELLATION_DEADLINE = Duration.ofHours(48);
-
     public void handle(Command command) {
         if (command.workshopBookingId == null || command.workshopBookingId.value() == null) {
             throw new RuntimeException("L'identifiant de la réservation est nécessaire.");
@@ -48,7 +44,7 @@ public record SendWorkshopBookingConfirmation(
         WorkshopVenue workshopVenue = workshopVenueProvider.read(workshopSession.getVenueId()).orElseThrow();
 
         String venueAddress = workshopVenue.getAddress() + ", " + workshopVenue.getPostalCode() + " " + workshopVenue.getCity();
-        var cancellationDeadline = workshopSession.getStartsAt().minus(CANCELLATION_DEADLINE);
+        var cancellationDeadline = workshopSession.getStartsAt().minus(WorkshopBooking.SELF_CANCELLATION_DEADLINE);
         Map<String, Object> model = new HashMap<>();
         model.put("preheader", "Votre place est réservée : rendez-vous le " + WorkshopDates.dateInSentence(workshopSession.getStartsAt())
                 + " à " + WorkshopDates.time(workshopSession.getStartsAt()) + " chez " + workshopVenue.getName() + ".");

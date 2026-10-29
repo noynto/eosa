@@ -1,0 +1,66 @@
+{{> partials/header-main}}
+
+<section class="px-5 md:px-8 py-16 md:py-20 flex flex-col items-center text-center">
+
+    {{#cancellable}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Annuler ma réservation</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        {{firstName}}, vous pouvez annuler votre place jusqu'au {{cancellationDeadline}}. Elle sera proposée à une autre participante.
+    </p>
+    {{/cancellable}}
+
+    {{#cancelled}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Réservation annulée</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        C'est noté, {{firstName}} : votre réservation est annulée. Un e-mail de confirmation vous a été envoyé.
+    </p>
+    {{/cancelled}}
+
+    {{#tooLate}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Il est trop tard pour annuler en ligne</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        L'annulation en ligne était possible jusqu'au {{cancellationDeadline}}. En cas d'imprévu,
+        écrivez-nous sur Instagram en nous expliquant la situation : nous verrons ensemble ce qui est possible.
+    </p>
+    {{/tooLate}}
+
+    {{#notActive}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Rien à annuler</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        Cette réservation n'est plus active : elle n'a pas été confirmée à temps, ou l'atelier a déjà eu lieu.
+    </p>
+    {{/notActive}}
+
+    <div class="border border-bg-border rounded-2xl p-5 text-left w-full max-w-md mb-8 flex flex-col gap-1">
+        <span class="font-serif text-2xl leading-tight">Chez {{venueName}}</span>
+        <span class="text-sm">{{date}}</span>
+        <span class="text-sm text-secondary">{{timeRange}}</span>
+    </div>
+
+    {{#cancellable}}
+    <form method="post" action="/workshops/bookings/{{token}}/cancel" class="w-full max-w-md mb-6">
+        <button type="submit" class="w-full border border-secondary text-secondary px-6 py-3.5 rounded-full text-sm font-medium hover:bg-secondary hover:text-bg transition-colors">
+            Confirmer l'annulation
+        </button>
+    </form>
+    <a href="/workshops" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors">Je garde ma place</a>
+    {{/cancellable}}
+
+    {{#tooLate}}
+    <a href="https://ig.me/m/eosa.bijoux" target="_blank" rel="noopener" class="bg-secondary text-bg px-6 py-3 rounded-full text-sm font-medium hover:bg-primary transition-colors inline-flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        Nous écrire sur Instagram
+    </a>
+    {{/tooLate}}
+
+    {{#cancelled}}
+    <a href="/workshops" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir les ateliers</a>
+    {{/cancelled}}
+
+    {{#notActive}}
+    <a href="/workshops" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir les ateliers</a>
+    {{/notActive}}
+
+</section>
+
+{{> partials/footer-main}}

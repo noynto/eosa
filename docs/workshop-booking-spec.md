@@ -313,7 +313,7 @@ Chaque étape donne lieu à un commit Conventional Commits sur la branche `feat/
 
 - `MailProvider` + `SmtpSentMails`, variables `EOSA_SMTP_*`, Mailpit dans `compose.yaml`, gabarit commun des e-mails, tâche d'e-mail de test.
 
-### Étape 4 — Demande et confirmation de réservation
+### Étape 4 — Demande et confirmation de réservation ✅
 
 - `RequestWorkshopBooking`, `ConfirmWorkshopBooking`, `SendWorkshopBookingConfirmation` ; page de session, formulaire avec piège à robots et limite par IP, page « Vérifiez votre boîte mail », page de confirmation ; e-mails « Confirmez votre place » et récapitulatif.
 - Premiers CronJobs : `ExpirePendingWorkshopBookingsTask` et `RetryWorkshopEmailsTask`, avec `kubernetes/workshop-cronjobs.yaml` et leurs services équivalents (profil `jobs`) dans `compose.yaml`.
@@ -326,7 +326,9 @@ Chaque étape donne lieu à un commit Conventional Commits sur la branche `feat/
 - Lien Open Graph de la page de session (photo du lieu).
 - **Terminé quand** : les cas « bientôt », « ouvert », « dernière place », « complet » et « aucune session » s'affichent correctement à 390, 768 et 1280 px.
 
-### Étape 6 — Annulations
+### Étape 6 — Annulations ✅
+
+Faite avant l'étape 5 : le lien d'annulation de l'e-mail récapitulatif devait fonctionner.
 
 - Annulation par la participante via le lien à jeton, avec la règle des 48 h.
 - Annulation d'une réservation et d'une session par l'admin.

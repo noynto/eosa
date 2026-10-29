@@ -3,13 +3,13 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadWorkshopBooking;
+import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingState;
 import me.noynto.eosa.workshop.WorkshopDates;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +23,6 @@ public record GetWorkshopBookingConfirmHandler(
         Clock clock,
         String baseUrl
 ) implements Handler {
-
-    private static final Duration CANCELLATION_DEADLINE = Duration.ofHours(48);
 
     @Override
     public void handle(Context ctx) {
@@ -47,7 +45,7 @@ public record GetWorkshopBookingConfirmHandler(
         boolean expired = !awaiting && !confirmed && !cancelled;
         String venueAddress = venue.getAddress() + ", " + venue.getPostalCode() + " " + venue.getCity();
         boolean hasVenueImage = venue.getImageId() != null;
-        Instant cancellationDeadline = session.getStartsAt().minus(CANCELLATION_DEADLINE);
+        Instant cancellationDeadline = session.getStartsAt().minus(WorkshopBooking.SELF_CANCELLATION_DEADLINE);
 
         Map<String, Object> model = new HashMap<>();
         model.put("title", confirmed ? "Eosa — Votre place est réservée" : "Eosa — Confirmez votre place");
