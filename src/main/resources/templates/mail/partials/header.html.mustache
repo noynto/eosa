@@ -7,17 +7,25 @@
     <meta name="supported-color-schemes" content="light">
     <title>EOSA</title>
 </head>
-<body style="margin:0;padding:0;background-color:#F4EFE5;">
+<!--
+    Gabarit volontairement « à l'ancienne » pour être lu partout (Gmail, Outlook, Apple Mail…) :
+    mise en page en tableaux, attributs HTML plutôt que CSS quand c'est possible (bgcolor, width,
+    marges du body, bordures en cellules colorées), espacements par padding sur les <td> uniquement (pas de margin), pas de
+    border-radius ni de font-weight. Chaque bloc de contenu est une ligne <tr><td> de la carte.
+-->
+<body bgcolor="#F4EFE5" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 <!-- Aperçu affiché par les messageries à côté de l'objet -->
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{preheader}}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F4EFE5;">
+<div style="display:none;mso-hide:all;">{{preheader}}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5">
     <tr>
         <td align="center" style="padding:32px 16px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#FDFBF7;border:1px solid #F0E6D6;border-radius:16px;">
+            <!--[if mso]><table role="presentation" width="560" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+            <!-- Bordure de la carte : un tableau de la couleur de la bordure, avec 1 px de cellpadding. -->
+            <table role="presentation" width="100%" cellpadding="1" cellspacing="0" bgcolor="#F0E6D6" style="max-width:560px;">
+            <tr><td>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7">
                 <tr>
-                    <td style="padding:28px 32px 8px 32px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1;color:#601414;">
+                    <td style="padding:28px 32px 24px 32px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:32px;color:#601414;">
                         eosa.
                     </td>
                 </tr>
-                <tr>
-                    <td style="padding:16px 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#3D0A0A;">
