@@ -158,7 +158,7 @@ Toutes les routes sont sur le serveur admin, protégées par `EnsureIdentityHand
 | GET | `/workshops` | Sessions à venir (puis passées) avec, pour chacune : lieu, date, **compteurs** (places occupées / capacité, inscrites en liste d'attente), date d'ouverture des réservations. |
 | POST | `/workshops` | Créer une session : lieu, date, heure de début. Le choix du lieu **pré-remplit la capacité et la durée** avec ses valeurs par défaut, modifiables. |
 | GET | `/workshops/{id}` | Détail : informations modifiables + liste des inscrites (nom, e-mail, téléphone, état, date de réservation, date limite de l'empreinte) + liste d'attente. |
-| POST | `/workshops/{id}` | Modifier une session. La capacité ne peut pas descendre sous le nombre de places occupées. Changer la date ou le lieu n'est possible que tant qu'il n'y a aucune réservation active. Sinon, il faut annuler et recréer la session. |
+| PATCH | `/workshops/{id}` | Modifier une session. La capacité ne peut pas descendre sous le nombre de places occupées. Changer la date ou le lieu n'est possible que tant qu'il n'y a aucune réservation active. Sinon, il faut annuler et recréer la session. |
 | POST | `/workshops/{id}/cancel` | Annuler la session : réservations actives → `CANCELLED`, empreintes libérées, e-mail « Session annulée » à chaque inscrite et à la liste d'attente. |
 | POST | `/workshops/{id}/bookings/{bookingId}/cancel` | Annuler la réservation d'une participante, **sans contrainte de délai** (cas du « motif valable » reçu sur Instagram) : empreinte libérée, e-mail d'annulation, liste d'attente prévenue. |
 | POST | `/workshops/{id}/bookings/{bookingId}/attended` | Dès le début de la séance : marquer présente → empreinte libérée. |

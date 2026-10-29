@@ -4,6 +4,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import io.javalin.Javalin;
 import io.javalin.rendering.FileRenderer;
 import io.javalin.rendering.template.JavalinMustache;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,8 @@ import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import me.noynto.eosa.workshop.WorkshopBookingProvider;
+import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
 
@@ -50,6 +53,9 @@ public class Bootstrap {
         MetalColorProvider metalColorProvider = jdbcConfiguration.metalColors();
         CharmProvider charmProvider = jdbcConfiguration.charms();
         WorkshopVenueProvider workshopVenueProvider = jdbcConfiguration.workshopVenues();
+        WorkshopSessionProvider workshopSessionProvider = jdbcConfiguration.workshopSessions();
+        WorkshopBookingProvider workshopBookingProvider = jdbcConfiguration.workshopBookings();
+        Clock clock = Clock.systemUTC();
         CartShippingRuleProvider shippingRuleProvider =
             new ConfiguredCartShippingRules();
 
@@ -174,6 +180,30 @@ public class Bootstrap {
             imageProvider
         );
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
+        ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider
+        );
+        ReadWorkshopSession readWorkshopSession = new ReadWorkshopSession(
+            workshopSessionProvider,
+            readWorkshopSessions
+        );
+        CreateWorkshopSession createWorkshopSession = new CreateWorkshopSession(
+            workshopVenueProvider,
+            workshopSessionProvider,
+            clock
+        );
+        UpdateWorkshopSession updateWorkshopSession = new UpdateWorkshopSession(
+            workshopVenueProvider,
+            workshopSessionProvider,
+            workshopBookingProvider,
+            clock
+        );
+        CancelWorkshopSession cancelWorkshopSession = new CancelWorkshopSession(
+            workshopSessionProvider,
+            clock
+        );
 
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
@@ -583,6 +613,26 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/workshop-venues/{id}/archive",
                 new ArchiveWorkshopVenueHandler(archiveWorkshopVenue)
+            );
+            javalinConfig.routes.get(
+                "/workshops",
+                new GetAdminWorkshopSessionsHandler(readWorkshopSessions, readWorkshopVenues, clock)
+            );
+            javalinConfig.routes.post(
+                "/workshops",
+                new CreateWorkshopSessionHandler(createWorkshopSession)
+            );
+            javalinConfig.routes.get(
+                "/workshops/{id}",
+                new GetAdminWorkshopSessionHandler(readWorkshopSession, readWorkshopVenues, clock)
+            );
+            javalinConfig.routes.patch(
+                "/workshops/{id}",
+                new UpdateWorkshopSessionHandler(updateWorkshopSession)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/cancel",
+                new CancelWorkshopSessionHandler(cancelWorkshopSession)
             );
         });
         admin.start();

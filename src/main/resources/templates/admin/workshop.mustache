@@ -1,0 +1,112 @@
+{{> ../partials/header-admin}}
+
+<div class="max-w-2xl">
+
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <a href="/workshops" class="text-xs text-muted hover:text-secondary transition-colors">← Sessions</a>
+        <span class="text-muted">/</span>
+        <h1 class="text-xl font-medium">{{date}}</h1>
+        {{#cancelled}}<span class="text-[10px] text-muted border border-bg-border rounded-full px-2 py-0.5">Annulée</span>{{/cancelled}}
+    </div>
+
+    <!-- Résumé -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+            <div class="text-xs text-muted mb-1">Lieu</div>
+            <a href="/workshop-venues/{{venueId}}" class="text-sm font-medium hover:underline underline-offset-4">{{venueName}}</a>
+            <div class="text-xs text-secondary">{{venueAddress}}</div>
+        </div>
+        <div>
+            <div class="text-xs text-muted mb-1">Horaire</div>
+            <div class="text-sm font-medium">{{timeRange}}</div>
+            <div class="text-xs text-secondary">{{status}}</div>
+        </div>
+        <div>
+            <div class="text-xs text-muted mb-1">Places réservées</div>
+            <div class="text-sm font-medium">{{occupiedPlaces}} / {{capacity}}</div>
+            <div class="text-xs text-secondary">Ouverture : {{bookingOpensAt}}</div>
+        </div>
+    </section>
+
+    {{#editable}}
+    <!-- Modification -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Modifier la session</h2>
+            <span id="toast-session" class="text-xs"></span>
+        </div>
+        {{#hasBookings}}
+        <p class="text-xs text-muted mb-3">Des places sont déjà réservées : seules la durée et la capacité peuvent encore changer.</p>
+        {{/hasBookings}}
+        {{^hasBookings}}
+        <p class="text-xs text-muted mb-3">Le lieu et la date ne pourront plus changer une fois une place réservée.</p>
+        {{/hasBookings}}
+        <form hx-patch="/workshops/{{workshopSessionId}}"
+              hx-target="#toast-session" hx-swap="innerHTML"
+              class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1.5">
+                <label for="venueId" class="text-xs text-secondary">Lieu</label>
+                <select id="venueId" name="venueId" required
+                        class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+                    {{#venues}}
+                    <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}} — {{city}}</option>
+                    {{/venues}}
+                </select>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
+                    <label for="date" class="text-xs text-secondary">Date</label>
+                    <input id="date" name="date" type="date" required value="{{dateInput}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
+                    <label for="time" class="text-xs text-secondary">Début</label>
+                    <input id="time" name="time" type="time" required step="300" value="{{timeInput}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="durationMinutes" class="text-xs text-secondary">Durée (min)</label>
+                    <input id="durationMinutes" name="durationMinutes" type="number" min="15" max="480" step="15" required value="{{durationMinutes}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="capacity" class="text-xs text-secondary">Places</label>
+                    <input id="capacity" name="capacity" type="number" min="1" max="50" step="1" required value="{{capacity}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </section>
+    {{/editable}}
+
+    <!-- Inscrites -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-3">Inscrites</h2>
+        <p class="text-sm text-muted">Aucune inscrite pour l'instant.</p>
+    </section>
+
+    {{#editable}}
+    <!-- Annulation -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Annulation</h2>
+            <span id="toast-cancel" class="text-xs"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">La session n'est plus proposée à la réservation. Cette action est irréversible.</p>
+        <button hx-post="/workshops/{{workshopSessionId}}/cancel"
+                hx-target="#toast-cancel" hx-swap="innerHTML"
+                hx-confirm="Annuler la session du {{date}} chez {{venueName}} ?"
+                class="border border-bg-border px-4 py-1.5 rounded-lg text-xs text-secondary hover:border-red-600 hover:text-red-600 transition-colors">
+            Annuler la session
+        </button>
+    </section>
+    {{/editable}}
+
+</div>
+
+{{> ../partials/footer-admin}}
