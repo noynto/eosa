@@ -320,7 +320,9 @@ Chaque étape donne lieu à un commit Conventional Commits sur la branche `feat/
 - Les inscrites sont visibles dans le détail admin de la session.
 - **Terminé quand** : une réservation complète fonctionne de bout en bout avec Mailpit (demande, e-mail, confirmation, récapitulatif) ; un simple `GET` sur le lien ne confirme rien ; une réservation non confirmée libère la place au bout de 30 min, même sans passage du job ; deux demandes simultanées sur la dernière place n'en gardent qu'une ; le champ piège et la limite par IP bloquent les envois automatiques.
 
-### Étape 5 — Affichage public
+### Étape 5 — Affichage public ✅
+
+Le compte à rebours est rafraîchi avec la carte (toutes les 30 s, à la minute près), sans script dédié.
 
 - Section « Prochains ateliers » sur `/workshops`, avec les cartes centrées sur le lieu, le compte à rebours et le compteur de places rafraîchi par HTMX.
 - Lien Open Graph de la page de session (photo du lieu).

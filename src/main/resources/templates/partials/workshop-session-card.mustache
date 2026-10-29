@@ -1,0 +1,43 @@
+<article hx-get="/workshops/sessions/{{sessionId}}/card" hx-trigger="every 30s" hx-swap="outerHTML"
+         class="border border-bg-border rounded-2xl overflow-hidden flex flex-col bg-bg">
+    <a href="/workshops/sessions/{{sessionId}}" class="block aspect-[4/3] bg-bg-soft overflow-hidden">
+        {{#hasVenueImage}}
+        <img src="/images/{{venueImageId}}" alt="{{venueName}}" loading="lazy" class="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-500">
+        {{/hasVenueImage}}
+        {{^hasVenueImage}}
+        <img src="/workshops.webp" alt="Pierres naturelles et perles de l'atelier" loading="lazy" class="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-500">
+        {{/hasVenueImage}}
+    </a>
+    <div class="p-5 flex flex-col gap-1 flex-1">
+        <p class="text-[10px] text-secondary tracking-widest uppercase">En collaboration avec</p>
+        <h3 class="font-serif text-2xl leading-tight">
+            <a href="/workshops/sessions/{{sessionId}}" class="hover:text-secondary transition-colors">Chez {{venueName}}</a>
+        </h3>
+        <p class="text-xs text-secondary mb-2">{{venueCity}}</p>
+        <p class="text-sm font-medium">{{date}}</p>
+        <p class="text-sm text-secondary mb-4">{{timeRange}}</p>
+
+        <div class="mt-auto flex items-center justify-between gap-3">
+            {{#notOpenYet}}
+            <div class="flex flex-col">
+                <span class="text-xs font-medium">Ouverture des réservations {{countdown}}</span>
+                <span class="text-[11px] text-muted">le {{bookingOpensAt}}</span>
+            </div>
+            {{/notOpenYet}}
+            {{#open}}
+            <span class="text-xs {{#lastPlace}}text-primary font-medium{{/lastPlace}}{{^lastPlace}}text-secondary{{/lastPlace}}">
+                {{#lastPlace}}Dernière place{{/lastPlace}}{{^lastPlace}}{{remainingPlaces}}{{/lastPlace}}
+            </span>
+            <a href="/workshops/sessions/{{sessionId}}" class="bg-secondary text-bg px-5 py-2.5 rounded-full text-xs font-medium hover:bg-primary transition-colors shrink-0">
+                Réserver
+            </a>
+            {{/open}}
+            {{#full}}
+            <span class="text-xs font-medium">Complet</span>
+            <a href="/workshops/sessions/{{sessionId}}" class="border border-bg-border px-5 py-2.5 rounded-full text-xs text-secondary hover:border-secondary transition-colors shrink-0">
+                Voir
+            </a>
+            {{/full}}
+        </div>
+    </div>
+</article>

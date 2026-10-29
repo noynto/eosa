@@ -481,20 +481,13 @@ public class Bootstrap {
                 "/workshops/bookings/{token}/cancel",
                 new PostWorkshopBookingCancelHandler(cancelWorkshopBookingByParticipant)
             );
-            javalinConfig.routes.get("/workshops", context ->
-                context.render(
-                    "workshops.mustache",
-                    Map.of(
-                        "title",
-                        "Eosa — Ateliers",
-                        "description",
-                        "Créez votre propre collier ou bracelet en pierres naturelles lors d'un atelier EOSA à Nancy, en petit groupe.",
-                        "ogImageUrl",
-                        baseUrl + "/workshops.webp",
-                        "canonicalUrl",
-                        baseUrl + context.path()
-                    )
-                )
+            javalinConfig.routes.get(
+                "/workshops",
+                new GetWorkshopsHandler(readWorkshopSessions, clock, baseUrl)
+            );
+            javalinConfig.routes.get(
+                "/workshops/sessions/{id}/card",
+                new GetWorkshopSessionCardHandler(readWorkshopSession, clock)
             );
 
             // HELP PAGES
