@@ -28,6 +28,7 @@ import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
 
 public class Bootstrap {
@@ -48,6 +49,7 @@ public class Bootstrap {
         CartProvider cartProvider = jdbcConfiguration.carts();
         MetalColorProvider metalColorProvider = jdbcConfiguration.metalColors();
         CharmProvider charmProvider = jdbcConfiguration.charms();
+        WorkshopVenueProvider workshopVenueProvider = jdbcConfiguration.workshopVenues();
         CartShippingRuleProvider shippingRuleProvider =
             new ConfiguredCartShippingRules();
 
@@ -161,6 +163,17 @@ public class Bootstrap {
         ReadCharms readCharms = new ReadCharms(charmProvider);
         UpdateCharm updateCharm = new UpdateCharm(charmProvider);
         DeleteCharm deleteCharm = new DeleteCharm(charmProvider);
+        CreateWorkshopVenue createWorkshopVenue = new CreateWorkshopVenue(workshopVenueProvider);
+        ReadWorkshopVenues readWorkshopVenues = new ReadWorkshopVenues(workshopVenueProvider);
+        ReadWorkshopVenue readWorkshopVenue = new ReadWorkshopVenue(workshopVenueProvider);
+        UpdateWorkshopVenue updateWorkshopVenue = new UpdateWorkshopVenue(workshopVenueProvider);
+        UpdateDefaultsOfWorkshopVenue updateDefaultsOfWorkshopVenue =
+            new UpdateDefaultsOfWorkshopVenue(workshopVenueProvider);
+        AddImageToWorkshopVenue addImageToWorkshopVenue = new AddImageToWorkshopVenue(
+            workshopVenueProvider,
+            imageProvider
+        );
+        ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
 
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
@@ -542,6 +555,34 @@ public class Bootstrap {
             javalinConfig.routes.delete(
                 "/charms/{id}",
                 new DeleteCharmHandler(deleteCharm)
+            );
+            javalinConfig.routes.get(
+                "/workshop-venues",
+                new GetAdminWorkshopVenuesHandler(readWorkshopVenues)
+            );
+            javalinConfig.routes.post(
+                "/workshop-venues",
+                new CreateWorkshopVenueHandler(createWorkshopVenue)
+            );
+            javalinConfig.routes.get(
+                "/workshop-venues/{id}",
+                new GetAdminWorkshopVenueHandler(readWorkshopVenue)
+            );
+            javalinConfig.routes.patch(
+                "/workshop-venues/{id}",
+                new UpdateWorkshopVenueHandler(updateWorkshopVenue)
+            );
+            javalinConfig.routes.patch(
+                "/workshop-venues/{id}/defaults",
+                new UpdateDefaultsOfWorkshopVenueHandler(updateDefaultsOfWorkshopVenue)
+            );
+            javalinConfig.routes.post(
+                "/workshop-venues/{id}/image",
+                new AddImageToWorkshopVenueHandler(addImageToWorkshopVenue)
+            );
+            javalinConfig.routes.post(
+                "/workshop-venues/{id}/archive",
+                new ArchiveWorkshopVenueHandler(archiveWorkshopVenue)
             );
         });
         admin.start();
