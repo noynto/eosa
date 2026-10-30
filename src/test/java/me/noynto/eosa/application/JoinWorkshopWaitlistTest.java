@@ -75,6 +75,25 @@ class JoinWorkshopWaitlistTest {
     }
 
     @Test
+    void handle_acceptsAnEntryBeforeTheBookingOpeningEvenWithFreePlaces() {
+        // Atelier le 28 novembre : réservations ouvertes le 21, on est le 10.
+        session.setStartsAt(Instant.parse("2026-11-28T13:00:00Z"));
+        session.setCapacity(8);
+
+        var entry = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "rosa@example.com"));
+
+        assertTrue(entry.isWaiting());
+    }
+
+    @Test
+    void handle_refusesAStartedSession() {
+        session.setStartsAt(now.minus(Duration.ofMinutes(5)));
+
+        assertThrows(RuntimeException.class, () ->
+                joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "rosa@example.com")));
+    }
+
+    @Test
     void handle_refusesWhenPlacesAreAvailable() {
         session.setCapacity(2);
 

@@ -33,6 +33,7 @@ import me.noynto.eosa.infrastructure.mail.MailTemplates;
 import me.noynto.eosa.infrastructure.mail.SmtpSentMails;
 import me.noynto.eosa.infrastructure.mail.config.SmtpConfiguration;
 import me.noynto.eosa.mail.MailProvider;
+import me.noynto.eosa.task.AnnounceWorkshopBookingOpeningsTask;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
 import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
@@ -309,6 +310,15 @@ public class Bootstrap {
             new MarkWorkshopBookingNoShow(workshopBookingProvider, workshopSessionProvider, clock);
         MarkAllWorkshopBookingsAttended markAllWorkshopBookingsAttended =
             new MarkAllWorkshopBookingsAttended(workshopBookingProvider, workshopSessionProvider, clock);
+        AnnounceWorkshopBookingOpenings announceWorkshopBookingOpenings = new AnnounceWorkshopBookingOpenings(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
         SendWorkshopReminders sendWorkshopReminders = new SendWorkshopReminders(
             workshopBookingProvider,
             workshopSessionProvider,
@@ -342,6 +352,10 @@ public class Bootstrap {
         }
         if (ExpirePendingWorkshopBookingsTask.activate()) {
             oneShotTasksSucceeded &= new ExpirePendingWorkshopBookingsTask(expirePendingWorkshopBookings).task();
+            ranOneShotTask = true;
+        }
+        if (AnnounceWorkshopBookingOpeningsTask.activate()) {
+            oneShotTasksSucceeded &= new AnnounceWorkshopBookingOpeningsTask(announceWorkshopBookingOpenings).task();
             ranOneShotTask = true;
         }
         if (SendWorkshopRemindersTask.activate()) {

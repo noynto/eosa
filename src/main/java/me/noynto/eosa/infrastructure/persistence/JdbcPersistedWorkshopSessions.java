@@ -49,7 +49,7 @@ public record JdbcPersistedWorkshopSessions(
             return Optional.empty();
         }
         String sql = """
-                SELECT id, venue_id, starts_at, duration_minutes, capacity, state, cancelled_at
+                SELECT id, venue_id, starts_at, duration_minutes, capacity, state, cancelled_at, opening_announced_at
                 FROM workshop_sessions WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -72,11 +72,13 @@ public record JdbcPersistedWorkshopSessions(
             workshopSession.setId(new WorkshopSessionId(UUID.randomUUID().toString()));
         }
         String sql = """
-                INSERT INTO workshop_sessions (id, venue_id, starts_at, duration_minutes, capacity, state, cancelled_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO workshop_sessions (id, venue_id, starts_at, duration_minutes, capacity, state, cancelled_at,
+                                               opening_announced_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (id) DO UPDATE SET venue_id = EXCLUDED.venue_id, starts_at = EXCLUDED.starts_at,
                     duration_minutes = EXCLUDED.duration_minutes, capacity = EXCLUDED.capacity,
-                    state = EXCLUDED.state, cancelled_at = EXCLUDED.cancelled_at
+                    state = EXCLUDED.state, cancelled_at = EXCLUDED.cancelled_at,
+                    opening_announced_at = EXCLUDED.opening_announced_at
                 """;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -87,6 +89,7 @@ public record JdbcPersistedWorkshopSessions(
             statement.setInt(5, workshopSession.getCapacity());
             statement.setString(6, workshopSession.getState().name());
             statement.setObject(7, toOffsetDateTime(workshopSession.getCancelledAt()));
+            statement.setObject(8, toOffsetDateTime(workshopSession.getOpeningAnnouncedAt()));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Impossible d'écrire la session d'atelier " + workshopSession.getId().value() + ".", e);
@@ -104,6 +107,8 @@ public record JdbcPersistedWorkshopSessions(
         workshopSession.setState(WorkshopSessionState.valueOf(resultSet.getString("state")));
         OffsetDateTime cancelledAt = resultSet.getObject("cancelled_at", OffsetDateTime.class);
         if (cancelledAt != null) workshopSession.setCancelledAt(cancelledAt.toInstant());
+        OffsetDateTime openingAnnouncedAt = resultSet.getObject("opening_announced_at", OffsetDateTime.class);
+        if (openingAnnouncedAt != null) workshopSession.setOpeningAnnouncedAt(openingAnnouncedAt.toInstant());
         return workshopSession;
     }
 

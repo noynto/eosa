@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Inscription sur la liste d'attente depuis la page d'une session complète.
+ * Inscription sur la liste d'attente depuis la page d'une session : avant l'ouverture des réservations,
+ * ou quand la session est complète.
  */
 public record PostWorkshopWaitlistHandler(
         JoinWorkshopWaitlist joinWorkshopWaitlist,
@@ -27,7 +28,7 @@ public record PostWorkshopWaitlistHandler(
         Map<String, String> values = new HashMap<>();
         values.put("firstName", ctx.formParam("firstName") != null ? ctx.formParam("firstName") : "");
         values.put("email", ctx.formParam("email") != null ? ctx.formParam("email") : "");
-        String notice = "C'est noté : nous vous écrirons à " + values.get("email") + " dès qu'une place se libère.";
+        String notice = "C'est noté : nous vous écrirons à " + values.get("email") + " dès que vous pourrez réserver.";
 
         // Robot : on fait comme si l'inscription avait réussi, sans rien enregistrer.
         String honeypot = ctx.formParam(HONEYPOT);
@@ -47,7 +48,7 @@ public record PostWorkshopWaitlistHandler(
                     values.get("email")
             ));
             getWorkshopSessionHandler.render(ctx, null,
-                    "C'est noté : nous vous écrirons à " + entry.getEmail() + " dès qu'une place se libère.", Map.of());
+                    "C'est noté : nous vous écrirons à " + entry.getEmail() + " dès que vous pourrez réserver.", Map.of());
         } catch (RuntimeException e) {
             getWorkshopSessionHandler.render(ctx, e.getMessage(), null, values);
         }

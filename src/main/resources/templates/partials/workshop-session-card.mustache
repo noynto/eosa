@@ -23,6 +23,9 @@
                 <span class="text-xs font-medium">Ouverture des réservations {{countdown}}</span>
                 <span class="text-[11px] text-muted">le {{bookingOpensAt}}</span>
             </div>
+            <a href="/workshops/sessions/{{sessionId}}#me-prevenir" class="border border-bg-border px-4 py-2.5 rounded-full text-xs text-secondary hover:border-secondary transition-colors shrink-0">
+                Me prévenir
+            </a>
             {{/notOpenYet}}
             {{#open}}
             <span class="text-xs {{#lastPlace}}text-primary font-medium{{/lastPlace}}{{^lastPlace}}text-secondary{{/lastPlace}}">

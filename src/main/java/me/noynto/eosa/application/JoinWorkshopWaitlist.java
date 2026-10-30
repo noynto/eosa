@@ -18,7 +18,8 @@ import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 /**
- * Inscription sur la liste d'attente d'une session complète.
+ * Inscription sur la liste d'attente d'une session : avant l'ouverture des réservations (pour être prévenue
+ * de l'ouverture), ou quand la session est complète (pour être prévenue si une place se libère).
  */
 public record JoinWorkshopWaitlist(
         WorkshopSessionProvider workshopSessionProvider,
@@ -50,16 +51,17 @@ public record JoinWorkshopWaitlist(
         if (workshopSession.getState() != WorkshopSessionState.SCHEDULED) {
             throw new RuntimeException("Cette session a été annulée.");
         }
-        if (now.isBefore(workshopSession.getBookingOpensAt()) || !now.isBefore(workshopSession.getStartsAt())) {
-            throw new RuntimeException("La liste d'attente n'est pas ouverte pour cette session.");
+        if (!now.isBefore(workshopSession.getStartsAt())) {
+            throw new RuntimeException("Cet atelier a déjà commencé.");
         }
+        boolean bookingOpen = !now.isBefore(workshopSession.getBookingOpensAt());
         long occupiedPlaces = workshopBookingProvider
                 .readIds(workshopSession.getId(), EnumSet.of(WorkshopBookingState.PENDING, WorkshopBookingState.CONFIRMED,
                         WorkshopBookingState.ATTENDED, WorkshopBookingState.NO_SHOW), null, null)
                 .map(id -> workshopBookingProvider.read(id).orElseThrow())
                 .filter(booking -> booking.occupiesAPlace(now))
                 .count();
-        if (occupiedPlaces < workshopSession.getCapacity()) {
+        if (bookingOpen && occupiedPlaces < workshopSession.getCapacity()) {
             throw new RuntimeException("Il reste des places : réservez directement la vôtre.");
         }
         boolean missedAWorkshop = workshopBookingProvider

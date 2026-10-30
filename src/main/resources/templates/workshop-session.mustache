@@ -58,9 +58,34 @@
         {{/started}}
 
         {{#notOpenYet}}
-        <div class="border border-bg-border rounded-2xl p-6 text-center">
-            <h2 class="font-serif text-2xl font-normal mb-2">Bientôt</h2>
-            <p class="text-sm text-secondary">Les réservations ouvriront le {{bookingOpensAt}}.</p>
+        <div id="me-prevenir" class="border border-bg-border rounded-2xl p-6 scroll-mt-8">
+            <h2 class="font-serif text-2xl font-normal mb-2 text-center">Bientôt</h2>
+            <p class="text-sm text-secondary text-center mb-6">
+                Les réservations ouvriront le {{bookingOpensAt}}. Laissez-nous votre e-mail :
+                nous vous écrirons à l'ouverture, en même temps que toutes les personnes intéressées.
+            </p>
+            <form method="post" action="/workshops/sessions/{{sessionId}}/waitlist" class="flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="openingFirstName" class="text-xs text-secondary">Prénom</label>
+                        <input id="openingFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
+                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="openingEmail" class="text-xs text-secondary">E-mail</label>
+                        <input id="openingEmail" name="email" type="email" required autocomplete="email" value="{{email}}"
+                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                    </div>
+                </div>
+                <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
+                <div class="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+                    <label for="openingWebsite">Ne pas remplir</label>
+                    <input id="openingWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+                </div>
+                <button type="submit" class="border border-secondary text-secondary px-6 py-3.5 rounded-full text-sm font-medium hover:bg-secondary hover:text-bg transition-colors">
+                    Me prévenir à l'ouverture des réservations
+                </button>
+            </form>
         </div>
         {{/notOpenYet}}
 

@@ -18,7 +18,7 @@ Deux risques sont à maîtriser : **les fausses réservations** (robot, blague, 
 | 2 | Confirmation de la place | Après le formulaire, la place est **retenue 30 minutes** et la participante reçoit un e-mail avec un bouton **« Confirmer ma place »**. Sans confirmation dans ce délai, la place est libérée. Une adresse inventée ne peut donc rien bloquer longtemps. |
 | 3 | Anti-abus | Une place par adresse e-mail et par session ; **piège à robots** invisible (champ caché) ; **limite de demandes par adresse IP**. |
 | 4 | Absences | Après l'atelier, l'admin marque chaque inscrite présente ou absente. Une adresse marquée **absente** ne peut plus réserver en ligne : elle doit passer par Instagram. |
-| 5 | Ouverture des réservations | Les réservations d'une session ouvrent **toujours 7 jours avant** son début, à la même heure. Avant l'ouverture, la session est visible avec un **compte à rebours**. Une fois ouverte, un **compteur de places restantes** est affiché. |
+| 5 | Ouverture des réservations | Les réservations d'une session ouvrent **toujours 7 jours avant** son début, à la même heure. Avant l'ouverture, la session est visible avec un **compte à rebours**, et l'on peut s'inscrire pour **être prévenue par e-mail à l'ouverture**. Une fois ouverte, un **compteur de places restantes** est affiché. |
 | 6 | Type de bijou | La participante **ne choisit pas** collier ou bracelet à la réservation : le choix se fait sur place. |
 | 7 | Nombre de places | **Une réservation = une place.** Chaque participante réserve la sienne (pas de réservation groupée). |
 | 8 | Lieux | Le lieu est une entité à part (`WorkshopVenue`), réutilisable d'une session à l'autre et **mis en avant** partout : nom du café, photo, adresse, lien vers le partenaire. |
@@ -123,7 +123,8 @@ Il n'y a pas de compte participante : le lien d'annulation contient le jeton de 
 
 ### 6. Liste d'attente — `POST /workshops/sessions/{id}/waitlist`
 
-- Quand une session ouverte est complète, la participante laisse prénom et e-mail (une inscription par e-mail et par session). Elle voit ensuite « Vous serez prévenue par e-mail si une place se libère ».
+- **Avant l'ouverture des réservations** (« Me prévenir à l'ouverture des réservations »), ou **quand une session ouverte est complète**, la participante laisse prénom et e-mail (une inscription par e-mail et par session). Elle voit ensuite « Nous vous écrirons dès que vous pourrez réserver ».
+- **À l'ouverture des réservations**, toutes les inscrites reçoivent l'e-mail « Les réservations sont ouvertes » (une seule fois par session, au plus une minute après l'ouverture) ; les premières qui réservent obtiennent les places. Celles qui arrivent trop tard restent sur la liste et sont prévenues si une place se libère.
 - Quand une place se libère (annulation, réservation expirée, capacité augmentée par l'admin), **toutes les inscrites encore en attente reçoivent un e-mail** avec un lien vers la session : la première qui réserve obtient la place. Ce choix est plus simple qu'une file nominative avec délai réservé et convient aux petits groupes.
 - Une inscrite qui réserve sa place est retirée de la liste d'attente.
 - Le lien de chaque e-mail permet aussi de se désinscrire de la liste (jeton dédié).
@@ -187,6 +188,7 @@ Il n'y a **pas de planificateur dans l'application**. Les traitements périodiqu
 | Tâche (`task/`) | Variable d'activation | Planification proposée | Rôle |
 |---|---|---|---|
 | `ExpirePendingWorkshopBookingsTask` | `EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK` | `*/5 * * * *` | Passe en `EXPIRED` les réservations `PENDING` non confirmées depuis plus de 30 min, et prévient la liste d'attente si une place se libère. |
+| `AnnounceWorkshopBookingOpeningsTask` | `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK` | `* * * * *` | Prévient la liste d'attente des sessions dont les réservations viennent d'ouvrir (une fois par session, colonne `workshop_sessions.opening_announced_at`, migration `V5`). |
 | `SendWorkshopRemindersTask` | `EOSA_SEND_WORKSHOP_REMINDERS_TASK` | `*/15 * * * *` | Envoie le rappel aux inscrites confirmées des sessions qui commencent dans les 24 h et ne l'ont pas encore reçu. |
 | `RetryWorkshopEmailsTask` | `EOSA_RETRY_WORKSHOP_EMAILS_TASK` | `*/15 * * * *` | Renvoie les e-mails (récapitulatif, annulation, place libérée) dont l'envoi a échoué. |
 
@@ -261,7 +263,7 @@ Variables d'environnement (dans `.env.example` et `docs/deployment.md`) :
 
 Sans `EOSA_SMTP_USERNAME`, `SmtpSentMails` se connecte sans authentification, ce qui est le cas de Mailpit. `EOSA_SMTP_SECURITY=none` n'est fait que pour le local.
 
-Les variables d'activation des tâches (`EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK`, `false` par défaut) ne sont définies qu'à `"true"`, et uniquement dans leur CronJob. Elles ne doivent jamais l'être dans le `Deployment`.
+Les variables d'activation des tâches (`EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK`, `false` par défaut) ne sont définies qu'à `"true"`, et uniquement dans leur CronJob. Elles ne doivent jamais l'être dans le `Deployment`.
 
 `EOSA_SEND_TEST_EMAIL_TO=<adresse>` lance la tâche one-shot `SendTestEmailTask` : elle envoie un e-mail de test à cette adresse puis quitte. En local : `docker compose run --rm send-test-email` (vers Mailpit, sauf si les variables SMTP sont surchargées dans `.env`).
 

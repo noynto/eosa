@@ -9,6 +9,7 @@
 # One-shot jobs (Kubernetes CronJobs in production) are in the "jobs" profile:
 #   docker compose run --rm send-test-email
 #   docker compose run --rm expire-pending-workshop-bookings
+#   docker compose run --rm announce-workshop-booking-openings
 #   docker compose run --rm send-workshop-reminders
 #   docker compose run --rm retry-workshop-emails
 #
@@ -133,6 +134,18 @@ services:
     environment:
       <<: *eosa-environment
       EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Equivalent of the announce-workshop-booking-openings CronJob.
+  announce-workshop-booking-openings:
+    <<: *eosa-container
+    profiles: [jobs]
+    environment:
+      <<: *eosa-environment
+      EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK: "true"
     depends_on:
       postgres:
         condition: service_healthy

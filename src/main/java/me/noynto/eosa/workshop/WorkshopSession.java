@@ -26,6 +26,8 @@ public class WorkshopSession {
     private int capacity;
     private WorkshopSessionState state;
     private Instant cancelledAt;
+    /** Date à laquelle la liste d'attente a été prévenue de l'ouverture des réservations ; null avant. */
+    private Instant openingAnnouncedAt;
 
     public WorkshopSession() {
     }
@@ -92,5 +94,13 @@ public class WorkshopSession {
 
     public void setCancelledAt(Instant cancelledAt) {
         this.cancelledAt = cancelledAt;
+    }
+
+    public Instant getOpeningAnnouncedAt() {
+        return openingAnnouncedAt;
+    }
+
+    public void setOpeningAnnouncedAt(Instant openingAnnouncedAt) {
+        this.openingAnnouncedAt = openingAnnouncedAt;
     }
 }
