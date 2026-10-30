@@ -7,7 +7,8 @@
                 <tr>
                     <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
                         {{#sessionCancelled}}
-                        Bonjour {{firstName}}, nous sommes désolées : l'atelier auquel vous étiez inscrite est annulé.
+                        {{#waitlisted}}Bonjour {{firstName}}, nous sommes désolées : l'atelier pour lequel vous étiez en liste d'attente est annulé.{{/waitlisted}}
+                        {{^waitlisted}}Bonjour {{firstName}}, nous sommes désolées : l'atelier auquel vous étiez inscrite est annulé.{{/waitlisted}}
                         {{/sessionCancelled}}
                         {{^sessionCancelled}}
                         Bonjour {{firstName}}, votre réservation est bien annulée.

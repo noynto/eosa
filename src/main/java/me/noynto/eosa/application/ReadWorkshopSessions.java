@@ -6,6 +6,7 @@ import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopVenue;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -16,6 +17,7 @@ public record ReadWorkshopSessions(
         WorkshopSessionProvider workshopSessionProvider,
         WorkshopVenueProvider workshopVenueProvider,
         WorkshopBookingProvider workshopBookingProvider,
+        WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider,
         Clock clock
 ) {
 
@@ -41,13 +43,15 @@ public record ReadWorkshopSessions(
                 .map(id -> workshopBookingProvider.read(id).orElseThrow())
                 .filter(booking -> booking.occupiesAPlace(now))
                 .count();
-        return new Overview(workshopSession, workshopVenue, occupiedPlaces);
+        int waitlistCount = (int) workshopWaitlistEntryProvider.readIds(workshopSession.getId(), null, null, true).count();
+        return new Overview(workshopSession, workshopVenue, occupiedPlaces, waitlistCount);
     }
 
     public record Overview(
             WorkshopSession session,
             WorkshopVenue venue,
-            int occupiedPlaces
+            int occupiedPlaces,
+            int waitlistCount
     ) {
     }
 

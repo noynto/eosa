@@ -4,6 +4,7 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadWorkshopBookings;
 import me.noynto.eosa.application.ReadWorkshopSession;
+import me.noynto.eosa.application.ReadWorkshopWaitlist;
 import me.noynto.eosa.application.ReadWorkshopSessions;
 import me.noynto.eosa.application.ReadWorkshopVenues;
 import me.noynto.eosa.shared.WorkshopSessionId;
@@ -21,6 +22,7 @@ public record GetAdminWorkshopSessionHandler(
         ReadWorkshopSession readWorkshopSession,
         ReadWorkshopVenues readWorkshopVenues,
         ReadWorkshopBookings readWorkshopBookings,
+        ReadWorkshopWaitlist readWorkshopWaitlist,
         Clock clock
 ) implements Handler {
 
@@ -98,6 +100,19 @@ public record GetAdminWorkshopSessionHandler(
                 .toList();
         model.put("bookings", bookings);
         model.put("hasBookingRows", !bookings.isEmpty());
+
+        var waitlist = readWorkshopWaitlist.handle(new ReadWorkshopWaitlist.Command(session.getId())).stream()
+                .map(entry -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("firstName", entry.getFirstName());
+                    row.put("email", entry.getEmail());
+                    row.put("joinedAt", BOOKED_AT.format(entry.getCreatedAt().atZone(WorkshopSession.ZONE)));
+                    row.put("notified", entry.getLastNotifiedAt() != null);
+                    return row;
+                })
+                .toList();
+        model.put("waitlist", waitlist);
+        model.put("hasWaitlist", !waitlist.isEmpty());
         ctx.render("admin/workshop.mustache", model);
     }
 

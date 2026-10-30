@@ -26,13 +26,14 @@ public record GetWorkshopSessionHandler(
 
     @Override
     public void handle(Context ctx) {
-        render(ctx, null, Map.of());
+        render(ctx, null, null, Map.of());
     }
 
     /**
-     * Affiche la page, avec un message d'erreur et les valeurs saisies si le formulaire a été refusé.
+     * Affiche la page, avec un message d'erreur et les valeurs saisies si un formulaire a été refusé,
+     * ou un message de confirmation (inscription en liste d'attente).
      */
-    public void render(Context ctx, String error, Map<String, String> values) {
+    public void render(Context ctx, String error, String notice, Map<String, String> values) {
         ReadWorkshopSessions.Overview overview;
         try {
             overview = readWorkshopSession.handle(new ReadWorkshopSession.Command(new WorkshopSessionId(ctx.pathParam("id"))));
@@ -81,6 +82,8 @@ public record GetWorkshopSessionHandler(
         model.put("remainingPlaces", remainingPlaces == 1 ? "Dernière place" : remainingPlaces + " places restantes");
         model.put("hasError", error != null);
         model.put("error", error != null ? error : "");
+        model.put("hasNotice", notice != null);
+        model.put("notice", notice != null ? notice : "");
         model.put("firstName", values.getOrDefault("firstName", ""));
         model.put("lastName", values.getOrDefault("lastName", ""));
         model.put("email", values.getOrDefault("email", ""));

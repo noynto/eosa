@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public record CancelWorkshopBookingByAdmin(
         WorkshopBookingProvider workshopBookingProvider,
         SendWorkshopBookingCancellation sendWorkshopBookingCancellation,
+        NotifyWorkshopWaitlist notifyWorkshopWaitlist,
         Clock clock
 ) {
 
@@ -42,6 +43,12 @@ public record CancelWorkshopBookingByAdmin(
         } catch (RuntimeException e) {
             LOGGER.log(Level.WARNING, "L'e-mail d'annulation de la réservation " + workshopBooking.getId().value()
                     + " n'est pas parti, il sera renvoyé plus tard.", e);
+        }
+        try {
+            notifyWorkshopWaitlist.handle(new NotifyWorkshopWaitlist.Command(workshopBooking.getSessionId()));
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.WARNING, "La liste d'attente de la session " + workshopBooking.getSessionId().value()
+                    + " n'a pas pu être prévenue.", e);
         }
         return workshopBooking;
     }

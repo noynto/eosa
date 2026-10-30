@@ -39,6 +39,7 @@ class UpdateWorkshopSessionTest {
     @Mock WorkshopVenueProvider workshopVenueProvider;
     @Mock WorkshopSessionProvider workshopSessionProvider;
     @Mock WorkshopBookingProvider workshopBookingProvider;
+    @Mock NotifyWorkshopWaitlist notifyWorkshopWaitlist;
 
     private final Clock clock = Clock.fixed(Instant.parse("2026-11-01T10:00:00Z"), ZoneOffset.UTC);
     private final WorkshopSessionId sessionId = new WorkshopSessionId("session");
@@ -62,6 +63,8 @@ class UpdateWorkshopSessionTest {
         assertEquals(Instant.parse("2026-11-21T09:30:00Z"), result.getStartsAt());
         assertEquals(90, result.getDurationMinutes());
         assertEquals(12, result.getCapacity());
+        // 8 → 12 places : la liste d'attente est prévenue.
+        verify(notifyWorkshopWaitlist).handle(new NotifyWorkshopWaitlist.Command(sessionId));
     }
 
     @Test
@@ -76,6 +79,7 @@ class UpdateWorkshopSessionTest {
 
         assertEquals(150, result.getDurationMinutes());
         assertEquals(3, result.getCapacity());
+        verify(notifyWorkshopWaitlist, never()).handle(any());
     }
 
     @Test
@@ -167,7 +171,8 @@ class UpdateWorkshopSessionTest {
     }
 
     private UpdateWorkshopSession updateWorkshopSession() {
-        return new UpdateWorkshopSession(workshopVenueProvider, workshopSessionProvider, workshopBookingProvider, clock);
+        return new UpdateWorkshopSession(workshopVenueProvider, workshopSessionProvider, workshopBookingProvider,
+                notifyWorkshopWaitlist, clock);
     }
 
     private WorkshopSession scheduledSession() {

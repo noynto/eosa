@@ -18,6 +18,7 @@ public record CancelWorkshopBookingByParticipant(
         WorkshopBookingProvider workshopBookingProvider,
         WorkshopSessionProvider workshopSessionProvider,
         SendWorkshopBookingCancellation sendWorkshopBookingCancellation,
+        NotifyWorkshopWaitlist notifyWorkshopWaitlist,
         Clock clock
 ) {
 
@@ -52,6 +53,12 @@ public record CancelWorkshopBookingByParticipant(
         } catch (RuntimeException e) {
             LOGGER.log(Level.WARNING, "L'e-mail d'annulation de la réservation " + workshopBooking.getId().value()
                     + " n'est pas parti, il sera renvoyé plus tard.", e);
+        }
+        try {
+            notifyWorkshopWaitlist.handle(new NotifyWorkshopWaitlist.Command(workshopBooking.getSessionId()));
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.WARNING, "La liste d'attente de la session " + workshopBooking.getSessionId().value()
+                    + " n'a pas pu être prévenue.", e);
         }
         return Outcome.CANCELLED;
     }

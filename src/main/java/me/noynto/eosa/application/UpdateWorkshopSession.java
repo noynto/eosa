@@ -14,13 +14,18 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public record UpdateWorkshopSession(
         WorkshopVenueProvider workshopVenueProvider,
         WorkshopSessionProvider workshopSessionProvider,
         WorkshopBookingProvider workshopBookingProvider,
+        NotifyWorkshopWaitlist notifyWorkshopWaitlist,
         Clock clock
 ) {
+
+    private static final Logger LOGGER = Logger.getLogger(UpdateWorkshopSession.class.getName());
 
     public WorkshopSession handle(Command command) {
         if (command.workshopSessionId == null || command.workshopSessionId.value() == null) {
@@ -77,11 +82,22 @@ public record UpdateWorkshopSession(
             throw new RuntimeException("La capacité ne peut pas être inférieure aux " + occupiedPlaces + " place(s) déjà réservée(s).");
         }
 
+        boolean capacityIncreased = command.capacity() > workshopSession.getCapacity();
         workshopSession.setVenueId(command.workshopVenueId());
         workshopSession.setStartsAt(startsAt);
         workshopSession.setDurationMinutes(command.durationMinutes());
         workshopSession.setCapacity(command.capacity());
-        return workshopSessionProvider.write(workshopSession);
+        workshopSessionProvider.write(workshopSession);
+        // De nouvelles places : la liste d'attente est prévenue.
+        if (capacityIncreased) {
+            try {
+                notifyWorkshopWaitlist.handle(new NotifyWorkshopWaitlist.Command(workshopSession.getId()));
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.WARNING, "La liste d'attente de la session " + workshopSession.getId().value()
+                        + " n'a pas pu être prévenue.", e);
+            }
+        }
+        return workshopSession;
     }
 
     /**

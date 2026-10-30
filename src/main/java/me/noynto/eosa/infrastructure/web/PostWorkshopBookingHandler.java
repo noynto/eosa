@@ -43,7 +43,7 @@ public record PostWorkshopBookingHandler(
         }
         if (!requestRateLimiter.tryAcquire(RequestRateLimiter.clientOf(ctx))) {
             getWorkshopSessionHandler.render(ctx, "Trop de demandes depuis votre connexion. Réessayez dans une heure, "
-                    + "ou écrivez-nous sur Instagram (@eosa.bijoux).", values);
+                    + "ou écrivez-nous sur Instagram (@eosa.bijoux).", null, values);
             return;
         }
 
@@ -58,7 +58,7 @@ public record PostWorkshopBookingHandler(
                     ctx.formParam("acceptedConditions") != null
             ));
         } catch (RuntimeException e) {
-            getWorkshopSessionHandler.render(ctx, e.getMessage(), values);
+            getWorkshopSessionHandler.render(ctx, e.getMessage(), null, values);
             return;
         }
         renderRequested(ctx, workshopBooking.getFirstName(), workshopBooking.getEmail());

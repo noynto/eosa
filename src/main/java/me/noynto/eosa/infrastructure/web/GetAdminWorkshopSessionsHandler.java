@@ -69,6 +69,8 @@ public record GetAdminWorkshopSessionsHandler(
         row.put("venueCity", overview.venue().getCity());
         row.put("occupiedPlaces", overview.occupiedPlaces());
         row.put("capacity", session.getCapacity());
+        row.put("hasWaitlist", overview.waitlistCount() > 0);
+        row.put("waitlistCount", overview.waitlistCount());
         row.put("status", WorkshopSessionFormat.status(overview, now));
         row.put("cancelled", session.getState() == WorkshopSessionState.CANCELLED);
         return row;

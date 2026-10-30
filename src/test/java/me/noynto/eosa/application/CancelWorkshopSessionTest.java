@@ -1,7 +1,17 @@
 package me.noynto.eosa.application;
 
+import me.noynto.eosa.mail.Mail;
+import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.shared.WorkshopBookingId;
 import me.noynto.eosa.shared.WorkshopSessionId;
+import me.noynto.eosa.shared.WorkshopVenueId;
+import me.noynto.eosa.workshop.WorkshopVenue;
+import me.noynto.eosa.workshop.WorkshopVenueProvider;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntry;
+import org.mockito.ArgumentCaptor;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import java.net.URI;
 import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingState;
 import me.noynto.eosa.workshop.WorkshopSession;
@@ -29,19 +39,49 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CancelWorkshopSessionTest {
 
     @Mock WorkshopSessionProvider workshopSessionProvider;
+    @Mock WorkshopVenueProvider workshopVenueProvider;
     @Mock SendWorkshopBookingCancellation sendWorkshopBookingCancellation;
+    @Mock MailProvider mailProvider;
 
     private final Instant now = Instant.parse("2026-11-01T10:00:00Z");
     private final Clock clock = Clock.fixed(now, ZoneOffset.UTC);
     private final WorkshopSessionId sessionId = new WorkshopSessionId("session");
+    private final WorkshopVenueId venueId = new WorkshopVenueId("venue");
     private InMemoryWorkshopBookings bookings;
+    private InMemoryWorkshopWaitlistEntries waitlist;
 
     @BeforeEach
     void setUp() {
         bookings = new InMemoryWorkshopBookings();
+        waitlist = new InMemoryWorkshopWaitlistEntries();
+        var venue = new WorkshopVenue();
+        venue.setId(venueId);
+        venue.setName("Café des Arts");
+        when(workshopVenueProvider.read(venueId)).thenReturn(Optional.of(venue));
+    }
+
+    @Test
+    void handle_closesTheWaitlistAndWarnsEachWaitingPerson() {
+        when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(sessionStartingAt("2026-11-14T13:00:00Z")));
+        when(workshopSessionProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+        var entry = new WorkshopWaitlistEntry();
+        entry.setSessionId(sessionId);
+        entry.setFirstName("Rosa");
+        entry.setEmail("rosa@example.com");
+        entry.setCreatedAt(now.minus(Duration.ofDays(1)));
+        waitlist.write(entry);
+
+        cancelWorkshopSession().handle(new CancelWorkshopSession.Command(sessionId));
+
+        assertEquals(now, entry.getRemovedAt());
+        var mail = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider).send(mail.capture());
+        assertEquals("rosa@example.com", mail.getValue().to());
+        assertEquals(true, mail.getValue().model().get("waitlisted"));
     }
 
     @Test
@@ -105,12 +145,14 @@ class CancelWorkshopSessionTest {
     }
 
     private CancelWorkshopSession cancelWorkshopSession() {
-        return new CancelWorkshopSession(workshopSessionProvider, bookings, sendWorkshopBookingCancellation, clock);
+        return new CancelWorkshopSession(workshopSessionProvider, workshopVenueProvider, bookings, waitlist,
+                sendWorkshopBookingCancellation, mailProvider, clock, URI.create("https://eosa.me"));
     }
 
     private WorkshopSession sessionStartingAt(String instant) {
         var session = new WorkshopSession();
         session.setId(sessionId);
+        session.setVenueId(venueId);
         session.setStartsAt(Instant.parse(instant));
         session.setDurationMinutes(120);
         session.setState(WorkshopSessionState.SCHEDULED);

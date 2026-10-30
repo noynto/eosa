@@ -337,7 +337,7 @@ Faite avant l'étape 5 : le lien d'annulation de l'e-mail récapitulatif devait 
 - E-mails d'annulation.
 - **Terminé quand** : l'annulation fonctionne à 49 h du début et est refusée à 47 h (en renvoyant vers Instagram).
 
-### Étape 7 — Liste d'attente
+### Étape 7 — Liste d'attente ✅
 
 - Inscription quand la session est complète, notification quand une place se libère, désinscription, retrait automatique quand la personne réserve.
 - Compteur de la liste d'attente dans l'admin.

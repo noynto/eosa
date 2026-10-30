@@ -3,6 +3,7 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopBookingState;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 public record ConfirmWorkshopBooking(
         WorkshopBookingProvider workshopBookingProvider,
         SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation,
+        WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider,
         Clock clock
 ) {
 
@@ -52,6 +54,13 @@ public record ConfirmWorkshopBooking(
         workshopBooking.setState(WorkshopBookingState.CONFIRMED);
         workshopBooking.setConfirmedAt(now);
         workshopBookingProvider.write(workshopBooking);
+        // Elle a sa place : elle sort de la liste d'attente de la session.
+        workshopWaitlistEntryProvider.readIds(workshopBooking.getSessionId(), workshopBooking.getEmail(), null, true)
+                .map(id -> workshopWaitlistEntryProvider.read(id).orElseThrow())
+                .forEach(entry -> {
+                    entry.setRemovedAt(now);
+                    workshopWaitlistEntryProvider.write(entry);
+                });
         // La place est confirmée même si l'e-mail récapitulatif ne part pas : il sera renvoyé plus tard.
         try {
             sendWorkshopBookingConfirmation.handle(new SendWorkshopBookingConfirmation.Command(workshopBooking.getId()));

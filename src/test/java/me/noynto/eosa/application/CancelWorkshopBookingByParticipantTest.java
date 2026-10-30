@@ -34,6 +34,7 @@ class CancelWorkshopBookingByParticipantTest {
 
     @Mock WorkshopSessionProvider workshopSessionProvider;
     @Mock SendWorkshopBookingCancellation sendWorkshopBookingCancellation;
+    @Mock NotifyWorkshopWaitlist notifyWorkshopWaitlist;
 
     private final Instant startsAt = Instant.parse("2026-11-14T13:00:00Z");
     private final WorkshopSessionId sessionId = new WorkshopSessionId("session");
@@ -111,12 +112,20 @@ class CancelWorkshopBookingByParticipantTest {
     @Test
     void handle_throwsForAnUnknownToken() {
         assertThrows(RuntimeException.class, () -> new CancelWorkshopBookingByParticipant(bookings, workshopSessionProvider,
-                sendWorkshopBookingCancellation, Clock.systemUTC()).handle(new CancelWorkshopBookingByParticipant.Command("other")));
+                sendWorkshopBookingCancellation, notifyWorkshopWaitlist, Clock.systemUTC())
+                .handle(new CancelWorkshopBookingByParticipant.Command("other")));
+    }
+
+    @Test
+    void handle_warnsTheWaitlistThatAPlaceIsFree() {
+        cancelAt(startsAt.minus(Duration.ofDays(3)));
+
+        verify(notifyWorkshopWaitlist).handle(new NotifyWorkshopWaitlist.Command(sessionId));
     }
 
     private CancelWorkshopBookingByParticipant.Outcome cancelAt(Instant now) {
         return new CancelWorkshopBookingByParticipant(bookings, workshopSessionProvider, sendWorkshopBookingCancellation,
-                Clock.fixed(now, ZoneOffset.UTC)).handle(new CancelWorkshopBookingByParticipant.Command("token"));
+                notifyWorkshopWaitlist, Clock.fixed(now, ZoneOffset.UTC)).handle(new CancelWorkshopBookingByParticipant.Command("token"));
     }
 
 }

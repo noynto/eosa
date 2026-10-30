@@ -1,0 +1,38 @@
+{{> partials/header-main}}
+
+<section class="px-5 md:px-8 py-16 md:py-20 flex flex-col items-center text-center">
+
+    {{#waiting}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Quitter la liste d'attente</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        {{firstName}}, vous ne serez plus prévenue si une place se libère pour cet atelier.
+    </p>
+    {{/waiting}}
+    {{^waiting}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Vous n'êtes plus en liste d'attente</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        Vous ne recevrez plus d'e-mail pour cet atelier.
+    </p>
+    {{/waiting}}
+
+    <div class="border border-bg-border rounded-2xl p-5 text-left w-full max-w-md mb-8 flex flex-col gap-1">
+        <span class="font-serif text-2xl leading-tight">Chez {{venueName}}</span>
+        <span class="text-sm">{{date}}</span>
+        <span class="text-sm text-secondary">{{timeRange}}</span>
+    </div>
+
+    {{#waiting}}
+    <form method="post" action="/workshops/waitlist/{{token}}/leave" class="w-full max-w-md mb-6">
+        <button type="submit" class="w-full border border-secondary text-secondary px-6 py-3.5 rounded-full text-sm font-medium hover:bg-secondary hover:text-bg transition-colors">
+            Quitter la liste d'attente
+        </button>
+    </form>
+    <a href="/workshops/sessions/{{sessionId}}" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors">Je reste en attente</a>
+    {{/waiting}}
+    {{^waiting}}
+    <a href="/workshops" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir les ateliers</a>
+    {{/waiting}}
+
+</section>
+
+{{> partials/footer-main}}

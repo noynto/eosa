@@ -115,6 +115,26 @@
         {{/hasBookingRows}}
     </section>
 
+    {{#hasWaitlist}}
+    <!-- Liste d'attente -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-1">Liste d'attente</h2>
+        <p class="text-xs text-muted mb-3">Toutes sont prévenues par e-mail dès qu'une place se libère ; la première qui réserve l'obtient.</p>
+        {{#waitlist}}
+        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-3 border-b border-bg-border last:border-0">
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium">{{firstName}}</div>
+                <div class="text-xs text-secondary truncate"><a href="mailto:{{email}}" class="hover:underline underline-offset-4">{{email}}</a></div>
+            </div>
+            <div class="flex items-center justify-between sm:flex-col sm:items-end gap-1 shrink-0">
+                <span class="text-xs">{{#notified}}Prévenue{{/notified}}{{^notified}}En attente{{/notified}}</span>
+                <span class="text-[11px] text-muted">depuis le {{joinedAt}}</span>
+            </div>
+        </div>
+        {{/waitlist}}
+    </section>
+    {{/hasWaitlist}}
+
     {{#editable}}
     <!-- Annulation -->
     <section class="bg-bg border border-bg-border rounded-xl p-5">

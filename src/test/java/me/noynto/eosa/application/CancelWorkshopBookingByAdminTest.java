@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 class CancelWorkshopBookingByAdminTest {
 
     @Mock SendWorkshopBookingCancellation sendWorkshopBookingCancellation;
+    @Mock NotifyWorkshopWaitlist notifyWorkshopWaitlist;
 
     private final Instant now = Instant.parse("2026-11-14T10:00:00Z");
     private final WorkshopSessionId sessionId = new WorkshopSessionId("session");
@@ -50,6 +51,7 @@ class CancelWorkshopBookingByAdminTest {
         assertEquals(WorkshopBookingState.CANCELLED, booking.getState());
         assertEquals(now, booking.getCancelledAt());
         verify(sendWorkshopBookingCancellation).handle(new SendWorkshopBookingCancellation.Command(booking.getId()));
+        verify(notifyWorkshopWaitlist).handle(new NotifyWorkshopWaitlist.Command(sessionId));
     }
 
     @Test
@@ -69,7 +71,8 @@ class CancelWorkshopBookingByAdminTest {
     }
 
     private CancelWorkshopBookingByAdmin cancelWorkshopBookingByAdmin() {
-        return new CancelWorkshopBookingByAdmin(bookings, sendWorkshopBookingCancellation, Clock.fixed(now, ZoneOffset.UTC));
+        return new CancelWorkshopBookingByAdmin(bookings, sendWorkshopBookingCancellation, notifyWorkshopWaitlist,
+                Clock.fixed(now, ZoneOffset.UTC));
     }
 
 }

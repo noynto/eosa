@@ -37,6 +37,9 @@
         {{#hasError}}
         <p role="alert" class="border border-red-600 text-red-700 rounded-xl px-4 py-3 text-sm mb-6">{{error}}</p>
         {{/hasError}}
+        {{#hasNotice}}
+        <p role="status" class="border border-success text-success rounded-xl px-4 py-3 text-sm mb-6">{{notice}}</p>
+        {{/hasNotice}}
 
         {{#cancelled}}
         <div class="border border-bg-border rounded-2xl p-6 text-center">
@@ -62,9 +65,34 @@
         {{/notOpenYet}}
 
         {{#full}}
-        <div class="border border-bg-border rounded-2xl p-6 text-center">
-            <h2 class="font-serif text-2xl font-normal mb-2">Complet</h2>
-            <p class="text-sm text-secondary">Toutes les places de cette session sont réservées.</p>
+        <div class="border border-bg-border rounded-2xl p-6">
+            <h2 class="font-serif text-2xl font-normal mb-2 text-center">Complet</h2>
+            <p class="text-sm text-secondary text-center mb-6">
+                Toutes les places sont réservées. Laissez-nous votre e-mail : si une place se libère,
+                toute la liste d'attente est prévenue en même temps, et la première qui réserve l'obtient.
+            </p>
+            <form method="post" action="/workshops/sessions/{{sessionId}}/waitlist" class="flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="waitlistFirstName" class="text-xs text-secondary">Prénom</label>
+                        <input id="waitlistFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
+                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="waitlistEmail" class="text-xs text-secondary">E-mail</label>
+                        <input id="waitlistEmail" name="email" type="email" required autocomplete="email" value="{{email}}"
+                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                    </div>
+                </div>
+                <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
+                <div class="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+                    <label for="waitlistWebsite">Ne pas remplir</label>
+                    <input id="waitlistWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+                </div>
+                <button type="submit" class="border border-secondary text-secondary px-6 py-3.5 rounded-full text-sm font-medium hover:bg-secondary hover:text-bg transition-colors">
+                    Me prévenir si une place se libère
+                </button>
+            </form>
         </div>
         {{/full}}
 

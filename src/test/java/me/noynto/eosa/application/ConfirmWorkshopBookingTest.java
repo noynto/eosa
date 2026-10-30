@@ -4,6 +4,7 @@ import me.noynto.eosa.shared.WorkshopBookingId;
 import me.noynto.eosa.shared.WorkshopSessionId;
 import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingState;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,10 +31,26 @@ class ConfirmWorkshopBookingTest {
     private final Instant now = Instant.parse("2026-11-10T10:00:00Z");
     private final Clock clock = Clock.fixed(now, ZoneOffset.UTC);
     private InMemoryWorkshopBookings bookings;
+    private InMemoryWorkshopWaitlistEntries waitlist;
 
     @BeforeEach
     void setUp() {
         bookings = new InMemoryWorkshopBookings();
+        waitlist = new InMemoryWorkshopWaitlistEntries();
+    }
+
+    @Test
+    void handle_removesTheParticipantFromTheSessionWaitlist() {
+        booking(WorkshopBookingState.PENDING, now.minus(Duration.ofMinutes(10)));
+        var entry = new WorkshopWaitlistEntry();
+        entry.setSessionId(new WorkshopSessionId("session"));
+        entry.setEmail("MARIE@example.com");
+        entry.setCreatedAt(now.minus(Duration.ofDays(1)));
+        waitlist.write(entry);
+
+        confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token"));
+
+        assertEquals(now, entry.getRemovedAt());
     }
 
     @Test
@@ -100,7 +117,7 @@ class ConfirmWorkshopBookingTest {
     }
 
     private ConfirmWorkshopBooking confirmWorkshopBooking() {
-        return new ConfirmWorkshopBooking(bookings, sendWorkshopBookingConfirmation, clock);
+        return new ConfirmWorkshopBooking(bookings, sendWorkshopBookingConfirmation, waitlist, clock);
     }
 
     private WorkshopBooking booking(WorkshopBookingState state, Instant createdAt) {

@@ -40,6 +40,7 @@ import me.noynto.eosa.task.SendTestEmailTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
 
 public class Bootstrap {
@@ -63,6 +64,7 @@ public class Bootstrap {
         WorkshopVenueProvider workshopVenueProvider = jdbcConfiguration.workshopVenues();
         WorkshopSessionProvider workshopSessionProvider = jdbcConfiguration.workshopSessions();
         WorkshopBookingProvider workshopBookingProvider = jdbcConfiguration.workshopBookings();
+        WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider = jdbcConfiguration.workshopWaitlistEntries();
         Clock clock = Clock.systemUTC();
         CartShippingRuleProvider shippingRuleProvider =
             new ConfiguredCartShippingRules();
@@ -196,8 +198,31 @@ public class Bootstrap {
             workshopSessionProvider,
             workshopVenueProvider,
             workshopBookingProvider,
+            workshopWaitlistEntryProvider,
             clock
         );
+        NotifyWorkshopWaitlist notifyWorkshopWaitlist = new NotifyWorkshopWaitlist(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        JoinWorkshopWaitlist joinWorkshopWaitlist = new JoinWorkshopWaitlist(
+            workshopSessionProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            clock
+        );
+        LeaveWorkshopWaitlist leaveWorkshopWaitlist = new LeaveWorkshopWaitlist(workshopWaitlistEntryProvider, clock);
+        ReadWorkshopWaitlistEntry readWorkshopWaitlistEntry = new ReadWorkshopWaitlistEntry(
+            workshopWaitlistEntryProvider,
+            workshopSessionProvider,
+            workshopVenueProvider
+        );
+        ReadWorkshopWaitlist readWorkshopWaitlist = new ReadWorkshopWaitlist(workshopWaitlistEntryProvider);
         ReadWorkshopSession readWorkshopSession = new ReadWorkshopSession(
             workshopSessionProvider,
             readWorkshopSessions
@@ -211,6 +236,7 @@ public class Bootstrap {
             workshopVenueProvider,
             workshopSessionProvider,
             workshopBookingProvider,
+            notifyWorkshopWaitlist,
             clock
         );
         SendWorkshopBookingCancellation sendWorkshopBookingCancellation = new SendWorkshopBookingCancellation(
@@ -223,19 +249,25 @@ public class Bootstrap {
         );
         CancelWorkshopSession cancelWorkshopSession = new CancelWorkshopSession(
             workshopSessionProvider,
+            workshopVenueProvider,
             workshopBookingProvider,
+            workshopWaitlistEntryProvider,
             sendWorkshopBookingCancellation,
-            clock
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
         );
         CancelWorkshopBookingByAdmin cancelWorkshopBookingByAdmin = new CancelWorkshopBookingByAdmin(
             workshopBookingProvider,
             sendWorkshopBookingCancellation,
+            notifyWorkshopWaitlist,
             clock
         );
         CancelWorkshopBookingByParticipant cancelWorkshopBookingByParticipant = new CancelWorkshopBookingByParticipant(
             workshopBookingProvider,
             workshopSessionProvider,
             sendWorkshopBookingCancellation,
+            notifyWorkshopWaitlist,
             clock
         );
 
@@ -265,10 +297,11 @@ public class Bootstrap {
         ConfirmWorkshopBooking confirmWorkshopBooking = new ConfirmWorkshopBooking(
             workshopBookingProvider,
             sendWorkshopBookingConfirmation,
+            workshopWaitlistEntryProvider,
             clock
         );
         ExpirePendingWorkshopBookings expirePendingWorkshopBookings =
-            new ExpirePendingWorkshopBookings(workshopBookingProvider, clock);
+            new ExpirePendingWorkshopBookings(workshopBookingProvider, notifyWorkshopWaitlist, clock);
         RetryWorkshopEmails retryWorkshopEmails = new RetryWorkshopEmails(
             workshopBookingProvider,
             sendWorkshopBookingConfirmation,
@@ -377,6 +410,7 @@ public class Bootstrap {
                             "Disallow: /cart\n" +
                             "Disallow: /checkout/\n" +
                             "Disallow: /workshops/bookings/\n" +
+                            "Disallow: /workshops/waitlist/\n" +
                             "\n" +
                             "Sitemap: " +
                             baseUrl +
@@ -454,16 +488,29 @@ public class Bootstrap {
             GetWorkshopSessionHandler getWorkshopSessionHandler =
                 new GetWorkshopSessionHandler(readWorkshopSession, clock, baseUrl);
             javalinConfig.routes.get("/workshops/sessions/{id}", getWorkshopSessionHandler);
+            // 5 demandes (réservation ou liste d'attente) par heure et par adresse IP.
+            RequestRateLimiter workshopRequestRateLimiter = new RequestRateLimiter(5, Duration.ofHours(1), clock);
             javalinConfig.routes.post(
                 "/workshops/sessions/{id}/bookings",
                 new PostWorkshopBookingHandler(
                     requestWorkshopBooking,
                     readWorkshopSession,
                     getWorkshopSessionHandler,
-                    // 5 demandes de réservation par heure et par adresse IP.
-                    new RequestRateLimiter(5, Duration.ofHours(1), clock),
+                    workshopRequestRateLimiter,
                     baseUrl
                 )
+            );
+            javalinConfig.routes.post(
+                "/workshops/sessions/{id}/waitlist",
+                new PostWorkshopWaitlistHandler(joinWorkshopWaitlist, getWorkshopSessionHandler, workshopRequestRateLimiter)
+            );
+            javalinConfig.routes.get(
+                "/workshops/waitlist/{token}/leave",
+                new GetWorkshopWaitlistLeaveHandler(readWorkshopWaitlistEntry, baseUrl)
+            );
+            javalinConfig.routes.post(
+                "/workshops/waitlist/{token}/leave",
+                new PostWorkshopWaitlistLeaveHandler(leaveWorkshopWaitlist)
             );
             javalinConfig.routes.get(
                 "/workshops/bookings/{token}/confirm",
@@ -731,7 +778,7 @@ public class Bootstrap {
             );
             javalinConfig.routes.get(
                 "/workshops/{id}",
-                new GetAdminWorkshopSessionHandler(readWorkshopSession, readWorkshopVenues, readWorkshopBookings, clock)
+                new GetAdminWorkshopSessionHandler(readWorkshopSession, readWorkshopVenues, readWorkshopBookings, readWorkshopWaitlist, clock)
             );
             javalinConfig.routes.patch(
                 "/workshops/{id}",
