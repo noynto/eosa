@@ -4,6 +4,8 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import io.javalin.Javalin;
 import io.javalin.rendering.FileRenderer;
 import io.javalin.rendering.template.JavalinMustache;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +29,20 @@ import me.noynto.eosa.infrastructure.web.*;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
+import me.noynto.eosa.infrastructure.mail.MailTemplates;
+import me.noynto.eosa.infrastructure.mail.SmtpSentMails;
+import me.noynto.eosa.infrastructure.mail.config.SmtpConfiguration;
+import me.noynto.eosa.mail.MailProvider;
+import me.noynto.eosa.task.AnnounceWorkshopBookingOpeningsTask;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
+import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
+import me.noynto.eosa.task.RetryWorkshopEmailsTask;
+import me.noynto.eosa.task.SendTestEmailTask;
+import me.noynto.eosa.task.SendWorkshopRemindersTask;
+import me.noynto.eosa.workshop.WorkshopBookingProvider;
+import me.noynto.eosa.workshop.WorkshopSessionProvider;
+import me.noynto.eosa.workshop.WorkshopVenueProvider;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
 
 public class Bootstrap {
@@ -48,10 +63,19 @@ public class Bootstrap {
         CartProvider cartProvider = jdbcConfiguration.carts();
         MetalColorProvider metalColorProvider = jdbcConfiguration.metalColors();
         CharmProvider charmProvider = jdbcConfiguration.charms();
+        WorkshopVenueProvider workshopVenueProvider = jdbcConfiguration.workshopVenues();
+        WorkshopSessionProvider workshopSessionProvider = jdbcConfiguration.workshopSessions();
+        WorkshopBookingProvider workshopBookingProvider = jdbcConfiguration.workshopBookings();
+        WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider = jdbcConfiguration.workshopWaitlistEntries();
+        Clock clock = Clock.systemUTC();
         CartShippingRuleProvider shippingRuleProvider =
             new ConfiguredCartShippingRules();
 
         // CLIENTS
+        MailProvider mailProvider = new SmtpSentMails(
+            SmtpConfiguration.getProperties(),
+            new MailTemplates()
+        );
         StripeProperties stripeProperties = StripeConfiguration.getProperties(
             properties
         );
@@ -161,6 +185,153 @@ public class Bootstrap {
         ReadCharms readCharms = new ReadCharms(charmProvider);
         UpdateCharm updateCharm = new UpdateCharm(charmProvider);
         DeleteCharm deleteCharm = new DeleteCharm(charmProvider);
+        CreateWorkshopVenue createWorkshopVenue = new CreateWorkshopVenue(workshopVenueProvider);
+        ReadWorkshopVenues readWorkshopVenues = new ReadWorkshopVenues(workshopVenueProvider);
+        ReadWorkshopVenue readWorkshopVenue = new ReadWorkshopVenue(workshopVenueProvider);
+        UpdateWorkshopVenue updateWorkshopVenue = new UpdateWorkshopVenue(workshopVenueProvider);
+        UpdateDefaultsOfWorkshopVenue updateDefaultsOfWorkshopVenue =
+            new UpdateDefaultsOfWorkshopVenue(workshopVenueProvider);
+        AddImageToWorkshopVenue addImageToWorkshopVenue = new AddImageToWorkshopVenue(
+            workshopVenueProvider,
+            imageProvider
+        );
+        ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
+        ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            clock
+        );
+        NotifyWorkshopWaitlist notifyWorkshopWaitlist = new NotifyWorkshopWaitlist(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        JoinWorkshopWaitlist joinWorkshopWaitlist = new JoinWorkshopWaitlist(
+            workshopSessionProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            clock
+        );
+        LeaveWorkshopWaitlist leaveWorkshopWaitlist = new LeaveWorkshopWaitlist(workshopWaitlistEntryProvider, clock);
+        ReadWorkshopWaitlistEntry readWorkshopWaitlistEntry = new ReadWorkshopWaitlistEntry(
+            workshopWaitlistEntryProvider,
+            workshopSessionProvider,
+            workshopVenueProvider
+        );
+        ReadWorkshopWaitlist readWorkshopWaitlist = new ReadWorkshopWaitlist(workshopWaitlistEntryProvider);
+        ReadWorkshopSession readWorkshopSession = new ReadWorkshopSession(
+            workshopSessionProvider,
+            readWorkshopSessions
+        );
+        CreateWorkshopSession createWorkshopSession = new CreateWorkshopSession(
+            workshopVenueProvider,
+            workshopSessionProvider,
+            clock
+        );
+        UpdateWorkshopSession updateWorkshopSession = new UpdateWorkshopSession(
+            workshopVenueProvider,
+            workshopSessionProvider,
+            workshopBookingProvider,
+            notifyWorkshopWaitlist,
+            clock
+        );
+        SendWorkshopBookingCancellation sendWorkshopBookingCancellation = new SendWorkshopBookingCancellation(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        CancelWorkshopSession cancelWorkshopSession = new CancelWorkshopSession(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            sendWorkshopBookingCancellation,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        CancelWorkshopBookingByAdmin cancelWorkshopBookingByAdmin = new CancelWorkshopBookingByAdmin(
+            workshopBookingProvider,
+            sendWorkshopBookingCancellation,
+            notifyWorkshopWaitlist,
+            clock
+        );
+        CancelWorkshopBookingByParticipant cancelWorkshopBookingByParticipant = new CancelWorkshopBookingByParticipant(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            sendWorkshopBookingCancellation,
+            notifyWorkshopWaitlist,
+            clock
+        );
+
+        SendTestEmail sendTestEmail = new SendTestEmail(mailProvider);
+        RequestWorkshopBooking requestWorkshopBooking = new RequestWorkshopBooking(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        ReadWorkshopBooking readWorkshopBooking = new ReadWorkshopBooking(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider
+        );
+        ReadWorkshopBookings readWorkshopBookings = new ReadWorkshopBookings(workshopBookingProvider);
+        SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation = new SendWorkshopBookingConfirmation(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        ConfirmWorkshopBooking confirmWorkshopBooking = new ConfirmWorkshopBooking(
+            workshopBookingProvider,
+            sendWorkshopBookingConfirmation,
+            workshopWaitlistEntryProvider,
+            clock
+        );
+        ExpirePendingWorkshopBookings expirePendingWorkshopBookings =
+            new ExpirePendingWorkshopBookings(workshopBookingProvider, notifyWorkshopWaitlist, clock);
+        MarkWorkshopBookingAttended markWorkshopBookingAttended =
+            new MarkWorkshopBookingAttended(workshopBookingProvider, workshopSessionProvider, clock);
+        MarkWorkshopBookingNoShow markWorkshopBookingNoShow =
+            new MarkWorkshopBookingNoShow(workshopBookingProvider, workshopSessionProvider, clock);
+        MarkAllWorkshopBookingsAttended markAllWorkshopBookingsAttended =
+            new MarkAllWorkshopBookingsAttended(workshopBookingProvider, workshopSessionProvider, clock);
+        AnnounceWorkshopBookingOpenings announceWorkshopBookingOpenings = new AnnounceWorkshopBookingOpenings(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
+        SendWorkshopReminders sendWorkshopReminders = new SendWorkshopReminders(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider,
+            mailProvider,
+            clock
+        );
+        RetryWorkshopEmails retryWorkshopEmails = new RetryWorkshopEmails(
+            workshopBookingProvider,
+            sendWorkshopBookingConfirmation,
+            sendWorkshopBookingCancellation,
+            clock
+        );
 
         // TASK
         // Runs every activated one-shot task before exiting once — each task used to call
@@ -173,6 +344,26 @@ public class Bootstrap {
                 createAdministratorIdentity,
                 properties
             ).task();
+            ranOneShotTask = true;
+        }
+        if (SendTestEmailTask.activate()) {
+            oneShotTasksSucceeded &= new SendTestEmailTask(sendTestEmail).task();
+            ranOneShotTask = true;
+        }
+        if (ExpirePendingWorkshopBookingsTask.activate()) {
+            oneShotTasksSucceeded &= new ExpirePendingWorkshopBookingsTask(expirePendingWorkshopBookings).task();
+            ranOneShotTask = true;
+        }
+        if (AnnounceWorkshopBookingOpeningsTask.activate()) {
+            oneShotTasksSucceeded &= new AnnounceWorkshopBookingOpeningsTask(announceWorkshopBookingOpenings).task();
+            ranOneShotTask = true;
+        }
+        if (SendWorkshopRemindersTask.activate()) {
+            oneShotTasksSucceeded &= new SendWorkshopRemindersTask(sendWorkshopReminders).task();
+            ranOneShotTask = true;
+        }
+        if (RetryWorkshopEmailsTask.activate()) {
+            oneShotTasksSucceeded &= new RetryWorkshopEmailsTask(retryWorkshopEmails).task();
             ranOneShotTask = true;
         }
         if (ranOneShotTask) {
@@ -250,6 +441,8 @@ public class Bootstrap {
                         "User-agent: *\n" +
                             "Disallow: /cart\n" +
                             "Disallow: /checkout/\n" +
+                            "Disallow: /workshops/bookings/\n" +
+                            "Disallow: /workshops/waitlist/\n" +
                             "\n" +
                             "Sitemap: " +
                             baseUrl +
@@ -324,20 +517,56 @@ public class Bootstrap {
                     )
                 )
             );
-            javalinConfig.routes.get("/workshops", context ->
-                context.render(
-                    "workshops.mustache",
-                    Map.of(
-                        "title",
-                        "Eosa — Ateliers",
-                        "description",
-                        "Créez votre propre collier ou bracelet en pierres naturelles lors d'un atelier EOSA à Nancy, en petit groupe.",
-                        "ogImageUrl",
-                        baseUrl + "/workshops.webp",
-                        "canonicalUrl",
-                        baseUrl + context.path()
-                    )
+            GetWorkshopSessionHandler getWorkshopSessionHandler =
+                new GetWorkshopSessionHandler(readWorkshopSession, clock, baseUrl);
+            javalinConfig.routes.get("/workshops/sessions/{id}", getWorkshopSessionHandler);
+            // 5 demandes (réservation ou liste d'attente) par heure et par adresse IP.
+            RequestRateLimiter workshopRequestRateLimiter = new RequestRateLimiter(5, Duration.ofHours(1), clock);
+            javalinConfig.routes.post(
+                "/workshops/sessions/{id}/bookings",
+                new PostWorkshopBookingHandler(
+                    requestWorkshopBooking,
+                    readWorkshopSession,
+                    getWorkshopSessionHandler,
+                    workshopRequestRateLimiter,
+                    baseUrl
                 )
+            );
+            javalinConfig.routes.post(
+                "/workshops/sessions/{id}/waitlist",
+                new PostWorkshopWaitlistHandler(joinWorkshopWaitlist, getWorkshopSessionHandler, workshopRequestRateLimiter)
+            );
+            javalinConfig.routes.get(
+                "/workshops/waitlist/{token}/leave",
+                new GetWorkshopWaitlistLeaveHandler(readWorkshopWaitlistEntry, baseUrl)
+            );
+            javalinConfig.routes.post(
+                "/workshops/waitlist/{token}/leave",
+                new PostWorkshopWaitlistLeaveHandler(leaveWorkshopWaitlist)
+            );
+            javalinConfig.routes.get(
+                "/workshops/bookings/{token}/confirm",
+                new GetWorkshopBookingConfirmHandler(readWorkshopBooking, clock, baseUrl)
+            );
+            javalinConfig.routes.post(
+                "/workshops/bookings/{token}/confirm",
+                new PostWorkshopBookingConfirmHandler(confirmWorkshopBooking)
+            );
+            javalinConfig.routes.get(
+                "/workshops/bookings/{token}/cancel",
+                new GetWorkshopBookingCancelHandler(readWorkshopBooking, clock, baseUrl)
+            );
+            javalinConfig.routes.post(
+                "/workshops/bookings/{token}/cancel",
+                new PostWorkshopBookingCancelHandler(cancelWorkshopBookingByParticipant)
+            );
+            javalinConfig.routes.get(
+                "/workshops",
+                new GetWorkshopsHandler(readWorkshopSessions, clock, baseUrl)
+            );
+            javalinConfig.routes.get(
+                "/workshops/sessions/{id}/card",
+                new GetWorkshopSessionCardHandler(readWorkshopSession, clock)
             );
 
             // HELP PAGES
@@ -542,6 +771,70 @@ public class Bootstrap {
             javalinConfig.routes.delete(
                 "/charms/{id}",
                 new DeleteCharmHandler(deleteCharm)
+            );
+            javalinConfig.routes.get(
+                "/workshop-venues",
+                new GetAdminWorkshopVenuesHandler(readWorkshopVenues)
+            );
+            javalinConfig.routes.post(
+                "/workshop-venues",
+                new CreateWorkshopVenueHandler(createWorkshopVenue)
+            );
+            javalinConfig.routes.get(
+                "/workshop-venues/{id}",
+                new GetAdminWorkshopVenueHandler(readWorkshopVenue)
+            );
+            javalinConfig.routes.patch(
+                "/workshop-venues/{id}",
+                new UpdateWorkshopVenueHandler(updateWorkshopVenue)
+            );
+            javalinConfig.routes.patch(
+                "/workshop-venues/{id}/defaults",
+                new UpdateDefaultsOfWorkshopVenueHandler(updateDefaultsOfWorkshopVenue)
+            );
+            javalinConfig.routes.post(
+                "/workshop-venues/{id}/image",
+                new AddImageToWorkshopVenueHandler(addImageToWorkshopVenue)
+            );
+            javalinConfig.routes.post(
+                "/workshop-venues/{id}/archive",
+                new ArchiveWorkshopVenueHandler(archiveWorkshopVenue)
+            );
+            javalinConfig.routes.get(
+                "/workshops",
+                new GetAdminWorkshopSessionsHandler(readWorkshopSessions, readWorkshopVenues, clock)
+            );
+            javalinConfig.routes.post(
+                "/workshops",
+                new CreateWorkshopSessionHandler(createWorkshopSession)
+            );
+            javalinConfig.routes.get(
+                "/workshops/{id}",
+                new GetAdminWorkshopSessionHandler(readWorkshopSession, readWorkshopVenues, readWorkshopBookings, readWorkshopWaitlist, clock)
+            );
+            javalinConfig.routes.patch(
+                "/workshops/{id}",
+                new UpdateWorkshopSessionHandler(updateWorkshopSession)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/cancel",
+                new CancelWorkshopSessionHandler(cancelWorkshopSession)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/bookings/{bookingId}/cancel",
+                new CancelWorkshopBookingByAdminHandler(cancelWorkshopBookingByAdmin)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/bookings/{bookingId}/attended",
+                new MarkWorkshopBookingAttendedHandler(markWorkshopBookingAttended)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/bookings/{bookingId}/no-show",
+                new MarkWorkshopBookingNoShowHandler(markWorkshopBookingNoShow)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/attended",
+                new MarkAllWorkshopBookingsAttendedHandler(markAllWorkshopBookingsAttended)
             );
         });
         admin.start();

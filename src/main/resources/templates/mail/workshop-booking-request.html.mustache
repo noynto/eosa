@@ -1,0 +1,43 @@
+{{> partials/header.html.mustache}}
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                        Confirmez votre place
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        Bonjour {{firstName}}, merci pour votre demande ! Votre place est retenue pendant
+                        {{confirmationDelayMinutes}} minutes : confirmez-la en cliquant sur le bouton ci-dessous.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5" width="100%">
+                            <tr>
+                                <td style="padding:16px 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    <span style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:26px;color:#601414;">Chez {{venueName}}</span><br>
+                                    {{date}} · {{timeRange}}<br>
+                                    <a href="{{mapUrl}}" style="color:#775546;">{{venueAddress}}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td bgcolor="#601414" style="padding:14px 28px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:20px;">
+                                    <a href="{{confirmUrl}}" style="color:#FFEFAE;text-decoration:none;">Confirmer ma place</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#775546;">
+                        Sans confirmation dans les {{confirmationDelayMinutes}} minutes, la place est libérée pour une autre participante.
+                        Vous n'êtes pas à l'origine de cette demande ? Ignorez simplement cet e-mail.
+                    </td>
+                </tr>
+{{> partials/footer.html.mustache}}

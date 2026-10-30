@@ -1,0 +1,37 @@
+{{> partials/header.html.mustache}}
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                        Votre place est réservée
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        Merci {{firstName}}, c'est confirmé : on se retrouve pour créer votre bijou !
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5" width="100%">
+                            <tr>
+                                <td style="padding:16px 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    <span style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:26px;color:#601414;">Chez {{venueName}}</span><br>
+                                    {{date}} · {{timeRange}} ({{duration}})<br>
+                                    <a href="{{mapUrl}}" style="color:#775546;">{{venueAddress}}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 12px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        L'atelier se règle sur place : collier personnalisé 33 €, bracelet personnalisé 23 €.
+                        Vous choisirez votre bijou, vos pierres et votre breloque le jour même.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#775546;">
+                        Un empêchement ? Vous pouvez <a href="{{cancelUrl}}" style="color:#601414;">annuler votre réservation</a>
+                        jusqu'au {{cancellationDeadline}}. Au-delà, écrivez-nous sur Instagram.
+                    </td>
+                </tr>
+{{> partials/footer.html.mustache}}

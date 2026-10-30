@@ -1,0 +1,140 @@
+{{> ../partials/header-admin}}
+
+<div class="max-w-2xl">
+
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <a href="/workshop-venues" class="text-xs text-muted hover:text-secondary transition-colors">← Lieux</a>
+        <span class="text-muted">/</span>
+        <h1 class="text-xl font-medium">{{name}}</h1>
+        {{#archived}}<span class="text-[10px] text-muted border border-bg-border rounded-full px-2 py-0.5">Archivé</span>{{/archived}}
+    </div>
+
+    <!-- Informations -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-medium">Informations</h2>
+            <span id="toast-information" class="text-xs text-success"></span>
+        </div>
+        <form hx-patch="/workshop-venues/{{workshopVenueId}}"
+              hx-target="#toast-information" hx-swap="innerHTML"
+              class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1.5">
+                <label for="name" class="text-xs text-secondary">Nom</label>
+                <input id="name" name="name" type="text" required value="{{name}}"
+                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="description" class="text-xs text-secondary">Présentation courte</label>
+                <textarea id="description" name="description" rows="3" placeholder="ex. Un café cosy au cœur de la vieille ville…"
+                          class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary resize-none w-full"
+                >{{description}}</textarea>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="address" class="text-xs text-secondary">Adresse</label>
+                <input id="address" name="address" type="text" required value="{{address}}"
+                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+            </div>
+            <div class="grid grid-cols-[7rem_1fr] gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="postalCode" class="text-xs text-secondary">Code postal</label>
+                    <input id="postalCode" name="postalCode" type="text" required value="{{postalCode}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="city" class="text-xs text-secondary">Ville</label>
+                    <input id="city" name="city" type="text" required value="{{city}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="linkUrl" class="text-xs text-secondary">Lien (site ou Instagram du lieu)</label>
+                <input id="linkUrl" name="linkUrl" type="url" value="{{linkUrl}}" placeholder="https://www.instagram.com/…"
+                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Valeurs par défaut -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Valeurs par défaut des sessions</h2>
+            <span id="toast-defaults" class="text-xs text-success"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">Pré-remplies à la création d'une session dans ce lieu, et modifiables session par session.</p>
+        <form hx-patch="/workshop-venues/{{workshopVenueId}}/defaults"
+              hx-target="#toast-defaults" hx-swap="innerHTML"
+              class="flex flex-wrap items-end gap-3">
+            <div class="flex flex-col gap-1.5">
+                <label for="defaultCapacity" class="text-xs text-secondary">Capacité</label>
+                <div class="relative">
+                    <input id="defaultCapacity" name="defaultCapacity" type="number" min="1" max="50" step="1" required value="{{defaultCapacity}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg pl-3 pr-14 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-32">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">places</span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="defaultDurationMinutes" class="text-xs text-secondary">Durée</label>
+                <div class="relative">
+                    <input id="defaultDurationMinutes" name="defaultDurationMinutes" type="number" min="15" max="480" step="15" required value="{{defaultDurationMinutes}}"
+                           class="bg-bg-soft border border-bg-border rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-32">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">min</span>
+                </div>
+            </div>
+            <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                Enregistrer
+            </button>
+        </form>
+    </section>
+
+    <!-- Photo -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-medium">Photo</h2>
+            <span id="toast-image" class="text-xs"></span>
+        </div>
+        {{#hasImage}}
+        <div class="aspect-[16/9] rounded-lg overflow-hidden bg-bg-soft mb-3">
+            <img src="/images/{{imageId}}" alt="{{name}}" class="w-full h-full object-cover">
+        </div>
+        {{/hasImage}}
+        <form hx-post="/workshop-venues/{{workshopVenueId}}/image"
+              hx-encoding="multipart/form-data"
+              hx-target="#toast-image" hx-swap="innerHTML"
+              class="flex flex-col sm:flex-row gap-2">
+            <label class="flex-1 flex items-center gap-2 bg-bg-soft border border-bg-border border-dashed rounded-lg px-3 py-2 cursor-pointer hover:border-secondary transition-colors min-w-0">
+                <span class="file-label text-xs text-secondary truncate">{{#hasImage}}Remplacer la photo…{{/hasImage}}{{^hasImage}}Choisir une photo…{{/hasImage}}</span>
+                <input type="file" name="image" accept="image/*" class="hidden"
+                       onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files[0]?.name??'Choisir une photo…'; l.classList.replace('text-secondary','text-primary');">
+            </label>
+            <button type="submit"
+                    class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                Uploader
+            </button>
+        </form>
+    </section>
+
+    <!-- Archivage -->
+    {{^archived}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Archivage</h2>
+            <span id="toast-archive" class="text-xs"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">Un lieu archivé n'est plus proposé pour les nouvelles sessions. Ses sessions existantes ne changent pas.</p>
+        <button hx-post="/workshop-venues/{{workshopVenueId}}/archive"
+                hx-target="#toast-archive" hx-swap="innerHTML"
+                hx-confirm="Archiver « {{name}} » ?"
+                class="border border-bg-border px-4 py-1.5 rounded-lg text-xs text-secondary hover:border-secondary hover:text-primary transition-colors">
+            Archiver ce lieu
+        </button>
+    </section>
+    {{/archived}}
+
+</div>
+
+{{> ../partials/footer-admin}}

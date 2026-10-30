@@ -52,15 +52,19 @@ Bootstrap.java              — composition root, all wiring done here
 application/                — use cases (one class per command)
 jewel/, identity/,          — domain: interfaces + records
   image/, session/, hash/
+workshop/                   — workshop booking domain (venues, sessions, bookings, waitlist, dates in Europe/Paris)
+mail/                       — Mail record + MailProvider
 shared/                     — value objects (IDs as records)
+task/                       — one-shot tasks run by Bootstrap then exit (env-activated; Kubernetes CronJobs)
 infrastructure/
   persistence/              — JdbcPersistedX implements domain interfaces (plain JDBC, upsert via ON CONFLICT)
   persistence/jdbc/         — Postgres config (JdbcConfiguration reads EOSA_JDBC_URL/USERNAME/PASSWORD, runs Flyway)
+  mail/                     — SmtpSentMails (Jakarta Mail) + MailTemplates (templates/mail/*.html|txt.mustache)
   security/                 — SecuredCrypts (BCrypt)
   web/                      — Javalin handlers + BasicAuth helper
 src/main/resources/templates/ — Mustache templates; partials/ holds header-main/footer-main
   and header-admin/footer-admin (no layout wrapping — each page includes its own
-  header/footer partial)
+  header/footer partial); mail/ holds the e-mail templates (table layout, inline styles)
 src/main/resources/db/migration/ — Flyway SQL migrations (Vn__description.sql), run automatically on boot
 src/test/java/application/  — use case unit tests (Mockito mocks)
 docs/                       — documentation
@@ -72,7 +76,9 @@ requests/                   — HTTP client requests (.http files)
 
 `Bootstrap.java` is the single composition root: it reads env vars, wires all dependencies manually (no DI framework), and registers Javalin routes.
 
-Domain packages (`jewel/`, `identity/`, etc.) define interfaces and records only — no infrastructure code. Infrastructure implementations live in `infrastructure/`.
+Domain packages (`jewel/`, `identity/`, etc.) define interfaces and records only — no infrastructure code. Infrastructure implementations live in `infrastructure/`. Domain providers stay plain CRUD (`readIds(filters…)`, `read`, `write`); business rules (capacity, deadlines, e-mails) live in the use cases.
+
+Workshop booking is specified in `docs/workshop-booking-spec.md`: a booking is held 30 minutes until confirmed from an e-mail link, links in e-mails only act on POST (mail scanners open links), and periodic work (expiring requests, reminders, e-mail retries) runs as one-shot tasks (`docker compose run --rm <job>` locally, CronJobs in `kubernetes/workshop-cronjobs.yaml`).
 
 View models passed to `ctx.render(...)` are plain `Map<String, Object>` (no view-model classes) built by hand in each handler — Mustache is logic-less, so anything computed (formatting, enum comparisons, pluralization, conditional CSS classes) must be precomputed in Java before it reaches the template. `{{> partial}}` paths inside a template resolve relative to *that template's own directory*, not the templates root — a template under `admin/` or `checkout/` must reference `partials/...` as `../partials/...`.
 
@@ -91,6 +97,14 @@ Public server (`8080`):
 | GET | `/images/{id}` | Image download |
 | GET | `/about` | Brand story page |
 | GET | `/cart` | Cart page |
+| GET | `/workshops` | Workshops page with the upcoming sessions |
+| GET | `/workshops/sessions/{id}` | Session page (venue, booking form, waitlist form) |
+| GET | `/workshops/sessions/{id}/card` | Session card partial (refreshed every 30 s) |
+| POST | `/workshops/sessions/{id}/bookings` | Booking request (honeypot + per-IP limit) |
+| POST | `/workshops/sessions/{id}/waitlist` | Join the waitlist (before booking opens, or when the session is full) |
+| GET/POST | `/workshops/bookings/{token}/confirm` | Confirm a booking from the e-mail link |
+| GET/POST | `/workshops/bookings/{token}/cancel` | Cancel a booking from the e-mail link (up to 48 h before) |
+| GET/POST | `/workshops/waitlist/{token}/leave` | Leave a waitlist from the e-mail link |
 
 Admin server (`18080`):
 
@@ -99,6 +113,8 @@ Admin server (`18080`):
 | GET/POST | `/sign-in` | — | Admin login (sets the `identity-session-id` cookie) |
 | GET | `/` | Session cookie | Redirects to `/jewels` |
 | * | `/jewels*`, `/metal-colors*`, `/charms*` | Session cookie | Admin pages and actions |
+| * | `/workshop-venues*` | Session cookie | Workshop venues (cafés…): create, edit, photo, archive |
+| * | `/workshops*` | Session cookie | Workshop sessions: create, edit, cancel; bookings (cancel, attended, no-show) and waitlist |
 | GET | `/images/{id}` | — | Image download (for admin thumbnails) |
 
 ## Environment Variables
@@ -116,6 +132,12 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 | `EOSA_ADMIN_BASE_URL` | Yes | Administration base URL; an `https` scheme marks the session cookie `Secure` |
 | `EOSA_PUBLIC_SERVER_PORT` | No | Public server port (default `8080`) |
 | `EOSA_ADMIN_SERVER_PORT` | No | Admin server port (default `18080`) |
+| `EOSA_SMTP_HOST` | Yes | SMTP server (`mail.infomaniak.com`; `mailpit` in compose) |
+| `EOSA_SMTP_PORT` / `EOSA_SMTP_SECURITY` | No | `465` / `ssl` by default (`starttls`, or `none` for Mailpit only) |
+| `EOSA_SMTP_USERNAME` / `EOSA_SMTP_PASSWORD` | No | SMTP credentials; unset for a server without authentication |
+| `EOSA_MAIL_FROM` | No | Sender address (default `contact@eosa.me`) |
+| `EOSA_SEND_TEST_EMAIL_TO` | No | One-shot task: sends a test e-mail to this address and exits |
+| `EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK` | No | `true` only in their CronJob: run the task and exit |
 
 ## Responsive Design
 

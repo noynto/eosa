@@ -1,0 +1,85 @@
+{{> partials/header-main}}
+
+<section class="px-5 md:px-8 py-16 md:py-20 flex flex-col items-center text-center">
+
+    {{#awaiting}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Confirmez votre place</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        {{firstName}}, il ne reste plus qu'à confirmer votre réservation.
+    </p>
+    {{/awaiting}}
+
+    {{#confirmed}}
+    <div class="w-16 h-16 rounded-full bg-success flex items-center justify-center mb-6">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Votre place est réservée</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        Merci {{firstName}} ! Le récapitulatif est envoyé à <span class="text-primary break-all">{{email}}</span>.
+    </p>
+    {{/confirmed}}
+
+    {{#expired}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Le délai est dépassé</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">
+        Cette demande n'a pas été confirmée à temps : la place a été libérée.
+        S'il reste de la place, vous pouvez réserver à nouveau.
+    </p>
+    {{/expired}}
+
+    {{#cancelled}}
+    <h1 class="font-serif text-4xl md:text-5xl font-normal mb-4">Réservation annulée</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-md mb-8">Cette réservation a été annulée.</p>
+    {{/cancelled}}
+
+    <!-- Récapitulatif, lieu mis en avant -->
+    <div class="border border-bg-border rounded-2xl overflow-hidden text-left w-full max-w-md mb-8">
+        {{#hasVenueImage}}
+        <div class="aspect-[16/9] bg-bg-soft">
+            <img src="/images/{{venueImageId}}" alt="{{venueName}}" class="w-full h-full object-cover">
+        </div>
+        {{/hasVenueImage}}
+        <div class="p-5 flex flex-col gap-1">
+            <span class="font-serif text-2xl leading-tight">Chez {{venueName}}</span>
+            <span class="text-sm">{{date}}</span>
+            <span class="text-sm text-secondary">{{timeRange}} · {{duration}}</span>
+            <a href="{{mapUrl}}" target="_blank" rel="noopener" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors mt-1 self-start">{{venueAddress}}</a>
+        </div>
+    </div>
+
+    {{#awaiting}}
+    <form method="post" action="/workshops/bookings/{{token}}/confirm" class="w-full max-w-md">
+        <button type="submit" class="w-full bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">
+            Confirmer ma place
+        </button>
+    </form>
+    {{/awaiting}}
+
+    {{#confirmed}}
+    <div class="bg-bg-soft rounded-2xl px-6 py-5 text-left w-full max-w-md text-xs text-secondary leading-relaxed mb-8">
+        <p class="mb-2">L'atelier se règle sur place : collier 33 €, bracelet 23 €, choix sur place.</p>
+        {{#canStillCancel}}
+        <p>Un empêchement ? Vous pouvez annuler jusqu'au {{cancellationDeadline}} grâce au lien de l'e-mail récapitulatif. Au-delà, écrivez-nous sur Instagram.</p>
+        {{/canStillCancel}}
+        {{^canStillCancel}}
+        <p>Un empêchement ? Écrivez-nous sur Instagram (@eosa.bijoux).</p>
+        {{/canStillCancel}}
+    </div>
+    <a href="/workshops" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors">Retour aux ateliers</a>
+    {{/confirmed}}
+
+    {{#expired}}
+    <a href="/workshops/sessions/{{sessionId}}" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">
+        Réserver à nouveau
+    </a>
+    {{/expired}}
+
+    {{#cancelled}}
+    <a href="/workshops" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">
+        Voir les ateliers
+    </a>
+    {{/cancelled}}
+
+</section>
+
+{{> partials/footer-main}}

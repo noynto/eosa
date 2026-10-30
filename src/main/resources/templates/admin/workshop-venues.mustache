@@ -1,0 +1,76 @@
+{{> ../partials/header-admin}}
+
+<div class="flex items-center justify-between gap-3 mb-6">
+    <h1 class="text-xl font-medium">Lieux d'atelier</h1>
+    <button onclick="document.getElementById('modal').classList.remove('hidden')"
+            class="bg-primary text-accent px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors shrink-0">
+        + Nouveau lieu
+    </button>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {{#workshopVenues}}
+    <a href="/workshop-venues/{{id}}"
+       class="bg-bg border border-bg-border rounded-xl overflow-hidden flex flex-col hover:border-secondary transition-colors {{#archived}}opacity-60{{/archived}}">
+        <div class="aspect-[16/9] bg-bg-soft">
+            {{#hasImage}}<img src="/images/{{imageId}}" alt="{{name}}" class="w-full h-full object-cover">{{/hasImage}}
+        </div>
+        <div class="p-4 flex flex-col gap-1">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-medium truncate">{{name}}</span>
+                {{#archived}}<span class="text-[10px] text-muted border border-bg-border rounded-full px-2 py-0.5 shrink-0">Archivé</span>{{/archived}}
+            </div>
+            <span class="text-xs text-secondary">{{city}} · {{defaultCapacity}} places par défaut</span>
+        </div>
+    </a>
+    {{/workshopVenues}}
+    {{^hasWorkshopVenues}}
+    <p class="col-span-full px-4 py-8 text-sm text-muted text-center">Aucun lieu pour l'instant.</p>
+    {{/hasWorkshopVenues}}
+</div>
+
+<!-- Modal création -->
+<div id="modal" class="hidden fixed inset-0 bg-primary/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+     onclick="if(event.target===this){this.classList.add('hidden')}">
+    <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg">
+        <h2 class="text-sm font-medium mb-4">Nouveau lieu</h2>
+        <form hx-post="/workshop-venues" hx-target="#create-error" hx-swap="innerHTML" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+                <label for="name" class="text-xs text-secondary">Nom</label>
+                <input id="name" name="name" type="text" required autofocus placeholder="ex. Café des Arts"
+                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="address" class="text-xs text-secondary">Adresse</label>
+                <input id="address" name="address" type="text" required placeholder="ex. 12 rue Stanislas"
+                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+            </div>
+            <div class="grid grid-cols-[7rem_1fr] gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="postalCode" class="text-xs text-secondary">Code postal</label>
+                    <input id="postalCode" name="postalCode" type="text" required placeholder="54000"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="city" class="text-xs text-secondary">Ville</label>
+                    <input id="city" name="city" type="text" required placeholder="Nancy"
+                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary w-full">
+                </div>
+            </div>
+            <p class="text-xs text-muted">Présentation, lien, photo et valeurs par défaut se complètent ensuite sur la fiche du lieu.</p>
+            <span id="create-error"></span>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                        class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="bg-primary text-accent px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Créer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{> ../partials/footer-admin}}

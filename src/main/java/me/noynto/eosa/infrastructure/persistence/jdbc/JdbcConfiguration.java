@@ -9,6 +9,10 @@ import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentitySessions;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedImages;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedJewels;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedMetalColors;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopBookings;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopSessions;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopVenues;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopWaitlistEntries;
 import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
@@ -91,6 +95,22 @@ public class JdbcConfiguration {
 
     public JdbcPersistedCharms charms() {
         return new JdbcPersistedCharms(dataSource);
+    }
+
+    public JdbcPersistedWorkshopVenues workshopVenues() {
+        return new JdbcPersistedWorkshopVenues(dataSource);
+    }
+
+    public JdbcPersistedWorkshopSessions workshopSessions() {
+        return new JdbcPersistedWorkshopSessions(dataSource);
+    }
+
+    public JdbcPersistedWorkshopBookings workshopBookings() {
+        return new JdbcPersistedWorkshopBookings(dataSource);
+    }
+
+    public JdbcPersistedWorkshopWaitlistEntries workshopWaitlistEntries() {
+        return new JdbcPersistedWorkshopWaitlistEntries(dataSource);
     }
 
 }
