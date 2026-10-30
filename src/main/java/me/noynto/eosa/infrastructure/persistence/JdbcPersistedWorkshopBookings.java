@@ -88,7 +88,8 @@ public record JdbcPersistedWorkshopBookings(
         }
         String sql = """
                 SELECT id, session_id, first_name, last_name, email, phone, state, cancel_token,
-                       created_at, confirmed_at, cancelled_at, confirmation_email_sent_at, cancellation_email_sent_at
+                       created_at, confirmed_at, cancelled_at, confirmation_email_sent_at, cancellation_email_sent_at,
+                       reminder_email_sent_at
                 FROM workshop_bookings WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -113,13 +114,14 @@ public record JdbcPersistedWorkshopBookings(
         String sql = """
                 INSERT INTO workshop_bookings (id, session_id, first_name, last_name, email, phone, state, cancel_token,
                                                created_at, confirmed_at, cancelled_at, confirmation_email_sent_at,
-                                               cancellation_email_sent_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                               cancellation_email_sent_at, reminder_email_sent_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (id) DO UPDATE SET first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name,
                     email = EXCLUDED.email, phone = EXCLUDED.phone, state = EXCLUDED.state,
                     confirmed_at = EXCLUDED.confirmed_at, cancelled_at = EXCLUDED.cancelled_at,
                     confirmation_email_sent_at = EXCLUDED.confirmation_email_sent_at,
-                    cancellation_email_sent_at = EXCLUDED.cancellation_email_sent_at
+                    cancellation_email_sent_at = EXCLUDED.cancellation_email_sent_at,
+                    reminder_email_sent_at = EXCLUDED.reminder_email_sent_at
                 """;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -136,6 +138,7 @@ public record JdbcPersistedWorkshopBookings(
             statement.setObject(11, toOffsetDateTime(workshopBooking.getCancelledAt()));
             statement.setObject(12, toOffsetDateTime(workshopBooking.getConfirmationEmailSentAt()));
             statement.setObject(13, toOffsetDateTime(workshopBooking.getCancellationEmailSentAt()));
+            statement.setObject(14, toOffsetDateTime(workshopBooking.getReminderEmailSentAt()));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Impossible d'écrire la réservation d'atelier " + workshopBooking.getId().value() + ".", e);
@@ -158,6 +161,7 @@ public record JdbcPersistedWorkshopBookings(
         workshopBooking.setCancelledAt(toInstant(resultSet, "cancelled_at"));
         workshopBooking.setConfirmationEmailSentAt(toInstant(resultSet, "confirmation_email_sent_at"));
         workshopBooking.setCancellationEmailSentAt(toInstant(resultSet, "cancellation_email_sent_at"));
+        workshopBooking.setReminderEmailSentAt(toInstant(resultSet, "reminder_email_sent_at"));
         return workshopBooking;
     }
 

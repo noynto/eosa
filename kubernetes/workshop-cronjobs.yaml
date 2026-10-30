@@ -132,6 +132,136 @@ spec:
             - name: tmp
               emptyDir: {}
 ---
+# Sends the "C'est demain !" reminder to confirmed participants of sessions starting within 24 hours.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: send-workshop-reminders
+spec:
+  schedule: "*/15 * * * *"
+  timeZone: Europe/Paris
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 120
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 240
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: send-workshop-reminders
+              image: ghcr.io/noynto/eosa:latest
+              securityContext:
+                runAsUser: 65532
+                runAsGroup: 65532
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              env:
+                - name: EOSA_SEND_WORKSHOP_REMINDERS_TASK
+                  value: "true"
+                - name: EOSA_JDBC_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: jdbc-url
+                - name: EOSA_JDBC_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: jdbc-username
+                - name: EOSA_JDBC_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: jdbc-password
+                - name: EOSA_ADMIN_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: admin-name
+                - name: EOSA_ADMIN_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: admin-secret
+                - name: EOSA_CLIENT_STRIPE_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: stripe-secret-key
+                - name: EOSA_PUBLIC_BASE_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: public-base-url
+                - name: EOSA_ADMIN_BASE_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: admin-base-url
+                - name: EOSA_SHIPPING_AMOUNT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: shipping-amount
+                - name: EOSA_SHIPPING_FREE_THRESHOLD
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: shipping-free-threshold
+                - name: EOSA_SMTP_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: smtp-host
+                - name: EOSA_SMTP_PORT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: smtp-port
+                - name: EOSA_SMTP_SECURITY
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: smtp-security
+                - name: EOSA_MAIL_FROM
+                  valueFrom:
+                    configMapKeyRef:
+                      name: eosa-configs
+                      key: mail-from
+                - name: EOSA_SMTP_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: smtp-username
+                - name: EOSA_SMTP_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: eosa-secrets
+                      key: smtp-password
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+              resources:
+                requests:
+                  memory: "128Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "500m"
+          volumes:
+            - name: tmp
+              emptyDir: {}
+---
 # Resends the workshop booking e-mails that could not be sent at confirmation time.
 apiVersion: batch/v1
 kind: CronJob

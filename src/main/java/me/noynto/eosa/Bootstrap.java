@@ -37,6 +37,7 @@ import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
 import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
+import me.noynto.eosa.task.SendWorkshopRemindersTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
@@ -302,6 +303,13 @@ public class Bootstrap {
         );
         ExpirePendingWorkshopBookings expirePendingWorkshopBookings =
             new ExpirePendingWorkshopBookings(workshopBookingProvider, notifyWorkshopWaitlist, clock);
+        SendWorkshopReminders sendWorkshopReminders = new SendWorkshopReminders(
+            workshopBookingProvider,
+            workshopSessionProvider,
+            workshopVenueProvider,
+            mailProvider,
+            clock
+        );
         RetryWorkshopEmails retryWorkshopEmails = new RetryWorkshopEmails(
             workshopBookingProvider,
             sendWorkshopBookingConfirmation,
@@ -328,6 +336,10 @@ public class Bootstrap {
         }
         if (ExpirePendingWorkshopBookingsTask.activate()) {
             oneShotTasksSucceeded &= new ExpirePendingWorkshopBookingsTask(expirePendingWorkshopBookings).task();
+            ranOneShotTask = true;
+        }
+        if (SendWorkshopRemindersTask.activate()) {
+            oneShotTasksSucceeded &= new SendWorkshopRemindersTask(sendWorkshopReminders).task();
             ranOneShotTask = true;
         }
         if (RetryWorkshopEmailsTask.activate()) {

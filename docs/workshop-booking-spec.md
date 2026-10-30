@@ -343,7 +343,9 @@ Faite avant l'étape 5 : le lien d'annulation de l'e-mail récapitulatif devait 
 - Compteur de la liste d'attente dans l'admin.
 - **Terminé quand** : une annulation sur une session complète envoie l'e-mail « Place libérée » à toutes les inscrites, et la première qui réserve obtient la place.
 
-### Étape 8 — Rappel de la veille
+### Étape 8 — Rappel de la veille ✅
+
+Une place confirmée moins de 24 h avant le début ne reçoit pas de rappel : le récapitulatif vient de partir.
 
 - `SendWorkshopReminders`, l'e-mail de rappel et le CronJob `SendWorkshopRemindersTask`.
 - **Terminé quand** : chaque inscrite confirmée reçoit un seul rappel, environ 24 h avant, même si le job est relancé à la main.

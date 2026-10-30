@@ -33,6 +33,7 @@ public class WorkshopBooking {
     private Instant cancelledAt;
     private Instant confirmationEmailSentAt;
     private Instant cancellationEmailSentAt;
+    private Instant reminderEmailSentAt;
 
     public WorkshopBooking() {
     }
@@ -165,5 +166,13 @@ public class WorkshopBooking {
 
     public void setCancellationEmailSentAt(Instant cancellationEmailSentAt) {
         this.cancellationEmailSentAt = cancellationEmailSentAt;
+    }
+
+    public Instant getReminderEmailSentAt() {
+        return reminderEmailSentAt;
+    }
+
+    public void setReminderEmailSentAt(Instant reminderEmailSentAt) {
+        this.reminderEmailSentAt = reminderEmailSentAt;
     }
 }
