@@ -355,7 +355,9 @@ Une place confirmée moins de 24 h avant le début ne reçoit pas de rappel : le
 - Actions « présente », « absente » et « tout le monde présent » dans le détail admin.
 - **Terminé quand** : « absente » est refusée avant début + 30 min ; une adresse marquée absente ne peut plus réserver en ligne ; une absence corrigée en « présente » lève le blocage.
 
-### Étape 10 — Mise en ligne
+### Étape 10 — Mise en ligne (partie code ✅)
+
+Fait : CGV (article 11 — Ateliers), FAQ, page `/workshops` (bouton « Voir les prochaines dates », Instagram/TikTok pour les ateliers privés), `CLAUDE.md`. Reste, hors code : étape 0, test réel avec Infomaniak, clés SMTP en production, création des vrais lieux et d'une première session.
 
 - Mise à jour de `cgv.mustache` (réservation, annulation, absences) et de `faq.mustache` (« Comment réserver ? », « Je n'ai pas reçu l'e-mail de confirmation », « Puis-je annuler ? »).
 - Remplacement, sur `/workshops`, du texte « envoyez-nous un message pour connaître les dates » par la réservation en ligne (Instagram/TikTok restent pour les ateliers privés).
