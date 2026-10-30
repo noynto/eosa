@@ -19,6 +19,12 @@ public class WorkshopBooking {
      */
     public static final Duration SELF_CANCELLATION_DEADLINE = Duration.ofHours(48);
 
+    /**
+     * Tolérance pour les retards : une participante ne peut être marquée absente qu'à partir de ce délai
+     * après le début de la séance.
+     */
+    public static final Duration NO_SHOW_GRACE_PERIOD = Duration.ofMinutes(30);
+
     private WorkshopBookingId id;
     private WorkshopSessionId sessionId;
     private String firstName;

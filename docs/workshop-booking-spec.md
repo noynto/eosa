@@ -350,7 +350,7 @@ Une place confirmée moins de 24 h avant le début ne reçoit pas de rappel : le
 - `SendWorkshopReminders`, l'e-mail de rappel et le CronJob `SendWorkshopRemindersTask`.
 - **Terminé quand** : chaque inscrite confirmée reçoit un seul rappel, environ 24 h avant, même si le job est relancé à la main.
 
-### Étape 9 — Après la session
+### Étape 9 — Après la session ✅
 
 - Actions « présente », « absente » et « tout le monde présent » dans le détail admin.
 - **Terminé quand** : « absente » est refusée avant début + 30 min ; une adresse marquée absente ne peut plus réserver en ligne ; une absence corrigée en « présente » lève le blocage.

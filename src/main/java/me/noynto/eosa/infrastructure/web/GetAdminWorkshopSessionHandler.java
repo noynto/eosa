@@ -8,6 +8,9 @@ import me.noynto.eosa.application.ReadWorkshopWaitlist;
 import me.noynto.eosa.application.ReadWorkshopSessions;
 import me.noynto.eosa.application.ReadWorkshopVenues;
 import me.noynto.eosa.shared.WorkshopSessionId;
+import me.noynto.eosa.workshop.WorkshopBooking;
+import me.noynto.eosa.workshop.WorkshopBookingState;
+import me.noynto.eosa.workshop.WorkshopDates;
 import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionState;
 
@@ -77,11 +80,27 @@ public record GetAdminWorkshopSessionHandler(
         model.put("editable", editable);
         model.put("venues", venues);
 
-        var bookings = readWorkshopBookings.handle(new ReadWorkshopBookings.Command(session.getId())).stream()
+        // Après le début : pointage présente / absente (absente seulement après la tolérance de retard).
+        boolean started = !cancelled && !now.isBefore(session.getStartsAt());
+        Instant noShowFrom = session.getStartsAt().plus(WorkshopBooking.NO_SHOW_GRACE_PERIOD);
+        boolean noShowAvailable = !now.isBefore(noShowFrom);
+        model.put("started", started);
+        model.put("noShowFrom", WorkshopDates.time(noShowFrom));
+
+        var sessionBookings = readWorkshopBookings.handle(new ReadWorkshopBookings.Command(session.getId()));
+        model.put("hasBookingsToMark", started && sessionBookings.stream()
+                .anyMatch(booking -> booking.getState() == WorkshopBookingState.CONFIRMED));
+        var bookings = sessionBookings.stream()
                 .map(booking -> {
+                    boolean markable = started && (booking.getState() == WorkshopBookingState.CONFIRMED
+                            || booking.getState() == WorkshopBookingState.ATTENDED
+                            || booking.getState() == WorkshopBookingState.NO_SHOW);
                     Map<String, Object> row = new HashMap<>();
                     row.put("id", booking.getId().value());
                     row.put("canCancel", !cancelled && booking.isActive(now) && now.isBefore(session.getStartsAt()));
+                    row.put("canMarkAttended", markable && booking.getState() != WorkshopBookingState.ATTENDED);
+                    row.put("canMarkNoShow", markable && booking.getState() != WorkshopBookingState.NO_SHOW);
+                    row.put("noShowAvailable", noShowAvailable);
                     row.put("name", booking.getFirstName() + " " + booking.getLastName());
                     row.put("email", booking.getEmail());
                     row.put("hasPhone", booking.getPhone() != null);

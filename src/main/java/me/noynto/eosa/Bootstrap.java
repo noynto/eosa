@@ -303,6 +303,12 @@ public class Bootstrap {
         );
         ExpirePendingWorkshopBookings expirePendingWorkshopBookings =
             new ExpirePendingWorkshopBookings(workshopBookingProvider, notifyWorkshopWaitlist, clock);
+        MarkWorkshopBookingAttended markWorkshopBookingAttended =
+            new MarkWorkshopBookingAttended(workshopBookingProvider, workshopSessionProvider, clock);
+        MarkWorkshopBookingNoShow markWorkshopBookingNoShow =
+            new MarkWorkshopBookingNoShow(workshopBookingProvider, workshopSessionProvider, clock);
+        MarkAllWorkshopBookingsAttended markAllWorkshopBookingsAttended =
+            new MarkAllWorkshopBookingsAttended(workshopBookingProvider, workshopSessionProvider, clock);
         SendWorkshopReminders sendWorkshopReminders = new SendWorkshopReminders(
             workshopBookingProvider,
             workshopSessionProvider,
@@ -803,6 +809,18 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/workshops/{id}/bookings/{bookingId}/cancel",
                 new CancelWorkshopBookingByAdminHandler(cancelWorkshopBookingByAdmin)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/bookings/{bookingId}/attended",
+                new MarkWorkshopBookingAttendedHandler(markWorkshopBookingAttended)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/bookings/{bookingId}/no-show",
+                new MarkWorkshopBookingNoShowHandler(markWorkshopBookingNoShow)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/attended",
+                new MarkAllWorkshopBookingsAttendedHandler(markAllWorkshopBookingsAttended)
             );
         });
         admin.start();
