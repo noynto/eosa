@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation index
+
+The documentation is indexed in the README, imported here:
+
+@README.md
+
+Every document in `docs/` must be listed in `README.md` (in the matching section, with a one-line description). When you add, rename or remove a document in `docs/`, update the README index in the same change.
+
 ## Project Overview
 
 `eosa` is a Java 25 e-commerce web application (`me.noynto:eosa`). It exposes a public storefront and a password-protected admin area.
