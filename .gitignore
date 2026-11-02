@@ -2,6 +2,7 @@ target/
 .git/
 *.md
 !CLAUDE.md
+!README.md
 !docs/*.md
 .idea/
 *.iml
