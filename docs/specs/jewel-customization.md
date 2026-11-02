@@ -120,7 +120,7 @@ Toutes les références internes (`hx-get`, liens `<a href>`, `{{> partial}}`) d
 
 ### Reste du sweep
 
-`CLAUDE.md` (table des routes, structure du projet), `docs/deployment.md`, `kubernetes/`, `requests/*.http` : toute occurrence de `/products` ou "produit" à but technique est passée en `/jewels`/`Jewel` — fait en dernière étape de la phase, une fois le code stabilisé (même approche que pour la migration Mustache).
+`CLAUDE.md` (table des routes, structure du projet), `docs/ops/deployment.md`, `kubernetes/`, `requests/*.http` : toute occurrence de `/products` ou "produit" à but technique est passée en `/jewels`/`Jewel` — fait en dernière étape de la phase, une fois le code stabilisé (même approche que pour la migration Mustache).
 
 ## Vérification
 

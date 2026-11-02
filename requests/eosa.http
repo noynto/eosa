@@ -17,7 +17,7 @@ Content-Type: image/jpeg
 
 < /home/noynto/Téléchargements/chloe_collier.jpg
 --boundary--
-#< ../docs/collier5.jpg
+#< ../docs/brand/images/collier5.jpg
 
 ### Lister les IDs de produits (page HTML)
 GET http://localhost:8080/jewels
