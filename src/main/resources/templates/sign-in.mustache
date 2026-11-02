@@ -39,7 +39,7 @@
         <p class="text-sm text-secondary mt-1 mb-6">Accédez à la gestion du catalogue.</p>
 
         {{#hasError}}
-        <div role="alert" class="flex items-start gap-2.5 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 mb-5">
+        <div role="alert" class="flex items-start gap-2.5 text-xs text-error bg-bg border border-error rounded-lg px-3 py-2.5 mb-5">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0 mt-px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
             <span>Nom ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.</span>
         </div>
@@ -51,14 +51,14 @@
                 <label for="name" class="text-xs text-secondary">Nom</label>
                 <input id="name" name="name" type="text" autocomplete="username" required autofocus
                        {{#hasError}}aria-invalid="true"{{/hasError}}
-                       class="bg-bg-soft border {{#hasError}}border-red-300{{/hasError}}{{^hasError}}border-bg-border{{/hasError}} rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                       class="bg-bg-soft border {{#hasError}}border-error{{/hasError}}{{^hasError}}border-outline{{/hasError}} rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary">
             </div>
             <div class="flex flex-col gap-1.5">
                 <label for="secret" class="text-xs text-secondary">Mot de passe</label>
                 <div class="relative">
                     <input id="secret" name="secret" type="password" autocomplete="current-password" required
                            {{#hasError}}aria-invalid="true"{{/hasError}}
-                           class="w-full bg-bg-soft border {{#hasError}}border-red-300{{/hasError}}{{^hasError}}border-bg-border{{/hasError}} rounded-lg pl-3 pr-10 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                           class="w-full bg-bg-soft border {{#hasError}}border-error{{/hasError}}{{^hasError}}border-outline{{/hasError}} rounded-lg pl-3 pr-10 py-2 text-sm text-primary placeholder-muted focus:border-secondary">
                     <button type="button" aria-label="Afficher le mot de passe" aria-pressed="false"
                             onclick="const i=document.getElementById('secret'); const show=i.type==='password'; i.type=show?'text':'password'; this.setAttribute('aria-pressed', show); this.setAttribute('aria-label', show?'Masquer le mot de passe':'Afficher le mot de passe'); this.querySelector('.eye-off').classList.toggle('hidden', !show); this.querySelector('.eye').classList.toggle('hidden', show);"
                             class="absolute inset-y-0 right-0 w-10 flex items-center justify-center text-muted hover:text-secondary transition-colors">

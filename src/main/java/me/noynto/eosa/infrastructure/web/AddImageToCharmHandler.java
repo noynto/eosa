@@ -26,7 +26,7 @@ public record AddImageToCharmHandler(AddImageToCharm addImageToCharm) implements
             ctx.header("HX-Redirect", "/charms");
             ctx.status(200);
         } catch (RuntimeException e) {
-            ctx.status(422).html("<span class=\"text-red-600 text-xs\">" + e.getMessage() + "</span>");
+            ctx.status(422).html("<span class=\"text-error text-xs\">" + e.getMessage() + "</span>");
         }
     }
 

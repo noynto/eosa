@@ -22,11 +22,10 @@ Chaque couleur a un rôle Material ; on choisit une couleur par son rôle, jamai
 | Surface | `bg` | `#FDFBF7` | Fond des pages et des cartes |
 | Surface container | `bg-soft` | `#F4EFE5` | Fond des zones en retrait : encadrés, champs, zones d'image vides |
 | Outline variant | `bg-border` | `#F0E6D6` | Séparateurs et contours décoratifs (cartes, sections) |
-| Outline | `outline` *(à créer)* | `#9D8764` | Contour des champs de formulaire et des contrôles (contraste 3:1) |
-| On surface variant (texte discret) | `muted` *(à corriger)* | `#7B6A4E` (au lieu de `#B8A88E`) | Texte d'aide, mentions, dates : lisible (4,5:1) |
-| Décoratif | `muted` actuel `#B8A88E` | — | À réserver aux éléments décoratifs non textuels (numéros de section, puces) une fois le texte passé sur la nouvelle valeur |
-| Success | `success` *(à corriger)* | `#188260` (au lieu de `#1D9E75`) | Confirmations (« Sauvegardé », pastille de réussite) |
-| Error | `error` *(à créer)* | `#B3261E` | Messages d'erreur et actions destructives ; remplace les `red-300` à `red-700` |
+| Outline | `outline` | `#9D8764` | Contour des champs de formulaire et des boutons sans fond (contraste 3:1) |
+| On surface variant (texte discret) | `muted` | `#7B6A4E` | Texte d'aide, mentions, dates : lisible (4,5:1) |
+| Success | `success` | `#188260` | Confirmations (« Sauvegardé », pastille de réussite) |
+| Error | `error` | `#B3261E` | Messages d'erreur, contour d'un champ en erreur, survol des actions destructives |
 | Scrim | `primary/30` | — | Voile derrière une fenêtre modale |
 
 ### Contrastes mesurés
@@ -37,10 +36,8 @@ Chaque couleur a un rôle Material ; on choisit une couleur par son rôle, jamai
 | `secondary` | `bg` / `bg-soft` | 6,4:1 / 5,8:1 | Conforme |
 | `accent` | `primary` | 11,3:1 | Conforme |
 | `bg` | `secondary` / `primary` | 6,4:1 / 12,6:1 | Conforme |
-| `muted` actuel `#B8A88E` | `bg` / `bg-soft` | 2,3:1 / 2,0:1 | **Insuffisant** pour du texte |
-| `muted` corrigé `#7B6A4E` | `bg` / `bg-soft` | 5,1:1 / 4,6:1 | Conforme |
-| `success` actuel `#1D9E75` | `bg` | 3,3:1 | Insuffisant pour du petit texte |
-| `success` corrigé `#188260` | `bg` | 4,6:1 | Conforme |
+| `muted` `#7B6A4E` | `bg` / `bg-soft` | 5,1:1 / 4,6:1 | Conforme (l'ancienne valeur `#B8A88E` faisait 2,3:1) |
+| `success` `#188260` | `bg` | 4,6:1 | Conforme (l'ancienne valeur `#1D9E75` faisait 3,3:1) |
 | `error` `#B3261E` | `bg` | 6,3:1 | Conforme |
 | Contour `bg-border` | `bg` | 1,2:1 | Décoratif seulement : insuffisant pour un champ |
 | Contour `outline` `#9D8764` | `bg` / `bg-soft` | 3,3:1 / 3,0:1 | Conforme pour un contrôle (3:1) |
@@ -86,14 +83,14 @@ L'interface est plate : la profondeur vient des surfaces (`bg` / `bg-soft`) et d
 - Durées : 150 ms pour un changement d'état, 300 ms pour une apparition, 500 ms au plus (zoom léger d'une image au survol).
 - Chargement : squelettes `animate-pulse` à la forme du contenu attendu, plutôt qu'un indicateur qui tourne.
 - Pas de ressorts ni de formes qui se transforment (le côté « Expressive » qui demanderait du JavaScript).
-- Toute animation respecte la préférence système de réduction des mouvements (`motion-reduce:transition-none`, `motion-reduce:animate-none`).
+- Toute animation respecte la préférence système de réduction des mouvements : une règle de base de `tailwind.config.js` ramène transitions et animations à une durée nulle quand elle est active.
 
 ## États d'interaction
 
 | État | Règle |
 |---|---|
 | Survol | Changement de couleur du rôle (`secondary` → `primary`, `primary` → `primary-dark`, contour `bg-border` → `secondary`) |
-| Focus clavier | Toujours visible : `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary`. Un `outline-none` n'est permis que s'il est remplacé par un autre indicateur aussi visible |
+| Focus clavier | Toujours visible : contour de 2 px en `secondary`, décalé de 2 px, appliqué à tout élément par une règle de base de `tailwind.config.js` (`:focus-visible`). Ne jamais ajouter `outline-none` / `focus:outline-none`, qui l'annulerait |
 | Appui | Couleur de survol, sans déplacement de l'élément |
 | Désactivé | `opacity-40 cursor-not-allowed`, et l'attribut `disabled` ; la raison est écrite à côté quand elle n'est pas évidente |
 | Erreur | Contour et message en `error`, message relié au champ |

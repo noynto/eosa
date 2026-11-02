@@ -6,7 +6,7 @@
         <a href="/workshop-venues" class="text-xs text-muted hover:text-secondary transition-colors">← Lieux</a>
         <span class="text-muted">/</span>
         <h1 class="text-xl font-medium">{{name}}</h1>
-        {{#archived}}<span class="text-[10px] text-muted border border-bg-border rounded-full px-2 py-0.5">Archivé</span>{{/archived}}
+        {{#archived}}<span class="text-xs text-muted border border-bg-border rounded-full px-2 py-0.5">Archivé</span>{{/archived}}
     </div>
 
     <!-- Informations -->
@@ -21,38 +21,38 @@
             <div class="flex flex-col gap-1.5">
                 <label for="name" class="text-xs text-secondary">Nom</label>
                 <input id="name" name="name" type="text" required value="{{name}}"
-                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
             </div>
             <div class="flex flex-col gap-1.5">
                 <label for="description" class="text-xs text-secondary">Présentation courte</label>
                 <textarea id="description" name="description" rows="3" placeholder="ex. Un café cosy au cœur de la vieille ville…"
-                          class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary resize-none w-full"
+                          class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary resize-none w-full"
                 >{{description}}</textarea>
             </div>
             <div class="flex flex-col gap-1.5">
                 <label for="address" class="text-xs text-secondary">Adresse</label>
                 <input id="address" name="address" type="text" required value="{{address}}"
-                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
             </div>
             <div class="grid grid-cols-[7rem_1fr] gap-3">
                 <div class="flex flex-col gap-1.5">
                     <label for="postalCode" class="text-xs text-secondary">Code postal</label>
                     <input id="postalCode" name="postalCode" type="text" required value="{{postalCode}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="city" class="text-xs text-secondary">Ville</label>
                     <input id="city" name="city" type="text" required value="{{city}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
             </div>
             <div class="flex flex-col gap-1.5">
                 <label for="linkUrl" class="text-xs text-secondary">Lien (site ou Instagram du lieu)</label>
                 <input id="linkUrl" name="linkUrl" type="url" value="{{linkUrl}}" placeholder="https://www.instagram.com/…"
-                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary">
             </div>
             <div class="flex justify-end">
-                <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                     Enregistrer
                 </button>
             </div>
@@ -73,7 +73,7 @@
                 <label for="defaultCapacity" class="text-xs text-secondary">Capacité</label>
                 <div class="relative">
                     <input id="defaultCapacity" name="defaultCapacity" type="number" min="1" max="50" step="1" required value="{{defaultCapacity}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg pl-3 pr-14 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-32">
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-14 py-2 text-sm text-primary focus:border-secondary w-32">
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">places</span>
                 </div>
             </div>
@@ -81,11 +81,11 @@
                 <label for="defaultDurationMinutes" class="text-xs text-secondary">Durée</label>
                 <div class="relative">
                     <input id="defaultDurationMinutes" name="defaultDurationMinutes" type="number" min="15" max="480" step="15" required value="{{defaultDurationMinutes}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-32">
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:border-secondary w-32">
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">min</span>
                 </div>
             </div>
-            <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                 Enregistrer
             </button>
         </form>
@@ -112,7 +112,7 @@
                        onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files[0]?.name??'Choisir une photo…'; l.classList.replace('text-secondary','text-primary');">
             </label>
             <button type="submit"
-                    class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                    class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                 Uploader
             </button>
         </form>
@@ -129,7 +129,7 @@
         <button hx-post="/workshop-venues/{{workshopVenueId}}/archive"
                 hx-target="#toast-archive" hx-swap="innerHTML"
                 hx-confirm="Archiver « {{name}} » ?"
-                class="border border-bg-border px-4 py-1.5 rounded-lg text-xs text-secondary hover:border-secondary hover:text-primary transition-colors">
+                class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-secondary hover:border-secondary hover:text-primary transition-colors">
             Archiver ce lieu
         </button>
     </section>
