@@ -36,6 +36,7 @@ import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.task.AnnounceWorkshopBookingOpeningsTask;
 import me.noynto.eosa.task.CreateDefaultAdministratorIdentityTask;
 import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
+import me.noynto.eosa.task.PurgeWorkshopPersonalDataTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
 import me.noynto.eosa.task.SendWorkshopRemindersTask;
@@ -310,6 +311,12 @@ public class Bootstrap {
             new MarkWorkshopBookingNoShow(workshopBookingProvider, workshopSessionProvider, clock);
         MarkAllWorkshopBookingsAttended markAllWorkshopBookingsAttended =
             new MarkAllWorkshopBookingsAttended(workshopBookingProvider, workshopSessionProvider, clock);
+        PurgeWorkshopPersonalData purgeWorkshopPersonalData = new PurgeWorkshopPersonalData(
+            workshopSessionProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            clock
+        );
         AnnounceWorkshopBookingOpenings announceWorkshopBookingOpenings = new AnnounceWorkshopBookingOpenings(
             workshopSessionProvider,
             workshopVenueProvider,
@@ -352,6 +359,10 @@ public class Bootstrap {
         }
         if (ExpirePendingWorkshopBookingsTask.activate()) {
             oneShotTasksSucceeded &= new ExpirePendingWorkshopBookingsTask(expirePendingWorkshopBookings).task();
+            ranOneShotTask = true;
+        }
+        if (PurgeWorkshopPersonalDataTask.activate()) {
+            oneShotTasksSucceeded &= new PurgeWorkshopPersonalDataTask(purgeWorkshopPersonalData).task();
             ranOneShotTask = true;
         }
         if (AnnounceWorkshopBookingOpeningsTask.activate()) {

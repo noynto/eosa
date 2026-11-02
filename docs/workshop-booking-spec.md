@@ -191,6 +191,7 @@ Il n'y a **pas de planificateur dans l'application**. Les traitements périodiqu
 | `AnnounceWorkshopBookingOpeningsTask` | `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK` | `* * * * *` | Prévient la liste d'attente des sessions dont les réservations viennent d'ouvrir (une fois par session, colonne `workshop_sessions.opening_announced_at`, migration `V5`). |
 | `SendWorkshopRemindersTask` | `EOSA_SEND_WORKSHOP_REMINDERS_TASK` | `*/15 * * * *` | Envoie le rappel aux inscrites confirmées des sessions qui commencent dans les 24 h et ne l'ont pas encore reçu. |
 | `RetryWorkshopEmailsTask` | `EOSA_RETRY_WORKSHOP_EMAILS_TASK` | `*/15 * * * *` | Renvoie les e-mails (récapitulatif, annulation, place libérée) dont l'envoi a échoué. |
+| `PurgeWorkshopPersonalDataTask` | `EOSA_PURGE_WORKSHOP_PERSONAL_DATA_TASK` | `30 3 * * *` | Supprime les données personnelles au terme des durées de conservation : réservations 1 an après l'atelier, inscriptions en liste d'attente dès qu'elles n'attendent plus ou que l'atelier est passé. |
 
 Chaque tâche délègue à un cas d'usage de `application/` (`ExpirePendingWorkshopBookings`, `SendWorkshopReminders`, `RetryWorkshopEmails`), testé unitairement. La classe de tâche ne fait que l'appeler et journaliser le résultat.
 
@@ -215,7 +216,7 @@ Principes de robustesse :
 - Une session est réservable si elle est `SCHEDULED`, si `maintenant ≥ début − 7 j`, si `maintenant < début` et s'il reste des places.
 - **Demandes simultanées sur la dernière place** : la réservation est d'abord enregistrée, puis les places occupées sont recomptées. Si la capacité est dépassée, les réservations les plus récentes (au-delà de la capacité) se retirent d'elles-mêmes (`EXPIRED`) et leur demande est refusée comme « complet ». Chaque demande faisant le même calcul, il ne peut pas y avoir plus d'inscrites que de places.
 - Une même adresse e-mail (comparée sans tenir compte de la casse) ne peut avoir qu'une seule réservation active par session (garanti aussi par un index unique en base).
-- Une adresse e-mail marquée `NO_SHOW` sur un atelier ne peut plus réserver en ligne.
+- Une adresse e-mail marquée `NO_SHOW` sur un atelier ne peut plus réserver en ligne pendant un an : le blocage disparaît avec la réservation, supprimée 1 an après l'atelier.
 - **Limite par adresse IP** : 5 demandes de réservation par heure (en mémoire, par instance ; l'adresse vient de l'en-tête `X-Forwarded-For` posé par l'ingress, sinon de la connexion).
 - Une participante peut être marquée présente dès le début de la séance, et absente à partir de **début + 30 minutes** seulement.
 - La limite des 48 h et l'ouverture à J-7 se calculent à partir du début de la session, dans le fuseau `Europe/Paris`. Les dates sont stockées en `timestamptz`.
@@ -263,7 +264,7 @@ Variables d'environnement (dans `.env.example` et `docs/deployment.md`) :
 
 Sans `EOSA_SMTP_USERNAME`, `SmtpSentMails` se connecte sans authentification, ce qui est le cas de Mailpit. `EOSA_SMTP_SECURITY=none` n'est fait que pour le local.
 
-Les variables d'activation des tâches (`EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK`, `false` par défaut) ne sont définies qu'à `"true"`, et uniquement dans leur CronJob. Elles ne doivent jamais l'être dans le `Deployment`.
+Les variables d'activation des tâches (`EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK`, `EOSA_PURGE_WORKSHOP_PERSONAL_DATA_TASK`, `false` par défaut) ne sont définies qu'à `"true"`, et uniquement dans leur CronJob. Elles ne doivent jamais l'être dans le `Deployment`.
 
 `EOSA_SEND_TEST_EMAIL_TO=<adresse>` lance la tâche one-shot `SendTestEmailTask` : elle envoie un e-mail de test à cette adresse puis quitte. En local : `docker compose run --rm send-test-email` (vers Mailpit, sauf si les variables SMTP sont surchargées dans `.env`).
 
@@ -379,4 +380,21 @@ Si les absences restent fréquentes malgré la V1, une **empreinte bancaire Stri
 
 1. **Capacité par défaut et durée par défaut** : ce document prend 8 places et 2 h. À confirmer.
 2. **Heure de fermeture des réservations** : ce document prend le début de la session. On peut préférer une fermeture plus tôt (par exemple 2 h avant) pour préparer le matériel.
-3. **Levée du blocage après une absence** : en V1, seule une correction en « présente » par l'admin lève le blocage. Faut-il une levée automatique au bout d'un certain temps ?
+3. ~~**Levée du blocage après une absence**~~ : tranché, le blocage dure un an (la réservation est supprimée 1 an après l'atelier) ; une correction en « présente » par l'admin le lève aussi.
+
+## Sujets juridiques à traiter
+
+Les textes ont été rédigés pendant le développement, sans avis juridique : ils sont à faire valider.
+
+- [x] **CGV — article 11 « Ateliers »** (validé) : relecture complète, en particulier l'exclusion du droit de rétractation pour une activité de loisirs à date déterminée (article L.221-28 du Code de la consommation), les conditions d'annulation (48 h) et la règle des absences.
+- [x] **Politique de confidentialité (`/privacy`)** (fait) : ajouter le traitement « réservation des ateliers » :
+  - données collectées : prénom, nom, e-mail, téléphone (facultatif) pour les réservations ; prénom et e-mail pour la liste d'attente ;
+  - finalités : gestion des réservations, e-mails de confirmation, de rappel, d'annulation et de liste d'attente (e-mails de service, pas de prospection) ;
+  - base légale : exécution du contrat (réservation) et demande de la personne (liste d'attente) ;
+  - destinataires et sous-traitants : hébergeur de l'application et de la base de données, Infomaniak pour l'envoi des e-mails ;
+  - droits des personnes (accès, rectification, effacement, opposition) et contact (`contact@eosa.me`).
+- [x] **Durée de conservation** (fait, validé le 2 novembre 2026) : aucune loi française ne fixe de durée unique ; la règle est de ne pas conserver plus que nécessaire (RGPD, article 5). Retenu : réservations 1 an après l'atelier, inscriptions en liste d'attente supprimées après l'atelier ou dès qu'elles n'attendent plus. Suppression automatique par la tâche quotidienne `PurgeWorkshopPersonalDataTask`.
+- [x] **Blocage après une absence** (fait) : durée d'un an, mentionné dans la politique de confidentialité, les CGV et le formulaire de réservation.
+- [x] **Adresse IP** (fait) : mentionnée dans la politique de confidentialité (en mémoire au plus une heure, jamais enregistrée).
+- [ ] **Registre des traitements (RGPD)** : brouillon rédigé le 2 novembre 2026 (fiches ateliers, commandes et newsletter), document interne : [Registre des traitements RGPD — EOSA](https://claude.ai/artifact/BN9rQjeN5D3atHA4oe7Vso). Reste à compléter l'hébergeur, à rassembler les accords de traitement des sous-traitants et à vérifier la durée de conservation des commandes (voir les points à compléter en fin de registre).
+- [ ] **Ateliers chez les partenaires** : vérifier l'assurance responsabilité civile pour l'activité d'atelier dans un lieu tiers, et formaliser l'accord avec chaque café (mise à disposition du lieu, utilisation de son nom, de sa photo et de son lien sur le site).

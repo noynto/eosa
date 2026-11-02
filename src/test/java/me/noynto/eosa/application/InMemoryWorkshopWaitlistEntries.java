@@ -47,6 +47,11 @@ class InMemoryWorkshopWaitlistEntries implements WorkshopWaitlistEntryProvider {
         return workshopWaitlistEntry;
     }
 
+    @Override
+    public void delete(WorkshopWaitlistEntryId workshopWaitlistEntryId) {
+        entries.removeIf(entry -> entry.getId().equals(workshopWaitlistEntryId));
+    }
+
     List<WorkshopWaitlistEntry> all() {
         return entries;
     }

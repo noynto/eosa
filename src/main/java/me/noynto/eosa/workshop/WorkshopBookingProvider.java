@@ -20,4 +20,6 @@ public interface WorkshopBookingProvider {
 
     WorkshopBooking write(WorkshopBooking workshopBooking);
 
+    void delete(WorkshopBookingId workshopBookingId);
+
 }

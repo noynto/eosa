@@ -146,6 +146,23 @@ public record JdbcPersistedWorkshopBookings(
         return workshopBooking;
     }
 
+    @Override
+    public void delete(WorkshopBookingId workshopBookingId) {
+        UUID id;
+        try {
+            id = UUID.fromString(workshopBookingId.value());
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("DELETE FROM workshop_bookings WHERE id = ?")) {
+            statement.setObject(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Impossible de supprimer la réservation d'atelier " + workshopBookingId.value() + ".", e);
+        }
+    }
+
     private WorkshopBooking toWorkshopBooking(ResultSet resultSet) throws SQLException {
         WorkshopBooking workshopBooking = new WorkshopBooking();
         workshopBooking.setId(new WorkshopBookingId(resultSet.getString("id")));

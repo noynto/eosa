@@ -12,6 +12,7 @@
 #   docker compose run --rm announce-workshop-booking-openings
 #   docker compose run --rm send-workshop-reminders
 #   docker compose run --rm retry-workshop-emails
+#   docker compose run --rm purge-workshop-personal-data
 #
 # Works without any configuration. To override a value, set it in a .env file next to
 # this one (see .env.example); unset variables fall back to the defaults below.
@@ -158,6 +159,18 @@ services:
     environment:
       <<: *eosa-environment
       EOSA_SEND_WORKSHOP_REMINDERS_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Equivalent of the purge-workshop-personal-data CronJob.
+  purge-workshop-personal-data:
+    <<: *eosa-container
+    profiles: [jobs]
+    environment:
+      <<: *eosa-environment
+      EOSA_PURGE_WORKSHOP_PERSONAL_DATA_TASK: "true"
     depends_on:
       postgres:
         condition: service_healthy

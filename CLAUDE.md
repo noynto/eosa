@@ -137,7 +137,7 @@ See `.env.example` for a ready-to-copy template and `docs/deployment.md` for the
 | `EOSA_SMTP_USERNAME` / `EOSA_SMTP_PASSWORD` | No | SMTP credentials; unset for a server without authentication |
 | `EOSA_MAIL_FROM` | No | Sender address (default `contact@eosa.me`) |
 | `EOSA_SEND_TEST_EMAIL_TO` | No | One-shot task: sends a test e-mail to this address and exits |
-| `EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK` | No | `true` only in their CronJob: run the task and exit |
+| `EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK`, `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK`, `EOSA_SEND_WORKSHOP_REMINDERS_TASK`, `EOSA_RETRY_WORKSHOP_EMAILS_TASK`, `EOSA_PURGE_WORKSHOP_PERSONAL_DATA_TASK` | No | `true` only in their CronJob: run the task and exit |
 
 ## Responsive Design
 
