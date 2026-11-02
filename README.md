@@ -45,6 +45,7 @@ Build et tests : `./mvnw clean verify` (Java 25).
 | Document | Contenu |
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Architecture, conventions, routes, variables d'environnement : guide pour contribuer au code (humain ou agent) |
+| [TODO](TODO.md) | Sujets à traiter : documentation, design system, SEO, architecture, sécurité, conventions |
 
 ## Ajouter un document
 
