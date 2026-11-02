@@ -4,7 +4,7 @@ target/
 !CLAUDE.md
 !README.md
 !TODO.md
-!docs/*.md
+!docs/**/*.md
 .idea/
 *.iml
 .env

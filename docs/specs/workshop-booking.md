@@ -251,7 +251,7 @@ Conformément à l'architecture existante :
 
 ## Configuration
 
-Variables d'environnement (dans `.env.example` et `docs/deployment.md`) :
+Variables d'environnement (dans `.env.example` et `docs/ops/deployment.md`) :
 
 | Variable | Requise | Production (Infomaniak) | Local (Mailpit) |
 |---|---|---|---|
