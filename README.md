@@ -14,7 +14,43 @@ docker compose up --build -d
 - Administration : http://localhost:18080 (`admin` / `admin` par défaut)
 - E-mails capturés (Mailpit) : http://localhost:8025
 
-Build et tests : `./mvnw clean verify` (Java 25). Détails dans [Développement](docs/tech/development.md).
+## Commandes
+
+```bash
+./mvnw clean verify               # build + tests (toujours clean : le build incrémental rate les tests périmés)
+./mvnw test -Dtest=NomDeLaClasse  # une seule classe de test
+docker compose run --rm <job>     # une tâche planifiée à la main (voir Tâches planifiées)
+docker compose down -v            # repartir d'une base vide
+```
+
+Détails dans [Développement](docs/tech/development.md).
+
+## Pile technique
+
+| Couche | Technologie |
+|---|---|
+| Web | Javalin 7.2.3 : deux serveurs, boutique `8080` et administration `18080` |
+| Templates | Mustache (`javalin-rendering-mustache`) + Tailwind + htmx |
+| Persistance | PostgreSQL 17, JDBC brut (sans ORM), HikariCP 7, migrations Flyway 11 |
+| E-mails | Jakarta Mail (Angus 2.0.3), SMTP Infomaniak, Mailpit en local |
+| Paiement | Stripe Checkout (client HTTP, Gson) |
+| Mots de passe | jBCrypt 0.4 |
+| Tests | JUnit Jupiter 6.1.0 + Mockito 5.18.0 |
+| Exécution | Java 25, image Docker distroless, Kubernetes (Deployment + CronJobs) |
+
+## Règles qui s'appliquent toujours
+
+- **Architecture** ([détails](docs/tech/architecture.md)) : `Bootstrap.java` est le seul point de câblage (pas de framework d'injection). Les packages du domaine contiennent les classes métier et des interfaces `XProvider` limitées à `readIds(filtres…)`, `read`, `write`, `delete`. Les règles métier sont dans les cas d'usage (`application/`, un record par action avec un `Command` imbriqué), jamais dans les providers ni dans des classes utilitaires partagées. Les cas d'usage reçoivent une `Clock` et n'appellent jamais `Instant.now()`.
+- **Nommage** : interfaces `XProvider` ; implémentations `JdbcPersistedX`, `<Service>FetchedX`, `SmtpSentMails`, `SecuredX`.
+- **Persistance** : le schéma ne change que par une nouvelle migration Flyway (`Vn__description.sql`), jamais en modifiant une migration déjà déployée ; dates en `Instant` / `timestamptz` UTC, règles des ateliers dans le fuseau `Europe/Paris`.
+- **Templates** ([détails](docs/tech/web.md)) : modèles de vue en `Map<String, Object>` construites à la main ; Mustache n'a pas de logique, tout se calcule en Java ; un `{{> partial}}` se résout depuis le dossier du template qui l'inclut.
+- **Liens envoyés par e-mail** : ils n'agissent que sur un `POST` (les messageries ouvrent les liens d'elles-mêmes) et portent un jeton aléatoire, jamais un identifiant.
+- **Templates d'e-mail** ([détails](docs/tech/emails.md)) : mise en page en tableaux, padding sur les `<td>` seulement, attributs `bgcolor`, ni margin, ni border-radius, ni font-weight ; partials appelés par leur nom de fichier complet.
+- **Traitements périodiques** ([détails](docs/tech/scheduled-tasks.md)) : des tâches one-shot activées par une variable d'environnement et lancées par des CronJobs Kubernetes, jamais un planificateur dans l'application ; une tâche est idempotente.
+- **Responsive** : toute modification de template gère mobile (< 640 px, minimum 390 px), tablette (640–1024 px) et ordinateur (≥ 1024 px) ; le parcours principal se vérifie à 390, 768 et 1280 px.
+- **Commits** : Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`…), une branche et une pull request par sujet ; semantic-release crée la version et publie l'image depuis `main`.
+- **Configuration** : les variables d'environnement sont documentées dans `.env.example` et le [déploiement](docs/ops/deployment.md) ; une nouvelle variable obligatoire s'ajoute aussi à `compose.yaml` et aux manifestes Kubernetes.
+- **Documentation** : chaque document de `docs/` est référencé ci-dessous ; en ajouter, renommer ou supprimer un met à jour ce README dans le même changement.
 
 ## Documentation
 
@@ -55,7 +91,7 @@ Build et tests : `./mvnw clean verify` (Java 25). Détails dans [Développement]
 
 | Document | Contenu |
 |---|---|
-| [CLAUDE.md](CLAUDE.md) | Vue d'ensemble et règles incontournables pour contribuer au code (humain ou agent) |
+| [CLAUDE.md](CLAUDE.md) | Point d'entrée de Claude Code : il importe ce README, sans contenu propre |
 | [TODO](TODO.md) | Sujets à traiter : design system, SEO, architecture, sécurité, conventions |
 
 ## Ajouter un document
