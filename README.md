@@ -47,6 +47,7 @@ Détails dans [Développement](docs/tech/development.md).
 - **Liens envoyés par e-mail** : ils n'agissent que sur un `POST` (les messageries ouvrent les liens d'elles-mêmes) et portent un jeton aléatoire, jamais un identifiant.
 - **Templates d'e-mail** ([détails](docs/tech/emails.md)) : mise en page en tableaux, padding sur les `<td>` seulement, attributs `bgcolor`, ni margin, ni border-radius, ni font-weight ; partials appelés par leur nom de fichier complet.
 - **Traitements périodiques** ([détails](docs/tech/scheduled-tasks.md)) : des tâches one-shot activées par une variable d'environnement et lancées par des CronJobs Kubernetes, jamais un planificateur dans l'application ; une tâche est idempotente.
+- **Design system** ([fondations](docs/design/foundations.md)) : méthode Material 3, sans composant JavaScript ; uniquement les jetons de `tailwind.config.js` (aucune couleur, taille ou arrondi arbitraire) ; contrastes WCAG AA, focus clavier toujours visible, cibles tactiles de 44 px minimum. La boutique reste éditoriale et sobre ([boutique](docs/design/storefront.md)), l'administration suit les composants Material ([administration](docs/design/admin.md)).
 - **Responsive** : toute modification de template gère mobile (< 640 px, minimum 390 px), tablette (640–1024 px) et ordinateur (≥ 1024 px) ; le parcours principal se vérifie à 390, 768 et 1280 px.
 - **Commits** : Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`…), une branche et une pull request par sujet ; semantic-release crée la version et publie l'image depuis `main`.
 - **Configuration** : les variables d'environnement sont documentées dans `.env.example` et le [déploiement](docs/ops/deployment.md) ; une nouvelle variable obligatoire s'ajoute aussi à `compose.yaml` et aux manifestes Kubernetes.
@@ -68,6 +69,14 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Bijoux et personnalisation](docs/specs/jewel-customization.md) | Renommage `Product` → `Jewel`, matériaux, breloques, parcours de personnalisation |
 | [Réservation des ateliers](docs/specs/workshop-booking.md) | Lieux, sessions, réservation confirmée par e-mail, liste d'attente, rappels, absences, sujets juridiques |
+
+### Design — [`docs/design/`](docs/design/)
+
+| Document | Contenu |
+|---|---|
+| [Fondations](docs/design/foundations.md) | Jetons communs selon Material 3 : couleurs et contrastes, typographie, arrondis, élévation, mouvement, états, accessibilité, écarts à corriger |
+| [Boutique](docs/design/storefront.md) | Application éditoriale et sobre à la vitrine : ce qu'on prend à Material, motifs de la boutique |
+| [Administration](docs/design/admin.md) | Composants Material 3 et leur équivalent en Tailwind + htmx, densité, cibles tactiles |
 
 ### Technique — [`docs/tech/`](docs/tech/)
 
@@ -96,4 +105,4 @@ Détails dans [Développement](docs/tech/development.md).
 
 ## Ajouter un document
 
-Chaque nouveau document va dans le dossier de son thème (`brand/`, `specs/`, `tech/`, `ops/`) et est ajouté ici, dans la bonne section, avec une ligne qui dit ce qu'il contient.
+Chaque nouveau document va dans le dossier de son thème (`brand/`, `specs/`, `design/`, `tech/`, `ops/`) et est ajouté ici, dans la bonne section, avec une ligne qui dit ce qu'il contient.
