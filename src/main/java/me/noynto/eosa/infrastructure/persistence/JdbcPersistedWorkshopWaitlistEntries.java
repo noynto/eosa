@@ -124,6 +124,23 @@ public record JdbcPersistedWorkshopWaitlistEntries(
         return workshopWaitlistEntry;
     }
 
+    @Override
+    public void delete(WorkshopWaitlistEntryId workshopWaitlistEntryId) {
+        UUID id;
+        try {
+            id = UUID.fromString(workshopWaitlistEntryId.value());
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("DELETE FROM workshop_waitlist_entries WHERE id = ?")) {
+            statement.setObject(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Impossible de supprimer l'inscription en liste d'attente " + workshopWaitlistEntryId.value() + ".", e);
+        }
+    }
+
     private WorkshopWaitlistEntry toWorkshopWaitlistEntry(ResultSet resultSet) throws SQLException {
         WorkshopWaitlistEntry entry = new WorkshopWaitlistEntry();
         entry.setId(new WorkshopWaitlistEntryId(resultSet.getString("id")));

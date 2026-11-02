@@ -19,4 +19,6 @@ public interface WorkshopWaitlistEntryProvider {
 
     WorkshopWaitlistEntry write(WorkshopWaitlistEntry workshopWaitlistEntry);
 
+    void delete(WorkshopWaitlistEntryId workshopWaitlistEntryId);
+
 }

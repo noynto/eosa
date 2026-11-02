@@ -50,6 +50,11 @@ class InMemoryWorkshopBookings implements WorkshopBookingProvider {
         return workshopBooking;
     }
 
+    @Override
+    public void delete(WorkshopBookingId workshopBookingId) {
+        bookings.removeIf(booking -> booking.getId().equals(workshopBookingId));
+    }
+
     List<WorkshopBooking> all() {
         return bookings;
     }
