@@ -16,6 +16,8 @@ public record GetImageHandler(DownloadImage downloadImage) implements Handler {
         }
         var image = result.get();
         ctx.contentType(image.getFormat());
+        // Ouverte seule dans un onglet, une image ne peut exécuter aucun script, même si son format était mal déclaré.
+        ctx.header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox");
         ctx.result(image.getContent());
     }
 

@@ -3,8 +3,13 @@ package me.noynto.eosa.image;
 import me.noynto.eosa.shared.ImageId;
 
 import java.io.InputStream;
+import java.util.Set;
 
 public class Image {
+
+    // Formats affichés tels quels par les navigateurs. Un SVG ou un HTML, servi depuis le domaine du site, pourrait exécuter du script.
+    public static final Set<String> ACCEPTED_FORMATS = Set.of("image/jpeg", "image/png", "image/webp", "image/avif");
+
     private ImageId id;
     private String name;
     private String format;

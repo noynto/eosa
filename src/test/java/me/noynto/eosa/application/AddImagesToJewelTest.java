@@ -17,6 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,9 +84,23 @@ class AddImagesToJewelTest {
         );
     }
 
+    @Test
+    void handle_throwsWithoutUploadingWhenAnImageIsNotAnAcceptedFormat() {
+        var svg = imageWith("logo.svg");
+        svg.setFormat("image/svg+xml");
+
+        assertThrows(RuntimeException.class, () ->
+                new AddImagesToJewel(jewelProvider, imageProvider).handle(
+                        new AddImagesToJewel.Command(new JewelId("prod1"), List.of(imageWith("ok"), svg))
+                )
+        );
+        verify(imageProvider, never()).upload(any());
+    }
+
     private Image imageWith(String name) {
         var image = new Image();
         image.setName(name);
+        image.setFormat("image/jpeg");
         return image;
     }
 

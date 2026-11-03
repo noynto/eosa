@@ -23,6 +23,11 @@ public record AddImagesToJewel(
         if (command.images == null || command.images.isEmpty()) {
             throw new RuntimeException("Au moins un identifiant d'une image est nécessaire.");
         }
+        for (Image image : command.images()) {
+            if (!Image.ACCEPTED_FORMATS.contains(image.getFormat())) {
+                throw new RuntimeException("Le format de l'image " + image.getName() + " n'est pas accepté : JPEG, PNG, WebP ou AVIF.");
+            }
+        }
 
         // 2. Résolution du produit
         Jewel jewel = jewelProvider.read(command.jewelId())

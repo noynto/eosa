@@ -18,6 +18,9 @@ public record AddImageToMetalColor(
         if (command.image == null) {
             throw new RuntimeException("Une image est nécessaire.");
         }
+        if (!Image.ACCEPTED_FORMATS.contains(command.image.getFormat())) {
+            throw new RuntimeException("Le format de l'image n'est pas accepté : JPEG, PNG, WebP ou AVIF.");
+        }
 
         MetalColor metalColor = metalColorProvider.read(command.metalColorId())
                 .orElseThrow(() -> new RuntimeException("La couleur de métal " + command.metalColorId.value() + " n'existe pas."));

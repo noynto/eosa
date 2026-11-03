@@ -44,6 +44,7 @@ Détails dans [Développement](docs/tech/development.md).
 - **Nommage** : interfaces `XProvider` ; implémentations `JdbcPersistedX`, `<Service>FetchedX`, `SmtpSentMails`, `SecuredX`.
 - **Persistance** : le schéma ne change que par une nouvelle migration Flyway (`Vn__description.sql`), jamais en modifiant une migration déjà déployée ; dates en `Instant` / `timestamptz` UTC, règles des ateliers dans le fuseau `Europe/Paris`.
 - **Templates** ([détails](docs/tech/web.md)) : modèles de vue en `Map<String, Object>` construites à la main ; Mustache n'a pas de logique, tout se calcule en Java ; un `{{> partial}}` se résout depuis le dossier du template qui l'inclut.
+- **Sécurité** ([détails](docs/tech/security.md)) : SQL uniquement en `PreparedStatement` avec des paramètres `?` ; aucun HTML concaténé en Java (un fragment se rend avec Mustache, une erreur htmx avec `InlineError`) ; pas de `{{{…}}}` dans un template HTML ; une action qui modifie des données n'est jamais un `GET` ; `SecureRequestHandler` refuse les requêtes venues d'un autre site.
 - **Liens envoyés par e-mail** : ils n'agissent que sur un `POST` (les messageries ouvrent les liens d'elles-mêmes) et portent un jeton aléatoire, jamais un identifiant.
 - **Templates d'e-mail** ([détails](docs/tech/emails.md)) : mise en page en tableaux, padding sur les `<td>` seulement, attributs `bgcolor`, ni margin, ni border-radius, ni font-weight ; partials appelés par leur nom de fichier complet.
 - **Traitements périodiques** ([détails](docs/tech/scheduled-tasks.md)) : des tâches one-shot activées par une variable d'environnement et lancées par des CronJobs Kubernetes, jamais un planificateur dans l'application ; une tâche est idempotente.
@@ -84,6 +85,7 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Architecture](docs/tech/architecture.md) | Composition root, couches domaine / cas d'usage / infrastructure, providers, conventions de nommage, persistance |
 | [Web](docs/tech/web.md) | Les deux serveurs, routes, templates Mustache, htmx, liens envoyés par e-mail, responsive |
+| [Sécurité](docs/tech/security.md) | Injections SQL et JavaScript, requêtes forgées (CSRF), en-têtes de sécurité, règles à suivre, points restants |
 | [E-mails](docs/tech/emails.md) | Envoi SMTP, écriture des templates compatibles, tests avec Mailpit, délivrabilité |
 | [Tâches planifiées](docs/tech/scheduled-tasks.md) | Tâches one-shot, CronJobs Kubernetes, jobs compose, ajouter une tâche |
 | [Développement](docs/tech/development.md) | Build, tests, environnement local, conventions, Git et livraison |

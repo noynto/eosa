@@ -14,7 +14,7 @@ public record CreateCharmHandler(CreateCharm createCharm) implements Handler {
         try {
             price = new BigDecimal(ctx.formParam("price"));
         } catch (NumberFormatException | NullPointerException e) {
-            ctx.status(422).html("<span class=\"text-error text-xs\">Le prix de la breloque est invalide.</span>");
+            InlineError.render(ctx, "Le prix de la breloque est invalide.");
             return;
         }
         createCharm.handle(new CreateCharm.Command(ctx.formParam("name"), price));

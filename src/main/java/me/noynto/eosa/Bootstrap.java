@@ -394,6 +394,7 @@ public class Bootstrap {
             javalinConfig.fileRenderer(
                 new JavalinMustache(new DefaultMustacheFactory("templates"))
             );
+            javalinConfig.routes.before(SecureRequestHandler.of(properties.publicBaseUrl()));
             javalinConfig.routes.get(
                 "/",
                 new GetIndexHandler(readCategoryStats, readJewelIds, baseUrl)
@@ -692,6 +693,7 @@ public class Bootstrap {
                 modelWithPublicUrl.put("publicUrl", baseUrl);
                 return mustache.render(filePath, modelWithPublicUrl, ctx);
             });
+            javalinConfig.routes.before(SecureRequestHandler.of(properties.adminBaseUrl()));
             javalinConfig.routes.get("/", ctx -> ctx.redirect("/jewels"));
             javalinConfig.routes.get(
                 "/images/{id}",
