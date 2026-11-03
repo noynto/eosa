@@ -108,6 +108,7 @@ public class Bootstrap {
             imageProvider
         );
         ReadJewelIds readJewelIds = new ReadJewelIds(jewelProvider);
+        ReadSitemap readSitemap = new ReadSitemap(jewelProvider, workshopSessionProvider, clock);
         ReadJewel readJewel = new ReadJewel(jewelProvider);
         UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(
             jewelProvider
@@ -463,7 +464,7 @@ public class Bootstrap {
             );
             javalinConfig.routes.get(
                 "/sitemap.xml",
-                new GetSitemapHandler(readJewelIds, baseUrl)
+                new GetSitemapHandler(readSitemap, baseUrl)
             );
 
             // LEGAL PART
