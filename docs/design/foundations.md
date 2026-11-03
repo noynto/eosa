@@ -112,13 +112,14 @@ L'interface est plate : la profondeur vient des surfaces (`bg` / `bg-soft`) et d
 
 ## Écarts relevés dans le code (novembre 2026)
 
-Le relevé des templates montre ce qui reste à mettre en conformité :
+Relevé fait sur les templates le 2 novembre 2026, corrigé dans la foulée :
 
-- [ ] `text-muted` utilisé pour du texte (22 fois dans la boutique, 43 dans l'administration) avec un contraste de 2,3:1 → passer `muted` à `#7B6A4E`.
-- [ ] Focus clavier invisible : 43 champs en `focus:outline-none` avec seulement un changement de contour, aucun style de focus sur les boutons et les liens.
-- [ ] Contour des champs en `bg-border` (1,2:1) → jeton `outline`.
-- [ ] `bg-error` utilisé sur la page de paiement refusé, mais la couleur `error` n'existe pas dans la configuration : la pastille n'a pas de fond.
-- [ ] Rouges en dur (`red-300`, `red-600`, `red-700`) au lieu d'un jeton `error`.
-- [ ] `text-success` en petit texte (« Sauvegardé ») à 3,3:1 → passer `success` à `#188260`.
-- [ ] Tailles arbitraires : `text-[13px]` (14 fois, boutique), `text-[11px]` et `text-[10px]` (12 fois, administration) ; `rounded-[20px]` (1 fois).
-- [ ] Boutons de l'administration de 28 px de haut (`py-1.5 text-xs`) : sous la cible de 44 px.
+- [x] `text-muted` utilisé pour du texte avec un contraste de 2,3:1 → `muted` passé à `#7B6A4E`.
+- [x] Focus clavier invisible (43 champs en `focus:outline-none`, rien sur les boutons et les liens) → règle de base `:focus-visible`, `focus:outline-none` retiré.
+- [x] Contour des champs en `bg-border` (1,2:1) → jeton `outline` sur les champs et les boutons sans fond.
+- [x] `bg-error` utilisé sans couleur `error` définie → jeton `error` créé.
+- [x] Rouges en dur dans les templates et les handlers Java → jeton `error`.
+- [x] `text-success` en petit texte à 3,3:1 → `success` passé à `#188260`.
+- [x] Tailles arbitraires (`text-[13px]`, `text-[11px]`, `text-[10px]`, `rounded-[20px]`) → `text-sm`, `text-xs`, `rounded-2xl`.
+- [x] Boutons de l'administration de 28 px → 44 px sur mobile, 36 px sur ordinateur (`min-h-11 md:min-h-9`), navigation mobile à 44 px.
+- [x] Champ newsletter et bouton de suppression d'une breloque sans nom accessible → `aria-label`.
