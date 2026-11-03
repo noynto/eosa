@@ -25,10 +25,10 @@
               hx-target="#toast-tagline" hx-swap="innerHTML"
               class="flex flex-col gap-3">
             <textarea name="tagline" rows="3" placeholder="Une courte description du produit…"
-                      class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary resize-none w-full"
+                      class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary resize-none w-full"
             >{{tagline}}</textarea>
             <div class="flex justify-end">
-                <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                     Enregistrer
                 </button>
             </div>
@@ -48,10 +48,10 @@
                 <input name="price" type="number" min="0" step="0.01"
                        value="{{price}}"
                        placeholder="0.00"
-                       class="bg-bg-soft border border-bg-border rounded-lg pl-3 pr-8 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary w-36">
+                       class="bg-bg-soft border border-outline rounded-lg pl-3 pr-8 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-36">
                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">€</span>
             </div>
-            <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                 Enregistrer
             </button>
         </form>
@@ -67,12 +67,12 @@
               hx-target="#toast-category" hx-swap="innerHTML"
               class="flex items-center gap-3">
             <select name="category"
-                    class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+                    class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
                 <option value="">— Aucune —</option>
                 <option value="NECKLACE" {{#categoryNecklaceSelected}}selected{{/categoryNecklaceSelected}}>Collier</option>
                 <option value="BRACELET" {{#categoryBraceletSelected}}selected{{/categoryBraceletSelected}}>Bracelet</option>
             </select>
-            <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                 Enregistrer
             </button>
         </form>
@@ -91,12 +91,12 @@
               hx-target="#toast-state" hx-swap="innerHTML"
               class="flex items-center gap-3">
             <select name="state"
-                    class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+                    class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
                 <option value="DRAFTED" {{#stateDraftedSelected}}selected{{/stateDraftedSelected}}>Brouillon</option>
                 <option value="PUBLISHED" {{#statePublishedSelected}}selected{{/statePublishedSelected}}>Publié</option>
                 <option value="ARCHIVED" {{#stateArchivedSelected}}selected{{/stateArchivedSelected}}>Archivé</option>
             </select>
-            <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                 Enregistrer
             </button>
         </form>

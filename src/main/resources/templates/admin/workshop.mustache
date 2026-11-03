@@ -6,7 +6,7 @@
         <a href="/workshops" class="text-xs text-muted hover:text-secondary transition-colors">← Sessions</a>
         <span class="text-muted">/</span>
         <h1 class="text-xl font-medium">{{date}}</h1>
-        {{#cancelled}}<span class="text-[10px] text-muted border border-bg-border rounded-full px-2 py-0.5">Annulée</span>{{/cancelled}}
+        {{#cancelled}}<span class="text-xs text-muted border border-bg-border rounded-full px-2 py-0.5">Annulée</span>{{/cancelled}}
     </div>
 
     <!-- Résumé -->
@@ -47,7 +47,7 @@
             <div class="flex flex-col gap-1.5">
                 <label for="venueId" class="text-xs text-secondary">Lieu</label>
                 <select id="venueId" name="venueId" required
-                        class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary">
+                        class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
                     {{#venues}}
                     <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}} — {{city}}</option>
                     {{/venues}}
@@ -57,26 +57,26 @@
                 <div class="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
                     <label for="date" class="text-xs text-secondary">Date</label>
                     <input id="date" name="date" type="date" required value="{{dateInput}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
                 <div class="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
                     <label for="time" class="text-xs text-secondary">Début</label>
                     <input id="time" name="time" type="time" required step="300" value="{{timeInput}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="durationMinutes" class="text-xs text-secondary">Durée (min)</label>
                     <input id="durationMinutes" name="durationMinutes" type="number" min="15" max="480" step="15" required value="{{durationMinutes}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="capacity" class="text-xs text-secondary">Places</label>
                     <input id="capacity" name="capacity" type="number" min="1" max="50" step="1" required value="{{capacity}}"
-                           class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
             </div>
             <div class="flex justify-end">
-                <button type="submit" class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                     Enregistrer
                 </button>
             </div>
@@ -92,7 +92,7 @@
             <button hx-post="/workshops/{{workshopSessionId}}/attended"
                     hx-target="#toast-attended" hx-swap="innerHTML"
                     hx-confirm="Marquer présentes toutes les inscrites pas encore pointées ?"
-                    class="bg-primary text-accent px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                    class="bg-primary text-accent px-3 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                 Tout le monde présent
             </button>
             {{/hasBookingsToMark}}
@@ -111,12 +111,12 @@
             </div>
             <div class="flex items-center justify-between sm:flex-col sm:items-end gap-1 shrink-0">
                 <span class="text-xs font-medium">{{state}}</span>
-                <span class="text-[11px] text-muted">le {{bookedAt}}</span>
+                <span class="text-xs text-muted">le {{bookedAt}}</span>
                 {{#canCancel}}
                 <button hx-post="/workshops/{{workshopSessionId}}/bookings/{{id}}/cancel"
                         hx-target="#toast-booking-{{id}}" hx-swap="innerHTML"
                         hx-confirm="Annuler la réservation de {{name}} ? Elle sera prévenue par e-mail."
-                        class="text-[11px] text-secondary underline underline-offset-4 hover:text-red-600 transition-colors">
+                        class="text-xs text-secondary underline underline-offset-4 py-2 hover:text-error transition-colors">
                     Annuler
                 </button>
                 <span id="toast-booking-{{id}}" class="text-xs"></span>
@@ -125,7 +125,7 @@
                     {{#canMarkAttended}}
                     <button hx-post="/workshops/{{workshopSessionId}}/bookings/{{id}}/attended"
                             hx-target="#toast-mark-{{id}}" hx-swap="innerHTML"
-                            class="border border-bg-border px-2.5 py-1 rounded-lg text-[11px] text-secondary hover:border-success hover:text-success transition-colors">
+                            class="border border-outline px-3 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-xs text-secondary hover:border-success hover:text-success transition-colors">
                         Présente
                     </button>
                     {{/canMarkAttended}}
@@ -134,13 +134,13 @@
                     <button hx-post="/workshops/{{workshopSessionId}}/bookings/{{id}}/no-show"
                             hx-target="#toast-mark-{{id}}" hx-swap="innerHTML"
                             hx-confirm="Marquer {{name}} absente ? Elle ne pourra plus réserver en ligne."
-                            class="border border-bg-border px-2.5 py-1 rounded-lg text-[11px] text-secondary hover:border-red-600 hover:text-red-600 transition-colors">
+                            class="border border-outline px-3 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-xs text-secondary hover:border-error hover:text-error transition-colors">
                         Absente
                     </button>
                     {{/noShowAvailable}}
                     {{^noShowAvailable}}
                     <button disabled title="Possible à partir de {{noShowFrom}}"
-                            class="border border-bg-border px-2.5 py-1 rounded-lg text-[11px] text-muted cursor-not-allowed">
+                            class="border border-outline px-3 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-xs text-secondary opacity-40 cursor-not-allowed">
                         Absente dès {{noShowFrom}}
                     </button>
                     {{/noShowAvailable}}
@@ -168,7 +168,7 @@
             </div>
             <div class="flex items-center justify-between sm:flex-col sm:items-end gap-1 shrink-0">
                 <span class="text-xs">{{#notified}}Prévenue{{/notified}}{{^notified}}En attente{{/notified}}</span>
-                <span class="text-[11px] text-muted">depuis le {{joinedAt}}</span>
+                <span class="text-xs text-muted">depuis le {{joinedAt}}</span>
             </div>
         </div>
         {{/waitlist}}
@@ -186,7 +186,7 @@
         <button hx-post="/workshops/{{workshopSessionId}}/cancel"
                 hx-target="#toast-cancel" hx-swap="innerHTML"
                 hx-confirm="Annuler la session du {{date}} chez {{venueName}} ? Les inscrites seront prévenues par e-mail."
-                class="border border-bg-border px-4 py-1.5 rounded-lg text-xs text-secondary hover:border-red-600 hover:text-red-600 transition-colors">
+                class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-secondary hover:border-error hover:text-error transition-colors">
             Annuler la session
         </button>
     </section>

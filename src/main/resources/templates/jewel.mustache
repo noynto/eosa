@@ -50,7 +50,7 @@
                     <circle cx="200" cy="180" r="80" fill="#B8A88E" opacity="0.3"/>
                 </svg>
             {{/hasImages}}
-            <div class="absolute bottom-4 right-4 bg-bg px-3.5 py-2 rounded-full text-[11px] text-primary flex items-center gap-1.5">
+            <div class="absolute bottom-4 right-4 bg-bg px-3.5 py-2 rounded-full text-xs text-primary flex items-center gap-1.5">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M11 8v6M8 11h6"/></svg>
                 Zoom
             </div>
@@ -102,7 +102,7 @@
             <button type="submit" class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">Ajouter au panier — {{price}} €</button>
         </form>
 
-        <div class="bg-bg-soft px-5 py-4 rounded-2xl flex flex-col gap-2.5 text-[13px] text-secondary">
+        <div class="bg-bg-soft px-5 py-4 rounded-2xl flex flex-col gap-2.5 text-sm text-secondary">
             <div hx-get="/shipping/info" hx-trigger="load" hx-swap="outerHTML" class="flex items-center gap-2.5">
                 <div class="w-4 h-4 rounded bg-bg-border animate-pulse flex-shrink-0"></div>
                 <div class="w-56 h-3 rounded-full bg-bg-border animate-pulse"></div>
@@ -123,11 +123,11 @@
 <section class="px-5 md:px-8 py-10 border-t border-bg-border">
     <h2 class="font-serif text-2xl font-normal mb-5">Détails</h2>
     <div class="grid md:grid-cols-2">
-        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Matière</span><span class="text-[13px]">Perles et pierres non précieuses</span></div>
-        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-[13px] text-secondary">Fil</span><span class="text-[13px]">Câble tressé, gaine nylon</span></div>
-        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Métal</span><span class="text-[13px]">Acier inoxydable</span></div>
-        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-[13px] text-secondary">Fermoir</span><span class="text-[13px]">Acier inoxydable</span></div>
-        <div class="py-3.5 md:border-b-0 md:pr-6 flex justify-between"><span class="text-[13px] text-secondary">Entretien</span><span class="text-[13px]">Eau claire, séchage doux</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-sm text-secondary">Matière</span><span class="text-sm">Perles et pierres non précieuses</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-sm text-secondary">Fil</span><span class="text-sm">Câble tressé, gaine nylon</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pr-6 flex justify-between"><span class="text-sm text-secondary">Métal</span><span class="text-sm">Acier inoxydable</span></div>
+        <div class="py-3.5 border-b border-bg-border md:pl-6 flex justify-between"><span class="text-sm text-secondary">Fermoir</span><span class="text-sm">Acier inoxydable</span></div>
+        <div class="py-3.5 md:border-b-0 md:pr-6 flex justify-between"><span class="text-sm text-secondary">Entretien</span><span class="text-sm">Eau claire, séchage doux</span></div>
     </div>
 </section>
 
@@ -135,12 +135,12 @@
 <section class="px-5 md:px-8 pt-8 pb-12">
     <div class="flex justify-between items-baseline mb-5">
         <h2 class="font-serif text-2xl font-normal">D'autres bijoux</h2>
-        <a href="/jewels" class="text-[13px] text-secondary hover:text-primary transition-colors">Voir tout →</a>
+        <a href="/jewels" class="text-sm text-secondary hover:text-primary transition-colors">Voir tout →</a>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
         {{#relatedIds}}
             <div hx-get="/jewels/{{id}}/card" hx-trigger="load" hx-swap="outerHTML">
-                <div class="bg-bg-soft aspect-square rounded-[20px] animate-pulse"></div>
+                <div class="bg-bg-soft aspect-square rounded-2xl animate-pulse"></div>
             </div>
         {{/relatedIds}}
     </div>

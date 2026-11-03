@@ -35,7 +35,7 @@
     <div class="max-w-xl mx-auto">
 
         {{#hasError}}
-        <p role="alert" class="border border-red-600 text-red-700 rounded-xl px-4 py-3 text-sm mb-6">{{error}}</p>
+        <p role="alert" class="border border-error text-error rounded-xl px-4 py-3 text-sm mb-6">{{error}}</p>
         {{/hasError}}
         {{#hasNotice}}
         <p role="status" class="border border-success text-success rounded-xl px-4 py-3 text-sm mb-6">{{notice}}</p>
@@ -69,12 +69,12 @@
                     <div class="flex flex-col gap-1.5">
                         <label for="openingFirstName" class="text-xs text-secondary">Prénom</label>
                         <input id="openingFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
-                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                               class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label for="openingEmail" class="text-xs text-secondary">E-mail</label>
                         <input id="openingEmail" name="email" type="email" required autocomplete="email" value="{{email}}"
-                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                               class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                 </div>
                 <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
@@ -101,12 +101,12 @@
                     <div class="flex flex-col gap-1.5">
                         <label for="waitlistFirstName" class="text-xs text-secondary">Prénom</label>
                         <input id="waitlistFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
-                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                               class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label for="waitlistEmail" class="text-xs text-secondary">E-mail</label>
                         <input id="waitlistEmail" name="email" type="email" required autocomplete="email" value="{{email}}"
-                               class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                               class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                 </div>
                 <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
@@ -132,24 +132,24 @@
                 <div class="flex flex-col gap-1.5">
                     <label for="firstName" class="text-xs text-secondary">Prénom</label>
                     <input id="firstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
-                           class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                           class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="lastName" class="text-xs text-secondary">Nom</label>
                     <input id="lastName" name="lastName" type="text" required maxlength="100" autocomplete="family-name" value="{{lastName}}"
-                           class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                           class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                 </div>
             </div>
             <div class="flex flex-col gap-1.5">
                 <label for="email" class="text-xs text-secondary">E-mail</label>
                 <input id="email" name="email" type="email" required autocomplete="email" value="{{email}}"
-                       class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                       class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                 <span class="text-xs text-muted">Vous y recevrez le lien pour confirmer votre place.</span>
             </div>
             <div class="flex flex-col gap-1.5">
                 <label for="phone" class="text-xs text-secondary">Téléphone <span class="text-muted">(facultatif)</span></label>
                 <input id="phone" name="phone" type="tel" autocomplete="tel" value="{{phone}}"
-                       class="bg-bg border border-bg-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary">
+                       class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                 <span class="text-xs text-muted">Pour vous prévenir en cas d'imprévu.</span>
             </div>
             <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->

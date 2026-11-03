@@ -9,7 +9,7 @@
         {{/hasVenueImage}}
     </a>
     <div class="p-5 flex flex-col gap-1 flex-1">
-        <p class="text-[10px] text-secondary tracking-widest uppercase">En collaboration avec</p>
+        <p class="text-xs text-secondary tracking-widest uppercase">En collaboration avec</p>
         <h3 class="font-serif text-2xl leading-tight">
             <a href="/workshops/sessions/{{sessionId}}" class="hover:text-secondary transition-colors">Chez {{venueName}}</a>
         </h3>
@@ -21,7 +21,7 @@
             {{#notOpenYet}}
             <div class="flex flex-col">
                 <span class="text-xs font-medium">Ouverture des réservations {{countdown}}</span>
-                <span class="text-[11px] text-muted">le {{bookingOpensAt}}</span>
+                <span class="text-xs text-muted">le {{bookingOpensAt}}</span>
             </div>
             <a href="/workshops/sessions/{{sessionId}}#me-prevenir" class="border border-bg-border px-4 py-2.5 rounded-full text-xs text-secondary hover:border-secondary transition-colors shrink-0">
                 Me prévenir

@@ -18,7 +18,7 @@ public record CancelWorkshopBookingByAdminHandler(CancelWorkshopBookingByAdmin c
             ctx.header("HX-Refresh", "true");
             ctx.status(200);
         } catch (RuntimeException e) {
-            ctx.status(422).html("<span class=\"text-red-600 text-xs\">" + e.getMessage() + "</span>");
+            ctx.status(422).html("<span class=\"text-error text-xs\">" + e.getMessage() + "</span>");
         }
     }
 

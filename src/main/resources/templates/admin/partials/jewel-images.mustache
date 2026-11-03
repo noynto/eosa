@@ -35,7 +35,7 @@
                    onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files.length===1?this.files[0].name:this.files.length+' fichiers sélectionnés'; l.classList.replace('text-secondary','text-primary');">
         </label>
         <button type="submit"
-                class="bg-primary text-accent px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors shrink-0">
+                class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors shrink-0">
             Uploader
         </button>
     </form>

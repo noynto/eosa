@@ -17,7 +17,7 @@
             </div>
             <button hx-delete="/charms/{{id}}"
                     hx-confirm="Supprimer « {{name}} » ? Cette action est irréversible."
-                    class="text-muted hover:text-red-600 transition-colors shrink-0" title="Supprimer">
+                    class="text-muted hover:text-error transition-colors shrink-0" title="Supprimer" aria-label="Supprimer {{name}}">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
         </div>
@@ -25,16 +25,16 @@
               hx-target="#toast-charm-{{id}}" hx-swap="innerHTML"
               class="flex flex-col gap-2">
             <input name="name" type="text" value="{{name}}" required
-                   class="bg-bg-soft border border-bg-border rounded-lg px-2.5 py-1.5 text-sm text-primary focus:outline-none focus:border-secondary w-full">
+                   class="bg-bg-soft border border-outline rounded-lg px-2.5 py-1.5 text-sm text-primary focus:border-secondary w-full">
             <div class="relative">
                 <input name="price" type="number" min="0" step="0.01" value="{{price}}" required
-                       class="bg-bg-soft border border-bg-border rounded-lg pl-2.5 pr-7 py-1.5 text-xs text-primary focus:outline-none focus:border-secondary w-full">
+                       class="bg-bg-soft border border-outline rounded-lg pl-2.5 pr-7 py-1.5 text-xs text-primary focus:border-secondary w-full">
                 <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted">€</span>
             </div>
             <div class="flex items-center justify-between">
                 <span id="toast-charm-{{id}}" class="text-xs"></span>
                 <button type="submit"
-                        class="bg-primary text-accent px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors shrink-0">
+                        class="bg-primary text-accent px-3 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors shrink-0">
                     Enregistrer
                 </button>
             </div>
@@ -48,7 +48,7 @@
                        onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files[0]?.name??'Choisir une image…'; l.classList.replace('text-secondary','text-primary');">
             </label>
             <button type="submit"
-                    class="bg-primary text-accent px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors w-full">
+                    class="bg-primary text-accent px-3 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors w-full">
                 Uploader
             </button>
         </form>
@@ -68,13 +68,13 @@
             <div class="flex flex-col gap-1.5">
                 <label for="name" class="text-xs text-secondary">Nom</label>
                 <input id="name" name="name" type="text" required autofocus placeholder="ex. Étoile"
-                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary">
             </div>
             <div class="flex flex-col gap-1.5">
                 <label for="price" class="text-xs text-secondary">Prix additionnel</label>
                 <div class="relative">
                     <input id="price" name="price" type="number" min="0" step="0.01" required placeholder="0.00"
-                           class="bg-bg-soft border border-bg-border rounded-lg pl-3 pr-8 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary w-full">
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-8 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">€</span>
                 </div>
             </div>

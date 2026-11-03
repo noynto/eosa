@@ -24,7 +24,7 @@
                        onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files[0]?.name??'Choisir une image…'; l.classList.replace('text-secondary','text-primary');">
             </label>
             <button type="submit"
-                    class="bg-primary text-accent px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors w-full">
+                    class="bg-primary text-accent px-3 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors w-full">
                 Uploader
             </button>
         </form>
@@ -44,7 +44,7 @@
             <div class="flex flex-col gap-1.5">
                 <label for="name" class="text-xs text-secondary">Nom</label>
                 <input id="name" name="name" type="text" required autofocus placeholder="ex. Argent"
-                       class="bg-bg-soft border border-bg-border rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:outline-none focus:border-secondary">
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary">
             </div>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
