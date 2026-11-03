@@ -15,7 +15,7 @@ Règles :
 
 **Protégé** après correction (novembre 2026).
 
-- **Templates** : Mustache échappe tout `{{valeur}}`. Les triples accolades `{{{valeur}}}` (sans échappement) ne servent que dans les e-mails en texte brut (`*.txt.mustache`), jamais dans du HTML.
+- **Templates** : Mustache échappe tout `{{valeur}}`. Les triples accolades `{{{valeur}}}` (sans échappement) ne servent que dans les e-mails en texte brut (`*.txt.mustache`) et pour les données structurées `{{{jsonLd}}}`, sérialisées par Gson qui échappe `<`, `>`, `&` et `'` (voir [SEO](seo.md)).
 - **Messages d'erreur htmx** : ils étaient concaténés dans du HTML en Java (`"<span>" + e.getMessage() + "</span>"`), alors qu'ils citent souvent une valeur de la requête (« Le produit `<id de l'URL>` n'existe pas »). Un lien piégé vers l'administration pouvait donc exécuter du script. Ils passent maintenant par `InlineError.render(ctx, e)`, qui rend `partials/inline-error.mustache` et échappe le message.
 - **Images envoyées** : le type déclaré par le navigateur était enregistré et renvoyé tel quel ; un SVG ou un HTML servi depuis eosa.me aurait pu exécuter du script. Les cas d'usage d'ajout d'image n'acceptent plus que `Image.ACCEPTED_FORMATS` (JPEG, PNG, WebP, AVIF), et `/images/{id}` répond avec `Content-Security-Policy: sandbox` et `nosniff`.
 - **Liens saisis dans l'administration** (lien d'un lieu) : seuls `http` et `https` sont acceptés, un `javascript:` est refusé.
@@ -23,7 +23,7 @@ Règles :
 Règles :
 
 - Aucun HTML construit par concaténation en Java : un fragment se rend avec un template Mustache.
-- Pas de `{{{…}}}` dans un template HTML.
+- Pas de `{{{…}}}` dans un template HTML, sauf `{{{jsonLd}}}` produit par `JsonLd.of(...)`.
 - Une URL saisie par quelqu'un est vérifiée (`http`/`https`) avant d'aller dans un `href`.
 
 ## Requêtes forgées (CSRF)

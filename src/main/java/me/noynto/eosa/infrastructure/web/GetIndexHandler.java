@@ -8,6 +8,7 @@ import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelState;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +27,18 @@ public record GetIndexHandler(ReadCategoryStats readCategoryStats, ReadJewelIds 
         model.put("description", "Bijoux faits main à Nancy — colliers, bracelets et pierres en matières nobles, conçus pour durer.");
         model.put("ogImageUrl", baseUrl + "/hero.webp");
         model.put("canonicalUrl", baseUrl + ctx.path());
+        model.put("jsonLd", JsonLd.of(Map.of(
+                "@context", "https://schema.org",
+                "@graph", List.of(
+                        JsonLd.organization(baseUrl),
+                        Map.of(
+                                "@type", "WebSite",
+                                "name", "EOSA",
+                                "url", baseUrl + "/",
+                                "inLanguage", "fr-FR"
+                        )
+                )
+        )));
         model.put("necklacesCountLabel", pieceLabel(necklaces.count()));
         model.put("necklacesHasMinPrice", necklaces.minPrice() != null);
         model.put("necklacesMinPrice", necklaces.minPrice() != null ? necklaces.minPrice().stripTrailingZeros().toPlainString() : "");

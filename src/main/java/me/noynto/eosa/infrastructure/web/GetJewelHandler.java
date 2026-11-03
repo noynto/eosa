@@ -9,6 +9,7 @@ import me.noynto.eosa.application.ReadMetalColors;
 import me.noynto.eosa.jewel.JewelState;
 import me.noynto.eosa.shared.JewelId;
 
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,6 +49,25 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, Re
             model.put("ogImageUrl", hasImages ? baseUrl + "/images/" + jewel.getImageIds().getFirst().value() : baseUrl + "/hero.webp");
             model.put("canonicalUrl", baseUrl + ctx.path());
             model.put("price", jewel.getPrice().stripTrailingZeros().toPlainString());
+            model.put("jsonLd", JsonLd.of(Map.of(
+                    "@context", "https://schema.org",
+                    "@type", "Product",
+                    "name", jewel.getName(),
+                    "description", model.get("description"),
+                    "image", hasImages
+                            ? jewel.getImageIds().stream().map(id -> baseUrl + "/images/" + id.value()).toList()
+                            : List.of(baseUrl + "/hero.webp"),
+                    "brand", Map.of("@type", "Brand", "name", "EOSA"),
+                    "offers", Map.of(
+                            "@type", "Offer",
+                            "url", baseUrl + ctx.path(),
+                            "priceCurrency", "EUR",
+                            "price", jewel.getPrice().setScale(2, RoundingMode.HALF_UP).toPlainString(),
+                            "itemCondition", "https://schema.org/NewCondition",
+                            "availability", "https://schema.org/InStock",
+                            "seller", JsonLd.organization(baseUrl)
+                    )
+            )));
             model.put("jewelId", jewel.getId().value());
             model.put("hasImages", hasImages);
             model.put("mainImageId", hasImages ? jewel.getImageIds().getFirst().value() : "");
