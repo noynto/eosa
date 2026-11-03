@@ -18,6 +18,9 @@ public record AddImageToCharm(
         if (command.image == null) {
             throw new RuntimeException("Une image est nécessaire.");
         }
+        if (!Image.ACCEPTED_FORMATS.contains(command.image.getFormat())) {
+            throw new RuntimeException("Le format de l'image n'est pas accepté : JPEG, PNG, WebP ou AVIF.");
+        }
 
         Charm charm = charmProvider.read(command.charmId())
                 .orElseThrow(() -> new RuntimeException("La breloque " + command.charmId.value() + " n'existe pas."));

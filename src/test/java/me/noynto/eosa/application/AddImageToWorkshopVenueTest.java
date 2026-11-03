@@ -39,10 +39,20 @@ class AddImageToWorkshopVenueTest {
         when(workshopVenueProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         var result = new AddImageToWorkshopVenue(workshopVenueProvider, imageProvider).handle(
-                new AddImageToWorkshopVenue.Command(venueId, new Image())
+                new AddImageToWorkshopVenue.Command(venueId, imageOfFormat("image/webp"))
         );
 
         assertEquals(new ImageId("img-1"), result.getImageId());
+    }
+
+    @Test
+    void handle_throwsWithoutUploadingWhenFormatIsNotAccepted() {
+        assertThrows(RuntimeException.class, () ->
+                new AddImageToWorkshopVenue(workshopVenueProvider, imageProvider).handle(
+                        new AddImageToWorkshopVenue.Command(venueId, imageOfFormat("text/html"))
+                )
+        );
+        verify(imageProvider, never()).upload(any());
     }
 
     @Test
@@ -61,10 +71,16 @@ class AddImageToWorkshopVenueTest {
 
         assertThrows(RuntimeException.class, () ->
                 new AddImageToWorkshopVenue(workshopVenueProvider, imageProvider).handle(
-                        new AddImageToWorkshopVenue.Command(venueId, new Image())
+                        new AddImageToWorkshopVenue.Command(venueId, imageOfFormat("image/jpeg"))
                 )
         );
         verify(imageProvider, never()).upload(any());
+    }
+
+    private static Image imageOfFormat(String format) {
+        var image = new Image();
+        image.setFormat(format);
+        return image;
     }
 
 }

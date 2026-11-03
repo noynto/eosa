@@ -21,7 +21,7 @@ public record UpdateWorkshopVenueHandler(UpdateWorkshopVenue updateWorkshopVenue
             ));
             ctx.html("<span class=\"text-success text-xs\">Sauvegardé</span>");
         } catch (RuntimeException e) {
-            ctx.status(422).html("<span class=\"text-error text-xs\">" + e.getMessage() + "</span>");
+            InlineError.render(ctx, e);
         }
     }
 

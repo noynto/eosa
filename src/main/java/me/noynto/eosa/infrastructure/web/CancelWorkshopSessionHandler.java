@@ -16,7 +16,7 @@ public record CancelWorkshopSessionHandler(CancelWorkshopSession cancelWorkshopS
             ctx.header("HX-Redirect", "/workshops/" + workshopSession.getId().value());
             ctx.status(200);
         } catch (RuntimeException e) {
-            ctx.status(422).html("<span class=\"text-error text-xs\">" + e.getMessage() + "</span>");
+            InlineError.render(ctx, e);
         }
     }
 

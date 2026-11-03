@@ -18,6 +18,9 @@ public record AddImageToWorkshopVenue(
         if (command.image == null) {
             throw new RuntimeException("Une photo est nécessaire.");
         }
+        if (!Image.ACCEPTED_FORMATS.contains(command.image.getFormat())) {
+            throw new RuntimeException("Le format de la photo n'est pas accepté : JPEG, PNG, WebP ou AVIF.");
+        }
 
         WorkshopVenue workshopVenue = workshopVenueProvider.read(command.workshopVenueId())
                 .orElseThrow(() -> new RuntimeException("Le lieu " + command.workshopVenueId.value() + " n'existe pas."));
