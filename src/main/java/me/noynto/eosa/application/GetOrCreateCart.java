@@ -10,7 +10,7 @@ public record GetOrCreateCart(
         CartShippingRuleProvider shippingRuleProvider
 ) {
 
-    public Cart handle(Command command) {
+    public Result handle(Command command) {
         Cart cart;
         if (command.cartId != null && command.cartId.value() != null) {
             cart = cartProvider.read(command.cartId).orElseGet(() -> cartProvider.write(new Cart()));
@@ -18,7 +18,12 @@ public record GetOrCreateCart(
             cart = cartProvider.write(new Cart());
         }
         cart.applyShippingRule(shippingRuleProvider.get());
-        return cart;
+        return new Result(cart);
+    }
+
+    public record Result(
+            Cart cart
+    ) {
     }
 
     public record Command(

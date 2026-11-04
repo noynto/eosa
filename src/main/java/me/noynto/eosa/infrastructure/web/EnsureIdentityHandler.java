@@ -19,14 +19,15 @@ public record EnsureIdentityHandler(
             return;
         }
         var command = new EnsureIdentityHasValidSession.Command(new IdentitySessionId(ctx.cookie("identity-session-id")));
-        ensureIdentityHasValidSession.handle(command).ifPresentOrElse(
-                identity -> ctx.attribute("identityId", identity.getId()),
-                () -> {
-                    ctx.redirect("/sign-in");
-                    // Without this the endpoint would still run after the redirect.
-                    ctx.skipRemainingHandlers();
-                }
-        );
+        // Une identité à null : pas de session valide, le cas normal d'un visiteur non connecté.
+        var identity = ensureIdentityHasValidSession.handle(command).identity();
+        if (identity != null) {
+            ctx.attribute("identityId", identity.getId());
+        } else {
+            ctx.redirect("/sign-in");
+            // Without this the endpoint would still run after the redirect.
+            ctx.skipRemainingHandlers();
+        }
     }
 
     private boolean isOpen(String path) {

@@ -22,7 +22,7 @@ public record GetCheckoutSuccessHandler(
         CheckoutSessionId checkoutSessionId = new CheckoutSessionId();
         checkoutSessionId.setStripe(stripeSessionId);
         String cartCookie = ctx.cookie("cart");
-        var session = confirmCheckoutSession.handle(new ConfirmCheckoutSession.Command(checkoutSessionId));
+        var session = confirmCheckoutSession.handle(new ConfirmCheckoutSession.Command(checkoutSessionId)).checkout();
         ctx.cookie("cart", "");
 
         boolean isCompleted = session.getStatus() == CheckoutStatus.COMPLETED;

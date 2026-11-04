@@ -14,7 +14,7 @@ public record ConfirmCheckoutSession(
         CartProvider cartProvider
 ) {
 
-    public Checkout handle(Command command) throws Exception {
+    public Result handle(Command command) throws Exception {
         if (command.checkoutSessionId == null || command.checkoutSessionId.getStripe().isBlank()) {
             throw new RuntimeException("L'identifiant de session d'achat est nécessaire.");
         }
@@ -41,7 +41,12 @@ public record ConfirmCheckoutSession(
                     cartProvider.write(cart);
                 });
 
-        return checkout;
+        return new Result(checkout);
+    }
+
+    public record Result(
+            Checkout checkout
+    ) {
     }
 
     public record Command(

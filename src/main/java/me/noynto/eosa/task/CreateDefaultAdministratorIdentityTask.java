@@ -18,7 +18,7 @@ public record CreateDefaultAdministratorIdentityTask(
         LOGGER.log(Level.INFO, "Démarrage de la tâche de création de l'identité administratrice par défaut.");
         CreateAdministratorIdentity.Command command = new CreateAdministratorIdentity.Command(properties.adminName(), properties().adminSecret());
         try {
-            Identity identity = createAdministratorIdentity.handle(command);
+            Identity identity = createAdministratorIdentity.handle(command).identity();
             LOGGER.log(Level.INFO, "L'identité administratrice est créé avec l'identifiant " + identity.getId() + ".");
             LOGGER.log(Level.INFO, "Fin de la tâche de création de l'identité administratrice par défaut.");
             return true;

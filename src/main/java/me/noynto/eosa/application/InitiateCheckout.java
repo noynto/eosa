@@ -16,7 +16,7 @@ public record InitiateCheckout(
         CartShippingRuleProvider shippingRuleProvider
 ) {
 
-    public Checkout handle(Command command) throws Exception {
+    public Result handle(Command command) throws Exception {
         if (command.cartId == null || command.cartId.value() == null) {
             throw new RuntimeException("L'identifiant du panier est nécessaire.");
         }
@@ -57,7 +57,12 @@ public record InitiateCheckout(
         checkout.setItems(checkoutItems);
         checkout.setShippingAmount(cart.getShipping().getAmount());
         checkout.setStatus(CheckoutStatus.PENDING);
-        return checkoutProvider.write(checkout);
+        return new Result(checkoutProvider.write(checkout));
+    }
+
+    public record Result(
+            Checkout checkout
+    ) {
     }
 
     public record Command(CartId cartId) {

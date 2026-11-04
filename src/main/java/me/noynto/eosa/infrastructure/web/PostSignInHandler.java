@@ -26,7 +26,7 @@ public record PostSignInHandler(
         try {
             IdentitySession session = authenticateIdentity.handle(
                     new AuthenticateIdentity.Command(ctx.formParam("name"), ctx.formParam("secret"))
-            );
+            ).session();
             ctx.cookie(new Cookie(
                     "identity-session-id",
                     session.getId().value(),
