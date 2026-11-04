@@ -136,11 +136,12 @@ public class Bootstrap {
         EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(
             ensureIdentityHasValidSession
         );
-        ReadCategoryStats readCategoryStats = new ReadCategoryStats(
-            jewelProvider,
-            readJewelIds
-        );
+        ReadCategoryStats readCategoryStats = new ReadCategoryStats(jewelProvider);
         GetOrCreateCart getOrCreateCart = new GetOrCreateCart(
+            cartProvider,
+            shippingRuleProvider
+        );
+        ReadCart readCart = new ReadCart(
             cartProvider,
             shippingRuleProvider
         );
@@ -391,7 +392,11 @@ public class Bootstrap {
             javalinConfig.routes.before(SecureRequestHandler.of(properties.publicBaseUrl()));
             javalinConfig.routes.get(
                 "/",
-                new GetIndexHandler(readCategoryStats, readJewelIds, baseUrl)
+                new GetIndexHandler(readCategoryStats, baseUrl)
+            );
+            javalinConfig.routes.get(
+                "/jewels/latest",
+                new GetLatestJewelsHandler(readJewelIds)
             );
             javalinConfig.routes.get(
                 "/jewels",
@@ -640,11 +645,11 @@ public class Bootstrap {
             javalinConfig.routes.before("/cart*", ensureCartHandler);
             javalinConfig.routes.get(
                 "/cart",
-                new GetCartHandler(getOrCreateCart, baseUrl)
+                new GetCartHandler(readCart, baseUrl)
             );
             javalinConfig.routes.post(
                 "/cart/items/{jewel-id}",
-                new PostCartItemHandler(getOrCreateCart, addJewelToCart)
+                new PostCartItemHandler(addJewelToCart)
             );
             javalinConfig.routes.patch(
                 "/cart/items/{item-id}",

@@ -14,6 +14,8 @@ public record EnsureCartHandler(GetOrCreateCart getOrCreateCart) implements Hand
                 cookieValue != null ? new CartId(cookieValue) : null
         ));
         ctx.cookie("cart", cart.getId().value());
+        // Le cookie de la réponse n'est lisible qu'à la requête suivante : les handlers du panier lisent cet attribut.
+        ctx.attribute("cartId", cart.getId());
     }
 
 }

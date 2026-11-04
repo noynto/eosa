@@ -2,7 +2,7 @@ package me.noynto.eosa.infrastructure.web;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import me.noynto.eosa.application.GetOrCreateCart;
+import me.noynto.eosa.application.ReadCart;
 import me.noynto.eosa.cart.Cart;
 import me.noynto.eosa.cart.CartShipping;
 import me.noynto.eosa.shared.CartId;
@@ -12,15 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record GetCartHandler(GetOrCreateCart getOrCreateCart, String baseUrl) implements Handler {
+public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handler {
 
     @Override
     public void handle(Context ctx) {
-        String cookieValue = ctx.cookie("cart");
-        Cart cart = getOrCreateCart.handle(new GetOrCreateCart.Command(
-                cookieValue != null ? new CartId(cookieValue) : null
-        ));
-        ctx.cookie("cart", cart.getId().value());
+        // Posé par EnsureCartHandler, qui a déjà créé le panier au besoin.
+        CartId cartId = ctx.attribute("cartId");
+        Cart cart = readCart.handle(new ReadCart.Command(cartId)).cart();
 
         CartShipping shipping = cart.getShipping();
         BigDecimal subtotal = cart.getTotal();

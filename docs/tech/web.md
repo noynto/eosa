@@ -10,6 +10,7 @@
 | GET | `/jewels` | Liste des bijoux |
 | GET | `/jewels/{id}` | Fiche d'un bijou |
 | GET | `/jewels/{id}/card` | Fragment : carte d'un bijou |
+| GET | `/jewels/latest` | Fragment : les derniers bijoux publiés, chargé par l'accueil |
 | GET | `/images/{id}` | Téléchargement d'une image |
 | GET | `/about` | Notre histoire |
 | GET | `/cart` | Panier |
