@@ -1,6 +1,5 @@
 package me.noynto.eosa.infrastructure.web;
 
-import me.noynto.eosa.application.ReadWorkshopSessions;
 import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionState;
 
@@ -70,8 +69,7 @@ final class WorkshopSessionFormat {
     }
 
     /** État lisible d'une session à l'instant donné, pour l'administration. */
-    static String status(ReadWorkshopSessions.Overview overview, Instant now) {
-        WorkshopSession session = overview.session();
+    static String status(WorkshopSession session, int occupiedPlaces, Instant now) {
         if (session.getState() == WorkshopSessionState.CANCELLED) {
             return "Annulée";
         }
@@ -80,7 +78,7 @@ final class WorkshopSessionFormat {
                     + " à " + time(session.getBookingOpensAt());
         }
         if (now.isBefore(session.getStartsAt())) {
-            return overview.occupiedPlaces() >= session.getCapacity() ? "Complet" : "Réservations ouvertes";
+            return occupiedPlaces >= session.getCapacity() ? "Complet" : "Réservations ouvertes";
         }
         if (now.isBefore(session.getEndsAt())) {
             return "En cours";

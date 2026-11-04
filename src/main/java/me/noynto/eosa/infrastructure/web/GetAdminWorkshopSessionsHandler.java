@@ -3,7 +3,6 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadWorkshopSessions;
-import me.noynto.eosa.application.ReadWorkshopVenues;
 import me.noynto.eosa.workshop.WorkshopSessionState;
 
 import java.time.Clock;
@@ -12,9 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Liste des sessions pour l'administration. Le formulaire de création, qui a besoin des lieux, se charge à la
+ * demande (voir {@link GetAdminWorkshopFormHandler}).
+ */
 public record GetAdminWorkshopSessionsHandler(
         ReadWorkshopSessions readWorkshopSessions,
-        ReadWorkshopVenues readWorkshopVenues,
         Clock clock
 ) implements Handler {
 
@@ -33,29 +35,12 @@ public record GetAdminWorkshopSessionsHandler(
                 .map(overview -> rowOf(overview, now))
                 .toList();
 
-        var venues = readWorkshopVenues.handle().stream()
-                .filter(venue -> !venue.isArchived())
-                .map(venue -> {
-                    Map<String, Object> option = new HashMap<>();
-                    option.put("id", venue.getId().value());
-                    option.put("name", venue.getName());
-                    option.put("city", venue.getCity());
-                    option.put("defaultCapacity", venue.getDefaultCapacity());
-                    option.put("defaultDurationMinutes", venue.getDefaultDurationMinutes());
-                    return option;
-                })
-                .toList();
-
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Sessions d'atelier");
         model.put("upcomingSessions", upcoming);
         model.put("hasUpcomingSessions", !upcoming.isEmpty());
         model.put("pastSessions", past);
         model.put("hasPastSessions", !past.isEmpty());
-        model.put("venues", venues);
-        model.put("hasVenues", !venues.isEmpty());
-        model.put("firstVenueCapacity", venues.isEmpty() ? "" : venues.getFirst().get("defaultCapacity"));
-        model.put("firstVenueDuration", venues.isEmpty() ? "" : venues.getFirst().get("defaultDurationMinutes"));
         ctx.render("admin/workshops.mustache", model);
     }
 
@@ -71,7 +56,7 @@ public record GetAdminWorkshopSessionsHandler(
         row.put("capacity", session.getCapacity());
         row.put("hasWaitlist", overview.waitlistCount() > 0);
         row.put("waitlistCount", overview.waitlistCount());
-        row.put("status", WorkshopSessionFormat.status(overview, now));
+        row.put("status", WorkshopSessionFormat.status(session, overview.occupiedPlaces(), now));
         row.put("cancelled", session.getState() == WorkshopSessionState.CANCELLED);
         return row;
     }
