@@ -35,7 +35,7 @@ class CreateJewelTest {
 
         var result = new CreateJewel(identityProvider, jewelProvider).handle(
                 new CreateJewel.Command(identityId, "Lune")
-        );
+        ).jewel();
 
         assertEquals(expected, result);
     }

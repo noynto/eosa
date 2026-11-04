@@ -15,7 +15,7 @@ public record GetCharmOptionsHandler(ReadCharms readCharms) implements Handler {
 
     @Override
     public void handle(Context ctx) {
-        var options = readCharms.handle().stream().map(charm -> {
+        var options = readCharms.handle().charms().stream().map(charm -> {
             boolean hasImage = charm.getImageId() != null;
             Map<String, Object> option = new HashMap<>();
             option.put("id", charm.getId().value());

@@ -26,7 +26,7 @@ class ReadJewelTest {
         expected.setId(jewelId);
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(expected));
 
-        var result = new ReadJewel(jewelProvider).handle(new ReadJewel.Command(jewelId));
+        var result = new ReadJewel(jewelProvider).handle(new ReadJewel.Command(jewelId)).jewel();
 
         assertEquals(expected, result);
     }

@@ -21,7 +21,7 @@ public record DeleteImageOfJewelHandler(RemoveImageFromJewel removeImageFromJewe
                     identityId,
                     new JewelId(ctx.pathParam("jewel-id")),
                     new ImageId(ctx.pathParam("image-id"))
-            ));
+            )).jewel();
             Map<String, Object> model = new HashMap<>();
             model.put("jewelId", jewel.getId().value());
             model.put("hasImages", !jewel.getImageIds().isEmpty());

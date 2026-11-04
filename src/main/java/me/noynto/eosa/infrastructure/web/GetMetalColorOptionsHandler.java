@@ -17,7 +17,7 @@ public record GetMetalColorOptionsHandler(ReadMetalColors readMetalColors) imple
 
     @Override
     public void handle(Context ctx) {
-        var metalColors = readMetalColors.handle();
+        var metalColors = readMetalColors.handle().metalColors();
         List<Map<String, Object>> options = new ArrayList<>();
         for (int i = 0; i < metalColors.size(); i++) {
             var metalColor = metalColors.get(i);

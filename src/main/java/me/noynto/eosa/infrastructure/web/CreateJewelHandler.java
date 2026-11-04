@@ -10,7 +10,7 @@ public record CreateJewelHandler(CreateJewel createJewel) implements Handler {
     @Override
     public void handle(Context ctx) throws Exception {
         IdentityId identityId = ctx.attribute("identityId");
-        var jewel = createJewel.handle(new CreateJewel.Command(identityId, ctx.formParam("name")));
+        var jewel = createJewel.handle(new CreateJewel.Command(identityId, ctx.formParam("name"))).jewel();
         ctx.header("HX-Redirect", "/jewels/" + jewel.getId().value());
         ctx.status(200);
     }

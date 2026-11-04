@@ -13,7 +13,7 @@ public record GetJewelCardHandler(ReadJewel readJewel) implements Handler {
     @Override
     public void handle(Context ctx) throws Exception {
         try {
-            var jewel = readJewel.handle(new ReadJewel.Command(new JewelId(ctx.pathParam("id"))));
+            var jewel = readJewel.handle(new ReadJewel.Command(new JewelId(ctx.pathParam("id")))).jewel();
             boolean hasImage = !jewel.getImageIds().isEmpty();
             boolean hasTagline = jewel.getTagline() != null;
             Map<String, Object> model = new HashMap<>();

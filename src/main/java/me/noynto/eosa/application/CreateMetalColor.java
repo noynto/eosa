@@ -7,14 +7,19 @@ public record CreateMetalColor(
         MetalColorProvider metalColorProvider
 ) {
 
-    public MetalColor handle(Command command) {
+    public Result handle(Command command) {
         if (command.name == null || command.name.isBlank()) {
             throw new InvalidCommand("Le nom de la couleur de métal est requis.");
         }
 
         MetalColor metalColor = new MetalColor();
         metalColor.setName(command.name());
-        return metalColorProvider.write(metalColor);
+        return new Result(metalColorProvider.write(metalColor));
+    }
+
+    public record Result(
+            MetalColor metalColor
+    ) {
     }
 
     public record Command(

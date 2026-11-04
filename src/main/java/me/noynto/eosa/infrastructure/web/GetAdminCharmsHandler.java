@@ -11,7 +11,7 @@ public record GetAdminCharmsHandler(ReadCharms readCharms) implements Handler {
 
     @Override
     public void handle(Context ctx) {
-        var charms = readCharms.handle();
+        var charms = readCharms.handle().charms();
 
         var rows = charms.stream().map(charm -> {
             boolean hasImage = charm.getImageId() != null;

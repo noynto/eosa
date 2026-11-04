@@ -11,7 +11,7 @@ public record AddImageToCharm(
         ImageProvider imageProvider
 ) {
 
-    public Charm handle(Command command) {
+    public Result handle(Command command) {
         if (command.charmId == null || command.charmId.value() == null) {
             throw new RuntimeException("L'identifiant de la breloque sur laquelle ajouter une image est nécessaire.");
         }
@@ -28,7 +28,12 @@ public record AddImageToCharm(
         Image uploaded = imageProvider.upload(command.image());
         charm.setImageId(uploaded.getId());
 
-        return charmProvider.write(charm);
+        return new Result(charmProvider.write(charm));
+    }
+
+    public record Result(
+            Charm charm
+    ) {
     }
 
     public record Command(

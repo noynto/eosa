@@ -35,9 +35,9 @@ class UpdateStateOfJewelTest {
 
         var result = new UpdateStateOfJewel(jewelProvider).handle(
                 new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
-        );
+        ).jewel();
 
-        assertEquals(JewelState.PUBLISHED, result.getState());
+assertEquals(JewelState.PUBLISHED, result.getState());
     }
 
     @Test
@@ -49,7 +49,7 @@ class UpdateStateOfJewelTest {
 
         var result = new UpdateStateOfJewel(jewelProvider).handle(
                 new UpdateStateOfJewel.Command(jewelId, JewelState.ARCHIVED)
-        );
+        ).jewel();
 
         assertEquals(JewelState.ARCHIVED, result.getState());
     }

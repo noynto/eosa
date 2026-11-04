@@ -10,8 +10,14 @@ public record DownloadImage(
         ImageProvider imageProvider
 ) {
 
-    public Optional<Image> handle(Command command) {
-        return imageProvider.download(command.imageId());
+    public Result handle(Command command) {
+        return new Result(imageProvider.download(command.imageId())
+                .orElseThrow(() -> new RuntimeException("L'image " + command.imageId().value() + " n'existe pas.")));
+    }
+
+    public record Result(
+            Image image
+    ) {
     }
 
     public record Command(

@@ -11,7 +11,7 @@ public record AddImageToMetalColor(
         ImageProvider imageProvider
 ) {
 
-    public MetalColor handle(Command command) {
+    public Result handle(Command command) {
         if (command.metalColorId == null || command.metalColorId.value() == null) {
             throw new RuntimeException("L'identifiant de la couleur de métal sur laquelle ajouter une image est nécessaire.");
         }
@@ -28,7 +28,12 @@ public record AddImageToMetalColor(
         Image uploaded = imageProvider.upload(command.image());
         metalColor.setImageId(uploaded.getId());
 
-        return metalColorProvider.write(metalColor);
+        return new Result(metalColorProvider.write(metalColor));
+    }
+
+    public record Result(
+            MetalColor metalColor
+    ) {
     }
 
     public record Command(

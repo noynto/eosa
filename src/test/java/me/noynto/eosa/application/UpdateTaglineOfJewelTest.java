@@ -31,7 +31,7 @@ class UpdateTaglineOfJewelTest {
 
         var result = new UpdateTaglineOfJewel(jewelProvider).handle(
                 new UpdateTaglineOfJewel.Command(jewelId, "Bijou élégant")
-        );
+        ).jewel();
 
         assertEquals("Bijou élégant", result.getTagline());
     }

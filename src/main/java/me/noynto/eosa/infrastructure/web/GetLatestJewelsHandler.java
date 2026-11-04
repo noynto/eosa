@@ -18,7 +18,7 @@ public record GetLatestJewelsHandler(ReadJewelIds readJewelIds) implements Handl
 
     @Override
     public void handle(Context ctx) {
-        var jewelIds = readJewelIds.handle(new ReadJewelIds.Query(Set.of(JewelState.PUBLISHED), Set.of(), COUNT));
+        var jewelIds = readJewelIds.handle(new ReadJewelIds.Query(Set.of(JewelState.PUBLISHED), Set.of(), COUNT)).jewelIds();
         ctx.render("partials/latest-jewels.mustache", Map.of(
                 "latestJewelIds", jewelIds.stream().map(id -> Map.of("id", id.value())).toList()
         ));

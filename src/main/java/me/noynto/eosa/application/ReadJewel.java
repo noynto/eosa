@@ -8,14 +8,19 @@ public record ReadJewel(
         JewelProvider jewelProvider
 ) {
 
-    public Jewel handle(Command command) {
+    public Result handle(Command command) {
         // 1. Vérification de la commande.
         if (command.jewelId == null || command.jewelId.value() == null) {
             throw new RuntimeException("L'identifiant du produit sur lequel mettre à jour l'accroche est nécessaire.");
         }
         // 2. Résolution du produit concerné.
-        return jewelProvider.read(command.jewelId())
-                .orElseThrow(() -> new RuntimeException("Le produit " + command.jewelId.value() + " n'existe pas."));
+        return new Result(jewelProvider.read(command.jewelId())
+                .orElseThrow(() -> new RuntimeException("Le produit " + command.jewelId.value() + " n'existe pas.")));
+    }
+
+    public record Result(
+            Jewel jewel
+    ) {
     }
 
     public record Command(

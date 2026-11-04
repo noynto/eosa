@@ -12,12 +12,17 @@ public record ReadJewelIds(
         JewelProvider jewelProvider
 ) {
 
-    public List<JewelId> handle(Query query) {
+    public Result handle(Query query) {
         var stream = jewelProvider.readIds(query.states, query.categories);
         if (query.limit != null) {
             stream = stream.limit(query.limit);
         }
-        return stream.toList();
+        return new Result(stream.toList());
+    }
+
+    public record Result(
+            List<JewelId> jewelIds
+    ) {
     }
 
     public record Query(

@@ -28,7 +28,7 @@ class ReadJewelIdsTest {
         var ids = List.of(new JewelId("a"), new JewelId("b"), new JewelId("c"));
         when(jewelProvider.readIds(eq(states), any())).thenReturn(ids.stream());
 
-        var result = new ReadJewelIds(jewelProvider).handle(new ReadJewelIds.Query(states, Set.of()));
+        var result = new ReadJewelIds(jewelProvider).handle(new ReadJewelIds.Query(states, Set.of())).jewelIds();
 
         assertEquals(ids, result);
     }
@@ -38,7 +38,7 @@ class ReadJewelIdsTest {
         var states = Set.of(JewelState.PUBLISHED);
         when(jewelProvider.readIds(eq(states), any())).thenReturn(Stream.empty());
 
-        var result = new ReadJewelIds(jewelProvider).handle(new ReadJewelIds.Query(states, Set.of()));
+        var result = new ReadJewelIds(jewelProvider).handle(new ReadJewelIds.Query(states, Set.of())).jewelIds();
 
         assertEquals(List.of(), result);
     }
