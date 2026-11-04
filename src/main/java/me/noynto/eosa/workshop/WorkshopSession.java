@@ -40,6 +40,15 @@ public class WorkshopSession {
         return startsAt.atZone(ZONE).minusDays(BOOKING_OPENING_DAYS).toInstant();
     }
 
+    /**
+     * Les réservations sont ouvertes : session programmée, ouverture passée, début pas encore atteint.
+     */
+    public boolean isBookable(Instant now) {
+        return state == WorkshopSessionState.SCHEDULED
+                && !now.isBefore(getBookingOpensAt())
+                && now.isBefore(startsAt);
+    }
+
     public WorkshopSessionId getId() {
         return id;
     }
