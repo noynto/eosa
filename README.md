@@ -40,7 +40,7 @@ Détails dans [Développement](docs/tech/development.md).
 
 ## Règles qui s'appliquent toujours
 
-- **Architecture** ([détails](docs/tech/architecture.md)) : `Bootstrap.java` est le seul point de câblage (pas de framework d'injection). Les packages du domaine contiennent les classes métier et des interfaces `XProvider` limitées à `readIds(filtres…)`, `read`, `write`, `delete`. Les règles métier sont dans les cas d'usage (`application/`, un record par action avec un `Command` imbriqué), jamais dans les providers ni dans des classes utilitaires partagées. Les cas d'usage reçoivent une `Clock` et n'appellent jamais `Instant.now()`.
+- **Architecture** ([détails](docs/tech/architecture.md)) : `Bootstrap.java` est le seul point de câblage (pas de framework d'injection). Les packages du domaine contiennent les classes métier et des interfaces `XProvider` limitées à `readIds(filtres…)`, `read`, `write`, `delete`. Les règles métier sont dans les cas d'usage (`application/`, un record par action avec un `Command` imbriqué et un `Result` imbriqué), jamais dans les providers. Seuls les cas d'usage injectent des providers ; un cas d'usage n'injecte jamais un autre cas d'usage ; une règle qui croise deux domaines est un service statique (`service/`, sans provider) ; un handler injecte un seul cas d'usage et le reste d'une page se charge par des appels htmx complémentaires. Les cas d'usage reçoivent une `Clock` et n'appellent jamais `Instant.now()`. Le code n'est pas encore entièrement conforme : l'écart est listé dans l'architecture.
 - **Nommage** : interfaces `XProvider` ; implémentations `JdbcPersistedX`, `<Service>FetchedX`, `SmtpSentMails`, `SecuredX`.
 - **Persistance** : le schéma ne change que par une nouvelle migration Flyway (`Vn__description.sql`), jamais en modifiant une migration déjà déployée ; dates en `Instant` / `timestamptz` UTC, règles des ateliers dans le fuseau `Europe/Paris`.
 - **Templates** ([détails](docs/tech/web.md)) : modèles de vue en `Map<String, Object>` construites à la main ; Mustache n'a pas de logique, tout se calcule en Java ; un `{{> partial}}` se résout depuis le dossier du template qui l'inclut.
@@ -83,7 +83,7 @@ Détails dans [Développement](docs/tech/development.md).
 
 | Document | Contenu |
 |---|---|
-| [Architecture](docs/tech/architecture.md) | Composition root, couches domaine / cas d'usage / infrastructure, providers, conventions de nommage, persistance |
+| [Architecture](docs/tech/architecture.md) | Règles en bref, composition root, domaine, cas d'usage et `Result`, services statiques, handlers, pages composées avec htmx, écart du code actuel, infrastructure, persistance |
 | [Web](docs/tech/web.md) | Les deux serveurs, routes, templates Mustache, htmx, liens envoyés par e-mail, responsive |
 | [Sécurité](docs/tech/security.md) | Injections SQL et JavaScript, requêtes forgées (CSRF), en-têtes de sécurité, règles à suivre, points restants |
 | [SEO](docs/tech/seo.md) | Référencement en place (sitemap, données structurées), règles d'une page publique, actions pour amener du trafic |

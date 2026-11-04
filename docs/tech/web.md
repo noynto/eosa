@@ -52,6 +52,7 @@ L'administration est une PWA installable : son service worker (`public/sw.js`) n
 
 - **Fragments** : une liste charge chaque carte par `hx-get=".../card" hx-trigger="load"` ; une carte peut se recharger d'elle-même (`hx-trigger="every 30s"`, cartes des sessions).
 - **Réponses de l'administration** : succès → `HX-Redirect` (aller sur une page) ou `HX-Refresh` (recharger) ; refus métier → statut 422 avec le fragment `partials/inline-error` rendu par `InlineError.render(ctx, e)`, affiché dans la cible (`hx-target`). Jamais de message concaténé dans du HTML en Java (voir [sécurité](security.md)). La configuration `htmx.config.responseHandling` de `header-admin` laisse afficher les réponses 422.
+- **Appels complémentaires** : le handler d'une page n'appelle qu'un cas d'usage ; les informations d'un autre cas d'usage se chargent par un fragment htmx (voir [architecture](architecture.md#pages-composées-avec-htmx)).
 - **Confirmations** : `hx-confirm` ouvre la boîte de dialogue maison de `footer-admin` au lieu du `confirm()` du navigateur.
 - **Formulaires publics** : ce sont des formulaires HTML classiques (`method="post"`), qui marchent sans JavaScript ; une erreur réaffiche la page avec le message et les valeurs saisies.
 
