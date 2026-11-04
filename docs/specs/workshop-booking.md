@@ -239,8 +239,9 @@ Conformément à l'architecture existante :
   - lieux : `CreateWorkshopVenue`, `UpdateWorkshopVenue`, `UpdateDefaultsOfWorkshopVenue`, `AddImageToWorkshopVenue`, `ArchiveWorkshopVenue`, `ReadWorkshopVenues`, `ReadWorkshopVenue` ;
   - sessions : `CreateWorkshopSession`, `UpdateWorkshopSession`, `CancelWorkshopSession`, `ReadWorkshopSessions`, `ReadWorkshopSession` ;
   - réservations : `RequestWorkshopBooking`, `ConfirmWorkshopBooking`, `ExpirePendingWorkshopBookings`, `CancelWorkshopBookingByParticipant`, `CancelWorkshopBookingByAdmin`, `MarkWorkshopBookingAttended`, `MarkWorkshopBookingNoShow` ;
-  - liste d'attente : `JoinWorkshopWaitlist`, `LeaveWorkshopWaitlist`, `NotifyWorkshopWaitlist` ;
-  - e-mails : `SendWorkshopBookingConfirmation`, `SendWorkshopReminders`, `RetryWorkshopEmails`.
+  - liste d'attente : `JoinWorkshopWaitlist`, `LeaveWorkshopWaitlist` (la liste est prévenue par les cas d'usage qui libèrent une place) ;
+  - e-mails : `SendWorkshopReminders`, `RetryWorkshopEmails` (les autres e-mails partent des cas d'usage de réservation, d'annulation et de confirmation).
+- **`service/`** : `WorkshopMails` (contenu des e-mails de réservation, d'annulation, de place libérée) et `WorkshopPlaces` (places occupées et libres d'une session), des fonctions statiques sans provider (voir [architecture](../tech/architecture.md#services-statiques-service)).
 - **`infrastructure/persistence/`** : `JdbcPersistedWorkshopVenues`, `JdbcPersistedWorkshopSessions`, `JdbcPersistedWorkshopBookings`, `JdbcPersistedWorkshopWaitlistEntries`.
 - **`infrastructure/mail/`** : `SmtpSentMails` (Jakarta Mail, dépendance `org.eclipse.angus:angus-mail`) + rendu des templates `templates/mail/`.
 - **`infrastructure/web/`** : handlers publics et admin ; limite de demandes par IP dans le handler de demande de réservation.
@@ -318,7 +319,7 @@ Chaque étape donne lieu à un commit Conventional Commits sur la branche `feat/
 
 ### Étape 4 — Demande et confirmation de réservation ✅
 
-- `RequestWorkshopBooking`, `ConfirmWorkshopBooking`, `SendWorkshopBookingConfirmation` ; page de session, formulaire avec piège à robots et limite par IP, page « Vérifiez votre boîte mail », page de confirmation ; e-mails « Confirmez votre place » et récapitulatif.
+- `RequestWorkshopBooking`, `ConfirmWorkshopBooking` (qui envoie le récapitulatif) ; page de session, formulaire avec piège à robots et limite par IP, page « Vérifiez votre boîte mail », page de confirmation ; e-mails « Confirmez votre place » et récapitulatif.
 - Premiers CronJobs : `ExpirePendingWorkshopBookingsTask` et `RetryWorkshopEmailsTask`, avec `kubernetes/workshop-cronjobs.yaml` et leurs services équivalents (profil `jobs`) dans `compose.yaml`.
 - Les inscrites sont visibles dans le détail admin de la session.
 - **Terminé quand** : une réservation complète fonctionne de bout en bout avec Mailpit (demande, e-mail, confirmation, récapitulatif) ; un simple `GET` sur le lien ne confirme rien ; une réservation non confirmée libère la place au bout de 30 min, même sans passage du job ; deux demandes simultanées sur la dernière place n'en gardent qu'une ; le champ piège et la limite par IP bloquent les envois automatiques.
