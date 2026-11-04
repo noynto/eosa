@@ -3,7 +3,6 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadWorkshopSession;
-import me.noynto.eosa.application.ReadWorkshopSessions;
 import me.noynto.eosa.shared.WorkshopSessionId;
 import me.noynto.eosa.workshop.WorkshopDates;
 import me.noynto.eosa.workshop.WorkshopSession;
@@ -38,7 +37,7 @@ public record GetWorkshopSessionHandler(
      * ou un message de confirmation (inscription en liste d'attente).
      */
     public void render(Context ctx, String error, String notice, Map<String, String> values) {
-        ReadWorkshopSessions.Overview overview;
+        ReadWorkshopSession.Result overview;
         try {
             overview = readWorkshopSession.handle(new ReadWorkshopSession.Command(new WorkshopSessionId(ctx.pathParam("id"))));
         } catch (RuntimeException e) {

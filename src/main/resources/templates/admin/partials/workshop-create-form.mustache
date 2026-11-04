@@ -1,0 +1,59 @@
+<h2 class="text-sm font-medium mb-4">Nouvelle session</h2>
+{{#hasVenues}}
+<form hx-post="/workshops" hx-target="#create-error" hx-swap="innerHTML" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+        <label for="venueId" class="text-xs text-secondary">Lieu</label>
+        <select id="venueId" name="venueId" required
+                onchange="const o=this.selectedOptions[0]; this.form.capacity.value=o.dataset.capacity; this.form.durationMinutes.value=o.dataset.duration;"
+                class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
+            {{#venues}}
+            <option value="{{id}}" data-capacity="{{defaultCapacity}}" data-duration="{{defaultDurationMinutes}}">{{name}} — {{city}}</option>
+            {{/venues}}
+        </select>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+            <label for="date" class="text-xs text-secondary">Date</label>
+            <input id="date" name="date" type="date" required
+                   class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+        </div>
+        <div class="flex flex-col gap-1.5">
+            <label for="time" class="text-xs text-secondary">Heure de début</label>
+            <input id="time" name="time" type="time" required step="300"
+                   class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+        </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+            <label for="durationMinutes" class="text-xs text-secondary">Durée (min)</label>
+            <input id="durationMinutes" name="durationMinutes" type="number" min="15" max="480" step="15" required value="{{firstVenueDuration}}"
+                   class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+        </div>
+        <div class="flex flex-col gap-1.5">
+            <label for="capacity" class="text-xs text-secondary">Places</label>
+            <input id="capacity" name="capacity" type="number" min="1" max="50" step="1" required value="{{firstVenueCapacity}}"
+                   class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+        </div>
+    </div>
+    <p class="text-xs text-muted">Durée et places sont pré-remplies avec les valeurs par défaut du lieu. Les réservations ouvriront 7 jours avant le début.</p>
+    <span id="create-error"></span>
+    <div class="flex justify-end gap-2">
+        <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">
+            Annuler
+        </button>
+        <button type="submit"
+                class="bg-primary text-accent px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+            Créer
+        </button>
+    </div>
+</form>
+{{/hasVenues}}
+{{^hasVenues}}
+<p class="text-sm text-secondary mb-4">Il faut d'abord créer un lieu pour pouvoir y planifier une session.</p>
+<div class="flex justify-end">
+    <a href="/workshop-venues" class="bg-primary text-accent px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+        Gérer les lieux
+    </a>
+</div>
+{{/hasVenues}}

@@ -111,30 +111,22 @@ Quand une page affiche plusieurs informations qui viennent de cas d'usage diffé
 
 Relevé du 4 novembre 2026, mis à jour au fil des corrections (une pull request par sujet).
 
-**Cas d'usage qui en injectent un autre** (1) :
+**Cas d'usage qui en injectent un autre** : aucun. Les annulations (`CancelWorkshopBookingByAdmin`, `CancelWorkshopBookingByParticipant`, `CancelWorkshopSession`), `ConfirmWorkshopBooking`, `ExpirePendingWorkshopBookings`, `UpdateWorkshopSession` et `RetryWorkshopEmails` lisent, envoient et écrivent eux-mêmes ; le contenu des e-mails vient de `WorkshopMails` et le compte des places de `WorkshopPlaces` (`service/`). `ReadCategoryStats` lit avec `JewelProvider` et prend plusieurs catégories dans une seule `Query` ; `ReadWorkshopSession` lit la session, son lieu, ses réservations et sa liste d'attente avec ses propres providers.
 
-| Cas d'usage | Injecte | À faire |
-|---|---|---|
-| `ReadWorkshopSession` | `ReadWorkshopSessions` | Lire avec les providers |
-
-Déjà corrigés : les annulations (`CancelWorkshopBookingByAdmin`, `CancelWorkshopBookingByParticipant`, `CancelWorkshopSession`), `ConfirmWorkshopBooking`, `ExpirePendingWorkshopBookings`, `UpdateWorkshopSession` et `RetryWorkshopEmails` lisent, envoient et écrivent eux-mêmes ; le contenu des e-mails vient de `WorkshopMails` et le compte des places de `WorkshopPlaces` (`service/`). `ReadCategoryStats` lit avec `JewelProvider` et prend plusieurs catégories dans une seule `Query`.
-
-**Handlers qui injectent plusieurs cas d'usage** (3) :
+**Handlers qui injectent plusieurs cas d'usage** (1) :
 
 | Handler | Cas d'usage | À faire |
 |---|---|---|
-| `GetAdminWorkshopSessionHandler` | `ReadWorkshopSession`, `ReadWorkshopVenues`, `ReadWorkshopBookings`, `ReadWorkshopWaitlist` | Page = la session ; réservations, liste d'attente et lieux en fragments |
-| `GetAdminWorkshopSessionsHandler` | `ReadWorkshopSessions`, `ReadWorkshopVenues` | Lieux en fragment |
-| `PostWorkshopBookingHandler` | `RequestWorkshopBooking`, `ReadWorkshopSession` | `RequestWorkshopBooking` rend dans son `Result` ce qu'il faut pour réafficher la page |
+| `PostWorkshopBookingHandler` | `RequestWorkshopBooking`, `ReadWorkshopSession` (et le handler `GetWorkshopSessionHandler`, pour réafficher la page) | Formulaire en htmx : l'erreur s'affiche sous le formulaire, le succès le remplace |
 
-Déjà corrigés : l'accueil (`GetIndexHandler` appelle `ReadCategoryStats` une fois ; les derniers bijoux se chargent par `GET /jewels/latest`), la fiche bijou (`GetJewelHandler` n'appelle que `ReadJewel` ; les autres bijoux, les couleurs de métal et les breloques se chargent par `GET /jewels/{id}/related`, `/customization/metal-colors` et `/customization/charms`, chacun avec son handler et son cas d'usage) et le panier. Le filtre `EnsureCartHandler` pose le panier dans l'attribut `cartId` de la requête, que `GetCartHandler` (`ReadCart`) et `PostCartItemHandler` (`AddJewelToCart`) lisent : ils ne créent plus un deuxième panier, qui restait vide en base à la première visite.
+Déjà corrigés : l'accueil (`GetIndexHandler` appelle `ReadCategoryStats` une fois ; les derniers bijoux se chargent par `GET /jewels/latest`), la fiche bijou (`GetJewelHandler` n'appelle que `ReadJewel` ; les autres bijoux, les couleurs de métal et les breloques se chargent par `GET /jewels/{id}/related`, `/customization/metal-colors` et `/customization/charms`, chacun avec son handler et son cas d'usage) l'administration des sessions et le panier. Dans l'administration, la page d'une session n'appelle que `ReadWorkshopSession` ; les inscrites (`GET /workshops/{id}/bookings`, avec `ReadWorkshopBookings` qui rend aussi la session), la liste d'attente (`GET /workshops/{id}/waitlist`) et les lieux proposés (`GET /workshop-venues/options`) se chargent à part. La liste des sessions n'appelle que `ReadWorkshopSessions` ; le formulaire « Nouvelle session » se charge à chaque ouverture de la fenêtre (`GET /workshops/new`). Le filtre `EnsureCartHandler` pose le panier dans l'attribut `cartId` de la requête, que `GetCartHandler` (`ReadCart`) et `PostCartItemHandler` (`AddJewelToCart`) lisent : ils ne créent plus un deuxième panier, qui restait vide en base à la première visite.
 
 **Autres écarts :**
 
 - Seuls quatre cas d'usage ont un `Result` (`ReadSitemap`, `PurgeWorkshopPersonalData`, `RetryWorkshopEmails`, `SendWorkshopReminders`) ; les autres rendent une entité, un record à un autre nom (`Overview`, `Outcome`) ou rien.
 - `WorkshopSessionRules` (`application/`) ne concerne que le domaine des sessions : ses contrôles de capacité et de durée vont dans l'objet métier.
 
-Ordre proposé : les cas d'usage des ateliers avec leurs services (fait), puis les deux lectures ci-dessus avec les handlers et leurs fragments, puis la généralisation du `Result`. Chaque étape garde les tests au vert.
+Ordre proposé : les cas d'usage des ateliers avec leurs services (fait), l'accueil, le panier, la fiche bijou et l'administration des sessions (fait), le formulaire de réservation publique (reste), puis la généralisation du `Result`. Chaque étape garde les tests au vert.
 
 ## Infrastructure
 

@@ -40,6 +40,10 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 | * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue |
 | * | `/workshop-venues*` | Lieux des ateliers : création, modification, photo, archivage |
 | * | `/workshops*` | Sessions : création, modification, annulation ; réservations (annulation, présente, absente) et liste d'attente |
+| GET | `/workshops/new` | Fragment : le formulaire « Nouvelle session », chargé à l'ouverture de la fenêtre |
+| GET | `/workshops/{id}/bookings` | Fragment : la section « Inscrites » de la page d'une session |
+| GET | `/workshops/{id}/waitlist` | Fragment : la section « Liste d'attente » de la page d'une session |
+| GET | `/workshop-venues/options` | Fragment : les lieux de la liste de choix du lieu (paramètre `selected` : lieu actuel) |
 | GET | `/images/{id}` | Images (miniatures) |
 
 L'administration est une PWA installable : son service worker (`public/sw.js`) ne met jamais les pages en cache, seulement les fichiers statiques et les images.

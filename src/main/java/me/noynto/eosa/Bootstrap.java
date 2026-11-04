@@ -222,7 +222,10 @@ public class Bootstrap {
         ReadWorkshopWaitlist readWorkshopWaitlist = new ReadWorkshopWaitlist(workshopWaitlistEntryProvider);
         ReadWorkshopSession readWorkshopSession = new ReadWorkshopSession(
             workshopSessionProvider,
-            readWorkshopSessions
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            clock
         );
         CreateWorkshopSession createWorkshopSession = new CreateWorkshopSession(
             workshopVenueProvider,
@@ -280,7 +283,7 @@ public class Bootstrap {
             workshopSessionProvider,
             workshopVenueProvider
         );
-        ReadWorkshopBookings readWorkshopBookings = new ReadWorkshopBookings(workshopBookingProvider);
+        ReadWorkshopBookings readWorkshopBookings = new ReadWorkshopBookings(workshopBookingProvider, workshopSessionProvider);
         ConfirmWorkshopBooking confirmWorkshopBooking = new ConfirmWorkshopBooking(
             workshopBookingProvider,
             workshopSessionProvider,
@@ -799,6 +802,11 @@ public class Bootstrap {
                 "/workshop-venues",
                 new CreateWorkshopVenueHandler(createWorkshopVenue)
             );
+            // Avant « /workshop-venues/{id} » : « options » ne doit pas être pris pour un identifiant.
+            javalinConfig.routes.get(
+                "/workshop-venues/options",
+                new GetAdminWorkshopVenueOptionsHandler(readWorkshopVenues)
+            );
             javalinConfig.routes.get(
                 "/workshop-venues/{id}",
                 new GetAdminWorkshopVenueHandler(readWorkshopVenue)
@@ -821,15 +829,28 @@ public class Bootstrap {
             );
             javalinConfig.routes.get(
                 "/workshops",
-                new GetAdminWorkshopSessionsHandler(readWorkshopSessions, readWorkshopVenues, clock)
+                new GetAdminWorkshopSessionsHandler(readWorkshopSessions, clock)
             );
             javalinConfig.routes.post(
                 "/workshops",
                 new CreateWorkshopSessionHandler(createWorkshopSession)
             );
+            // Avant « /workshops/{id} » : « new » ne doit pas être pris pour un identifiant.
+            javalinConfig.routes.get(
+                "/workshops/new",
+                new GetAdminWorkshopFormHandler(readWorkshopVenues)
+            );
             javalinConfig.routes.get(
                 "/workshops/{id}",
-                new GetAdminWorkshopSessionHandler(readWorkshopSession, readWorkshopVenues, readWorkshopBookings, readWorkshopWaitlist, clock)
+                new GetAdminWorkshopSessionHandler(readWorkshopSession, clock)
+            );
+            javalinConfig.routes.get(
+                "/workshops/{id}/bookings",
+                new GetAdminWorkshopBookingsHandler(readWorkshopBookings, clock)
+            );
+            javalinConfig.routes.get(
+                "/workshops/{id}/waitlist",
+                new GetAdminWorkshopWaitlistHandler(readWorkshopWaitlist)
             );
             javalinConfig.routes.patch(
                 "/workshops/{id}",
