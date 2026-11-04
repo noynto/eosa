@@ -39,10 +39,7 @@ public record AnnounceWorkshopBookingOpenings(
 
     private static final Logger LOGGER = Logger.getLogger(AnnounceWorkshopBookingOpenings.class.getName());
 
-    /**
-     * @return le nombre de personnes prévenues
-     */
-    public int handle() {
+    public Result handle() {
         Instant now = clock.instant();
         int notified = 0;
         var sessionIds = workshopSessionProvider.readIds().toList();
@@ -98,7 +95,15 @@ public record AnnounceWorkshopBookingOpenings(
                 }
             }
         }
-        return notified;
+        return new Result(notified);
+    }
+
+    /**
+     * @param notified le nombre de personnes prévenues
+     */
+    public record Result(
+            int notified
+    ) {
     }
 
 }

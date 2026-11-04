@@ -65,7 +65,7 @@ class ExpirePendingWorkshopBookingsTest {
         var rosa = waiting("rosa@example.com", "session-a");
         var lise = waiting("lise@example.com", "session-b");
 
-        int expired = expirePendingWorkshopBookings().handle();
+        int expired = expirePendingWorkshopBookings().handle().expired();
 
         assertEquals(2, expired);
         assertEquals(WorkshopBookingState.EXPIRED, stale.getState());

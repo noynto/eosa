@@ -89,7 +89,7 @@ class ConfirmWorkshopBookingTest {
     void handle_confirmsAPendingBookingWithinTheDelayAndSendsTheRecap() {
         var booking = booking(WorkshopBookingState.PENDING, now.minus(Duration.ofMinutes(10)));
 
-        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token"));
+        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token")).outcome();
 
         assertEquals(ConfirmWorkshopBooking.Outcome.CONFIRMED, outcome);
         assertEquals(WorkshopBookingState.CONFIRMED, booking.getState());
@@ -106,7 +106,7 @@ class ConfirmWorkshopBookingTest {
         var booking = booking(WorkshopBookingState.PENDING, now.minus(Duration.ofMinutes(10)));
         doThrow(new RuntimeException("SMTP")).when(mailProvider).send(any());
 
-        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token"));
+        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token")).outcome();
 
         assertEquals(ConfirmWorkshopBooking.Outcome.CONFIRMED, outcome);
         assertEquals(WorkshopBookingState.CONFIRMED, booking.getState());
@@ -117,7 +117,7 @@ class ConfirmWorkshopBookingTest {
     void handle_expiresAPendingBookingPastTheDelay() {
         var booking = booking(WorkshopBookingState.PENDING, now.minus(Duration.ofMinutes(31)));
 
-        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token"));
+        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token")).outcome();
 
         assertEquals(ConfirmWorkshopBooking.Outcome.EXPIRED, outcome);
         assertEquals(WorkshopBookingState.EXPIRED, booking.getState());
@@ -129,7 +129,7 @@ class ConfirmWorkshopBookingTest {
         var booking = booking(WorkshopBookingState.CONFIRMED, now.minus(Duration.ofMinutes(10)));
         booking.setConfirmedAt(now.minus(Duration.ofMinutes(5)));
 
-        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token"));
+        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token")).outcome();
 
         assertEquals(ConfirmWorkshopBooking.Outcome.ALREADY_CONFIRMED, outcome);
         assertEquals(now.minus(Duration.ofMinutes(5)), booking.getConfirmedAt());
@@ -140,7 +140,7 @@ class ConfirmWorkshopBookingTest {
     void handle_doesNotConfirmACancelledBooking() {
         var booking = booking(WorkshopBookingState.CANCELLED, now.minus(Duration.ofMinutes(10)));
 
-        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token"));
+        var outcome = confirmWorkshopBooking().handle(new ConfirmWorkshopBooking.Command("token")).outcome();
 
         assertEquals(ConfirmWorkshopBooking.Outcome.CANCELLED, outcome);
         assertEquals(WorkshopBookingState.CANCELLED, booking.getState());

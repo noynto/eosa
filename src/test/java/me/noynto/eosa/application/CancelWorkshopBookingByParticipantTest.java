@@ -162,7 +162,7 @@ class CancelWorkshopBookingByParticipantTest {
     }
 
     private CancelWorkshopBookingByParticipant.Outcome cancelAt(Instant now) {
-        return useCase(Clock.fixed(now, ZoneOffset.UTC)).handle(new CancelWorkshopBookingByParticipant.Command("token"));
+        return useCase(Clock.fixed(now, ZoneOffset.UTC)).handle(new CancelWorkshopBookingByParticipant.Command("token")).outcome();
     }
 
     private CancelWorkshopBookingByParticipant useCase(Clock clock) {

@@ -32,7 +32,7 @@ public record JoinWorkshopWaitlist(
     private static final int MAX_NAME_LENGTH = 100;
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public WorkshopWaitlistEntry handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopSessionId == null || command.workshopSessionId.value() == null) {
             throw new RuntimeException("La session est requise.");
         }
@@ -85,7 +85,7 @@ public record JoinWorkshopWaitlist(
                 .findFirst()
                 .flatMap(workshopWaitlistEntryProvider::read);
         if (existing.isPresent()) {
-            return existing.get();
+            return new Result(existing.get());
         }
         WorkshopWaitlistEntry entry = new WorkshopWaitlistEntry();
         entry.setSessionId(workshopSession.getId());
@@ -93,7 +93,12 @@ public record JoinWorkshopWaitlist(
         entry.setEmail(email);
         entry.setToken(newToken());
         entry.setCreatedAt(now);
-        return workshopWaitlistEntryProvider.write(entry);
+        return new Result(workshopWaitlistEntryProvider.write(entry));
+    }
+
+    public record Result(
+            WorkshopWaitlistEntry entry
+    ) {
     }
 
     private static String newToken() {

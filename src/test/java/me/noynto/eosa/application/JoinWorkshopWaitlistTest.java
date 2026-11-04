@@ -56,7 +56,7 @@ class JoinWorkshopWaitlistTest {
 
     @Test
     void handle_addsAWaitingEntryWhenTheSessionIsFull() {
-        var entry = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, " Rosa ", "rosa@example.com"));
+        var entry = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, " Rosa ", "rosa@example.com")).entry();
 
         assertEquals("Rosa", entry.getFirstName());
         assertTrue(entry.isWaiting());
@@ -66,9 +66,9 @@ class JoinWorkshopWaitlistTest {
 
     @Test
     void handle_keepsTheExistingEntryForTheSameEmail() {
-        var first = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "rosa@example.com"));
+        var first = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "rosa@example.com")).entry();
 
-        var second = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "ROSA@example.com"));
+        var second = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "ROSA@example.com")).entry();
 
         assertSame(first, second);
         assertEquals(1, waitlist.all().size());
@@ -80,7 +80,7 @@ class JoinWorkshopWaitlistTest {
         session.setStartsAt(Instant.parse("2026-11-28T13:00:00Z"));
         session.setCapacity(8);
 
-        var entry = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "rosa@example.com"));
+        var entry = joinWorkshopWaitlist().handle(new JoinWorkshopWaitlist.Command(sessionId, "Rosa", "rosa@example.com")).entry();
 
         assertTrue(entry.isWaiting());
     }

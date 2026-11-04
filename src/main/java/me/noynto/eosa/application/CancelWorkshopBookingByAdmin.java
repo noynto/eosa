@@ -36,7 +36,7 @@ public record CancelWorkshopBookingByAdmin(
 
     private static final Logger LOGGER = Logger.getLogger(CancelWorkshopBookingByAdmin.class.getName());
 
-    public WorkshopBooking handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopSessionId == null || command.workshopBookingId == null || command.workshopBookingId.value() == null) {
             throw new RuntimeException("La session et la réservation sont nécessaires.");
         }
@@ -69,7 +69,7 @@ public record CancelWorkshopBookingByAdmin(
             LOGGER.log(Level.WARNING, "La liste d'attente de la session " + workshopSession.getId().value()
                     + " n'a pas pu être prévenue.", e);
         }
-        return workshopBooking;
+        return new Result(workshopBooking);
     }
 
     /**
@@ -101,6 +101,11 @@ public record CancelWorkshopBookingByAdmin(
     public record Command(
             WorkshopSessionId workshopSessionId,
             WorkshopBookingId workshopBookingId
+    ) {
+    }
+
+    public record Result(
+            WorkshopBooking booking
     ) {
     }
 

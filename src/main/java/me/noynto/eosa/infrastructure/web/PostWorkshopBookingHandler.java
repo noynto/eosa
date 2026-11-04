@@ -49,7 +49,7 @@ public record PostWorkshopBookingHandler(
                     email,
                     valueOf(ctx, "phone"),
                     ctx.formParam("acceptedConditions") != null
-            ));
+            )).booking();
         } catch (RuntimeException e) {
             WorkshopFormResponse.error(ctx, baseUrl, e.getMessage());
             return;

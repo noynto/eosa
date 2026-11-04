@@ -44,7 +44,7 @@ public record PostWorkshopWaitlistHandler(
                     new WorkshopSessionId(ctx.pathParam("id")),
                     firstName,
                     email
-            ));
+            )).entry();
             joined(ctx, entry.getEmail());
         } catch (RuntimeException e) {
             WorkshopFormResponse.error(ctx, baseUrl, e.getMessage());
