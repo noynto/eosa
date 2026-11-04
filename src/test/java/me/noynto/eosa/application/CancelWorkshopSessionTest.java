@@ -27,15 +27,18 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +47,6 @@ class CancelWorkshopSessionTest {
 
     @Mock WorkshopSessionProvider workshopSessionProvider;
     @Mock WorkshopVenueProvider workshopVenueProvider;
-    @Mock SendWorkshopBookingCancellation sendWorkshopBookingCancellation;
     @Mock MailProvider mailProvider;
 
     private final Instant now = Instant.parse("2026-11-01T10:00:00Z");
@@ -104,8 +106,7 @@ class CancelWorkshopSessionTest {
         var stale = booking("stale", WorkshopBookingState.PENDING, now.minus(Duration.ofHours(2)));
         var expired = booking("expired", WorkshopBookingState.EXPIRED, now.minus(Duration.ofDays(2)));
         // Un e-mail qui échoue ne doit pas empêcher d'annuler et de prévenir les autres.
-        doThrow(new RuntimeException("SMTP")).when(sendWorkshopBookingCancellation)
-                .handle(new SendWorkshopBookingCancellation.Command(confirmed.getId()));
+        doThrow(new RuntimeException("SMTP")).when(mailProvider).send(argThat(mail -> mail.to().equals("confirmed@example.com")));
 
         cancelWorkshopSession().handle(new CancelWorkshopSession.Command(sessionId));
 
@@ -114,9 +115,12 @@ class CancelWorkshopSessionTest {
         assertEquals(now, awaiting.getCancelledAt());
         assertEquals(WorkshopBookingState.PENDING, stale.getState());
         assertEquals(WorkshopBookingState.EXPIRED, expired.getState());
-        verify(sendWorkshopBookingCancellation).handle(new SendWorkshopBookingCancellation.Command(confirmed.getId()));
-        verify(sendWorkshopBookingCancellation).handle(new SendWorkshopBookingCancellation.Command(awaiting.getId()));
-        verifyNoMoreInteractions(sendWorkshopBookingCancellation);
+        var mails = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider, times(2)).send(mails.capture());
+        assertEquals(List.of("confirmed@example.com", "awaiting@example.com"), mails.getAllValues().stream().map(Mail::to).toList());
+        assertEquals(true, mails.getAllValues().getFirst().model().get("sessionCancelled"));
+        assertNull(confirmed.getCancellationEmailSentAt());
+        assertEquals(now, awaiting.getCancellationEmailSentAt());
     }
 
     @Test
@@ -146,7 +150,7 @@ class CancelWorkshopSessionTest {
 
     private CancelWorkshopSession cancelWorkshopSession() {
         return new CancelWorkshopSession(workshopSessionProvider, workshopVenueProvider, bookings, waitlist,
-                sendWorkshopBookingCancellation, mailProvider, clock, URI.create("https://eosa.me"));
+                mailProvider, clock, URI.create("https://eosa.me"));
     }
 
     private WorkshopSession sessionStartingAt(String instant) {
@@ -163,6 +167,8 @@ class CancelWorkshopSessionTest {
         var booking = new WorkshopBooking();
         booking.setId(new WorkshopBookingId(id));
         booking.setSessionId(sessionId);
+        booking.setFirstName(id);
+        booking.setEmail(id + "@example.com");
         booking.setState(state);
         booking.setCreatedAt(createdAt);
         return bookings.write(booking);

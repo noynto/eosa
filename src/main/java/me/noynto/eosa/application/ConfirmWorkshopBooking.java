@@ -1,10 +1,17 @@
 package me.noynto.eosa.application;
 
+import me.noynto.eosa.mail.MailProvider;
+import me.noynto.eosa.service.WorkshopMails;
 import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopBookingState;
+import me.noynto.eosa.workshop.WorkshopSession;
+import me.noynto.eosa.workshop.WorkshopSessionProvider;
+import me.noynto.eosa.workshop.WorkshopVenue;
+import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.logging.Level;
@@ -15,9 +22,12 @@ import java.util.logging.Logger;
  */
 public record ConfirmWorkshopBooking(
         WorkshopBookingProvider workshopBookingProvider,
-        SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation,
+        WorkshopSessionProvider workshopSessionProvider,
+        WorkshopVenueProvider workshopVenueProvider,
         WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider,
-        Clock clock
+        MailProvider mailProvider,
+        Clock clock,
+        URI publicBaseUrl
 ) {
 
     private static final Logger LOGGER = Logger.getLogger(ConfirmWorkshopBooking.class.getName());
@@ -63,7 +73,11 @@ public record ConfirmWorkshopBooking(
                 });
         // La place est confirmée même si l'e-mail récapitulatif ne part pas : il sera renvoyé plus tard.
         try {
-            sendWorkshopBookingConfirmation.handle(new SendWorkshopBookingConfirmation.Command(workshopBooking.getId()));
+            WorkshopSession workshopSession = workshopSessionProvider.read(workshopBooking.getSessionId()).orElseThrow();
+            WorkshopVenue workshopVenue = workshopVenueProvider.read(workshopSession.getVenueId()).orElseThrow();
+            mailProvider.send(WorkshopMails.bookingConfirmation(workshopBooking, workshopSession, workshopVenue, publicBaseUrl));
+            workshopBooking.setConfirmationEmailSentAt(now);
+            workshopBookingProvider.write(workshopBooking);
         } catch (RuntimeException e) {
             LOGGER.log(Level.WARNING, "L'e-mail récapitulatif de la réservation " + workshopBooking.getId().value()
                     + " n'est pas parti, il sera renvoyé plus tard.", e);

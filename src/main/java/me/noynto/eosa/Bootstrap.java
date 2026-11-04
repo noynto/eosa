@@ -205,15 +205,6 @@ public class Bootstrap {
             workshopWaitlistEntryProvider,
             clock
         );
-        NotifyWorkshopWaitlist notifyWorkshopWaitlist = new NotifyWorkshopWaitlist(
-            workshopSessionProvider,
-            workshopVenueProvider,
-            workshopBookingProvider,
-            workshopWaitlistEntryProvider,
-            mailProvider,
-            clock,
-            properties.publicBaseUrl()
-        );
         JoinWorkshopWaitlist joinWorkshopWaitlist = new JoinWorkshopWaitlist(
             workshopSessionProvider,
             workshopBookingProvider,
@@ -240,13 +231,7 @@ public class Bootstrap {
             workshopVenueProvider,
             workshopSessionProvider,
             workshopBookingProvider,
-            notifyWorkshopWaitlist,
-            clock
-        );
-        SendWorkshopBookingCancellation sendWorkshopBookingCancellation = new SendWorkshopBookingCancellation(
-            workshopBookingProvider,
-            workshopSessionProvider,
-            workshopVenueProvider,
+            workshopWaitlistEntryProvider,
             mailProvider,
             clock,
             properties.publicBaseUrl()
@@ -256,23 +241,27 @@ public class Bootstrap {
             workshopVenueProvider,
             workshopBookingProvider,
             workshopWaitlistEntryProvider,
-            sendWorkshopBookingCancellation,
             mailProvider,
             clock,
             properties.publicBaseUrl()
         );
         CancelWorkshopBookingByAdmin cancelWorkshopBookingByAdmin = new CancelWorkshopBookingByAdmin(
             workshopBookingProvider,
-            sendWorkshopBookingCancellation,
-            notifyWorkshopWaitlist,
-            clock
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopWaitlistEntryProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
         );
         CancelWorkshopBookingByParticipant cancelWorkshopBookingByParticipant = new CancelWorkshopBookingByParticipant(
             workshopBookingProvider,
             workshopSessionProvider,
-            sendWorkshopBookingCancellation,
-            notifyWorkshopWaitlist,
-            clock
+            workshopVenueProvider,
+            workshopWaitlistEntryProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
         );
 
         SendTestEmail sendTestEmail = new SendTestEmail(mailProvider);
@@ -290,22 +279,24 @@ public class Bootstrap {
             workshopVenueProvider
         );
         ReadWorkshopBookings readWorkshopBookings = new ReadWorkshopBookings(workshopBookingProvider);
-        SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation = new SendWorkshopBookingConfirmation(
+        ConfirmWorkshopBooking confirmWorkshopBooking = new ConfirmWorkshopBooking(
             workshopBookingProvider,
             workshopSessionProvider,
             workshopVenueProvider,
+            workshopWaitlistEntryProvider,
             mailProvider,
             clock,
             properties.publicBaseUrl()
         );
-        ConfirmWorkshopBooking confirmWorkshopBooking = new ConfirmWorkshopBooking(
+        ExpirePendingWorkshopBookings expirePendingWorkshopBookings = new ExpirePendingWorkshopBookings(
             workshopBookingProvider,
-            sendWorkshopBookingConfirmation,
+            workshopSessionProvider,
+            workshopVenueProvider,
             workshopWaitlistEntryProvider,
-            clock
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
         );
-        ExpirePendingWorkshopBookings expirePendingWorkshopBookings =
-            new ExpirePendingWorkshopBookings(workshopBookingProvider, notifyWorkshopWaitlist, clock);
         MarkWorkshopBookingAttended markWorkshopBookingAttended =
             new MarkWorkshopBookingAttended(workshopBookingProvider, workshopSessionProvider, clock);
         MarkWorkshopBookingNoShow markWorkshopBookingNoShow =
@@ -336,9 +327,11 @@ public class Bootstrap {
         );
         RetryWorkshopEmails retryWorkshopEmails = new RetryWorkshopEmails(
             workshopBookingProvider,
-            sendWorkshopBookingConfirmation,
-            sendWorkshopBookingCancellation,
-            clock
+            workshopSessionProvider,
+            workshopVenueProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
         );
 
         // TASK

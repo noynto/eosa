@@ -30,6 +30,8 @@ class WorkshopMailsTest {
         assertEquals("Ada", mail.model().get("firstName"));
         assertEquals("12 rue des Arts, 54000 Nancy", mail.model().get("venueAddress"));
         assertEquals("https://eosa.me/workshops/bookings/token-ada/cancel", mail.model().get("cancelUrl"));
+        // 48 h avant le samedi 14 novembre à 14 h 00.
+        assertEquals("jeudi 12 novembre 2026 à 14 h 00", mail.model().get("cancellationDeadline"));
         assertTrue(mail.model().get("mapUrl").toString().startsWith("https://www.google.com/maps/search/?api=1&query=12+rue"));
     }
 
