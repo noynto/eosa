@@ -17,7 +17,7 @@ public record CreateWorkshopSession(
         Clock clock
 ) {
 
-    public WorkshopSession handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopVenueId == null || command.workshopVenueId.value() == null) {
             throw new RuntimeException("Le lieu de la session est requis.");
         }
@@ -37,8 +37,8 @@ public record CreateWorkshopSession(
         }
         int capacity = command.capacity() != null ? command.capacity() : workshopVenue.getDefaultCapacity();
         int durationMinutes = command.durationMinutes() != null ? command.durationMinutes() : workshopVenue.getDefaultDurationMinutes();
-        WorkshopSessionRules.checkCapacity(capacity);
-        WorkshopSessionRules.checkDuration(durationMinutes);
+        WorkshopSession.checkCapacity(capacity);
+        WorkshopSession.checkDuration(durationMinutes);
 
         WorkshopSession workshopSession = new WorkshopSession();
         workshopSession.setVenueId(workshopVenue.getId());
@@ -46,7 +46,12 @@ public record CreateWorkshopSession(
         workshopSession.setDurationMinutes(durationMinutes);
         workshopSession.setCapacity(capacity);
         workshopSession.setState(WorkshopSessionState.SCHEDULED);
-        return workshopSessionProvider.write(workshopSession);
+        return new Result(workshopSessionProvider.write(workshopSession));
+    }
+
+    public record Result(
+            WorkshopSession session
+    ) {
     }
 
     /**

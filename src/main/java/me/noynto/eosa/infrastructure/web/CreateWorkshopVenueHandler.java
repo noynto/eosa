@@ -14,7 +14,7 @@ public record CreateWorkshopVenueHandler(CreateWorkshopVenue createWorkshopVenue
                     ctx.formParam("address"),
                     ctx.formParam("postalCode"),
                     ctx.formParam("city")
-            ));
+            )).venue();
             ctx.header("HX-Redirect", "/workshop-venues/" + workshopVenue.getId().value());
             ctx.status(200);
         } catch (RuntimeException e) {

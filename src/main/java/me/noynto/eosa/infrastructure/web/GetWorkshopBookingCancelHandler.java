@@ -24,7 +24,7 @@ public record GetWorkshopBookingCancelHandler(
 
     @Override
     public void handle(Context ctx) {
-        ReadWorkshopBooking.Overview overview;
+        ReadWorkshopBooking.Result overview;
         try {
             overview = readWorkshopBooking.handle(new ReadWorkshopBooking.Command(ctx.pathParam("token")));
         } catch (RuntimeException e) {

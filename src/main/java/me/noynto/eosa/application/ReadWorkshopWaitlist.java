@@ -13,13 +13,18 @@ public record ReadWorkshopWaitlist(
         WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider
 ) {
 
-    public List<WorkshopWaitlistEntry> handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopSessionId == null || command.workshopSessionId.value() == null) {
             throw new RuntimeException("L'identifiant de la session est nécessaire.");
         }
-        return workshopWaitlistEntryProvider.readIds(command.workshopSessionId(), null, null, true)
+        return new Result(workshopWaitlistEntryProvider.readIds(command.workshopSessionId(), null, null, true)
                 .map(id -> workshopWaitlistEntryProvider.read(id).orElseThrow())
-                .toList();
+                .toList());
+    }
+
+    public record Result(
+            List<WorkshopWaitlistEntry> entries
+    ) {
     }
 
     public record Command(

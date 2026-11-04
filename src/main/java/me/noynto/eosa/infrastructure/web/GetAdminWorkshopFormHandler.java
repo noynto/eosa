@@ -15,7 +15,7 @@ public record GetAdminWorkshopFormHandler(ReadWorkshopVenues readWorkshopVenues)
 
     @Override
     public void handle(Context ctx) {
-        var venues = readWorkshopVenues.handle().stream()
+        var venues = readWorkshopVenues.handle().venues().stream()
                 .filter(venue -> !venue.isArchived())
                 .map(venue -> {
                     Map<String, Object> option = new HashMap<>();

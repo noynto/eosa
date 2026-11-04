@@ -119,10 +119,10 @@ Relevé du 4 novembre 2026, mis à jour au fil des corrections (une pull request
 
 **Autres écarts :**
 
-- 20 cas d'usage sur 62 ont un `Result`. Les réservations d'ateliers (demande, confirmation, annulations, pointage, liste d'attente, annonce, expiration) en ont un depuis la généralisation. Restent à convertir les sessions et lieux d'ateliers avec leurs lectures, le catalogue (bijoux, breloques, couleurs de métal, images), le panier, le paiement et l'identité : ils rendent encore une entité, une liste, un `Overview` ou un `Optional`.
-- `WorkshopSessionRules` (`application/`) ne concerne que le domaine des sessions : ses contrôles de capacité et de durée vont dans l'objet métier.
+- 34 cas d'usage sur 62 ont un `Result` : tous ceux des ateliers (réservations, liste d'attente, sessions, lieux et leurs lectures). Restent à convertir le catalogue (bijoux, breloques, couleurs de métal, images), le panier, le paiement et l'identité : ils rendent encore une entité, une liste ou un `Optional`.
+- Les bornes et les contrôles de capacité et de durée d'une session sont dans `WorkshopSession` (`MAX_CAPACITY`, `checkCapacity`, `checkDuration`), que les cas d'usage des sessions et des valeurs par défaut d'un lieu appellent.
 
-Reste : la généralisation du `Result` aux autres cas d'usage, puis les contrôles de `WorkshopSessionRules` dans l'objet métier. Chaque étape garde les tests au vert.
+Reste : la généralisation du `Result` au catalogue, au panier, au paiement et à l'identité. Chaque étape garde les tests au vert.
 
 ## Infrastructure
 

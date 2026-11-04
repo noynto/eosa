@@ -9,10 +9,15 @@ public record ReadWorkshopVenues(
         WorkshopVenueProvider workshopVenueProvider
 ) {
 
-    public List<WorkshopVenue> handle() {
-        return workshopVenueProvider.readIds()
+    public Result handle() {
+        return new Result(workshopVenueProvider.readIds()
                 .map(id -> workshopVenueProvider.read(id).orElseThrow())
-                .toList();
+                .toList());
+    }
+
+    public record Result(
+            List<WorkshopVenue> venues
+    ) {
     }
 
 }

@@ -15,7 +15,7 @@ public record CreateWorkshopSessionHandler(CreateWorkshopSession createWorkshopS
                     WorkshopSessionFormat.parseInputs(ctx.formParam("date"), ctx.formParam("time")),
                     WorkshopSessionFormat.parseInteger(ctx.formParam("durationMinutes")),
                     WorkshopSessionFormat.parseInteger(ctx.formParam("capacity"))
-            ));
+            )).session();
             ctx.header("HX-Redirect", "/workshops/" + workshopSession.getId().value());
             ctx.status(200);
         } catch (RuntimeException e) {

@@ -31,7 +31,7 @@ class ArchiveWorkshopVenueTest {
         when(workshopVenueProvider.read(venueId)).thenReturn(Optional.of(venue));
         when(workshopVenueProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        var result = new ArchiveWorkshopVenue(workshopVenueProvider).handle(new ArchiveWorkshopVenue.Command(venueId));
+        var result = new ArchiveWorkshopVenue(workshopVenueProvider).handle(new ArchiveWorkshopVenue.Command(venueId)).venue();
 
         assertTrue(result.isArchived());
         verify(workshopVenueProvider).write(argThat(WorkshopVenue::isArchived));

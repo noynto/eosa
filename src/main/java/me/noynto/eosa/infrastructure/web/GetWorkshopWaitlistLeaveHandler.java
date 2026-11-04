@@ -19,7 +19,7 @@ public record GetWorkshopWaitlistLeaveHandler(
 
     @Override
     public void handle(Context ctx) {
-        ReadWorkshopWaitlistEntry.Overview overview;
+        ReadWorkshopWaitlistEntry.Result overview;
         try {
             overview = readWorkshopWaitlistEntry.handle(new ReadWorkshopWaitlistEntry.Command(ctx.pathParam("token")));
         } catch (RuntimeException e) {

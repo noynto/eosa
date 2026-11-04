@@ -91,7 +91,7 @@ class CancelWorkshopSessionTest {
         when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(sessionStartingAt("2026-11-14T13:00:00Z")));
         when(workshopSessionProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        WorkshopSession result = cancelWorkshopSession().handle(new CancelWorkshopSession.Command(sessionId));
+        WorkshopSession result = cancelWorkshopSession().handle(new CancelWorkshopSession.Command(sessionId)).session();
 
         assertEquals(WorkshopSessionState.CANCELLED, result.getState());
         assertEquals(now, result.getCancelledAt());

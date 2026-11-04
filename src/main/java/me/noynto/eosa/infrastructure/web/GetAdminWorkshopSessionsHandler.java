@@ -23,7 +23,7 @@ public record GetAdminWorkshopSessionsHandler(
     @Override
     public void handle(Context ctx) {
         Instant now = clock.instant();
-        var overviews = readWorkshopSessions.handle();
+        var overviews = readWorkshopSessions.handle().overviews();
 
         // À venir : par date croissante ; passées : la plus récente d'abord.
         List<Map<String, Object>> upcoming = overviews.stream()

@@ -11,7 +11,7 @@ public record UpdateWorkshopVenue(
         WorkshopVenueProvider workshopVenueProvider
 ) {
 
-    public WorkshopVenue handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopVenueId == null || command.workshopVenueId.value() == null) {
             throw new RuntimeException("L'identifiant du lieu est nécessaire.");
         }
@@ -41,7 +41,12 @@ public record UpdateWorkshopVenue(
         workshopVenue.setPostalCode(command.postalCode().strip());
         workshopVenue.setCity(command.city().strip());
         workshopVenue.setLinkUrl(linkUrl);
-        return workshopVenueProvider.write(workshopVenue);
+        return new Result(workshopVenueProvider.write(workshopVenue));
+    }
+
+    public record Result(
+            WorkshopVenue venue
+    ) {
     }
 
     private static String blankToNull(String value) {

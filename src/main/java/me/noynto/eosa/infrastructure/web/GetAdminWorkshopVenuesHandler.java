@@ -11,7 +11,7 @@ public record GetAdminWorkshopVenuesHandler(ReadWorkshopVenues readWorkshopVenue
 
     @Override
     public void handle(Context ctx) {
-        var workshopVenues = readWorkshopVenues.handle();
+        var workshopVenues = readWorkshopVenues.handle().venues();
 
         var rows = workshopVenues.stream().map(workshopVenue -> {
             boolean hasImage = workshopVenue.getImageId() != null;

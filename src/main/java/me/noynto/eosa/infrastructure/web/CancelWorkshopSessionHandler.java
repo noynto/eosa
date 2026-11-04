@@ -12,7 +12,7 @@ public record CancelWorkshopSessionHandler(CancelWorkshopSession cancelWorkshopS
         try {
             var workshopSession = cancelWorkshopSession.handle(
                     new CancelWorkshopSession.Command(new WorkshopSessionId(ctx.pathParam("id")))
-            );
+            ).session();
             ctx.header("HX-Redirect", "/workshops/" + workshopSession.getId().value());
             ctx.status(200);
         } catch (RuntimeException e) {

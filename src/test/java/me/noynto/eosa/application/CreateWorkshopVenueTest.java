@@ -25,7 +25,7 @@ class CreateWorkshopVenueTest {
 
         var result = new CreateWorkshopVenue(workshopVenueProvider).handle(
                 new CreateWorkshopVenue.Command(" Café des Arts ", "12 rue Stanislas", "54000", "Nancy")
-        );
+        ).venue();
 
         assertEquals("Café des Arts", result.getName());
         assertEquals("12 rue Stanislas", result.getAddress());

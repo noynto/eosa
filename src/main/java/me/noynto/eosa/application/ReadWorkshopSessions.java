@@ -23,10 +23,10 @@ public record ReadWorkshopSessions(
     /**
      * Toutes les sessions, par date de début croissante, avec leur lieu et leurs places occupées.
      */
-    public List<Overview> handle() {
-        return workshopSessionProvider.readIds()
+    public Result handle() {
+        return new Result(workshopSessionProvider.readIds()
                 .map(id -> overviewOf(workshopSessionProvider.read(id).orElseThrow()))
-                .toList();
+                .toList());
     }
 
     Overview overviewOf(WorkshopSession workshopSession) {
@@ -39,6 +39,11 @@ public record ReadWorkshopSessions(
         int occupiedPlaces = WorkshopPlaces.occupied(bookings, now);
         int waitlistCount = (int) workshopWaitlistEntryProvider.readIds(workshopSession.getId(), null, null, true).count();
         return new Overview(workshopSession, workshopVenue, occupiedPlaces, waitlistCount);
+    }
+
+    public record Result(
+            List<Overview> overviews
+    ) {
     }
 
     public record Overview(

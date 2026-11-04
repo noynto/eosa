@@ -37,7 +37,7 @@ public record CancelWorkshopSession(
 
     private static final Logger LOGGER = Logger.getLogger(CancelWorkshopSession.class.getName());
 
-    public WorkshopSession handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopSessionId == null || command.workshopSessionId.value() == null) {
             throw new RuntimeException("L'identifiant de la session est nécessaire.");
         }
@@ -92,7 +92,12 @@ public record CancelWorkshopSession(
                         + entryId.value() + ".", e);
             }
         }
-        return workshopSession;
+        return new Result(workshopSession);
+    }
+
+    public record Result(
+            WorkshopSession session
+    ) {
     }
 
     public record Command(
