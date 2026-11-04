@@ -19,7 +19,7 @@ public record GetJewelsHandler(
 
     @Override
     public void handle(Context ctx) {
-        var jewelIds = readJewelIds.handle(new ReadJewelIds.Query(Set.of(JewelState.PUBLISHED), categories));
+        var jewelIds = readJewelIds.handle(new ReadJewelIds.Query(Set.of(JewelState.PUBLISHED), categories)).jewelIds();
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — " + title);
         model.put("heading", title);

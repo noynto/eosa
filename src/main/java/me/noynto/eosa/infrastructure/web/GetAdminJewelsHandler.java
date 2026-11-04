@@ -12,7 +12,7 @@ public record GetAdminJewelsHandler(ReadJewelIds readJewelIds) implements Handle
 
     @Override
     public void handle(Context ctx) {
-        var ids = readJewelIds.handle(new ReadJewelIds.Query(Set.of(), Set.of()));
+        var ids = readJewelIds.handle(new ReadJewelIds.Query(Set.of(), Set.of())).jewelIds();
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Produits");
         model.put("jewelIds", ids.stream().map(id -> Map.of("id", id.value())).toList());

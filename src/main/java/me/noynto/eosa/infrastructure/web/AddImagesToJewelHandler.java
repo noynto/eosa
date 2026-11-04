@@ -26,7 +26,7 @@ public record AddImagesToJewelHandler(AddImagesToJewel addImagesToJewel) impleme
             Jewel jewel = addImagesToJewel.handle(new AddImagesToJewel.Command(
                     new JewelId(ctx.pathParam("id")),
                     images
-            ));
+            )).jewel();
             Map<String, Object> model = new HashMap<>();
             model.put("jewelId", jewel.getId().value());
             model.put("hasImages", !jewel.getImageIds().isEmpty());

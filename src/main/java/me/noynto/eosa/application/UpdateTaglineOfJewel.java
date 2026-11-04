@@ -8,7 +8,7 @@ public record UpdateTaglineOfJewel(
         JewelProvider jewelProvider
 ) {
 
-    public Jewel handle(Command command) {
+    public Result handle(Command command) {
         // 1. Vérification
         if (command.tagline == null) {
             throw new RuntimeException("L'accroche du produit est nécessaire.");
@@ -28,7 +28,12 @@ public record UpdateTaglineOfJewel(
         jewel.setTagline(command.tagline);
 
         // 4. Enregistrer le produit chez le fournisseur
-        return this.jewelProvider.write(jewel);
+        return new Result(this.jewelProvider.write(jewel));
+    }
+
+    public record Result(
+            Jewel jewel
+    ) {
     }
 
     public record Command(

@@ -9,7 +9,7 @@ public record UpdateCategoryOfJewel(
         JewelProvider jewelProvider
 ) {
 
-    public Jewel handle(Command command) {
+    public Result handle(Command command) {
         // 1. Vérification
         if (command.category == null) {
             throw new RuntimeException("La catégorie du produit est nécessaire.");
@@ -26,7 +26,12 @@ public record UpdateCategoryOfJewel(
         jewel.setCategory(command.category);
 
         // 4. Enregistrer le produit chez le fournisseur
-        return this.jewelProvider.write(jewel);
+        return new Result(this.jewelProvider.write(jewel));
+    }
+
+    public record Result(
+            Jewel jewel
+    ) {
     }
 
     public record Command(

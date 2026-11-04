@@ -15,7 +15,7 @@ public record AddImagesToJewel(
         ImageProvider imageProvider
 ) {
 
-    public Jewel handle(Command command) {
+    public Result handle(Command command) {
         // 1. Vérification
         if (command.jewelId == null || command.jewelId.value() == null) {
             throw new RuntimeException("L'identifiant du produit sur lequel ajouter une ou des images est nécessaire.");
@@ -45,7 +45,12 @@ public record AddImagesToJewel(
         jewel.setImageIds(imageIds);
 
         // 5. Enregistrement du produit chez le fournisseur.
-        return jewelProvider.write(jewel);
+        return new Result(jewelProvider.write(jewel));
+    }
+
+    public record Result(
+            Jewel jewel
+    ) {
     }
 
     public record Command(

@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,18 +28,15 @@ class DownloadImageTest {
 
         var result = new DownloadImage(imageProvider).handle(new DownloadImage.Command(imageId));
 
-        assertTrue(result.isPresent());
-        assertEquals(expected, result.get());
+        assertEquals(expected, result.image());
     }
 
     @Test
-    void handle_returnsEmptyWhenNotFound() {
+    void handle_throwsWhenTheImageDoesNotExist() {
         var imageId = new ImageId("unknown");
         when(imageProvider.download(imageId)).thenReturn(Optional.empty());
 
-        var result = new DownloadImage(imageProvider).handle(new DownloadImage.Command(imageId));
-
-        assertTrue(result.isEmpty());
+        assertThrows(RuntimeException.class, () -> new DownloadImage(imageProvider).handle(new DownloadImage.Command(imageId)));
     }
 
 }

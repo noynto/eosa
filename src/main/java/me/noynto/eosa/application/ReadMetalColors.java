@@ -9,10 +9,15 @@ public record ReadMetalColors(
         MetalColorProvider metalColorProvider
 ) {
 
-    public List<MetalColor> handle() {
-        return metalColorProvider.readIds()
+    public Result handle() {
+        return new Result(metalColorProvider.readIds()
                 .map(id -> metalColorProvider.read(id).orElseThrow())
-                .toList();
+                .toList());
+    }
+
+    public record Result(
+            List<MetalColor> metalColors
+    ) {
     }
 
 }

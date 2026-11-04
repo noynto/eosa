@@ -31,7 +31,7 @@ class UpdatePriceOfJewelTest {
 
         var result = new UpdatePriceOfJewel(jewelProvider).handle(
                 new UpdatePriceOfJewel.Command(jewelId, new BigDecimal("29.90"))
-        );
+        ).jewel();
 
         assertEquals(new BigDecimal("29.90"), result.getPrice());
     }

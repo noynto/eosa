@@ -25,7 +25,7 @@ public record GetJewelHandler(ReadJewel readJewel, String baseUrl) implements Ha
     public void handle(Context ctx) throws Exception {
         try {
             var jewelId = new JewelId(ctx.pathParam("id"));
-            var jewel = readJewel.handle(new ReadJewel.Command(jewelId));
+            var jewel = readJewel.handle(new ReadJewel.Command(jewelId)).jewel();
 
             boolean hasImages = !jewel.getImageIds().isEmpty();
             List<Map<String, Object>> images = new ArrayList<>();

@@ -18,7 +18,7 @@ public record RemoveImageFromJewel(
         ImageProvider imageProvider
 ) {
 
-    public Jewel handle(Command command) {
+    public Result handle(Command command) {
         // 1. Vérification
         if (command.identityId == null || command.identityId.value() == null || command.identityId.value().isBlank()) {
             throw new InvalidCommand("L'identifiant de l'identité est requis.");
@@ -55,7 +55,12 @@ public record RemoveImageFromJewel(
         // 6. Suppression de l'image chez le fournisseur.
         imageProvider.delete(command.imageId);
 
-        return written;
+        return new Result(written);
+    }
+
+    public record Result(
+            Jewel jewel
+    ) {
     }
 
     public record Command(

@@ -11,7 +11,7 @@ public record GetAdminMetalColorsHandler(ReadMetalColors readMetalColors) implem
 
     @Override
     public void handle(Context ctx) {
-        var metalColors = readMetalColors.handle();
+        var metalColors = readMetalColors.handle().metalColors();
 
         var rows = metalColors.stream().map(metalColor -> {
             boolean hasImage = metalColor.getImageId() != null;

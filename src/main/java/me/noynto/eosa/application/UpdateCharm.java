@@ -10,7 +10,7 @@ public record UpdateCharm(
         CharmProvider charmProvider
 ) {
 
-    public Charm handle(Command command) {
+    public Result handle(Command command) {
         if (command.charmId == null || command.charmId.value() == null) {
             throw new RuntimeException("L'identifiant de la breloque est nécessaire.");
         }
@@ -26,7 +26,12 @@ public record UpdateCharm(
 
         charm.setName(command.name());
         charm.setPrice(command.price());
-        return charmProvider.write(charm);
+        return new Result(charmProvider.write(charm));
+    }
+
+    public record Result(
+            Charm charm
+    ) {
     }
 
     public record Command(

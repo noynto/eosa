@@ -9,7 +9,7 @@ public record CreateCharm(
         CharmProvider charmProvider
 ) {
 
-    public Charm handle(Command command) {
+    public Result handle(Command command) {
         if (command.name == null || command.name.isBlank()) {
             throw new InvalidCommand("Le nom de la breloque est requis.");
         }
@@ -20,7 +20,12 @@ public record CreateCharm(
         Charm charm = new Charm();
         charm.setName(command.name());
         charm.setPrice(command.price());
-        return charmProvider.write(charm);
+        return new Result(charmProvider.write(charm));
+    }
+
+    public record Result(
+            Charm charm
+    ) {
     }
 
     public record Command(

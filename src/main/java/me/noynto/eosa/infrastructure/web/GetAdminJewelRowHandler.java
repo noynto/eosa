@@ -14,7 +14,7 @@ public record GetAdminJewelRowHandler(ReadJewel readJewel) implements Handler {
     @Override
     public void handle(Context ctx) {
         try {
-            var jewel = readJewel.handle(new ReadJewel.Command(new JewelId(ctx.pathParam("id"))));
+            var jewel = readJewel.handle(new ReadJewel.Command(new JewelId(ctx.pathParam("id")))).jewel();
             boolean hasState = jewel.getState() != null;
             boolean hasCategory = jewel.getCategory() != null;
             Map<String, Object> model = new HashMap<>();

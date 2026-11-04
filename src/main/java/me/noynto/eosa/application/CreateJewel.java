@@ -12,7 +12,7 @@ public record CreateJewel(
         JewelProvider jewelProvider
 ) {
 
-    public Jewel handle(Command command) {
+    public Result handle(Command command) {
         if (command.identityId == null || command.identityId.value() == null || command.identityId.value().isBlank()) {
             throw new InvalidCommand("L'identifiant de l'identité est requis.");
         }
@@ -31,7 +31,12 @@ public record CreateJewel(
         Jewel jewel = new Jewel();
         jewel.setState(JewelState.DRAFTED);
         jewel.setName(command.name());
-        return jewelProvider.write(jewel);
+        return new Result(jewelProvider.write(jewel));
+    }
+
+    public record Result(
+            Jewel jewel
+    ) {
     }
 
     public record Command(

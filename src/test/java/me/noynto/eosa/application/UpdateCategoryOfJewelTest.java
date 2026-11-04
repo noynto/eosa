@@ -31,9 +31,9 @@ class UpdateCategoryOfJewelTest {
 
         var result = new UpdateCategoryOfJewel(jewelProvider).handle(
                 new UpdateCategoryOfJewel.Command(jewelId, JewelCategory.NECKLACE)
-        );
+        ).jewel();
 
-        assertEquals(JewelCategory.NECKLACE, result.getCategory());
+assertEquals(JewelCategory.NECKLACE, result.getCategory());
     }
 
     @Test

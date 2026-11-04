@@ -9,10 +9,15 @@ public record ReadCharms(
         CharmProvider charmProvider
 ) {
 
-    public List<Charm> handle() {
-        return charmProvider.readIds()
+    public Result handle() {
+        return new Result(charmProvider.readIds()
                 .map(id -> charmProvider.read(id).orElseThrow())
-                .toList();
+                .toList());
+    }
+
+    public record Result(
+            List<Charm> charms
+    ) {
     }
 
 }

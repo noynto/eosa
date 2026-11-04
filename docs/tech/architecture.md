@@ -119,10 +119,10 @@ Relevé du 4 novembre 2026, mis à jour au fil des corrections (une pull request
 
 **Autres écarts :**
 
-- 34 cas d'usage sur 62 ont un `Result` : tous ceux des ateliers (réservations, liste d'attente, sessions, lieux et leurs lectures). Restent à convertir le catalogue (bijoux, breloques, couleurs de métal, images), le panier, le paiement et l'identité : ils rendent encore une entité, une liste ou un `Optional`.
+- 51 cas d'usage sur 62 ont un `Result` : tous ceux des ateliers (réservations, liste d'attente, sessions, lieux et leurs lectures) et du catalogue (bijoux, breloques, couleurs de métal, images). Restent à convertir le panier (4), le paiement (2) et l'identité (3) : ils rendent encore une entité ou un `Optional`. `DeleteCharm` et `SendTestEmail` n'ont rien à rendre et restent `void`.
 - Les bornes et les contrôles de capacité et de durée d'une session sont dans `WorkshopSession` (`MAX_CAPACITY`, `checkCapacity`, `checkDuration`), que les cas d'usage des sessions et des valeurs par défaut d'un lieu appellent.
 
-Reste : la généralisation du `Result` au catalogue, au panier, au paiement et à l'identité. Chaque étape garde les tests au vert.
+Reste : la généralisation du `Result` au panier, au paiement et à l'identité. Chaque étape garde les tests au vert.
 
 ## Infrastructure
 
