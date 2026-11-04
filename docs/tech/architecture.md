@@ -7,7 +7,7 @@ EOSA est une application Java 25 sans framework d'injection : `Bootstrap.java` l
 1. **Seuls les cas d'usage injectent des providers.** Ni un service, ni un handler, ni un objet du domaine n'en reçoit.
 2. **Un cas d'usage n'injecte jamais un autre cas d'usage.** Il reçoit des providers, une `Clock` et de la configuration, rien d'autre.
 3. **Un cas d'usage rend un `Result`**, un record imbriqué qui porte tout ce dont l'appelant a besoin.
-4. **Une règle qui croise deux domaines est un service statique** : une fonction qui reçoit des objets déjà lus et rend un résultat, sans provider ni entrée-sortie.
+4. **Une règle qui croise deux domaines ou plus est un service statique** : une fonction qui reçoit des objets déjà lus et rend un résultat, sans provider ni entrée-sortie.
 5. **Un handler injecte un seul cas d'usage**, l'appelle une fois et traduit son `Result` en réponse HTTP.
 6. **Une page qui a besoin d'informations d'un autre cas d'usage les demande par htmx** : le navigateur fait des appels complémentaires, chacun servi par son propre handler.
 
@@ -21,7 +21,7 @@ me.noynto.eosa
 │   identity/ hash/
 │   workshop/ mail/
 ├── shared/                 identifiants (records : JewelId, WorkshopSessionId…)
-├── service/                services statiques : règles qui croisent deux domaines
+├── service/                services statiques : règles qui croisent deux domaines ou plus
 ├── application/            cas d'usage, un par commande
 ├── task/                   tâches one-shot lancées par Bootstrap puis arrêt (CronJobs)
 └── infrastructure/
@@ -56,7 +56,7 @@ handler (infrastructure/web)  ──▶  cas d'usage  ──▶  services statiq
 - Il reçoit ses dépendances par son constructeur : providers, `Clock` (jamais `Instant.now()` direct, pour les tests), adresse publique du site si besoin.
 - Il vérifie la commande puis applique les règles. Un refus lève une `RuntimeException` avec un message en français, prêt à être montré à l'utilisateur.
 - **Il est le seul à parler aux providers** : il lit, applique les règles, écrit. Ce qui est lu est passé aux services et aux méthodes des objets métier ; ce qui est écrit l'est par lui.
-- **Il n'injecte jamais un autre cas d'usage.** Une étape qui sert à plusieurs cas d'usage (prévenir la liste d'attente, envoyer un e-mail) se réécrit dans chacun avec les providers dont il a besoin (`MailProvider`, les providers de la liste d'attente) ; seul le calcul qui croise deux domaines se partage, dans un [service statique](#services-statiques-service). Un peu de répétition entre cas d'usage est voulue : chaque cas d'usage se lit seul, de haut en bas.
+- **Il n'injecte jamais un autre cas d'usage.** Une étape qui sert à plusieurs cas d'usage (prévenir la liste d'attente, envoyer un e-mail) se réécrit dans chacun avec les providers dont il a besoin (`MailProvider`, les providers de la liste d'attente) ; seul le calcul qui croise deux domaines ou plus se partage, dans un [service statique](#services-statiques-service). Un peu de répétition entre cas d'usage est voulue : chaque cas d'usage se lit seul, de haut en bas.
 - Un cas d'usage de lecture prend une `Query` à la place de la `Command`.
 
 ### Result
@@ -80,7 +80,7 @@ public record ReadSitemap(JewelProvider jewelProvider, WorkshopSessionProvider w
 
 ## Services statiques (`service/`)
 
-Un service est le calcul d'une règle qui concerne deux domaines, quand aucun des deux objets n'en est le propriétaire naturel. Par exemple : combien de places reste-t-il (une session et ses réservations), ou quel contenu d'e-mail pour une réservation (la réservation, sa session et son lieu).
+Un service est le calcul d'une règle qui concerne deux domaines ou plus, quand aucun des objets n'en est le propriétaire naturel. Par exemple : combien de places reste-t-il (une session et ses réservations), ou quel contenu d'e-mail pour une réservation (la réservation, sa session et son lieu).
 
 - Une classe `final` avec un constructeur privé et des méthodes `static`.
 - Les méthodes **reçoivent des objets du domaine déjà lus** et rendent une valeur ou un record. Elles n'injectent **aucun provider**, n'appellent aucun cas d'usage, ne lisent ni l'horloge (l'instant est un paramètre `Instant now`), ni l'environnement, ni la base, et ne gardent aucun état.
