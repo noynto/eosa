@@ -16,7 +16,7 @@ public record ReadWorkshopBooking(
         WorkshopVenueProvider workshopVenueProvider
 ) {
 
-    public Overview handle(Command command) {
+    public Result handle(Command command) {
         if (command.token == null || command.token.isBlank()) {
             throw new RuntimeException("Le lien de réservation est incomplet.");
         }
@@ -26,7 +26,7 @@ public record ReadWorkshopBooking(
                 .orElseThrow(() -> new RuntimeException("Ce lien de réservation n'est pas valide."));
         WorkshopSession workshopSession = workshopSessionProvider.read(workshopBooking.getSessionId()).orElseThrow();
         WorkshopVenue workshopVenue = workshopVenueProvider.read(workshopSession.getVenueId()).orElseThrow();
-        return new Overview(workshopBooking, workshopSession, workshopVenue);
+        return new Result(workshopBooking, workshopSession, workshopVenue);
     }
 
     public record Command(
@@ -34,7 +34,7 @@ public record ReadWorkshopBooking(
     ) {
     }
 
-    public record Overview(
+    public record Result(
             WorkshopBooking booking,
             WorkshopSession session,
             WorkshopVenue venue

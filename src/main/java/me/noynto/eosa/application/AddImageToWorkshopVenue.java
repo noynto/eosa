@@ -11,7 +11,7 @@ public record AddImageToWorkshopVenue(
         ImageProvider imageProvider
 ) {
 
-    public WorkshopVenue handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopVenueId == null || command.workshopVenueId.value() == null) {
             throw new RuntimeException("L'identifiant du lieu sur lequel ajouter une photo est nécessaire.");
         }
@@ -28,7 +28,12 @@ public record AddImageToWorkshopVenue(
         Image uploaded = imageProvider.upload(command.image());
         workshopVenue.setImageId(uploaded.getId());
 
-        return workshopVenueProvider.write(workshopVenue);
+        return new Result(workshopVenueProvider.write(workshopVenue));
+    }
+
+    public record Result(
+            WorkshopVenue venue
+    ) {
     }
 
     public record Command(

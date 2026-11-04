@@ -8,12 +8,17 @@ public record ReadWorkshopVenue(
         WorkshopVenueProvider workshopVenueProvider
 ) {
 
-    public WorkshopVenue handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopVenueId == null || command.workshopVenueId.value() == null) {
             throw new RuntimeException("L'identifiant du lieu est nécessaire.");
         }
-        return workshopVenueProvider.read(command.workshopVenueId())
-                .orElseThrow(() -> new RuntimeException("Le lieu " + command.workshopVenueId.value() + " n'existe pas."));
+        return new Result(workshopVenueProvider.read(command.workshopVenueId())
+                .orElseThrow(() -> new RuntimeException("Le lieu " + command.workshopVenueId.value() + " n'existe pas.")));
+    }
+
+    public record Result(
+            WorkshopVenue venue
+    ) {
     }
 
     public record Command(

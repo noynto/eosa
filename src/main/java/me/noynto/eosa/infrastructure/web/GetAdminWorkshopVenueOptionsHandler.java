@@ -17,7 +17,7 @@ public record GetAdminWorkshopVenueOptionsHandler(ReadWorkshopVenues readWorksho
     @Override
     public void handle(Context ctx) {
         String selected = ctx.queryParam("selected");
-        var options = readWorkshopVenues.handle().stream()
+        var options = readWorkshopVenues.handle().venues().stream()
                 .filter(venue -> !venue.isArchived() || venue.getId().value().equals(selected))
                 .map(venue -> {
                     Map<String, Object> option = new HashMap<>();

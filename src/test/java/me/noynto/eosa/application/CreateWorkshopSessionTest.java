@@ -41,7 +41,7 @@ class CreateWorkshopSessionTest {
 
         WorkshopSession result = createWorkshopSession().handle(
                 new CreateWorkshopSession.Command(venueId, nextSaturday, 90, 6)
-        );
+        ).session();
 
         assertEquals(venueId, result.getVenueId());
         assertEquals(Instant.parse("2026-11-14T13:00:00Z"), result.getStartsAt());
@@ -57,7 +57,7 @@ class CreateWorkshopSessionTest {
 
         WorkshopSession result = createWorkshopSession().handle(
                 new CreateWorkshopSession.Command(venueId, nextSaturday, null, null)
-        );
+        ).session();
 
         assertEquals(10, result.getCapacity());
         assertEquals(150, result.getDurationMinutes());

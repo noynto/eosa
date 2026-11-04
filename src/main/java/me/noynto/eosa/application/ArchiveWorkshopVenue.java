@@ -12,7 +12,7 @@ public record ArchiveWorkshopVenue(
         WorkshopVenueProvider workshopVenueProvider
 ) {
 
-    public WorkshopVenue handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopVenueId == null || command.workshopVenueId.value() == null) {
             throw new RuntimeException("L'identifiant du lieu est nécessaire.");
         }
@@ -21,7 +21,12 @@ public record ArchiveWorkshopVenue(
                 .orElseThrow(() -> new RuntimeException("Le lieu " + command.workshopVenueId.value() + " n'existe pas."));
 
         workshopVenue.setArchived(true);
-        return workshopVenueProvider.write(workshopVenue);
+        return new Result(workshopVenueProvider.write(workshopVenue));
+    }
+
+    public record Result(
+            WorkshopVenue venue
+    ) {
     }
 
     public record Command(

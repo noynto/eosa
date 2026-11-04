@@ -22,7 +22,7 @@ public record AddImageToWorkshopVenueHandler(AddImageToWorkshopVenue addImageToW
             var workshopVenue = addImageToWorkshopVenue.handle(new AddImageToWorkshopVenue.Command(
                     new WorkshopVenueId(ctx.pathParam("id")),
                     image
-            ));
+            )).venue();
             ctx.header("HX-Redirect", "/workshop-venues/" + workshopVenue.getId().value());
             ctx.status(200);
         } catch (RuntimeException e) {

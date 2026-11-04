@@ -35,7 +35,7 @@ class UpdateWorkshopVenueTest {
         var result = new UpdateWorkshopVenue(workshopVenueProvider).handle(new UpdateWorkshopVenue.Command(
                 venueId, "Café des Arts", " Un café cosy. ", "12 rue Stanislas", "54000", "Nancy",
                 "https://www.instagram.com/cafedesarts"
-        ));
+        )).venue();
 
         assertEquals("Café des Arts", result.getName());
         assertEquals("Un café cosy.", result.getDescription());
@@ -55,7 +55,7 @@ class UpdateWorkshopVenueTest {
 
         var result = new UpdateWorkshopVenue(workshopVenueProvider).handle(new UpdateWorkshopVenue.Command(
                 venueId, "Café des Arts", "  ", "12 rue Stanislas", "54000", "Nancy", ""
-        ));
+        )).venue();
 
         assertNull(result.getDescription());
         assertNull(result.getLinkUrl());

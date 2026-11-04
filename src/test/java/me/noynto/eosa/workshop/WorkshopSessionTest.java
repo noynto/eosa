@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -58,6 +60,28 @@ class WorkshopSessionTest {
         session.setState(WorkshopSessionState.CANCELLED);
 
         assertFalse(session.isBookable(session.getBookingOpensAt().plusSeconds(1)));
+    }
+
+    @Test
+    void checkCapacityAcceptsOneToTheMaximum() {
+        assertDoesNotThrow(() -> WorkshopSession.checkCapacity(1));
+        assertDoesNotThrow(() -> WorkshopSession.checkCapacity(WorkshopSession.MAX_CAPACITY));
+    }
+
+    @Test
+    void checkCapacityRefusesNothingZeroAndMoreThanTheMaximum() {
+        assertThrows(RuntimeException.class, () -> WorkshopSession.checkCapacity(null));
+        assertThrows(RuntimeException.class, () -> WorkshopSession.checkCapacity(0));
+        assertThrows(RuntimeException.class, () -> WorkshopSession.checkCapacity(WorkshopSession.MAX_CAPACITY + 1));
+    }
+
+    @Test
+    void checkDurationAcceptsTheBoundsAndRefusesWhatIsOutside() {
+        assertDoesNotThrow(() -> WorkshopSession.checkDuration(WorkshopSession.MIN_DURATION_MINUTES));
+        assertDoesNotThrow(() -> WorkshopSession.checkDuration(WorkshopSession.MAX_DURATION_MINUTES));
+        assertThrows(RuntimeException.class, () -> WorkshopSession.checkDuration(null));
+        assertThrows(RuntimeException.class, () -> WorkshopSession.checkDuration(WorkshopSession.MIN_DURATION_MINUTES - 1));
+        assertThrows(RuntimeException.class, () -> WorkshopSession.checkDuration(WorkshopSession.MAX_DURATION_MINUTES + 1));
     }
 
     private WorkshopSession sessionStartingAt(LocalDateTime parisTime) {

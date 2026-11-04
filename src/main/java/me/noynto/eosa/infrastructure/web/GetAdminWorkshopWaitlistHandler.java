@@ -24,7 +24,7 @@ public record GetAdminWorkshopWaitlistHandler(ReadWorkshopWaitlist readWorkshopW
     public void handle(Context ctx) {
         List<Map<String, Object>> waitlist;
         try {
-            waitlist = readWorkshopWaitlist.handle(new ReadWorkshopWaitlist.Command(new WorkshopSessionId(ctx.pathParam("id")))).stream()
+            waitlist = readWorkshopWaitlist.handle(new ReadWorkshopWaitlist.Command(new WorkshopSessionId(ctx.pathParam("id")))).entries().stream()
                     .map(entry -> {
                         Map<String, Object> row = new HashMap<>();
                         row.put("firstName", entry.getFirstName());

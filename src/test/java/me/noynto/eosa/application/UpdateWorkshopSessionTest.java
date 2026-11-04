@@ -65,7 +65,7 @@ class UpdateWorkshopSessionTest {
 
         WorkshopSession result = updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
                 sessionId, otherVenueId, LocalDateTime.of(2026, 11, 21, 10, 30), 90, 12
-        ));
+        )).session();
 
         assertEquals(otherVenueId, result.getVenueId());
         assertEquals(Instant.parse("2026-11-21T09:30:00Z"), result.getStartsAt());
@@ -126,7 +126,7 @@ class UpdateWorkshopSessionTest {
 
         WorkshopSession result = updateWorkshopSession().handle(new UpdateWorkshopSession.Command(
                 sessionId, venueId, startsAt, 150, 3
-        ));
+        )).session();
 
         assertEquals(150, result.getDurationMinutes());
         assertEquals(3, result.getCapacity());

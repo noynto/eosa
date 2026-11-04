@@ -40,7 +40,7 @@ class AddImageToWorkshopVenueTest {
 
         var result = new AddImageToWorkshopVenue(workshopVenueProvider, imageProvider).handle(
                 new AddImageToWorkshopVenue.Command(venueId, imageOfFormat("image/webp"))
-        );
+        ).venue();
 
         assertEquals(new ImageId("img-1"), result.getImageId());
     }

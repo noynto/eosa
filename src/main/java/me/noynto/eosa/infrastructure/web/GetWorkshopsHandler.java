@@ -24,7 +24,7 @@ public record GetWorkshopsHandler(
     @Override
     public void handle(Context ctx) {
         Instant now = clock.instant();
-        List<Map<String, Object>> upcomingSessions = readWorkshopSessions.handle().stream()
+        List<Map<String, Object>> upcomingSessions = readWorkshopSessions.handle().overviews().stream()
                 .filter(overview -> overview.session().getState() == WorkshopSessionState.SCHEDULED)
                 .filter(overview -> overview.session().getStartsAt().isAfter(now))
                 .map(overview -> Map.<String, Object>of("id", overview.session().getId().value()))

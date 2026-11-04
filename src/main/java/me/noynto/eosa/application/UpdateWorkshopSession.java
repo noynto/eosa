@@ -35,7 +35,7 @@ public record UpdateWorkshopSession(
 
     private static final Logger LOGGER = Logger.getLogger(UpdateWorkshopSession.class.getName());
 
-    public WorkshopSession handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopSessionId == null || command.workshopSessionId.value() == null) {
             throw new RuntimeException("L'identifiant de la session est nécessaire.");
         }
@@ -45,8 +45,8 @@ public record UpdateWorkshopSession(
         if (command.startsAt == null) {
             throw new RuntimeException("La date et l'heure de début sont requises.");
         }
-        WorkshopSessionRules.checkCapacity(command.capacity());
-        WorkshopSessionRules.checkDuration(command.durationMinutes());
+        WorkshopSession.checkCapacity(command.capacity());
+        WorkshopSession.checkDuration(command.durationMinutes());
 
         WorkshopSession workshopSession = workshopSessionProvider.read(command.workshopSessionId)
                 .orElseThrow(() -> new RuntimeException("La session " + command.workshopSessionId.value() + " n'existe pas."));
@@ -100,7 +100,12 @@ public record UpdateWorkshopSession(
                         + " n'a pas pu être prévenue.", e);
             }
         }
-        return workshopSession;
+        return new Result(workshopSession);
+    }
+
+    public record Result(
+            WorkshopSession session
+    ) {
     }
 
     /**

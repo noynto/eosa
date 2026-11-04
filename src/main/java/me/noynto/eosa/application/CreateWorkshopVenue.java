@@ -10,7 +10,7 @@ public record CreateWorkshopVenue(
     public static final int DEFAULT_CAPACITY = 8;
     public static final int DEFAULT_DURATION_MINUTES = 120;
 
-    public WorkshopVenue handle(Command command) {
+    public Result handle(Command command) {
         if (command.name == null || command.name.isBlank()) {
             throw new RuntimeException("Le nom du lieu est requis.");
         }
@@ -31,7 +31,12 @@ public record CreateWorkshopVenue(
         workshopVenue.setCity(command.city().strip());
         workshopVenue.setDefaultCapacity(DEFAULT_CAPACITY);
         workshopVenue.setDefaultDurationMinutes(DEFAULT_DURATION_MINUTES);
-        return workshopVenueProvider.write(workshopVenue);
+        return new Result(workshopVenueProvider.write(workshopVenue));
+    }
+
+    public record Result(
+            WorkshopVenue venue
+    ) {
     }
 
     public record Command(

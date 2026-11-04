@@ -13,7 +13,7 @@ public record GetAdminWorkshopVenueHandler(ReadWorkshopVenue readWorkshopVenue) 
     @Override
     public void handle(Context ctx) {
         try {
-            var workshopVenue = readWorkshopVenue.handle(new ReadWorkshopVenue.Command(new WorkshopVenueId(ctx.pathParam("id"))));
+            var workshopVenue = readWorkshopVenue.handle(new ReadWorkshopVenue.Command(new WorkshopVenueId(ctx.pathParam("id")))).venue();
             boolean hasImage = workshopVenue.getImageId() != null;
             Map<String, Object> model = new HashMap<>();
             model.put("title", workshopVenue.getName());

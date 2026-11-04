@@ -1,6 +1,7 @@
 package me.noynto.eosa.application;
 
 import me.noynto.eosa.shared.WorkshopVenueId;
+import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopVenue;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class UpdateDefaultsOfWorkshopVenueTest {
 
         var result = new UpdateDefaultsOfWorkshopVenue(workshopVenueProvider).handle(
                 new UpdateDefaultsOfWorkshopVenue.Command(venueId, 12, 150)
-        );
+        ).venue();
 
         assertEquals(12, result.getDefaultCapacity());
         assertEquals(150, result.getDefaultDurationMinutes());
@@ -61,7 +62,7 @@ class UpdateDefaultsOfWorkshopVenueTest {
     void handle_throwsWhenCapacityIsAboveMaximum() {
         assertThrows(RuntimeException.class, () ->
                 new UpdateDefaultsOfWorkshopVenue(workshopVenueProvider).handle(
-                        new UpdateDefaultsOfWorkshopVenue.Command(venueId, UpdateDefaultsOfWorkshopVenue.MAX_CAPACITY + 1, 120)
+                        new UpdateDefaultsOfWorkshopVenue.Command(venueId, WorkshopSession.MAX_CAPACITY + 1, 120)
                 )
         );
     }
@@ -70,7 +71,7 @@ class UpdateDefaultsOfWorkshopVenueTest {
     void handle_throwsWhenDurationIsTooShort() {
         assertThrows(RuntimeException.class, () ->
                 new UpdateDefaultsOfWorkshopVenue(workshopVenueProvider).handle(
-                        new UpdateDefaultsOfWorkshopVenue.Command(venueId, 8, UpdateDefaultsOfWorkshopVenue.MIN_DURATION_MINUTES - 1)
+                        new UpdateDefaultsOfWorkshopVenue.Command(venueId, 8, WorkshopSession.MIN_DURATION_MINUTES - 1)
                 )
         );
     }
@@ -79,7 +80,7 @@ class UpdateDefaultsOfWorkshopVenueTest {
     void handle_throwsWhenDurationIsTooLong() {
         assertThrows(RuntimeException.class, () ->
                 new UpdateDefaultsOfWorkshopVenue(workshopVenueProvider).handle(
-                        new UpdateDefaultsOfWorkshopVenue.Command(venueId, 8, UpdateDefaultsOfWorkshopVenue.MAX_DURATION_MINUTES + 1)
+                        new UpdateDefaultsOfWorkshopVenue.Command(venueId, 8, WorkshopSession.MAX_DURATION_MINUTES + 1)
                 )
         );
     }

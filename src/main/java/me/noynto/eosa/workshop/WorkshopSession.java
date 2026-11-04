@@ -19,6 +19,13 @@ public class WorkshopSession {
      */
     public static final int BOOKING_OPENING_DAYS = 7;
 
+    /**
+     * Bornes de la capacité et de la durée d'une session, reprises pour les valeurs par défaut d'un lieu.
+     */
+    public static final int MAX_CAPACITY = 50;
+    public static final int MIN_DURATION_MINUTES = 15;
+    public static final int MAX_DURATION_MINUTES = 480;
+
     private WorkshopSessionId id;
     private WorkshopVenueId venueId;
     private Instant startsAt;
@@ -38,6 +45,25 @@ public class WorkshopSession {
 
     public Instant getBookingOpensAt() {
         return startsAt.atZone(ZONE).minusDays(BOOKING_OPENING_DAYS).toInstant();
+    }
+
+    /**
+     * @throws RuntimeException si la capacité n'est pas un nombre de places valide pour une session
+     */
+    public static void checkCapacity(Integer capacity) {
+        if (capacity == null || capacity < 1 || capacity > MAX_CAPACITY) {
+            throw new RuntimeException("La capacité doit être comprise entre 1 et " + MAX_CAPACITY + " places.");
+        }
+    }
+
+    /**
+     * @throws RuntimeException si la durée n'est pas une durée valide pour une session
+     */
+    public static void checkDuration(Integer durationMinutes) {
+        if (durationMinutes == null || durationMinutes < MIN_DURATION_MINUTES || durationMinutes > MAX_DURATION_MINUTES) {
+            throw new RuntimeException("La durée doit être comprise entre "
+                    + MIN_DURATION_MINUTES + " et " + MAX_DURATION_MINUTES + " minutes.");
+        }
     }
 
     /**
