@@ -32,7 +32,7 @@ public record AddJewelToCart(
         CartShippingRuleProvider shippingRuleProvider
 ) {
 
-    public Cart handle(Command command) {
+    public Result handle(Command command) {
         if (command.cartId == null || command.cartId.value() == null) {
             throw new RuntimeException("L'identifiant du panier est nécessaire.");
         }
@@ -98,7 +98,12 @@ public record AddJewelToCart(
 
         cart.setItems(items);
         cart.applyShippingRule(shippingRuleProvider.get());
-        return cartProvider.write(cart);
+        return new Result(cartProvider.write(cart));
+    }
+
+    public record Result(
+            Cart cart
+    ) {
     }
 
     public record Command(

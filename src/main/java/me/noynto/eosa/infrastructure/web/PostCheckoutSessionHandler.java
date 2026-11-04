@@ -19,7 +19,7 @@ public record PostCheckoutSessionHandler(
         }
         var session = initiateCheckout.handle(
                 new InitiateCheckout.Command(new CartId(cartCookie))
-        );
+        ).checkout();
         ctx.redirect(session.getSession().getUri().toString(), HttpStatus.SEE_OTHER);
     }
 

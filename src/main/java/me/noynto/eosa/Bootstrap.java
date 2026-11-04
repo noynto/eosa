@@ -127,12 +127,14 @@ public class Bootstrap {
         AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(
             identityProvider,
             identitySessionProvider,
-            cryptProvider
+            cryptProvider,
+            clock
         );
         EnsureIdentityHasValidSession ensureIdentityHasValidSession =
             new EnsureIdentityHasValidSession(
                 identitySessionProvider,
-                identityProvider
+                identityProvider,
+                clock
             );
         EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(
             ensureIdentityHasValidSession

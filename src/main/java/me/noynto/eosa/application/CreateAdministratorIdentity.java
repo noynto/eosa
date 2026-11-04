@@ -11,7 +11,7 @@ public record CreateAdministratorIdentity(
         CryptProvider cryptProvider
 ) {
 
-    public Identity handle(Command command) {
+    public Result handle(Command command) {
         if (command.name == null || command.name.isBlank()) {
             throw new InvalidCommand("Le nom de l'administrateur est requis.");
         }
@@ -26,7 +26,12 @@ public record CreateAdministratorIdentity(
         identity.setName(command.name());
         identity.setSecret(cryptProvider.hash(new Plain(command.secret())).value());
         identity.setAdministrator(true);
-        return this.identityProvider.write(identity);
+        return new Result(this.identityProvider.write(identity));
+    }
+
+    public record Result(
+            Identity identity
+    ) {
     }
 
     public record Command(

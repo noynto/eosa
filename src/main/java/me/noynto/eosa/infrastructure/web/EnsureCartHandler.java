@@ -12,7 +12,7 @@ public record EnsureCartHandler(GetOrCreateCart getOrCreateCart) implements Hand
         String cookieValue = ctx.cookie("cart");
         var cart = getOrCreateCart.handle(new GetOrCreateCart.Command(
                 cookieValue != null ? new CartId(cookieValue) : null
-        ));
+        )).cart();
         ctx.cookie("cart", cart.getId().value());
         // Le cookie de la réponse n'est lisible qu'à la requête suivante : les handlers du panier lisent cet attribut.
         ctx.attribute("cartId", cart.getId());

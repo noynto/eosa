@@ -38,7 +38,7 @@ class GetOrCreateCartTest {
         var existing = cartWith(cartId);
         when(cartProvider.read(cartId)).thenReturn(Optional.of(existing));
 
-        var result = new GetOrCreateCart(cartProvider, shippingRuleProvider).handle(new GetOrCreateCart.Command(cartId));
+        var result = new GetOrCreateCart(cartProvider, shippingRuleProvider).handle(new GetOrCreateCart.Command(cartId)).cart();
 
         assertSame(existing, result);
     }
@@ -48,7 +48,7 @@ class GetOrCreateCartTest {
         var created = cartWith(new CartId("new"));
         when(cartProvider.write(any())).thenReturn(created);
 
-        var result = new GetOrCreateCart(cartProvider, shippingRuleProvider).handle(new GetOrCreateCart.Command(null));
+        var result = new GetOrCreateCart(cartProvider, shippingRuleProvider).handle(new GetOrCreateCart.Command(null)).cart();
 
         assertNotNull(result);
         verify(cartProvider).write(any());
@@ -61,7 +61,7 @@ class GetOrCreateCartTest {
         when(cartProvider.read(cartId)).thenReturn(Optional.empty());
         when(cartProvider.write(any())).thenReturn(created);
 
-        var result = new GetOrCreateCart(cartProvider, shippingRuleProvider).handle(new GetOrCreateCart.Command(cartId));
+        var result = new GetOrCreateCart(cartProvider, shippingRuleProvider).handle(new GetOrCreateCart.Command(cartId)).cart();
 
         assertNotNull(result);
         verify(cartProvider).write(any());

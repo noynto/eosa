@@ -109,20 +109,19 @@ Quand une page affiche plusieurs informations qui viennent de cas d'usage diffé
 - Une erreur sur un complément ne casse pas la page : le fragment est vide ou porte un court message, jamais un statut qui remplace la page.
 - Un formulaire n'a pas besoin de réafficher la page pour répondre : l'erreur s'affiche sous lui et la confirmation le remplace, par un seul cas d'usage ([web](web.md#htmx)).
 
-## État actuel et mise en conformité
+## État actuel : le code respecte ces règles
 
-Relevé du 4 novembre 2026, mis à jour au fil des corrections (une pull request par sujet).
+Le relevé du 4 novembre 2026 a été corrigé au fil de plusieurs pull requests (une par sujet). Il n'y a plus d'écart ; ce qui suit garde la trace de ce qui a été fait, pour vérifier qu'un nouveau code ne le défait pas.
 
 **Cas d'usage qui en injectent un autre** : aucun. Les annulations (`CancelWorkshopBookingByAdmin`, `CancelWorkshopBookingByParticipant`, `CancelWorkshopSession`), `ConfirmWorkshopBooking`, `ExpirePendingWorkshopBookings`, `UpdateWorkshopSession` et `RetryWorkshopEmails` lisent, envoient et écrivent eux-mêmes ; le contenu des e-mails vient de `WorkshopMails` et le compte des places de `WorkshopPlaces` (`service/`). `ReadCategoryStats` lit avec `JewelProvider` et prend plusieurs catégories dans une seule `Query` ; `ReadWorkshopSession` lit la session, son lieu, ses réservations et sa liste d'attente avec ses propres providers.
 
 **Handlers qui injectent plusieurs cas d'usage** : aucun. Ce qui a été corrigé : l'accueil (`GetIndexHandler` appelle `ReadCategoryStats` une fois ; les derniers bijoux se chargent par `GET /jewels/latest`), la fiche bijou (`GetJewelHandler` n'appelle que `ReadJewel` ; les autres bijoux, les couleurs de métal et les breloques se chargent par `GET /jewels/{id}/related`, `/customization/metal-colors` et `/customization/charms`, chacun avec son handler et son cas d'usage), l'administration des sessions, le formulaire de réservation publique et le panier. Dans l'administration, la page d'une session n'appelle que `ReadWorkshopSession` ; les inscrites (`GET /workshops/{id}/bookings`, avec `ReadWorkshopBookings` qui rend aussi la session), la liste d'attente (`GET /workshops/{id}/waitlist`) et les lieux proposés (`GET /workshop-venues/options`) se chargent à part. La liste des sessions n'appelle que `ReadWorkshopSessions` ; le formulaire « Nouvelle session » se charge à chaque ouverture de la fenêtre (`GET /workshops/new`). Les formulaires de réservation et de liste d'attente d'une session s'envoient en htmx : `PostWorkshopBookingHandler` et `PostWorkshopWaitlistHandler` n'appellent que `RequestWorkshopBooking` et `JoinWorkshopWaitlist`, sans réafficher la page. Le filtre `EnsureCartHandler` pose le panier dans l'attribut `cartId` de la requête, que `GetCartHandler` (`ReadCart`) et `PostCartItemHandler` (`AddJewelToCart`) lisent : ils ne créent plus un deuxième panier, qui restait vide en base à la première visite.
 
-**Autres écarts :**
+**Result :** 60 cas d'usage sur 62 rendent un `Result`. `DeleteCharm` et `SendTestEmail` n'ont rien à rendre et restent `void`. `DownloadImage` lève une exception pour une image absente (404 côté handler) ; `EnsureIdentityHasValidSession` rend `Result(Identity identity)` avec `identity` à `null` pour un visiteur sans session valide, et `EnsureIdentityHandler` le lit pour rediriger vers la connexion.
 
-- 51 cas d'usage sur 62 ont un `Result` : tous ceux des ateliers (réservations, liste d'attente, sessions, lieux et leurs lectures) et du catalogue (bijoux, breloques, couleurs de métal, images). Restent à convertir le panier (4), le paiement (2) et l'identité (3) : ils rendent encore une entité ou un `Optional`. `DeleteCharm` et `SendTestEmail` n'ont rien à rendre et restent `void`.
-- Les bornes et les contrôles de capacité et de durée d'une session sont dans `WorkshopSession` (`MAX_CAPACITY`, `checkCapacity`, `checkDuration`), que les cas d'usage des sessions et des valeurs par défaut d'un lieu appellent.
+**Règles du domaine :** les bornes et les contrôles de capacité et de durée d'une session sont dans `WorkshopSession` (`MAX_CAPACITY`, `checkCapacity`, `checkDuration`), que les cas d'usage des sessions et des valeurs par défaut d'un lieu appellent.
 
-Reste : la généralisation du `Result` au panier, au paiement et à l'identité. Chaque étape garde les tests au vert.
+**Pour un nouveau code :** un cas d'usage neuf a son `Result` imbriqué dès le départ, n'injecte que des providers, une `Clock` et de la configuration ; un handler neuf n'appelle qu'un cas d'usage, et le reste de la page se charge par htmx.
 
 ## Infrastructure
 

@@ -28,7 +28,7 @@ class CreateAdministratorIdentityTest {
         when(identityProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         var result = new CreateAdministratorIdentity(identityProvider, cryptProvider)
-                .handle(new CreateAdministratorIdentity.Command("admin", "secret"));
+                .handle(new CreateAdministratorIdentity.Command("admin", "secret")).identity();
 
         verify(identityProvider).write(argThat(i ->
                 "admin".equals(i.getName()) &&
@@ -45,7 +45,7 @@ class CreateAdministratorIdentityTest {
         when(identityProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
         var result = new CreateAdministratorIdentity(identityProvider, cryptProvider)
-                .handle(new CreateAdministratorIdentity.Command("admin", "secret"));
+                .handle(new CreateAdministratorIdentity.Command("admin", "secret")).identity();
 
         assertEquals("bcrypt$hashed", result.getSecret());
     }

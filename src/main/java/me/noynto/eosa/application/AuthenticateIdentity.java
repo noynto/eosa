@@ -8,15 +8,17 @@ import me.noynto.eosa.identity.IdentityProvider;
 import me.noynto.eosa.identity.IdentitySession;
 import me.noynto.eosa.identity.IdentitySessionProvider;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 public record AuthenticateIdentity(
         IdentityProvider identityProvider,
         IdentitySessionProvider identitySessionProvider,
-        CryptProvider cryptProvider
+        CryptProvider cryptProvider,
+        Clock clock
 ) {
 
-    public IdentitySession handle(Command command) {
+    public Result handle(Command command) {
         if (command.name == null || command.name.isBlank()) {
             throw new InvalidCredentials("Identifiants incorrects.");
         }
@@ -35,9 +37,11 @@ public record AuthenticateIdentity(
 
         IdentitySession session = new IdentitySession();
         session.setIdentityId(identity.getId());
-        session.setBegin(LocalDateTime.now());
-        return identitySessionProvider.write(session);
+        session.setBegin(LocalDateTime.now(clock));
+        return new Result(identitySessionProvider.write(session));
     }
+
+    public record Result(IdentitySession session) {}
 
     public record Command(String name, String secret) {}
 
