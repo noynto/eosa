@@ -1,9 +1,16 @@
 package me.noynto.eosa.application;
 
+import me.noynto.eosa.mail.MailProvider;
+import me.noynto.eosa.service.WorkshopMails;
 import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopBookingState;
+import me.noynto.eosa.workshop.WorkshopSession;
+import me.noynto.eosa.workshop.WorkshopSessionProvider;
+import me.noynto.eosa.workshop.WorkshopVenue;
+import me.noynto.eosa.workshop.WorkshopVenueProvider;
 
+import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -16,9 +23,11 @@ import java.util.logging.Logger;
  */
 public record RetryWorkshopEmails(
         WorkshopBookingProvider workshopBookingProvider,
-        SendWorkshopBookingConfirmation sendWorkshopBookingConfirmation,
-        SendWorkshopBookingCancellation sendWorkshopBookingCancellation,
-        Clock clock
+        WorkshopSessionProvider workshopSessionProvider,
+        WorkshopVenueProvider workshopVenueProvider,
+        MailProvider mailProvider,
+        Clock clock,
+        URI publicBaseUrl
 ) {
 
     /**
@@ -28,7 +37,8 @@ public record RetryWorkshopEmails(
     private static final Logger LOGGER = Logger.getLogger(RetryWorkshopEmails.class.getName());
 
     public Result handle() {
-        Instant retryBefore = clock.instant().minus(GRACE_PERIOD);
+        Instant now = clock.instant();
+        Instant retryBefore = now.minus(GRACE_PERIOD);
         int sent = 0;
         int failed = 0;
         var confirmedIds = workshopBookingProvider.readIds(null, EnumSet.of(WorkshopBookingState.CONFIRMED), null, null).toList();
@@ -39,7 +49,11 @@ public record RetryWorkshopEmails(
                 continue;
             }
             try {
-                sendWorkshopBookingConfirmation.handle(new SendWorkshopBookingConfirmation.Command(id));
+                WorkshopSession workshopSession = workshopSessionProvider.read(workshopBooking.getSessionId()).orElseThrow();
+                WorkshopVenue workshopVenue = workshopVenueProvider.read(workshopSession.getVenueId()).orElseThrow();
+                mailProvider.send(WorkshopMails.bookingConfirmation(workshopBooking, workshopSession, workshopVenue, publicBaseUrl));
+                workshopBooking.setConfirmationEmailSentAt(now);
+                workshopBookingProvider.write(workshopBooking);
                 sent++;
             } catch (RuntimeException e) {
                 LOGGER.log(Level.WARNING, "L'e-mail récapitulatif de la réservation " + id.value() + " n'est toujours pas parti.", e);
@@ -55,7 +69,11 @@ public record RetryWorkshopEmails(
                 continue;
             }
             try {
-                sendWorkshopBookingCancellation.handle(new SendWorkshopBookingCancellation.Command(id));
+                WorkshopSession workshopSession = workshopSessionProvider.read(workshopBooking.getSessionId()).orElseThrow();
+                WorkshopVenue workshopVenue = workshopVenueProvider.read(workshopSession.getVenueId()).orElseThrow();
+                mailProvider.send(WorkshopMails.bookingCancellation(workshopBooking, workshopSession, workshopVenue, publicBaseUrl));
+                workshopBooking.setCancellationEmailSentAt(now);
+                workshopBookingProvider.write(workshopBooking);
                 sent++;
             } catch (RuntimeException e) {
                 LOGGER.log(Level.WARNING, "L'e-mail d'annulation de la réservation " + id.value() + " n'est toujours pas parti.", e);

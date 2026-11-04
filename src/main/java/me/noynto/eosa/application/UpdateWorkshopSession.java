@@ -1,19 +1,25 @@
 package me.noynto.eosa.application;
 
+import me.noynto.eosa.mail.MailProvider;
+import me.noynto.eosa.service.WorkshopMails;
+import me.noynto.eosa.service.WorkshopPlaces;
 import me.noynto.eosa.shared.WorkshopSessionId;
 import me.noynto.eosa.shared.WorkshopVenueId;
+import me.noynto.eosa.workshop.WorkshopBooking;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
-import me.noynto.eosa.workshop.WorkshopBookingState;
 import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopSessionState;
 import me.noynto.eosa.workshop.WorkshopVenue;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntry;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.EnumSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,8 +27,10 @@ public record UpdateWorkshopSession(
         WorkshopVenueProvider workshopVenueProvider,
         WorkshopSessionProvider workshopSessionProvider,
         WorkshopBookingProvider workshopBookingProvider,
-        NotifyWorkshopWaitlist notifyWorkshopWaitlist,
-        Clock clock
+        WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider,
+        MailProvider mailProvider,
+        Clock clock,
+        URI publicBaseUrl
 ) {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateWorkshopSession.class.getName());
@@ -64,16 +72,11 @@ public record UpdateWorkshopSession(
             throw new RuntimeException("La session doit commencer dans le futur.");
         }
 
-        int occupiedPlaces = (int) workshopBookingProvider.readIds(
-                        workshopSession.getId(),
-                        EnumSet.of(WorkshopBookingState.PENDING, WorkshopBookingState.CONFIRMED,
-                                WorkshopBookingState.ATTENDED, WorkshopBookingState.NO_SHOW),
-                        null,
-                        null
-                )
+        var bookings = workshopBookingProvider
+                .readIds(workshopSession.getId(), WorkshopPlaces.OCCUPYING_STATES, null, null)
                 .map(id -> workshopBookingProvider.read(id).orElseThrow())
-                .filter(booking -> booking.occupiesAPlace(now))
-                .count();
+                .toList();
+        int occupiedPlaces = WorkshopPlaces.occupied(bookings, now);
         if (occupiedPlaces > 0 && (venueChanged || startChanged)) {
             throw new RuntimeException("Le lieu et la date ne peuvent plus changer : " + occupiedPlaces
                     + " place(s) déjà réservée(s). Annulez la session et créez-en une nouvelle.");
@@ -91,13 +94,33 @@ public record UpdateWorkshopSession(
         // De nouvelles places : la liste d'attente est prévenue.
         if (capacityIncreased) {
             try {
-                notifyWorkshopWaitlist.handle(new NotifyWorkshopWaitlist.Command(workshopSession.getId()));
+                notifyWaitlist(workshopSession, bookings, now);
             } catch (RuntimeException e) {
                 LOGGER.log(Level.WARNING, "La liste d'attente de la session " + workshopSession.getId().value()
                         + " n'a pas pu être prévenue.", e);
             }
         }
         return workshopSession;
+    }
+
+    /**
+     * Les nouvelles places sont annoncées à toute la liste d'attente : la première personne qui réserve les obtient.
+     */
+    private void notifyWaitlist(WorkshopSession workshopSession, List<WorkshopBooking> bookings, Instant now) {
+        if (!workshopSession.isBookable(now) || WorkshopPlaces.free(workshopSession, bookings, now) == 0) {
+            return;
+        }
+        WorkshopVenue workshopVenue = workshopVenueProvider.read(workshopSession.getVenueId()).orElseThrow();
+        for (var entryId : workshopWaitlistEntryProvider.readIds(workshopSession.getId(), null, null, true).toList()) {
+            WorkshopWaitlistEntry entry = workshopWaitlistEntryProvider.read(entryId).orElseThrow();
+            try {
+                mailProvider.send(WorkshopMails.waitlistPlaceAvailable(entry, workshopSession, workshopVenue, publicBaseUrl));
+                entry.setLastNotifiedAt(now);
+                workshopWaitlistEntryProvider.write(entry);
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.WARNING, "L'e-mail « Place libérée » n'est pas parti pour l'inscription " + entryId.value() + ".", e);
+            }
+        }
     }
 
     /**

@@ -1,5 +1,7 @@
 package me.noynto.eosa.application;
 
+import me.noynto.eosa.mail.Mail;
+import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.shared.WorkshopBookingId;
 import me.noynto.eosa.shared.WorkshopSessionId;
 import me.noynto.eosa.shared.WorkshopVenueId;
@@ -11,12 +13,16 @@ import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopSessionState;
 import me.noynto.eosa.workshop.WorkshopVenue;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
+import me.noynto.eosa.workshop.WorkshopWaitlistEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.net.URI;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -39,7 +45,9 @@ class UpdateWorkshopSessionTest {
     @Mock WorkshopVenueProvider workshopVenueProvider;
     @Mock WorkshopSessionProvider workshopSessionProvider;
     @Mock WorkshopBookingProvider workshopBookingProvider;
-    @Mock NotifyWorkshopWaitlist notifyWorkshopWaitlist;
+    @Mock MailProvider mailProvider;
+
+    private final InMemoryWorkshopWaitlistEntries waitlist = new InMemoryWorkshopWaitlistEntries();
 
     private final Clock clock = Clock.fixed(Instant.parse("2026-11-01T10:00:00Z"), ZoneOffset.UTC);
     private final WorkshopSessionId sessionId = new WorkshopSessionId("session");
@@ -63,8 +71,51 @@ class UpdateWorkshopSessionTest {
         assertEquals(Instant.parse("2026-11-21T09:30:00Z"), result.getStartsAt());
         assertEquals(90, result.getDurationMinutes());
         assertEquals(12, result.getCapacity());
+        // Les réservations n'ouvrent que le 14 novembre pour une session du 21 : personne à prévenir.
+        verify(mailProvider, never()).send(any());
+    }
+
+    @Test
+    void handle_warnsTheWaitingListWhenPlacesAreAddedToABookableSession() {
+        var now = Instant.parse("2026-11-10T10:00:00Z");
+        when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(scheduledSession()));
+        when(workshopVenueProvider.read(venueId)).thenReturn(Optional.of(venue(venueId, false)));
+        bookedPlaces(3);
+        when(workshopSessionProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+        var rosa = new WorkshopWaitlistEntry();
+        rosa.setSessionId(sessionId);
+        rosa.setFirstName("Rosa");
+        rosa.setEmail("rosa@example.com");
+        rosa.setToken("token-rosa");
+        rosa.setCreatedAt(now.minus(Duration.ofDays(1)));
+        waitlist.write(rosa);
+
         // 8 → 12 places : la liste d'attente est prévenue.
-        verify(notifyWorkshopWaitlist).handle(new NotifyWorkshopWaitlist.Command(sessionId));
+        updateWorkshopSession(Clock.fixed(now, ZoneOffset.UTC)).handle(new UpdateWorkshopSession.Command(
+                sessionId, venueId, startsAt, 120, 12
+        ));
+
+        var mail = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider).send(mail.capture());
+        assertEquals("rosa@example.com", mail.getValue().to());
+        assertEquals("workshop-waitlist-place-available", mail.getValue().template());
+        assertEquals(now, rosa.getLastNotifiedAt());
+    }
+
+    @Test
+    void handle_warnsNobodyWhenTheNewCapacityIsAlreadyFull() {
+        var now = Instant.parse("2026-11-10T10:00:00Z");
+        var session = scheduledSession();
+        session.setCapacity(3);
+        when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(session));
+        bookedPlaces(4);
+        when(workshopSessionProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        updateWorkshopSession(Clock.fixed(now, ZoneOffset.UTC)).handle(new UpdateWorkshopSession.Command(
+                sessionId, venueId, startsAt, 120, 4
+        ));
+
+        verify(mailProvider, never()).send(any());
     }
 
     @Test
@@ -79,7 +130,7 @@ class UpdateWorkshopSessionTest {
 
         assertEquals(150, result.getDurationMinutes());
         assertEquals(3, result.getCapacity());
-        verify(notifyWorkshopWaitlist, never()).handle(any());
+        verify(mailProvider, never()).send(any());
     }
 
     @Test
@@ -171,8 +222,12 @@ class UpdateWorkshopSessionTest {
     }
 
     private UpdateWorkshopSession updateWorkshopSession() {
+        return updateWorkshopSession(clock);
+    }
+
+    private UpdateWorkshopSession updateWorkshopSession(Clock clock) {
         return new UpdateWorkshopSession(workshopVenueProvider, workshopSessionProvider, workshopBookingProvider,
-                notifyWorkshopWaitlist, clock);
+                waitlist, mailProvider, clock, URI.create("https://eosa.me"));
     }
 
     private WorkshopSession scheduledSession() {

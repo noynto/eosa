@@ -1,5 +1,7 @@
 - déterminer toutes les manières d'augmenter le traffic sur le site internet afin d'obtenir un super référencement / améliorer le SEO.
-- documenter l'architecture, les cas d'usages avec record intégré Result, les services qui servent à obtenir un résultat entre deux domaines, les services sont statiques et n'injecte aucun provider, seul les cas d'usages injectent des providers.
-- un usecase ne peut pas injecter un autre usecase.
-- une handler doit injecter, un seul usecase.
-- grâce à htmx, l'interface doit réaliser des appels complémentaires pour obtenir les informations si nécessaire.
+- retirer le Chez au niveau des lieux, cela fait bizarre sur les mails et la page web.
+- dans les nouveautés cela n'apparait pas bien, c'est pas dans l'ordre chronologique.
+- conceptualiser et modéliser les commandes après le tunnel de paiement Stripe.
+- pouvoir initialiser l'étiquette de livraison MondialRelay.
+- pouvoir suivre la livraison.
+- conceptualiser des patterns de collier, et concevoir un chemin utilisateur complet de la couleur du métal, aux couleurs de perles et enfin un pattern d'assemblage pour concevoir son collier du plus que l'on peut.

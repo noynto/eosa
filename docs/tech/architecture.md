@@ -109,19 +109,16 @@ Quand une page affiche plusieurs informations qui viennent de cas d'usage diffé
 
 ## État actuel et mise en conformité
 
-Relevé du 4 novembre 2026, à corriger dans une pull request par sujet.
+Relevé du 4 novembre 2026, mis à jour au fil des corrections (une pull request par sujet).
 
-**Cas d'usage qui en injectent un autre** (9) :
+**Cas d'usage qui en injectent un autre** (2) :
 
 | Cas d'usage | Injecte | À faire |
 |---|---|---|
-| `CancelWorkshopBookingByAdmin`, `CancelWorkshopBookingByParticipant` | `SendWorkshopBookingCancellation`, `NotifyWorkshopWaitlist` | Lire et envoyer avec `MailProvider` et les providers de la liste d'attente ; contenu de l'e-mail dans un service |
-| `CancelWorkshopSession` | `SendWorkshopBookingCancellation` | Idem |
-| `ConfirmWorkshopBooking` | `SendWorkshopBookingConfirmation` | Idem |
-| `ExpirePendingWorkshopBookings`, `UpdateWorkshopSession` | `NotifyWorkshopWaitlist` | Idem |
-| `RetryWorkshopEmails` | `SendWorkshopBookingConfirmation`, `SendWorkshopBookingCancellation` | Idem |
 | `ReadCategoryStats` | `ReadJewelIds` | Lire avec `JewelProvider` |
 | `ReadWorkshopSession` | `ReadWorkshopSessions` | Lire avec les providers |
+
+Déjà corrigés : les annulations (`CancelWorkshopBookingByAdmin`, `CancelWorkshopBookingByParticipant`, `CancelWorkshopSession`), `ConfirmWorkshopBooking`, `ExpirePendingWorkshopBookings`, `UpdateWorkshopSession` et `RetryWorkshopEmails` lisent, envoient et écrivent eux-mêmes ; le contenu des e-mails vient de `WorkshopMails` et le compte des places de `WorkshopPlaces` (`service/`).
 
 **Handlers qui injectent plusieurs cas d'usage** (6) :
 
@@ -139,7 +136,7 @@ Relevé du 4 novembre 2026, à corriger dans une pull request par sujet.
 - Seuls quatre cas d'usage ont un `Result` (`ReadSitemap`, `PurgeWorkshopPersonalData`, `RetryWorkshopEmails`, `SendWorkshopReminders`) ; les autres rendent une entité, un record à un autre nom (`Overview`, `Outcome`) ou rien.
 - `WorkshopSessionRules` (`application/`) ne concerne que le domaine des sessions : ses contrôles de capacité et de durée vont dans l'objet métier.
 
-Ordre proposé : d'abord les cas d'usage des ateliers (réservations, liste d'attente, e-mails) avec leurs services, puis les handlers et leurs fragments, puis la généralisation du `Result`. Chaque étape garde les tests au vert.
+Ordre proposé : les cas d'usage des ateliers avec leurs services (fait), puis les deux lectures ci-dessus avec les handlers et leurs fragments, puis la généralisation du `Result`. Chaque étape garde les tests au vert.
 
 ## Infrastructure
 
