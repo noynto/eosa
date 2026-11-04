@@ -1,7 +1,7 @@
-- déterminer toutes les manières d'augmenter le traffic sur le site internet afin d'obtenir un super référencement / améliorer le SEO.
 - retirer le Chez au niveau des lieux, cela fait bizarre sur les mails et la page web.
 - dans les nouveautés cela n'apparait pas bien, c'est pas dans l'ordre chronologique.
 - conceptualiser et modéliser les commandes après le tunnel de paiement Stripe.
 - pouvoir initialiser l'étiquette de livraison MondialRelay.
 - pouvoir suivre la livraison.
 - conceptualiser des patterns de collier, et concevoir un chemin utilisateur complet de la couleur du métal, aux couleurs de perles et enfin un pattern d'assemblage pour concevoir son collier du plus que l'on peut.
+- déterminer toutes les manières d'augmenter le traffic sur le site internet afin d'obtenir un super référencement / améliorer le SEO.

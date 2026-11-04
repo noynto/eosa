@@ -538,24 +538,19 @@ public class Bootstrap {
                     )
                 )
             );
-            GetWorkshopSessionHandler getWorkshopSessionHandler =
-                new GetWorkshopSessionHandler(readWorkshopSession, clock, baseUrl);
-            javalinConfig.routes.get("/workshops/sessions/{id}", getWorkshopSessionHandler);
+            javalinConfig.routes.get(
+                "/workshops/sessions/{id}",
+                new GetWorkshopSessionHandler(readWorkshopSession, clock, baseUrl)
+            );
             // 5 demandes (réservation ou liste d'attente) par heure et par adresse IP.
             RequestRateLimiter workshopRequestRateLimiter = new RequestRateLimiter(5, Duration.ofHours(1), clock);
             javalinConfig.routes.post(
                 "/workshops/sessions/{id}/bookings",
-                new PostWorkshopBookingHandler(
-                    requestWorkshopBooking,
-                    readWorkshopSession,
-                    getWorkshopSessionHandler,
-                    workshopRequestRateLimiter,
-                    baseUrl
-                )
+                new PostWorkshopBookingHandler(requestWorkshopBooking, workshopRequestRateLimiter, baseUrl)
             );
             javalinConfig.routes.post(
                 "/workshops/sessions/{id}/waitlist",
-                new PostWorkshopWaitlistHandler(joinWorkshopWaitlist, getWorkshopSessionHandler, workshopRequestRateLimiter)
+                new PostWorkshopWaitlistHandler(joinWorkshopWaitlist, workshopRequestRateLimiter, baseUrl)
             );
             javalinConfig.routes.get(
                 "/workshops/waitlist/{token}/leave",

@@ -34,13 +34,6 @@
 <section class="px-5 md:px-8 py-12 md:py-16">
     <div class="max-w-xl mx-auto">
 
-        {{#hasError}}
-        <p role="alert" class="border border-error text-error rounded-xl px-4 py-3 text-sm mb-6">{{error}}</p>
-        {{/hasError}}
-        {{#hasNotice}}
-        <p role="status" class="border border-success text-success rounded-xl px-4 py-3 text-sm mb-6">{{notice}}</p>
-        {{/hasNotice}}
-
         {{#cancelled}}
         <div class="border border-bg-border rounded-2xl p-6 text-center">
             <h2 class="font-serif text-2xl font-normal mb-2">Cette session est annulée</h2>
@@ -64,16 +57,18 @@
                 Les réservations ouvriront le {{bookingOpensAt}}. Laissez-nous votre e-mail :
                 nous vous écrirons à l'ouverture, en même temps que toutes les personnes intéressées.
             </p>
-            <form method="post" action="/workshops/sessions/{{sessionId}}/waitlist" class="flex flex-col gap-4">
+            <form method="post" action="/workshops/sessions/{{sessionId}}/waitlist"
+                  hx-post="/workshops/sessions/{{sessionId}}/waitlist" hx-target="#me-prevenir" hx-swap="outerHTML"
+                  class="flex flex-col gap-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label for="openingFirstName" class="text-xs text-secondary">Prénom</label>
-                        <input id="openingFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
+                        <input id="openingFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name"
                                class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label for="openingEmail" class="text-xs text-secondary">E-mail</label>
-                        <input id="openingEmail" name="email" type="email" required autocomplete="email" value="{{email}}"
+                        <input id="openingEmail" name="email" type="email" required autocomplete="email"
                                class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                 </div>
@@ -82,6 +77,7 @@
                     <label for="openingWebsite">Ne pas remplir</label>
                     <input id="openingWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
                 </div>
+                <div id="form-error" role="alert"></div>
                 <button type="submit" class="border border-secondary text-secondary px-6 py-3.5 rounded-full text-sm font-medium hover:bg-secondary hover:text-bg transition-colors">
                     Me prévenir à l'ouverture des réservations
                 </button>
@@ -90,22 +86,24 @@
         {{/notOpenYet}}
 
         {{#full}}
-        <div class="border border-bg-border rounded-2xl p-6">
+        <div id="waitlist-box" class="border border-bg-border rounded-2xl p-6">
             <h2 class="font-serif text-2xl font-normal mb-2 text-center">Complet</h2>
             <p class="text-sm text-secondary text-center mb-6">
                 Toutes les places sont réservées. Laissez-nous votre e-mail : si une place se libère,
                 toute la liste d'attente est prévenue en même temps, et la première qui réserve l'obtient.
             </p>
-            <form method="post" action="/workshops/sessions/{{sessionId}}/waitlist" class="flex flex-col gap-4">
+            <form method="post" action="/workshops/sessions/{{sessionId}}/waitlist"
+                  hx-post="/workshops/sessions/{{sessionId}}/waitlist" hx-target="#waitlist-box" hx-swap="outerHTML"
+                  class="flex flex-col gap-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label for="waitlistFirstName" class="text-xs text-secondary">Prénom</label>
-                        <input id="waitlistFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
+                        <input id="waitlistFirstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name"
                                class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label for="waitlistEmail" class="text-xs text-secondary">E-mail</label>
-                        <input id="waitlistEmail" name="email" type="email" required autocomplete="email" value="{{email}}"
+                        <input id="waitlistEmail" name="email" type="email" required autocomplete="email"
                                class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
                     </div>
                 </div>
@@ -114,6 +112,7 @@
                     <label for="waitlistWebsite">Ne pas remplir</label>
                     <input id="waitlistWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
                 </div>
+                <div id="form-error" role="alert"></div>
                 <button type="submit" class="border border-secondary text-secondary px-6 py-3.5 rounded-full text-sm font-medium hover:bg-secondary hover:text-bg transition-colors">
                     Me prévenir si une place se libère
                 </button>
@@ -122,56 +121,71 @@
         {{/full}}
 
         {{#open}}
-        <div class="flex items-baseline justify-between gap-3 mb-6">
-            <h2 class="font-serif text-3xl font-normal">Réserver ma place</h2>
-            <span class="text-xs text-secondary shrink-0">{{remainingPlaces}}</span>
-        </div>
+        <div id="booking-box">
+            <div class="flex items-baseline justify-between gap-3 mb-6">
+                <h2 class="font-serif text-3xl font-normal">Réserver ma place</h2>
+                <span class="text-xs text-secondary shrink-0">{{remainingPlaces}}</span>
+            </div>
 
-        <form method="post" action="/workshops/sessions/{{sessionId}}/bookings" class="flex flex-col gap-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label for="firstName" class="text-xs text-secondary">Prénom</label>
-                    <input id="firstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
-                           class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+            <form method="post" action="/workshops/sessions/{{sessionId}}/bookings"
+                  hx-post="/workshops/sessions/{{sessionId}}/bookings" hx-target="#booking-box" hx-swap="outerHTML"
+                  class="flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="firstName" class="text-xs text-secondary">Prénom</label>
+                        <input id="firstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name"
+                               class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="lastName" class="text-xs text-secondary">Nom</label>
+                        <input id="lastName" name="lastName" type="text" required maxlength="100" autocomplete="family-name"
+                               class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+                    </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label for="lastName" class="text-xs text-secondary">Nom</label>
-                    <input id="lastName" name="lastName" type="text" required maxlength="100" autocomplete="family-name" value="{{lastName}}"
+                    <label for="email" class="text-xs text-secondary">E-mail</label>
+                    <input id="email" name="email" type="email" required autocomplete="email"
                            class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+                    <span class="text-xs text-muted">Vous y recevrez le lien pour confirmer votre place.</span>
                 </div>
-            </div>
-            <div class="flex flex-col gap-1.5">
-                <label for="email" class="text-xs text-secondary">E-mail</label>
-                <input id="email" name="email" type="email" required autocomplete="email" value="{{email}}"
-                       class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
-                <span class="text-xs text-muted">Vous y recevrez le lien pour confirmer votre place.</span>
-            </div>
-            <div class="flex flex-col gap-1.5">
-                <label for="phone" class="text-xs text-secondary">Téléphone <span class="text-muted">(facultatif)</span></label>
-                <input id="phone" name="phone" type="tel" autocomplete="tel" value="{{phone}}"
-                       class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
-                <span class="text-xs text-muted">Pour vous prévenir en cas d'imprévu.</span>
-            </div>
-            <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
-            <div class="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
-                <label for="website">Ne pas remplir</label>
-                <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
-            </div>
-            <label class="flex items-start gap-3 text-xs text-secondary leading-relaxed">
-                <input name="acceptedConditions" type="checkbox" required class="mt-0.5 accent-primary">
-                <span>J'accepte les conditions : annulation libre jusqu'à 48 h avant l'atelier ; en cas d'absence sans prévenir, la réservation en ligne ne me sera plus proposée pendant un an. Mes données sont supprimées un an après l'atelier (<a href="/privacy" class="underline underline-offset-2 hover:text-primary">confidentialité</a>).</span>
-            </label>
-            <p class="text-xs text-muted leading-relaxed">
-                Aucun paiement en ligne : l'atelier se règle sur place (collier 33 €, bracelet 23 €, choix sur place).
-                Après l'envoi, confirmez votre place grâce à l'e-mail que vous allez recevoir.
-            </p>
-            <button type="submit" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">
-                Réserver ma place
-            </button>
-        </form>
+                <div class="flex flex-col gap-1.5">
+                    <label for="phone" class="text-xs text-secondary">Téléphone <span class="text-muted">(facultatif)</span></label>
+                    <input id="phone" name="phone" type="tel" autocomplete="tel"
+                           class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+                    <span class="text-xs text-muted">Pour vous prévenir en cas d'imprévu.</span>
+                </div>
+                <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
+                <div class="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+                    <label for="website">Ne pas remplir</label>
+                    <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+                </div>
+                <label class="flex items-start gap-3 text-xs text-secondary leading-relaxed">
+                    <input name="acceptedConditions" type="checkbox" required class="mt-0.5 accent-primary">
+                    <span>J'accepte les conditions : annulation libre jusqu'à 48 h avant l'atelier ; en cas d'absence sans prévenir, la réservation en ligne ne me sera plus proposée pendant un an. Mes données sont supprimées un an après l'atelier (<a href="/privacy" class="underline underline-offset-2 hover:text-primary">confidentialité</a>).</span>
+                </label>
+                <p class="text-xs text-muted leading-relaxed">
+                    Aucun paiement en ligne : l'atelier se règle sur place (collier 33 €, bracelet 23 €, choix sur place).
+                    Après l'envoi, confirmez votre place grâce à l'e-mail que vous allez recevoir.
+                </p>
+                <div id="form-error" role="alert"></div>
+                <button type="submit" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">
+                    Réserver ma place
+                </button>
+            </form>
+        </div>
         {{/open}}
 
     </div>
 </section>
+
+<script>
+    // Un refus (422) s'affiche sous le formulaire : htmx ne remplace rien sur une erreur sans cette règle.
+    htmx.config.responseHandling = [
+        {code: "204", swap: false},
+        {code: "[23]..", swap: true},
+        {code: "422", swap: true},
+        {code: "[45]..", swap: false, error: true},
+    ];
+</script>
 
 {{> partials/footer-main}}

@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * Page publique d'une session : le lieu mis en avant, puis le formulaire de réservation quand c'est possible.
+ * Les formulaires s'envoient en htmx : la réponse (erreur ou confirmation) vient de {@link PostWorkshopBookingHandler}
+ * et {@link PostWorkshopWaitlistHandler}, sans recharger cette page.
  */
 public record GetWorkshopSessionHandler(
         ReadWorkshopSession readWorkshopSession,
@@ -29,14 +31,6 @@ public record GetWorkshopSessionHandler(
 
     @Override
     public void handle(Context ctx) {
-        render(ctx, null, null, Map.of());
-    }
-
-    /**
-     * Affiche la page, avec un message d'erreur et les valeurs saisies si un formulaire a été refusé,
-     * ou un message de confirmation (inscription en liste d'attente).
-     */
-    public void render(Context ctx, String error, String notice, Map<String, String> values) {
         ReadWorkshopSession.Result overview;
         try {
             overview = readWorkshopSession.handle(new ReadWorkshopSession.Command(new WorkshopSessionId(ctx.pathParam("id"))));
@@ -87,17 +81,6 @@ public record GetWorkshopSessionHandler(
         model.put("full", full);
         model.put("open", open);
         model.put("remainingPlaces", remainingPlaces == 1 ? "Dernière place" : remainingPlaces + " places restantes");
-        model.put("hasError", error != null);
-        model.put("error", error != null ? error : "");
-        model.put("hasNotice", notice != null);
-        model.put("notice", notice != null ? notice : "");
-        model.put("firstName", values.getOrDefault("firstName", ""));
-        model.put("lastName", values.getOrDefault("lastName", ""));
-        model.put("email", values.getOrDefault("email", ""));
-        model.put("phone", values.getOrDefault("phone", ""));
-        if (error != null) {
-            ctx.status(422);
-        }
         ctx.render("workshop-session.mustache", model);
     }
 
