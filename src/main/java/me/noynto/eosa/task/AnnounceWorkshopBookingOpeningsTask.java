@@ -14,7 +14,7 @@ public record AnnounceWorkshopBookingOpeningsTask(
     public boolean task() {
         LOGGER.log(Level.INFO, "Démarrage de la tâche d'annonce des ouvertures de réservation d'atelier.");
         try {
-            int notified = announceWorkshopBookingOpenings.handle();
+            int notified = announceWorkshopBookingOpenings.handle().notified();
             LOGGER.log(Level.INFO, notified + " personne(s) prévenue(s) de l'ouverture des réservations.");
             return true;
         } catch (Exception e) {

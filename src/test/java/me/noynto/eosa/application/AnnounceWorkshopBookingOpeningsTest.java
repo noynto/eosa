@@ -139,7 +139,7 @@ class AnnounceWorkshopBookingOpeningsTest {
 
     private int announceAt(Instant now) {
         return new AnnounceWorkshopBookingOpenings(workshopSessionProvider, workshopVenueProvider, bookings, waitlist,
-                mailProvider, Clock.fixed(now, ZoneOffset.UTC), URI.create("https://eosa.me")).handle();
+                mailProvider, Clock.fixed(now, ZoneOffset.UTC), URI.create("https://eosa.me")).handle().notified();
     }
 
     private WorkshopWaitlistEntry entry(String email, int order) {

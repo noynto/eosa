@@ -14,7 +14,7 @@ public record ExpirePendingWorkshopBookingsTask(
     public boolean task() {
         LOGGER.log(Level.INFO, "Démarrage de la tâche d'expiration des réservations d'atelier non confirmées.");
         try {
-            int expired = expirePendingWorkshopBookings.handle();
+            int expired = expirePendingWorkshopBookings.handle().expired();
             LOGGER.log(Level.INFO, expired + " réservation(s) d'atelier non confirmée(s) expirée(s).");
             return true;
         } catch (Exception e) {

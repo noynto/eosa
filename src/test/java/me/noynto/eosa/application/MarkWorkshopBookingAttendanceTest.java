@@ -108,7 +108,7 @@ class MarkWorkshopBookingAttendanceTest {
         var cancelled = booking("cancelled", WorkshopBookingState.CANCELLED);
 
         int marked = new MarkAllWorkshopBookingsAttended(bookings, workshopSessionProvider,
-                Clock.fixed(startsAt.plus(Duration.ofHours(2)), ZoneOffset.UTC)).handle(new MarkAllWorkshopBookingsAttended.Command(sessionId));
+                Clock.fixed(startsAt.plus(Duration.ofHours(2)), ZoneOffset.UTC)).handle(new MarkAllWorkshopBookingsAttended.Command(sessionId)).marked();
 
         assertEquals(1, marked);
         assertEquals(WorkshopBookingState.ATTENDED, marie.getState());

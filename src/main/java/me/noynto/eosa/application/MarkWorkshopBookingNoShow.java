@@ -23,7 +23,7 @@ public record MarkWorkshopBookingNoShow(
         Clock clock
 ) {
 
-    public WorkshopBooking handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopSessionId == null || command.workshopBookingId == null || command.workshopBookingId.value() == null) {
             throw new RuntimeException("La session et la réservation sont nécessaires.");
         }
@@ -47,7 +47,12 @@ public record MarkWorkshopBookingNoShow(
         }
 
         workshopBooking.setState(WorkshopBookingState.NO_SHOW);
-        return workshopBookingProvider.write(workshopBooking);
+        return new Result(workshopBookingProvider.write(workshopBooking));
+    }
+
+    public record Result(
+            WorkshopBooking booking
+    ) {
     }
 
     public record Command(

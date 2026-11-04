@@ -76,6 +76,8 @@ public record ReadSitemap(JewelProvider jewelProvider, WorkshopSessionProvider w
 - Le `Result` porte tout ce dont l'appelant a besoin pour répondre (objets du domaine, compteurs, un statut) : le handler n'appelle jamais un deuxième cas d'usage pour le compléter.
 - Un statut qui décide de la réponse est une énumération dans le `Result` : `Result(Outcome outcome)` avec `CONFIRMED`, `ALREADY_CONFIRMED`, `EXPIRED`… Un refus de règle métier reste une `RuntimeException`, pas un statut.
 - Une action qui n'a rien à rendre (un envoi, une suppression) ne retourne rien : pas de `Result` vide.
+- Jamais d'`Optional` en retour. Une ressource introuvable est une `RuntimeException` (le handler répond 404, comme `GetJewelHandler`) ; un cas normal sans valeur (un visiteur sans session) est un champ du `Result` à `null`, dit dans sa documentation.
+- Quand un cas d'usage rendait une entité ou un compteur, ce qu'il rendait devient le champ du `Result`, nommé comme lui (`Result(WorkshopBooking booking)`, `Result(int expired)`) ; le comportement ne change pas.
 - Une tâche planifiée ([tâches planifiées](scheduled-tasks.md)) lit le `Result` du cas d'usage pour écrire son compte rendu dans les journaux et décider de son code de sortie (`RetryWorkshopEmailsTask`).
 
 ## Services statiques (`service/`)
@@ -117,7 +119,7 @@ Relevé du 4 novembre 2026, mis à jour au fil des corrections (une pull request
 
 **Autres écarts :**
 
-- Seuls quatre cas d'usage ont un `Result` (`ReadSitemap`, `PurgeWorkshopPersonalData`, `RetryWorkshopEmails`, `SendWorkshopReminders`) ; les autres rendent une entité, un record à un autre nom (`Overview`, `Outcome`) ou rien.
+- 20 cas d'usage sur 62 ont un `Result`. Les réservations d'ateliers (demande, confirmation, annulations, pointage, liste d'attente, annonce, expiration) en ont un depuis la généralisation. Restent à convertir les sessions et lieux d'ateliers avec leurs lectures, le catalogue (bijoux, breloques, couleurs de métal, images), le panier, le paiement et l'identité : ils rendent encore une entité, une liste, un `Overview` ou un `Optional`.
 - `WorkshopSessionRules` (`application/`) ne concerne que le domaine des sessions : ses contrôles de capacité et de durée vont dans l'objet métier.
 
 Reste : la généralisation du `Result` aux autres cas d'usage, puis les contrôles de `WorkshopSessionRules` dans l'objet métier. Chaque étape garde les tests au vert.

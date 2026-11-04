@@ -13,7 +13,7 @@ public record LeaveWorkshopWaitlist(
         Clock clock
 ) {
 
-    public WorkshopWaitlistEntry handle(Command command) {
+    public Result handle(Command command) {
         if (command.token == null || command.token.isBlank()) {
             throw new RuntimeException("Le lien est incomplet.");
         }
@@ -25,7 +25,12 @@ public record LeaveWorkshopWaitlist(
             entry.setRemovedAt(clock.instant());
             workshopWaitlistEntryProvider.write(entry);
         }
-        return entry;
+        return new Result(entry);
+    }
+
+    public record Result(
+            WorkshopWaitlistEntry entry
+    ) {
     }
 
     public record Command(

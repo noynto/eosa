@@ -76,7 +76,7 @@ class RequestWorkshopBookingTest {
 
     @Test
     void handle_holdsThePlaceAndSendsTheConfirmationLink() {
-        WorkshopBooking result = requestWorkshopBooking().handle(command(" Marie ", "Curie", "Marie@Example.com"));
+        WorkshopBooking result = requestWorkshopBooking().handle(command(" Marie ", "Curie", "Marie@Example.com")).booking();
 
         assertEquals(WorkshopBookingState.PENDING, result.getState());
         assertEquals("Marie", result.getFirstName());
@@ -104,7 +104,7 @@ class RequestWorkshopBookingTest {
         existingBooking("a@example.com", WorkshopBookingState.CONFIRMED, now.minus(Duration.ofDays(1)));
         existingBooking("b@example.com", WorkshopBookingState.PENDING, now.minus(Duration.ofMinutes(31)));
 
-        WorkshopBooking result = requestWorkshopBooking().handle(command("Marie", "Curie", "marie@example.com"));
+        WorkshopBooking result = requestWorkshopBooking().handle(command("Marie", "Curie", "marie@example.com")).booking();
 
         assertEquals(WorkshopBookingState.PENDING, result.getState());
     }
@@ -135,7 +135,7 @@ class RequestWorkshopBookingTest {
     void handle_replacesAnUnconfirmedRequestOlderThanTheDelay() {
         var old = existingBooking("marie@example.com", WorkshopBookingState.PENDING, now.minus(Duration.ofMinutes(45)));
 
-        WorkshopBooking result = requestWorkshopBooking().handle(command("Marie", "Curie", "marie@example.com"));
+        WorkshopBooking result = requestWorkshopBooking().handle(command("Marie", "Curie", "marie@example.com")).booking();
 
         assertEquals(WorkshopBookingState.EXPIRED, old.getState());
         assertEquals(WorkshopBookingState.PENDING, result.getState());

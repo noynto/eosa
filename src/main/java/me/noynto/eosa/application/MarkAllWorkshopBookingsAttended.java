@@ -22,10 +22,7 @@ public record MarkAllWorkshopBookingsAttended(
         Clock clock
 ) {
 
-    /**
-     * @return le nombre de participantes marquées présentes
-     */
-    public int handle(Command command) {
+    public Result handle(Command command) {
         if (command.workshopSessionId == null || command.workshopSessionId.value() == null) {
             throw new RuntimeException("L'identifiant de la session est nécessaire.");
         }
@@ -49,7 +46,15 @@ public record MarkAllWorkshopBookingsAttended(
             workshopBookingProvider.write(workshopBooking);
             marked++;
         }
-        return marked;
+        return new Result(marked);
+    }
+
+    /**
+     * @param marked le nombre de participantes marquées présentes
+     */
+    public record Result(
+            int marked
+    ) {
     }
 
     public record Command(

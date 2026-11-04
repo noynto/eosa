@@ -45,7 +45,7 @@ public record RequestWorkshopBooking(
     private static final int MAX_NAME_LENGTH = 100;
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public WorkshopBooking handle(Command command) {
+    public Result handle(Command command) {
         // 1. Vérification de la saisie.
         if (command.workshopSessionId == null || command.workshopSessionId.value() == null) {
             throw new RuntimeException("La session est requise.");
@@ -150,7 +150,12 @@ public record RequestWorkshopBooking(
             throw new RuntimeException("L'e-mail de confirmation n'a pas pu être envoyé à " + email
                     + ". Vérifiez l'adresse et réessayez.", e);
         }
-        return workshopBooking;
+        return new Result(workshopBooking);
+    }
+
+    public record Result(
+            WorkshopBooking booking
+    ) {
     }
 
     private Mail confirmationRequestMail(WorkshopBooking workshopBooking, WorkshopSession workshopSession,

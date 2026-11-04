@@ -32,7 +32,11 @@ public record ConfirmWorkshopBooking(
 
     private static final Logger LOGGER = Logger.getLogger(ConfirmWorkshopBooking.class.getName());
 
-    public Outcome handle(Command command) {
+    public Result handle(Command command) {
+        return new Result(outcomeOf(command));
+    }
+
+    private Outcome outcomeOf(Command command) {
         if (command.token == null || command.token.isBlank()) {
             throw new RuntimeException("Le lien de réservation est incomplet.");
         }
@@ -87,6 +91,11 @@ public record ConfirmWorkshopBooking(
 
     public record Command(
             String token
+    ) {
+    }
+
+    public record Result(
+            Outcome outcome
     ) {
     }
 

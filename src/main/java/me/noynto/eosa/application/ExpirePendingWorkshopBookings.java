@@ -40,10 +40,7 @@ public record ExpirePendingWorkshopBookings(
 
     private static final Logger LOGGER = Logger.getLogger(ExpirePendingWorkshopBookings.class.getName());
 
-    /**
-     * @return le nombre de réservations expirées
-     */
-    public int handle() {
+    public Result handle() {
         Instant now = clock.instant();
         Set<WorkshopSessionId> sessionsWithFreedPlaces = new LinkedHashSet<>();
         int expired = 0;
@@ -64,7 +61,15 @@ public record ExpirePendingWorkshopBookings(
                 LOGGER.log(Level.WARNING, "La liste d'attente de la session " + sessionId.value() + " n'a pas pu être prévenue.", e);
             }
         }
-        return expired;
+        return new Result(expired);
+    }
+
+    /**
+     * @param expired le nombre de réservations expirées
+     */
+    public record Result(
+            int expired
+    ) {
     }
 
     /**
