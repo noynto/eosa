@@ -2,22 +2,21 @@ package me.noynto.eosa.infrastructure.web;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import me.noynto.eosa.application.ReadCharms;
 import me.noynto.eosa.application.ReadJewel;
-import me.noynto.eosa.application.ReadJewelIds;
-import me.noynto.eosa.application.ReadMetalColors;
-import me.noynto.eosa.jewel.JewelState;
 import me.noynto.eosa.shared.JewelId;
 
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, ReadMetalColors readMetalColors, ReadCharms readCharms, String baseUrl) implements Handler {
+/**
+ * Fiche d'un bijou : tout ce qui sert à la lire et à la référencer. Les options de personnalisation et les autres
+ * bijoux se chargent à part (voir {@link GetMetalColorOptionsHandler}, {@link GetCharmOptionsHandler} et
+ * {@link GetRelatedJewelsHandler}).
+ */
+public record GetJewelHandler(ReadJewel readJewel, String baseUrl) implements Handler {
 
     private static final String THUMB_ACTIVE = "w-16 h-16 bg-bg-soft rounded-xl border-2 border-primary relative overflow-hidden flex-shrink-0 cursor-pointer";
     private static final String THUMB_INACTIVE = "w-16 h-16 bg-bg-soft rounded-xl relative overflow-hidden flex-shrink-0 cursor-pointer";
@@ -27,10 +26,6 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, Re
         try {
             var jewelId = new JewelId(ctx.pathParam("id"));
             var jewel = readJewel.handle(new ReadJewel.Command(jewelId));
-            var allIds = new ArrayList<>(readJewelIds.handle(new ReadJewelIds.Query(Set.of(JewelState.PUBLISHED), Set.of())));
-            allIds.remove(jewelId);
-            Collections.shuffle(allIds);
-            var relatedIds = allIds.stream().limit(4).toList();
 
             boolean hasImages = !jewel.getImageIds().isEmpty();
             List<Map<String, Object>> images = new ArrayList<>();
@@ -72,38 +67,6 @@ public record GetJewelHandler(ReadJewel readJewel, ReadJewelIds readJewelIds, Re
             model.put("hasImages", hasImages);
             model.put("mainImageId", hasImages ? jewel.getImageIds().getFirst().value() : "");
             model.put("images", images);
-            model.put("hasRelated", !relatedIds.isEmpty());
-            model.put("relatedIds", relatedIds.stream().map(id -> Map.of("id", id.value())).toList());
-
-            var metalColors = readMetalColors.handle();
-            List<Map<String, Object>> metalColorOptions = new ArrayList<>();
-            for (int i = 0; i < metalColors.size(); i++) {
-                var metalColor = metalColors.get(i);
-                boolean hasMetalColorImage = metalColor.getImageId() != null;
-                Map<String, Object> option = new HashMap<>();
-                option.put("id", metalColor.getId().value());
-                option.put("name", metalColor.getName());
-                option.put("hasImage", hasMetalColorImage);
-                option.put("imageId", hasMetalColorImage ? metalColor.getImageId().value() : "");
-                option.put("selected", i == 0);
-                metalColorOptions.add(option);
-            }
-            model.put("hasMetalColors", !metalColorOptions.isEmpty());
-            model.put("metalColors", metalColorOptions);
-
-            var charms = readCharms.handle();
-            List<Map<String, Object>> charmOptions = charms.stream().map(charm -> {
-                boolean hasCharmImage = charm.getImageId() != null;
-                Map<String, Object> option = new HashMap<>();
-                option.put("id", charm.getId().value());
-                option.put("name", charm.getName());
-                option.put("hasImage", hasCharmImage);
-                option.put("imageId", hasCharmImage ? charm.getImageId().value() : "");
-                option.put("price", charm.getPrice().stripTrailingZeros().toPlainString());
-                return option;
-            }).toList();
-            model.put("hasCharms", !charmOptions.isEmpty());
-            model.put("charms", charmOptions);
 
             ctx.render("jewel.mustache", model);
         } catch (RuntimeException e) {

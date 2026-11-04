@@ -1,0 +1,15 @@
+{{#hasRelated}}
+<section class="px-5 md:px-8 pt-8 pb-12">
+    <div class="flex justify-between items-baseline mb-5">
+        <h2 class="font-serif text-2xl font-normal">D'autres bijoux</h2>
+        <a href="/jewels" class="text-sm text-secondary hover:text-primary transition-colors">Voir tout →</a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+        {{#relatedIds}}
+            <div hx-get="/jewels/{{id}}/card" hx-trigger="load" hx-swap="outerHTML">
+                <div class="bg-bg-soft aspect-square rounded-2xl animate-pulse"></div>
+            </div>
+        {{/relatedIds}}
+    </div>
+</section>
+{{/hasRelated}}

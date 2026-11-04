@@ -119,16 +119,15 @@ Relevé du 4 novembre 2026, mis à jour au fil des corrections (une pull request
 
 Déjà corrigés : les annulations (`CancelWorkshopBookingByAdmin`, `CancelWorkshopBookingByParticipant`, `CancelWorkshopSession`), `ConfirmWorkshopBooking`, `ExpirePendingWorkshopBookings`, `UpdateWorkshopSession` et `RetryWorkshopEmails` lisent, envoient et écrivent eux-mêmes ; le contenu des e-mails vient de `WorkshopMails` et le compte des places de `WorkshopPlaces` (`service/`). `ReadCategoryStats` lit avec `JewelProvider` et prend plusieurs catégories dans une seule `Query`.
 
-**Handlers qui injectent plusieurs cas d'usage** (4) :
+**Handlers qui injectent plusieurs cas d'usage** (3) :
 
 | Handler | Cas d'usage | À faire |
 |---|---|---|
-| `GetJewelHandler` | `ReadJewel`, `ReadJewelIds`, `ReadMetalColors`, `ReadCharms` | Page = `ReadJewel` ; autres bijoux, couleurs de métal et breloques en fragments |
 | `GetAdminWorkshopSessionHandler` | `ReadWorkshopSession`, `ReadWorkshopVenues`, `ReadWorkshopBookings`, `ReadWorkshopWaitlist` | Page = la session ; réservations, liste d'attente et lieux en fragments |
 | `GetAdminWorkshopSessionsHandler` | `ReadWorkshopSessions`, `ReadWorkshopVenues` | Lieux en fragment |
 | `PostWorkshopBookingHandler` | `RequestWorkshopBooking`, `ReadWorkshopSession` | `RequestWorkshopBooking` rend dans son `Result` ce qu'il faut pour réafficher la page |
 
-Déjà corrigés : l'accueil (`GetIndexHandler` appelle `ReadCategoryStats` une fois ; les derniers bijoux se chargent par `GET /jewels/latest`) et le panier. Le filtre `EnsureCartHandler` pose le panier dans l'attribut `cartId` de la requête, que `GetCartHandler` (`ReadCart`) et `PostCartItemHandler` (`AddJewelToCart`) lisent : ils ne créent plus un deuxième panier, qui restait vide en base à la première visite.
+Déjà corrigés : l'accueil (`GetIndexHandler` appelle `ReadCategoryStats` une fois ; les derniers bijoux se chargent par `GET /jewels/latest`), la fiche bijou (`GetJewelHandler` n'appelle que `ReadJewel` ; les autres bijoux, les couleurs de métal et les breloques se chargent par `GET /jewels/{id}/related`, `/customization/metal-colors` et `/customization/charms`, chacun avec son handler et son cas d'usage) et le panier. Le filtre `EnsureCartHandler` pose le panier dans l'attribut `cartId` de la requête, que `GetCartHandler` (`ReadCart`) et `PostCartItemHandler` (`AddJewelToCart`) lisent : ils ne créent plus un deuxième panier, qui restait vide en base à la première visite.
 
 **Autres écarts :**
 
