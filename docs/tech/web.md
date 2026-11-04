@@ -11,6 +11,9 @@
 | GET | `/jewels/{id}` | Fiche d'un bijou |
 | GET | `/jewels/{id}/card` | Fragment : carte d'un bijou |
 | GET | `/jewels/latest` | Fragment : les derniers bijoux publiés, chargé par l'accueil |
+| GET | `/jewels/{id}/related` | Fragment : la section « D'autres bijoux » de la fiche |
+| GET | `/customization/metal-colors` | Fragment : le choix de la couleur du métal, dans le formulaire d'ajout au panier |
+| GET | `/customization/charms` | Fragment : le choix des breloques, dans le formulaire d'ajout au panier |
 | GET | `/images/{id}` | Téléchargement d'une image |
 | GET | `/about` | Notre histoire |
 | GET | `/cart` | Panier |

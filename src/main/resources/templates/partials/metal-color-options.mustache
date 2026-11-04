@@ -1,0 +1,15 @@
+{{#hasMetalColors}}
+<div class="flex flex-col gap-2">
+    <span class="text-xs text-secondary">Couleur du métal</span>
+    <div class="flex gap-2.5">
+        {{#metalColors}}
+        <label class="cursor-pointer" title="{{name}}">
+            <input type="radio" name="metalColorId" value="{{id}}" class="peer hidden" {{#selected}}checked{{/selected}}>
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-transparent peer-checked:border-primary bg-bg-soft">
+                {{#hasImage}}<img src="/images/{{imageId}}" class="w-full h-full object-cover" alt="{{name}}">{{/hasImage}}
+            </div>
+        </label>
+        {{/metalColors}}
+    </div>
+</div>
+{{/hasMetalColors}}

@@ -51,37 +51,22 @@
         </div>
 
         <form hx-post="/cart/items/{{jewelId}}" hx-swap="none" class="flex flex-col gap-4">
-            {{#hasMetalColors}}
-            <div class="flex flex-col gap-2">
-                <span class="text-xs text-secondary">Couleur du métal</span>
+            <!-- Les options sont les mêmes pour tous les bijoux : elles se chargent à part, dans le formulaire. -->
+            <div hx-get="/customization/metal-colors" hx-trigger="load" hx-swap="outerHTML" class="flex flex-col gap-2">
+                <div class="w-28 h-3 rounded-full bg-bg-soft animate-pulse"></div>
                 <div class="flex gap-2.5">
-                    {{#metalColors}}
-                    <label class="cursor-pointer" title="{{name}}">
-                        <input type="radio" name="metalColorId" value="{{id}}" class="peer hidden" {{#selected}}checked{{/selected}}>
-                        <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-transparent peer-checked:border-primary bg-bg-soft">
-                            {{#hasImage}}<img src="/images/{{imageId}}" class="w-full h-full object-cover" alt="{{name}}">{{/hasImage}}
-                        </div>
-                    </label>
-                    {{/metalColors}}
+                    <div class="w-10 h-10 rounded-full bg-bg-soft animate-pulse"></div>
+                    <div class="w-10 h-10 rounded-full bg-bg-soft animate-pulse"></div>
+                    <div class="w-10 h-10 rounded-full bg-bg-soft animate-pulse"></div>
                 </div>
             </div>
-            {{/hasMetalColors}}
-            {{#hasCharms}}
-            <div class="flex flex-col gap-2">
-                <span class="text-xs text-secondary">Breloques (optionnel)</span>
-                <div class="flex flex-wrap gap-2">
-                    {{#charms}}
-                    <label class="cursor-pointer">
-                        <input type="checkbox" name="charmIds" value="{{id}}" class="peer hidden">
-                        <div class="flex items-center gap-2 bg-bg-soft border-2 border-transparent rounded-full px-3 py-1.5 text-xs peer-checked:border-primary peer-checked:bg-primary/10 transition-colors">
-                            {{#hasImage}}<img src="/images/{{imageId}}" class="w-5 h-5 rounded-full object-cover">{{/hasImage}}
-                            <span>{{name}} (+{{price}} €)</span>
-                        </div>
-                    </label>
-                    {{/charms}}
+            <div hx-get="/customization/charms" hx-trigger="load" hx-swap="outerHTML" class="flex flex-col gap-2">
+                <div class="w-36 h-3 rounded-full bg-bg-soft animate-pulse"></div>
+                <div class="flex gap-2">
+                    <div class="w-28 h-8 rounded-full bg-bg-soft animate-pulse"></div>
+                    <div class="w-24 h-8 rounded-full bg-bg-soft animate-pulse"></div>
                 </div>
             </div>
-            {{/hasCharms}}
             <button type="submit" class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">Ajouter au panier — {{price}} €</button>
         </form>
 
@@ -114,20 +99,6 @@
     </div>
 </section>
 
-{{#hasRelated}}
-<section class="px-5 md:px-8 pt-8 pb-12">
-    <div class="flex justify-between items-baseline mb-5">
-        <h2 class="font-serif text-2xl font-normal">D'autres bijoux</h2>
-        <a href="/jewels" class="text-sm text-secondary hover:text-primary transition-colors">Voir tout →</a>
-    </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
-        {{#relatedIds}}
-            <div hx-get="/jewels/{{id}}/card" hx-trigger="load" hx-swap="outerHTML">
-                <div class="bg-bg-soft aspect-square rounded-2xl animate-pulse"></div>
-            </div>
-        {{/relatedIds}}
-    </div>
-</section>
-{{/hasRelated}}
+<div hx-get="/jewels/{{jewelId}}/related" hx-trigger="load" hx-swap="outerHTML"></div>
 
 {{> partials/footer-main}}

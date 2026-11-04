@@ -108,7 +108,8 @@ public class Bootstrap {
             imageProvider
         );
         ReadJewelIds readJewelIds = new ReadJewelIds(jewelProvider);
-        ReadSitemap readSitemap = new ReadSitemap(jewelProvider, workshopSessionProvider, clock);
+        ReadRelatedJewels readRelatedJewels = new ReadRelatedJewels(jewelProvider);
+        ReadSitemap readSitemap =new ReadSitemap(jewelProvider, workshopSessionProvider, clock);
         ReadJewel readJewel = new ReadJewel(jewelProvider);
         UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(
             jewelProvider
@@ -427,17 +428,23 @@ public class Bootstrap {
             );
             javalinConfig.routes.get(
                 "/jewels/{id}",
-                new GetJewelHandler(
-                    readJewel,
-                    readJewelIds,
-                    readMetalColors,
-                    readCharms,
-                    baseUrl
-                )
+                new GetJewelHandler(readJewel, baseUrl)
             );
             javalinConfig.routes.get(
                 "/jewels/{id}/card",
                 new GetJewelCardHandler(readJewel)
+            );
+            javalinConfig.routes.get(
+                "/jewels/{id}/related",
+                new GetRelatedJewelsHandler(readRelatedJewels)
+            );
+            javalinConfig.routes.get(
+                "/customization/metal-colors",
+                new GetMetalColorOptionsHandler(readMetalColors)
+            );
+            javalinConfig.routes.get(
+                "/customization/charms",
+                new GetCharmOptionsHandler(readCharms)
             );
             javalinConfig.routes.get(
                 "/images/{id}",
