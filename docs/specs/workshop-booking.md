@@ -65,7 +65,7 @@ L'heure d'ouverture est exactement l'heure de début moins 7 jours, dans le fuse
 La page existante est conservée (présentation, déroulé, tarifs). Une section **« Prochains ateliers »** est ajoutée en haut, sous l'introduction. Elle liste les sessions `SCHEDULED` à venir, triées par date. Chaque carte met **le lieu au premier plan** :
 
 - photo du lieu (grande, en tête de carte) ;
-- « Chez **{nom du café}** » en titre, avec la mention « en collaboration avec » ;
+- **{nom du café}** en titre, sous la mention « en collaboration avec » ;
 - ville et adresse, lien « Voir sur la carte » (construit à partir de l'adresse) ;
 - date, heure et durée (« Samedi 14 novembre · 14 h 00 – 16 h 00 ») ;
 - état : compte à rebours avant l'ouverture, compteur de places une fois ouverte, ou « Complet ».
