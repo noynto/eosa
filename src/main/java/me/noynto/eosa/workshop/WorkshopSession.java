@@ -15,9 +15,9 @@ public class WorkshopSession {
     public static final ZoneId ZONE = ZoneId.of("Europe/Paris");
 
     /**
-     * Les réservations ouvrent toujours 7 jours avant le début, à la même heure (heure de Paris).
+     * Les réservations ouvrent toujours 14 jours avant le début, à la même heure (heure de Paris).
      */
-    public static final int BOOKING_OPENING_DAYS = 7;
+    public static final int BOOKING_OPENING_DAYS = 14;
 
     /**
      * Bornes de la capacité et de la durée d'une session, reprises pour les valeurs par défaut d'un lieu.

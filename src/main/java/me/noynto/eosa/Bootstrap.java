@@ -41,6 +41,7 @@ import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
 import me.noynto.eosa.task.SendWorkshopRemindersTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
+import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
@@ -504,7 +505,9 @@ public class Bootstrap {
                         "ogImageUrl",
                         baseUrl + "/hero.webp",
                         "canonicalUrl",
-                        baseUrl + context.path()
+                        baseUrl + context.path(),
+                        "bookingOpeningDays",
+                        WorkshopSession.BOOKING_OPENING_DAYS
                     )
                 )
             );
@@ -614,7 +617,9 @@ public class Bootstrap {
                         "ogImageUrl",
                         baseUrl + "/hero.webp",
                         "canonicalUrl",
-                        baseUrl + context.path()
+                        baseUrl + context.path(),
+                        "bookingOpeningDays",
+                        WorkshopSession.BOOKING_OPENING_DAYS
                     )
                 )
             );
