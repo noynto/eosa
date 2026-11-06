@@ -14,22 +14,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WorkshopSessionTest {
 
     @Test
-    void bookingOpensSevenDaysBeforeAtTheSameParisTime() {
+    void bookingOpensFourteenDaysBeforeAtTheSameParisTime() {
         var session = sessionStartingAt(LocalDateTime.of(2026, 11, 14, 14, 0));
 
         assertEquals(
-                LocalDateTime.of(2026, 11, 7, 14, 0),
+                LocalDateTime.of(2026, 10, 31, 14, 0),
                 LocalDateTime.ofInstant(session.getBookingOpensAt(), WorkshopSession.ZONE)
         );
     }
 
     @Test
     void bookingOpeningKeepsTheParisTimeAcrossDaylightSavingChange() {
-        // Passage à l'heure d'hiver le 25 octobre 2026 : 7 jours ≠ 168 heures.
+        // Passage à l'heure d'hiver le 25 octobre 2026, entre l'ouverture et le début : 14 jours ≠ 336 heures.
         var session = sessionStartingAt(LocalDateTime.of(2026, 10, 29, 14, 0));
 
         assertEquals(
-                LocalDateTime.of(2026, 10, 22, 14, 0),
+                LocalDateTime.of(2026, 10, 15, 14, 0),
                 LocalDateTime.ofInstant(session.getBookingOpensAt(), WorkshopSession.ZONE)
         );
     }
