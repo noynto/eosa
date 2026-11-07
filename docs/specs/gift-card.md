@@ -18,13 +18,14 @@ Une carte cadeau est un montant à dépenser dans la boutique EOSA. La personne 
 | 6 | Validité (proposée) | **1 an** après l'achat, indiquée sur la carte et dans les CGV. À confirmer. |
 | 7 | Bornes du montant libre (proposées) | De **10 à 200 €**. À confirmer. |
 | 8 | Hors périmètre | Carte physique, destinataire et petit mot, envoi à date choisie, achat d'une carte avec une carte, usage pour les ateliers, remboursement en argent, transfert de solde entre cartes, rappel d'expiration (la seule adresse connue est celle de l'acheteuse). |
+| 9 | Confirmation du paiement | **Pas de webhook Stripe.** La carte est activée au retour de la personne sur le site (le site interroge Stripe), et une **tâche planifiée toutes les 5 minutes** rattrape celles dont la personne n'est pas revenue. Un webhook pourra être ajouté plus tard si les commandes en ont besoin. |
 
 ## Ce que le code actuel impose
 
 Trois constats, lus dans le code, qui décident de l'ordre des travaux :
 
 1. **Le paiement n'est pas enregistré chez EOSA.** `InitiateCheckout` crée un objet `Checkout` qui n'existe que chez Stripe (`StripeFetchedCheckouts`) ; il n'y a aucune table de commandes. La TODO le dit : « conceptualiser et modéliser les commandes après le tunnel de paiement Stripe ».
-2. **La confirmation du paiement est lue au retour de la personne** (`GET /checkout/success`), sans webhook Stripe. Pour une commande de bijou, c'est tolérable ; pour une carte cadeau, c'est insuffisant : si la personne ferme l'onglet après avoir payé, la carte ne serait jamais créée. **Il faut un webhook Stripe** (`checkout.session.completed`) qui crée la carte de façon sûre, même sans retour sur le site.
+2. **La confirmation du paiement est lue au retour de la personne** (`GET /checkout/success`), sans webhook Stripe. Pour une commande de bijou, c'est tolérable ; pour une carte cadeau, c'est insuffisant : si la personne ferme l'onglet après avoir payé, la carte ne serait jamais créée. **Il faut un rattrapage** : une tâche planifiée qui interroge Stripe pour les cartes encore en attente et active celles qui sont payées. Un webhook ne se règle pas dans la requête qui crée le paiement (c'est un réglage du compte Stripe), et la tâche suffit au volume attendu.
 3. **Un panier entièrement couvert par une carte ne peut pas passer par Stripe** : Stripe refuse un paiement de 0 €. Il faut alors confirmer la commande sans Stripe, donc la **modéliser**. C'est le point qui dépend de la conception des commandes.
 
 ## Vocabulaire
@@ -48,19 +49,19 @@ Montants proposés en boutons et champ libre (10 à 200 €) ; prénom et e-mail
 
 ### 2. Paiement — `POST /gift-cards`
 
-Crée la carte en `PENDING_PAYMENT` et une session Stripe Checkout pour son montant, puis redirige vers Stripe. Le champ piège à robots et la limite par IP des formulaires de réservation s'appliquent.
+Crée la carte en `PENDING_PAYMENT` et une session Stripe Checkout pour son montant, qui **expire au bout de 30 minutes** (le minimum de Stripe) pour qu'une session abandonnée se ferme d'elle-même, puis redirige vers Stripe. L'identifiant de la session est gardé sur la carte. Le champ piège à robots et la limite par IP des formulaires de réservation s'appliquent.
 
-### 3. Création de la carte — `POST /webhooks/stripe`
+### 3. Retour de la personne — `GET /gift-cards/success`
 
-À `checkout.session.completed`, la carte passe en `ACTIVE`, son code est généré et le premier mouvement (« émission », montant initial) est écrit, puis l'e-mail est envoyé. Le traitement est **idempotent** : un webhook reçu deux fois ne crée rien de plus et n'envoie pas deux e-mails. La signature est vérifiée (`EOSA_STRIPE_WEBHOOK_SECRET`).
+Le site interroge Stripe avec l'identifiant de la session. Si le paiement est confirmé, la carte passe en `ACTIVE`, son code est généré, le premier mouvement (« émission », montant initial) est écrit et l'e-mail est envoyé. La page affiche « Merci, votre carte arrive par e-mail » ; si Stripe n'a pas encore confirmé, elle le dit et la tâche de rattrapage prend le relais. Aucun code n'est affiché ici. Le traitement est **idempotent** : recharger la page ne crée rien de plus et n'envoie pas deux e-mails.
 
-### 4. Retour de la personne — `GET /gift-cards/success`
+### 4. Rattrapage — tâche `SettleGiftCards` (toutes les 5 minutes)
 
-Affiche « Merci, votre carte arrive par e-mail » (la carte peut ne pas être encore active si le webhook est en retard : la page ne promet rien de plus). Aucun code n'est affiché ici.
+Pour les cartes `PENDING_PAYMENT` créées depuis moins de 24 h, la tâche interroge Stripe et active celles dont la session est payée (même traitement qu'au retour de la personne). Elle renvoie aussi les e-mails de cartes actives qui ne sont pas partis, libère le solde réservé par une session expirée et supprime les cartes jamais payées passé 24 h. Une personne qui ferme l'onglet après avoir payé reçoit donc son code au plus tard 5 minutes plus tard.
 
 ### 5. Remise — e-mail et page imprimable
 
-- **E-mail « Votre carte cadeau »** à la personne qui a acheté, envoyé dès l'activation : montant, code, validité, lien vers la page imprimable. Il sert aussi de reçu. Un envoi qui échoue est retenté par une tâche planifiée (`RetryGiftCardEmails`, comme les e-mails d'atelier).
+- **E-mail « Votre carte cadeau »** à la personne qui a acheté, envoyé dès l'activation : montant, code, validité, lien vers la page imprimable. Il sert aussi de reçu. Un envoi qui échoue est retenté par la tâche `SettleGiftCards`, comme les e-mails d'atelier.
 - **Page imprimable** — `GET /gift-cards/{token}` : montant, code, validité, solde restant, avec une feuille de style d'impression. Pas de PDF au départ.
 
 ## Parcours : utiliser une carte
@@ -75,8 +76,8 @@ Le montant déduit est `min(solde, total du panier avec livraison)`. Une seule c
 
 1. **Réservation du solde** : à la création de la session Stripe, le montant déduit est réservé sur la carte (mouvement « réservé »), pour 30 minutes. Deux paiements en même temps avec la même carte ne peuvent pas dépasser le solde.
 2. **Stripe reçoit le reste à payer** : la remise est transmise comme un coupon à montant fixe, à usage unique, créé pour la session.
-3. **À la confirmation du paiement** (webhook), la réservation devient une utilisation (mouvement « utilisé »).
-4. **Session abandonnée ou expirée** : la réservation est libérée (mouvement « libéré ») par la tâche de nettoyage ou par le webhook `checkout.session.expired`.
+3. **À la confirmation du paiement** (au retour de la personne ou par la tâche `SettleGiftCards`), la réservation devient une utilisation (mouvement « utilisé »).
+4. **Session abandonnée ou expirée** : la réservation est libérée (mouvement « libéré ») par la tâche `SettleGiftCards`.
 
 ### Panier entièrement couvert
 
@@ -119,19 +120,20 @@ Même architecture que les ateliers ([architecture](../tech/architecture.md)) : 
 | Cas d'usage | Rôle |
 |---|---|
 | `PurchaseGiftCard` | Crée la carte `PENDING_PAYMENT` et la session Stripe |
-| `ConfirmGiftCardPayment` | Active la carte au webhook, écrit l'émission, envoie l'e-mail |
-| `RetryGiftCardEmails` | Tâche : renvoie les e-mails de carte qui ne sont pas partis |
+| `ConfirmGiftCardPayment` | Au retour de la personne : interroge Stripe, active la carte, écrit l'émission, envoie l'e-mail |
+| `SettleGiftCards` | Tâche : active les cartes payées dont la personne n'est pas revenue, renvoie les e-mails non partis, libère les soldes réservés par une session expirée, supprime les cartes jamais payées |
 | `ReadGiftCard` | Page imprimable, par jeton |
 | `ApplyGiftCardToCart` | Valide un code, calcule la remise |
 | `RemoveGiftCardFromCart` | Retire la carte du panier |
-| `ReleaseExpiredGiftCardReservations` | Tâche : libère les soldes réservés par une session expirée, supprime les cartes jamais payées |
 | `ListGiftCards`, `ReadGiftCardMovements`, `VoidGiftCard`, `IssueGiftCardByAdmin`, `ResendGiftCard` | Administration |
+
+L'activation d'une carte est écrite dans `ConfirmGiftCardPayment` **et** dans `SettleGiftCards` : un cas d'usage n'en injecte pas un autre. Ce qui se partage est le contenu de l'e-mail, dans un service statique (`GiftCardMails`). Pour interroger Stripe, la piste est de réutiliser `CheckoutProvider` (une ligne « Carte cadeau » sans bijou) plutôt que d'ajouter un provider ; à confirmer à l'étape 2.
 
 ## Configuration
 
 | Variable | Rôle |
 |---|---|
-| `EOSA_STRIPE_WEBHOOK_SECRET` | Secret de signature des webhooks Stripe (obligatoire dès l'étape 3) |
+| `EOSA_SETTLE_GIFT_CARDS_TASK` | Active la tâche `SettleGiftCards`, lancée toutes les 5 minutes par un CronJob |
 | `EOSA_GIFT_CARD_AMOUNTS` | Montants proposés, séparés par des virgules (`25,50,100`) |
 | `EOSA_GIFT_CARD_MIN_AMOUNT`, `EOSA_GIFT_CARD_MAX_AMOUNT` | Bornes du montant libre (`10`, `200`) |
 | `EOSA_GIFT_CARD_VALIDITY_DAYS` | Validité en jours (`365`) |
@@ -151,9 +153,9 @@ Même architecture que les ateliers ([architecture](../tech/architecture.md)) : 
 
 ## Tests en local
 
-- **Paiement et webhook** : le CLI Stripe (`stripe listen --forward-to localhost:8080/webhooks/stripe`) en mode test.
+- **Paiement** : Stripe en mode test, avec la clé de test et la carte de test `4242 4242 4242 4242`.
 - **E-mails** : Mailpit.
-- **Renvoi des e-mails** : `docker compose run --rm <job>` pour la tâche.
+- **Rattrapage** : payer puis fermer l'onglet avant le retour, puis `docker compose run --rm <job>` pour lancer la tâche `SettleGiftCards` à la main.
 
 ## Étapes de mise en place
 
@@ -162,33 +164,30 @@ Chaque étape est une pull request qui garde le site fonctionnel.
 ### Étape 0 — Prérequis (hors code)
 
 - [ ] Valider ce document, la validité (1 an) et les bornes (10 à 200 €).
-- [ ] Créer le webhook dans le tableau de bord Stripe (adresse du site, évènements `checkout.session.completed` et `checkout.session.expired`) et fournir son secret.
 - [ ] Lancer les points juridiques et fiscaux ci-dessus.
+
+Rien à régler du côté de Stripe : la clé secrète déjà utilisée pour le panier suffit.
 
 ### Étape 1 — Carte, journal et administration
 
 Domaine, persistance, `GiftCardProvider`, cas d'usage d'administration (liste, détail, émission manuelle, annulation). Aucun achat en ligne. Permet de vérifier le modèle et le journal.
 
-### Étape 2 — Webhook Stripe
+### Étape 2 — Achat d'une carte
 
-`POST /webhooks/stripe` avec vérification de signature et idempotence, sans effet encore sur les cartes. Brique réutilisable pour les commandes.
+Page d'achat, session Stripe (expiration à 30 minutes), activation au retour de la personne, e-mail « Votre carte cadeau », page de retour, page imprimable.
 
-### Étape 3 — Achat d'une carte
+### Étape 3 — Rattrapage
 
-Page d'achat, session Stripe, activation au webhook, e-mail « Votre carte cadeau », page de retour, page imprimable.
+Tâche `SettleGiftCards` (cartes payées sans retour, e-mails non partis, soldes libérés, cartes jamais payées), CronJob Kubernetes toutes les 5 minutes et service du profil `jobs` de `compose.yaml`.
 
-### Étape 4 — Renvoi des e-mails non partis
-
-Tâche `RetryGiftCardEmails`, CronJob Kubernetes et service du profil `jobs` de `compose.yaml`.
-
-### Étape 5 — Utilisation au panier (couverture partielle)
+### Étape 4 — Utilisation au panier (couverture partielle)
 
 Saisie du code, remise, réservation du solde, coupon Stripe, utilisation à la confirmation, libération à l'expiration.
 
-### Étape 6 — Panier entièrement couvert
+### Étape 5 — Panier entièrement couvert
 
 Dépend de la modélisation des commandes (TODO) : confirmation sans Stripe, débit de la carte, enregistrement de la commande.
 
-### Étape 7 — Textes
+### Étape 6 — Textes
 
 CGV, FAQ, politique de confidentialité, mention dans le sitemap et les données structurées de la page d'achat.
