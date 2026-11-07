@@ -69,6 +69,7 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Bijoux et personnalisation](docs/specs/jewel-customization.md) | Renommage `Product` → `Jewel`, matériaux, breloques, parcours de personnalisation |
 | [Réservation des ateliers](docs/specs/workshop-booking.md) | Lieux, sessions, réservation confirmée par e-mail, liste d'attente, rappels, absences, sujets juridiques |
+| [Carte cadeau](docs/specs/gift-card.md) | Achat en ligne, code par e-mail, solde utilisable en plusieurs fois, dépendances (webhook Stripe, commandes), sujets juridiques et fiscaux, étapes (à valider) |
 
 ### Design — [`docs/design/`](docs/design/)
 
