@@ -10,6 +10,8 @@ import me.noynto.eosa.shared.JewelId;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -19,14 +21,41 @@ public record StripeFetchedCheckouts(
         String baseUrl
 ) implements CheckoutProvider {
 
+    // 20 pages de 100 sessions : bien plus que ce que la boutique crée entre deux passages de la tâche de rattrapage.
+    private static final int MAX_PAGES = 20;
+
     @Override
-    public Stream<CheckoutId> readIds(CheckoutSessionId sessionId) {
-        try {
-            var stripeSession = checkoutSessionResource.retrieveSession(sessionId.getStripe());
-            return Stream.of(toCheckout(stripeSession).getId());
-        } catch (Exception e) {
-            return Stream.empty();
+    public Stream<CheckoutId> readIds(CheckoutSessionId sessionId, CheckoutStatus status, Instant createdSince) {
+        if (sessionId != null) {
+            try {
+                var stripeSession = checkoutSessionResource.retrieveSession(sessionId.getStripe());
+                return Stream.of(toCheckout(stripeSession).getId());
+            } catch (Exception e) {
+                return Stream.empty();
+            }
         }
+        // Une liste incomplète ferait passer des paiements pour absents : toute erreur remonte à l'appelant.
+        List<CheckoutId> ids = new ArrayList<>();
+        try {
+            long since = createdSince != null ? createdSince.getEpochSecond() : 0;
+            String startingAfter = null;
+            for (int page = 0; page < MAX_PAGES; page++) {
+                var list = checkoutSessionResource.listSessions(since, startingAfter);
+                for (var stripeSession : list.data()) {
+                    var checkout = toCheckout(stripeSession);
+                    if (status == null || checkout.getStatus() == status) {
+                        ids.add(checkout.getId());
+                    }
+                }
+                if (!list.hasMore() || list.data().isEmpty()) {
+                    return ids.stream();
+                }
+                startingAfter = list.data().getLast().id();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de lister les sessions Stripe.", e);
+        }
+        throw new RuntimeException("Trop de sessions Stripe à lister depuis " + createdSince + ".");
     }
 
     @Override

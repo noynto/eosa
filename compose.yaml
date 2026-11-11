@@ -8,6 +8,7 @@
 #
 # One-shot jobs (Kubernetes CronJobs in production) are in the "jobs" profile:
 #   docker compose run --rm send-test-email
+#   docker compose run --rm settle-orders
 #   docker compose run --rm expire-pending-workshop-bookings
 #   docker compose run --rm announce-workshop-booking-openings
 #   docker compose run --rm send-workshop-reminders
@@ -135,6 +136,18 @@ services:
     environment:
       <<: *eosa-environment
       EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Equivalent of the settle-orders CronJob.
+  settle-orders:
+    <<: *eosa-container
+    profiles: [jobs]
+    environment:
+      <<: *eosa-environment
+      EOSA_SETTLE_ORDERS_TASK: "true"
     depends_on:
       postgres:
         condition: service_healthy

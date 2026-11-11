@@ -40,6 +40,7 @@ import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
 import me.noynto.eosa.task.PurgeWorkshopPersonalDataTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
+import me.noynto.eosa.task.SettleOrdersTask;
 import me.noynto.eosa.task.SendWorkshopRemindersTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSession;
@@ -206,6 +207,7 @@ public class Bootstrap {
         );
         ReadOrders readOrders = new ReadOrders(orderProvider, clock);
         ReadOrder readOrder = new ReadOrder(orderProvider, clock);
+        SettleOrders settleOrders = new SettleOrders(stripeFetchedCheckouts, orderProvider, clock);
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
         ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
             workshopSessionProvider,
@@ -381,6 +383,10 @@ public class Bootstrap {
         }
         if (RetryWorkshopEmailsTask.activate()) {
             oneShotTasksSucceeded &= new RetryWorkshopEmailsTask(retryWorkshopEmails).task();
+            ranOneShotTask = true;
+        }
+        if (SettleOrdersTask.activate()) {
+            oneShotTasksSucceeded &= new SettleOrdersTask(settleOrders).task();
             ranOneShotTask = true;
         }
         if (ranOneShotTask) {

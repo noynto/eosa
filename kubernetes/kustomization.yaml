@@ -5,3 +5,4 @@ resources:
   - service.yaml
   - postgres.yaml
   - workshop-cronjobs.yaml
+  - order-cronjobs.yaml
