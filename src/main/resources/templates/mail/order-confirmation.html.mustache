@@ -1,0 +1,69 @@
+{{> partials/header.html.mustache}}
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                        Merci pour votre commande
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        {{#hasName}}Merci {{name}}, c{{/hasName}}{{^hasName}}C{{/hasName}}'est bien reçu. Votre commande porte le numéro <b>{{number}}</b>.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5" width="100%">
+                            {{#items}}
+                            <tr>
+                                <td style="padding:12px 20px 0 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    {{name}}<br>
+                                    <span style="color:#775546;">{{quantity}} × {{unitPrice}}</span>
+                                </td>
+                                <td align="right" valign="top" style="padding:12px 20px 0 0;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    {{lineTotal}}
+                                </td>
+                            </tr>
+                            {{/items}}
+                            <tr>
+                                <td style="padding:16px 20px 0 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#775546;">
+                                    Livraison
+                                </td>
+                                <td align="right" style="padding:16px 20px 0 0;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    {{shippingAmount}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px 20px 16px 20px;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:26px;color:#601414;">
+                                    Total
+                                </td>
+                                <td align="right" style="padding:4px 20px 16px 0;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:26px;color:#601414;">
+                                    {{totalAmount}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                {{#hasAddress}}
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                        <span style="color:#775546;">Adresse de livraison</span><br>
+                        {{addressName}}<br>
+                        {{addressLine1}}<br>
+                        {{#hasAddressLine2}}{{addressLine2}}<br>{{/hasAddressLine2}}
+                        {{addressPostalCode}} {{addressCity}}<br>
+                        {{addressCountry}}
+                    </td>
+                </tr>
+                {{/hasAddress}}
+                <tr>
+                    <td style="padding:0 32px 12px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        Chaque pièce est fabriquée à la commande : comptez 48 h au maximum pour la fabrication, puis 24 h pour
+                        l'expédition, soit un envoi sous 72 h ouvrées au plus (les week-ends et les jours fériés ne comptent pas).
+                        Vous recevrez un e-mail avec le lien de suivi dès que votre colis sera remis au transporteur.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#775546;">
+                        Une question ? Répondez à cet e-mail ou écrivez-nous à <a href="mailto:{{contactEmail}}" style="color:#601414;">{{contactEmail}}</a>.
+                    </td>
+                </tr>
+{{> partials/footer.html.mustache}}

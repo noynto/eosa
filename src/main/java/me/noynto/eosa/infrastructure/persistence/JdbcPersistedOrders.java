@@ -34,13 +34,16 @@ public record JdbcPersistedOrders(
     private static final ZoneId ZONE = ZoneId.of("Europe/Paris");
 
     @Override
-    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states) {
+    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states, Instant createdSince) {
         StringBuilder sql = new StringBuilder("SELECT id FROM orders WHERE TRUE");
         if (stripeSessionId != null) {
             sql.append(" AND stripe_session_id = ?");
         }
         if (states != null) {
             sql.append(" AND state IN (").append(String.join(", ", Collections.nCopies(Math.max(states.size(), 1), "?"))).append(")");
+        }
+        if (createdSince != null) {
+            sql.append(" AND created_at >= ?");
         }
         sql.append(" ORDER BY created_at DESC, id");
 
@@ -53,11 +56,14 @@ public record JdbcPersistedOrders(
             }
             if (states != null) {
                 if (states.isEmpty()) {
-                    statement.setString(index, "");
+                    statement.setString(index++, "");
                 }
                 for (OrderState state : states) {
                     statement.setString(index++, state.name());
                 }
+            }
+            if (createdSince != null) {
+                statement.setObject(index, toOffsetDateTime(createdSince));
             }
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -81,7 +87,8 @@ public record JdbcPersistedOrders(
         String sql = """
                 SELECT id, number, state, stripe_session_id, customer_name, customer_email, customer_phone,
                        shipping_name, shipping_line1, shipping_line2, shipping_postal_code, shipping_city,
-                       shipping_country, items_amount, shipping_amount, total_amount, paid_at, created_at
+                       shipping_country, items_amount, shipping_amount, total_amount, paid_at, created_at,
+                       confirmation_sent_at, notification_sent_at
                 FROM orders WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -142,7 +149,7 @@ public record JdbcPersistedOrders(
                     try (ResultSet resultSet = statement.executeQuery()) {
                         if (!resultSet.next()) {
                             connection.rollback();
-                            return readIds(order.getStripeSessionId(), null)
+                            return readIds(order.getStripeSessionId(), null, null)
                                     .findFirst()
                                     .flatMap(this::read)
                                     .orElseThrow(() -> new RuntimeException("Commande introuvable pour la session de paiement."));
@@ -171,7 +178,7 @@ public record JdbcPersistedOrders(
         String sql = """
                 UPDATE orders SET state = ?, customer_name = ?, customer_email = ?, customer_phone = ?,
                     shipping_name = ?, shipping_line1 = ?, shipping_line2 = ?, shipping_postal_code = ?,
-                    shipping_city = ?, shipping_country = ?
+                    shipping_city = ?, shipping_country = ?, confirmation_sent_at = ?, notification_sent_at = ?
                 WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -181,7 +188,9 @@ public record JdbcPersistedOrders(
             statement.setString(3, order.getCustomerEmail());
             statement.setString(4, order.getCustomerPhone());
             setShippingAddress(statement, 5, order.getShippingAddress());
-            statement.setObject(11, UUID.fromString(order.getId().value()));
+            statement.setObject(11, toOffsetDateTime(order.getConfirmationSentAt()));
+            statement.setObject(12, toOffsetDateTime(order.getNotificationSentAt()));
+            statement.setObject(13, UUID.fromString(order.getId().value()));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Impossible d'écrire la commande " + order.getId().value() + ".", e);
@@ -286,6 +295,8 @@ public record JdbcPersistedOrders(
         order.setTotalAmount(resultSet.getBigDecimal("total_amount"));
         order.setPaidAt(toInstant(resultSet, "paid_at"));
         order.setCreatedAt(toInstant(resultSet, "created_at"));
+        order.setConfirmationSentAt(toInstant(resultSet, "confirmation_sent_at"));
+        order.setNotificationSentAt(toInstant(resultSet, "notification_sent_at"));
         return order;
     }
 

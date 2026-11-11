@@ -6,6 +6,9 @@ import me.noynto.eosa.checkout.CheckoutItem;
 import me.noynto.eosa.checkout.CheckoutProvider;
 import me.noynto.eosa.checkout.CheckoutSession;
 import me.noynto.eosa.checkout.CheckoutStatus;
+import me.noynto.eosa.mail.Mail;
+import me.noynto.eosa.mail.MailProvider;
+import me.noynto.eosa.order.Order;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
@@ -20,7 +23,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -28,10 +33,13 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +49,7 @@ class SettleOrdersTest {
 
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartProvider cartProvider;
+    @Mock MailProvider mailProvider;
 
     private final Instant now = Instant.parse("2026-11-12T10:15:00Z");
     private InMemoryOrders orders;
@@ -123,8 +132,84 @@ class SettleOrdersTest {
         assertEquals(1, orders.all().size());
     }
 
+    @Test
+    void handle_sendsBothEmailsOfASettledOrderRightAway() {
+        paid("cs_1", "cart-1");
+
+        var result = settle();
+
+        assertEquals(2, result.emailsSent());
+        var mails = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider, times(2)).send(mails.capture());
+        assertEquals(List.of("contact@eosa.me"), mails.getAllValues().stream()
+                .map(Mail::to).filter("contact@eosa.me"::equals).toList());
+        var order = orders.all().getFirst();
+        assertEquals(now, order.getConfirmationSentAt());
+        assertEquals(now, order.getNotificationSentAt());
+    }
+
+    @Test
+    void handle_resendsTheEmailsThatNeverLeftOnceTheGracePeriodIsOver() {
+        var unsent = unsentOrder("cs_old", now.minus(Duration.ofMinutes(6)));
+        var tooRecent = unsentOrder("cs_recent", now.minus(Duration.ofMinutes(2)));
+        var tooOld = unsentOrder("cs_ancient", now.minus(Duration.ofDays(8)));
+
+        var result = settle();
+
+        assertEquals(0, result.settled());
+        assertEquals(2, result.emailsSent());
+        assertEquals(now, unsent.getConfirmationSentAt());
+        assertEquals(now, unsent.getNotificationSentAt());
+        assertNull(tooRecent.getConfirmationSentAt());
+        assertNull(tooOld.getConfirmationSentAt());
+    }
+
+    @Test
+    void handle_neverSendsTwiceAnEmailThatAlreadyLeft() {
+        var order = unsentOrder("cs_old", now.minus(Duration.ofHours(1)));
+        order.setConfirmationSentAt(now.minus(Duration.ofMinutes(50)));
+
+        settle();
+        settle();
+
+        var mails = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider, times(1)).send(mails.capture());
+        assertEquals("contact@eosa.me", mails.getValue().to());
+    }
+
+    @Test
+    void handle_countsAnEmailFailureAndKeepsItForTheNextPass() {
+        var order = unsentOrder("cs_old", now.minus(Duration.ofHours(1)));
+        doThrow(new RuntimeException("SMTP indisponible")).when(mailProvider).send(any());
+
+        var result = settle();
+
+        assertEquals(0, result.emailsSent());
+        assertEquals(2, result.failed());
+        assertNull(order.getConfirmationSentAt());
+        assertNull(order.getNotificationSentAt());
+    }
+
+    private Order unsentOrder(String stripeSession, Instant createdAt) {
+        var sessionId = new CheckoutSessionId();
+        sessionId.setStripe(stripeSession);
+        var order = new Order();
+        order.setStripeSessionId(sessionId);
+        order.setNumber("EOSA-2026-0001");
+        order.setState(OrderState.PAID);
+        order.setCustomerEmail("ada@example.com");
+        order.setItems(List.of());
+        order.setItemsAmount(BigDecimal.ZERO);
+        order.setShippingAmount(BigDecimal.ZERO);
+        order.setTotalAmount(BigDecimal.ZERO);
+        order.setPaidAt(createdAt);
+        // La persistance en mémoire date la création du paiement.
+        return orders.write(order);
+    }
+
     private SettleOrders.Result settle() {
-        return new SettleOrders(checkoutProvider, orders, Clock.fixed(now, ZoneOffset.UTC)).handle();
+        return new SettleOrders(checkoutProvider, orders, mailProvider, Clock.fixed(now, ZoneOffset.UTC),
+                URI.create("https://admin.eosa.me")).handle();
     }
 
     private final java.util.List<CheckoutId> paidIds = new java.util.ArrayList<>();

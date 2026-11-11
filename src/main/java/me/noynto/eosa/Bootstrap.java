@@ -174,7 +174,8 @@ public class Bootstrap {
             shippingRuleProvider
         );
         ConfirmCheckoutSession confirmCheckoutSession =
-            new ConfirmCheckoutSession(stripeFetchedCheckouts, cartProvider, orderProvider, clock);
+            new ConfirmCheckoutSession(
+                stripeFetchedCheckouts, cartProvider, orderProvider, mailProvider, clock, properties.adminBaseUrl());
         CreateAdministratorIdentity createAdministratorIdentity =
             new CreateAdministratorIdentity(identityProvider, cryptProvider);
         CreateMetalColor createMetalColor = new CreateMetalColor(
@@ -207,7 +208,8 @@ public class Bootstrap {
         );
         ReadOrders readOrders = new ReadOrders(orderProvider, clock);
         ReadOrder readOrder = new ReadOrder(orderProvider, clock);
-        SettleOrders settleOrders = new SettleOrders(stripeFetchedCheckouts, orderProvider, clock);
+        SettleOrders settleOrders = new SettleOrders(
+            stripeFetchedCheckouts, orderProvider, mailProvider, clock, properties.adminBaseUrl());
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
         ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
             workshopSessionProvider,

@@ -14,6 +14,11 @@ import java.util.List;
  */
 public class Order {
 
+    /**
+     * Délai de fabrication annoncé, en heures ouvrées, à compter du paiement.
+     */
+    public static final long CRAFTING_HOURS = 48;
+
     private OrderId id;
     private String number;
     private OrderState state;
@@ -28,6 +33,8 @@ public class Order {
     private BigDecimal totalAmount;
     private Instant paidAt;
     private Instant createdAt;
+    private Instant confirmationSentAt;
+    private Instant notificationSentAt;
 
     public Order() {
     }
@@ -137,6 +144,24 @@ public class Order {
 
     public void setPaidAt(Instant paidAt) {
         this.paidAt = paidAt;
+    }
+
+    /** Instant d'envoi de l'e-mail de confirmation à la cliente, null tant qu'il n'est pas parti. */
+    public Instant getConfirmationSentAt() {
+        return confirmationSentAt;
+    }
+
+    public void setConfirmationSentAt(Instant confirmationSentAt) {
+        this.confirmationSentAt = confirmationSentAt;
+    }
+
+    /** Instant d'envoi de l'e-mail « nouvelle commande » à EOSA, null tant qu'il n'est pas parti. */
+    public Instant getNotificationSentAt() {
+        return notificationSentAt;
+    }
+
+    public void setNotificationSentAt(Instant notificationSentAt) {
+        this.notificationSentAt = notificationSentAt;
     }
 
     public Instant getCreatedAt() {
