@@ -55,6 +55,20 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
         return http.get("/v1/checkout/sessions/" + sessionId, CheckoutSession.class);
     }
 
+    /**
+     * Une page de sessions créées à partir de {@code createdSince} (secondes depuis 1970), les plus récentes d'abord ;
+     * {@code startingAfter} est le dernier identifiant de la page précédente, null pour la première.
+     */
+    public SessionList listSessions(long createdSince, String startingAfter) throws IOException, InterruptedException {
+        String path = "/v1/checkout/sessions?limit=100&created[gte]=" + createdSince
+                + (startingAfter != null ? "&starting_after=" + StripeHttpClient.encode(startingAfter) : "");
+        SessionList list = http.get(path, SessionList.class);
+        if (list == null || list.data() == null) {
+            throw new IOException("Réponse inattendue de Stripe pour la liste des sessions.");
+        }
+        return list;
+    }
+
     public LineItemList retrieveLineItems(String sessionId) throws IOException, InterruptedException {
         return http.get("/v1/checkout/sessions/" + sessionId + "/line_items?expand[]=data.price.product", LineItemList.class);
     }
@@ -149,6 +163,11 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
      */
     public record Price(
             com.google.gson.JsonElement product
+    ) {}
+
+    public record SessionList(
+            List<CheckoutSession> data,
+            @SerializedName("has_more") boolean hasMore
     ) {}
 
     public record LineItemList(

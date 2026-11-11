@@ -28,7 +28,7 @@ public record ConfirmCheckoutSession(
         var checkoutSessionId = command.checkoutSessionId;
 
         // 1. Vérifie le statut du paiement chez Stripe
-        Checkout checkout = this.checkoutProvider.readIds(checkoutSessionId)
+        Checkout checkout = this.checkoutProvider.readIds(checkoutSessionId, null, null)
                 .findFirst()
                 .flatMap(this.checkoutProvider::read)
                 .orElseThrow(() -> new RuntimeException("Session Stripe introuvable."));

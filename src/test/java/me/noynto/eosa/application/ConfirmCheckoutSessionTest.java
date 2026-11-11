@@ -77,7 +77,7 @@ class ConfirmCheckoutSessionTest {
 
         cart = new Cart();
         cart.setId(cartId);
-        when(checkoutProvider.readIds(any())).thenAnswer(inv -> Stream.of(checkoutId));
+        when(checkoutProvider.readIds(any(), any(), any())).thenAnswer(inv -> Stream.of(checkoutId));
         when(checkoutProvider.read(checkoutId)).thenReturn(Optional.of(checkout));
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
     }
