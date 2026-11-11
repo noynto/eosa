@@ -29,6 +29,7 @@ import me.noynto.eosa.infrastructure.web.*;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
+import me.noynto.eosa.order.OrderProvider;
 import me.noynto.eosa.infrastructure.mail.MailTemplates;
 import me.noynto.eosa.infrastructure.mail.SmtpSentMails;
 import me.noynto.eosa.infrastructure.mail.config.SmtpConfiguration;
@@ -69,6 +70,7 @@ public class Bootstrap {
         WorkshopSessionProvider workshopSessionProvider = jdbcConfiguration.workshopSessions();
         WorkshopBookingProvider workshopBookingProvider = jdbcConfiguration.workshopBookings();
         WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider = jdbcConfiguration.workshopWaitlistEntries();
+        OrderProvider orderProvider = jdbcConfiguration.orders();
         Clock clock = Clock.systemUTC();
         CartShippingRuleProvider shippingRuleProvider =
             new ConfiguredCartShippingRules();
@@ -171,7 +173,7 @@ public class Bootstrap {
             shippingRuleProvider
         );
         ConfirmCheckoutSession confirmCheckoutSession =
-            new ConfirmCheckoutSession(stripeFetchedCheckouts, cartProvider);
+            new ConfirmCheckoutSession(stripeFetchedCheckouts, cartProvider, orderProvider, clock);
         CreateAdministratorIdentity createAdministratorIdentity =
             new CreateAdministratorIdentity(identityProvider, cryptProvider);
         CreateMetalColor createMetalColor = new CreateMetalColor(

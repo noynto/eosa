@@ -9,6 +9,7 @@ import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentitySessions;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedImages;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedJewels;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedMetalColors;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedOrders;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopBookings;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopSessions;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopVenues;
@@ -103,6 +104,10 @@ public class JdbcConfiguration {
 
     public JdbcPersistedWorkshopSessions workshopSessions() {
         return new JdbcPersistedWorkshopSessions(dataSource);
+    }
+
+    public JdbcPersistedOrders orders() {
+        return new JdbcPersistedOrders(dataSource);
     }
 
     public JdbcPersistedWorkshopBookings workshopBookings() {

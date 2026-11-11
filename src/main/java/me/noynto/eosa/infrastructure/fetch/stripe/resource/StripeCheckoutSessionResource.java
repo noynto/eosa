@@ -65,12 +65,50 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
             String status,
             @SerializedName("payment_status") String paymentStatus,
             @SerializedName("customer_details") CustomerDetails customerDetails,
-            @SerializedName("client_reference_id") String clientReferenceId
-    ) {}
+            @SerializedName("client_reference_id") String clientReferenceId,
+            @SerializedName("amount_total") Long amountTotal,
+            @SerializedName("shipping_cost") ShippingCost shippingCost,
+            @SerializedName("shipping_details") ShippingDetails shippingDetails,
+            @SerializedName("collected_information") CollectedInformation collectedInformation
+    ) {
+
+        /**
+         * Adresse de livraison : selon la version de l'API du compte Stripe, elle est dans
+         * {@code shipping_details} ou dans {@code collected_information.shipping_details}.
+         */
+        public ShippingDetails shippingDetailsOrCollected() {
+            if (shippingDetails != null) {
+                return shippingDetails;
+            }
+            return collectedInformation != null ? collectedInformation.shippingDetails() : null;
+        }
+    }
 
     public record CustomerDetails(
             String email,
-            String name
+            String name,
+            String phone
+    ) {}
+
+    public record ShippingCost(
+            @SerializedName("amount_total") Long amountTotal
+    ) {}
+
+    public record CollectedInformation(
+            @SerializedName("shipping_details") ShippingDetails shippingDetails
+    ) {}
+
+    public record ShippingDetails(
+            String name,
+            Address address
+    ) {}
+
+    public record Address(
+            String line1,
+            String line2,
+            @SerializedName("postal_code") String postalCode,
+            String city,
+            String country
     ) {}
 
     public record PurchasedItem(
