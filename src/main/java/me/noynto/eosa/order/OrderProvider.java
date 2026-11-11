@@ -4,15 +4,16 @@ import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.OrderId;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public interface OrderProvider {
 
     /**
-     * Identifiants des commandes, de la plus récente à la plus ancienne. Le filtre est ignoré
+     * Identifiants des commandes, de la plus récente à la plus ancienne. Chaque filtre est ignoré
      * s'il est null.
      */
-    Stream<OrderId> readIds(CheckoutSessionId stripeSessionId);
+    Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states);
 
     Optional<Order> read(OrderId orderId);
 

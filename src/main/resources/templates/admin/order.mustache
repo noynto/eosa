@@ -1,0 +1,77 @@
+{{> ../partials/header-admin}}
+
+<div class="max-w-2xl">
+
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <a href="/orders" class="text-xs text-muted hover:text-secondary transition-colors">← Commandes</a>
+        <span class="text-muted">/</span>
+        <h1 class="text-xl font-medium">{{number}}</h1>
+        <span class="text-xs text-secondary border border-bg-border rounded-full px-2 py-0.5">{{state}}</span>
+        {{#overdue}}<span class="text-xs font-medium text-error border border-error rounded-full px-2 py-0.5">En retard</span>{{/overdue}}
+    </div>
+
+    <!-- Résumé -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+            <div class="text-xs text-muted mb-1">Payée le</div>
+            <div class="text-sm font-medium">{{paidAt}}</div>
+            {{#showCraftingDeadline}}
+            <div class="text-xs text-secondary">À fabriquer avant le {{craftingDeadline}}</div>
+            {{/showCraftingDeadline}}
+        </div>
+        <div>
+            <div class="text-xs text-muted mb-1">Cliente</div>
+            <div class="text-sm font-medium">{{customerName}}</div>
+            <div class="text-xs text-secondary break-words">
+                <a href="mailto:{{customerEmail}}" class="hover:underline underline-offset-4">{{customerEmail}}</a>
+                {{#hasPhone}}<br><a href="tel:{{customerPhone}}" class="hover:underline underline-offset-4">{{customerPhone}}</a>{{/hasPhone}}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs text-muted mb-1">Livraison</div>
+            {{#hasAddress}}
+            <div class="text-sm font-medium">{{addressName}}</div>
+            <div class="text-xs text-secondary">
+                {{addressLine1}}<br>
+                {{#hasAddressLine2}}{{addressLine2}}<br>{{/hasAddressLine2}}
+                {{addressPostalCode}} {{addressCity}}<br>
+                {{addressCountry}}
+            </div>
+            {{/hasAddress}}
+            {{^hasAddress}}
+            <div class="text-xs text-secondary">Adresse effacée.</div>
+            {{/hasAddress}}
+        </div>
+    </section>
+
+    <!-- Lignes -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-3">Pièces à fabriquer</h2>
+        {{#items}}
+        <div class="flex items-center gap-4 py-3 border-b border-bg-border last:border-0">
+            {{#hasImage}}
+            <img src="/images/{{imageId}}" alt="" width="56" height="56" loading="lazy"
+                 class="w-14 h-14 rounded-lg object-cover bg-bg-soft shrink-0">
+            {{/hasImage}}
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium">
+                    {{#hasJewel}}<a href="/jewels/{{jewelId}}" class="hover:underline underline-offset-4">{{name}}</a>{{/hasJewel}}
+                    {{^hasJewel}}{{name}}{{/hasJewel}}
+                </div>
+                <div class="text-xs text-secondary">{{quantity}} × {{unitPrice}}</div>
+            </div>
+            <div class="text-sm font-medium shrink-0">{{lineTotal}}</div>
+        </div>
+        {{/items}}
+        <dl class="mt-3 text-sm flex flex-col gap-1">
+            <div class="flex justify-between"><dt class="text-secondary">Articles</dt><dd>{{itemsAmount}}</dd></div>
+            <div class="flex justify-between"><dt class="text-secondary">Livraison</dt><dd>{{shippingAmount}}</dd></div>
+            <div class="flex justify-between font-medium"><dt>Total</dt><dd>{{totalAmount}}</dd></div>
+        </dl>
+    </section>
+
+    <p class="text-xs text-muted break-all">Session Stripe : {{stripeSessionId}}</p>
+
+</div>
+
+{{> ../partials/footer-admin}}

@@ -24,6 +24,13 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
             if (item.imageUrl() != null) {
                 params.add(prefix + "[price_data][product_data][images][0]=" + StripeHttpClient.encode(item.imageUrl()));
             }
+            // Relus à la lecture de la session pour relier la ligne de commande à son bijou et à son image.
+            if (item.jewelId() != null) {
+                params.add(prefix + "[price_data][product_data][metadata][jewel_id]=" + StripeHttpClient.encode(item.jewelId()));
+            }
+            if (item.imageId() != null) {
+                params.add(prefix + "[price_data][product_data][metadata][image_id]=" + StripeHttpClient.encode(item.imageId()));
+            }
             params.add(prefix + "[quantity]=" + item.quantity());
         }
         if (clientReferenceId != null) {
@@ -49,14 +56,16 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
     }
 
     public LineItemList retrieveLineItems(String sessionId) throws IOException, InterruptedException {
-        return http.get("/v1/checkout/sessions/" + sessionId + "/line_items", LineItemList.class);
+        return http.get("/v1/checkout/sessions/" + sessionId + "/line_items?expand[]=data.price.product", LineItemList.class);
     }
 
     public record LineItem(
             String name,
             BigDecimal amount,
             int quantity,
-            String imageUrl
+            String imageUrl,
+            String jewelId,
+            String imageId
     ) {}
 
     public record CheckoutSession(
@@ -114,7 +123,32 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
     public record PurchasedItem(
             String description,
             long quantity,
-            @SerializedName("amount_total") long amountTotal
+            @SerializedName("amount_total") long amountTotal,
+            Price price
+    ) {
+
+        /**
+         * Métadonnée du produit de la ligne (présente quand le produit est développé), ou null.
+         */
+        public String productMetadata(String key) {
+            if (price == null || price.product() == null || !price.product().isJsonObject()) {
+                return null;
+            }
+            var metadata = price.product().getAsJsonObject().get("metadata");
+            if (metadata == null || !metadata.isJsonObject()) {
+                return null;
+            }
+            var value = metadata.getAsJsonObject().get(key);
+            return value != null && value.isJsonPrimitive() ? value.getAsString() : null;
+        }
+    }
+
+    /**
+     * {@code product} est un identifiant, ou un objet quand la requête le développe : on le garde brut pour ne
+     * jamais échouer à la lecture d'une session.
+     */
+    public record Price(
+            com.google.gson.JsonElement product
     ) {}
 
     public record LineItemList(

@@ -20,8 +20,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -32,18 +34,30 @@ public record JdbcPersistedOrders(
     private static final ZoneId ZONE = ZoneId.of("Europe/Paris");
 
     @Override
-    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId) {
+    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states) {
         StringBuilder sql = new StringBuilder("SELECT id FROM orders WHERE TRUE");
         if (stripeSessionId != null) {
             sql.append(" AND stripe_session_id = ?");
+        }
+        if (states != null) {
+            sql.append(" AND state IN (").append(String.join(", ", Collections.nCopies(Math.max(states.size(), 1), "?"))).append(")");
         }
         sql.append(" ORDER BY created_at DESC, id");
 
         List<OrderId> ids = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            int index = 1;
             if (stripeSessionId != null) {
-                statement.setString(1, stripeSessionId.getStripe());
+                statement.setString(index++, stripeSessionId.getStripe());
+            }
+            if (states != null) {
+                if (states.isEmpty()) {
+                    statement.setString(index, "");
+                }
+                for (OrderState state : states) {
+                    statement.setString(index++, state.name());
+                }
             }
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -128,7 +142,7 @@ public record JdbcPersistedOrders(
                     try (ResultSet resultSet = statement.executeQuery()) {
                         if (!resultSet.next()) {
                             connection.rollback();
-                            return readIds(order.getStripeSessionId())
+                            return readIds(order.getStripeSessionId(), null)
                                     .findFirst()
                                     .flatMap(this::read)
                                     .orElseThrow(() -> new RuntimeException("Commande introuvable pour la session de paiement."));
