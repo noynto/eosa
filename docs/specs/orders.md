@@ -28,7 +28,7 @@ L'objectif est de **modéliser la commande** : l'enregistrer au paiement, la mon
 | 10 | Remboursement | Fait **dans le tableau de bord Stripe**. L'administratrice marque ensuite la commande « annulée » avec un motif libre. Pas de remboursement depuis le site en V1. |
 | 11 | Compte cliente | Toujours **aucun compte** : la commande est liée à l'e-mail saisi chez Stripe. La cliente suit son colis par le lien de l'e-mail. |
 | 12 | Périmètre | Les ateliers (sans paiement en ligne) et les cartes cadeaux (leur propre parcours) ne créent **pas** de commande de bijoux. |
-| 13 | Délais annoncés | **Fabrication : 48 h au maximum** après le paiement (`PAID → CRAFTED`), puis **expédition : 24 h** (`CRAFTED → SHIPPED`), soit **72 h au plus** entre le paiement et l'envoi du colis. Heures ouvrées, comme le texte actuel (hors week-ends et jours fériés) : à confirmer. Ces délais remplacent le « expédié sous 48h » partout. |
+| 13 | Délais annoncés | **Fabrication : 48 h au maximum** après le paiement (`PAID → CRAFTED`), puis **expédition : 24 h** (`CRAFTED → SHIPPED`), soit **72 h au plus** entre le paiement et l'envoi du colis. **Heures ouvrées** (confirmé le 11 novembre 2026), comme le texte actuel : les week-ends et les jours fériés français ne comptent pas. Une commande payée le vendredi soir est donc à fabriquer au plus tard le mardi et à expédier le mercredi (la durée ne s'écoule que du lundi au vendredi, 24 h par jour ouvré). Ces délais remplacent le « expédié sous 48h » partout. |
 | 14 | Suivi automatique | La tâche **`TrackOrderShipments`** (toutes les 15 minutes) lit le statut de chaque étiquette chez Mondial Relay pour les commandes `CRAFTED` et `SHIPPED` : colis **déposé** → `SHIPPED` (date du dépôt prise chez le transporteur, e-mail d'expédition), colis **livré** → `DELIVERED`. Les boutons manuels (« Colis remis », « Livrée ») restent pour le jour où l'API ne répond pas ou tarde. |
 
 ## Ce que le code actuel impose
@@ -81,7 +81,7 @@ Le numéro de commande est attribué par une séquence en base au moment de l'é
 
 | Écran | Contenu |
 |---|---|
-| `GET /orders` (liste) | Commandes, les plus récentes d'abord, filtre par état (par défaut : **à fabriquer** `PAID` et **fabriquées** `CRAFTED`), recherche par numéro ou e-mail. Pastille du nombre de commandes `PAID` (à fabriquer) dans le menu. Une commande **en retard** (`PAID` depuis plus de 48 h, `CRAFTED` depuis plus de 24 h) est signalée dans la liste ; l'heure limite se calcule en Java à partir de `paid_at` et `crafted_at`. |
+| `GET /orders` (liste) | Commandes, les plus récentes d'abord, filtre par état (par défaut : **à fabriquer** `PAID` et **fabriquées** `CRAFTED`), recherche par numéro ou e-mail. Pastille du nombre de commandes `PAID` (à fabriquer) dans le menu. Une commande **en retard** (`PAID` depuis plus de 48 h, `CRAFTED` depuis plus de 24 h) est signalée dans la liste ; l'échéance (en heures ouvrées) se calcule en Java à partir de `paid_at` et `crafted_at`. |
 | `GET /orders/{id}` (détail) | Numéro, date, cliente (nom, e-mail, téléphone), adresse de livraison, lignes avec image, sous-total, livraison, total, état, étiquette (numéro de suivi, lien d'impression), journal des e-mails. |
 | `POST /orders/{id}/craft` | Poids du colis, création de l'étiquette chez Mondial Relay, passage à `CRAFTED`. Le bouton ne s'affiche que pour une commande `PAID`. En cas d'échec du transporteur, l'erreur s'affiche dans la page (fragment htmx, 422) et la commande reste `PAID`. |
 | `GET /orders/{id}/label` | PDF de l'étiquette, à imprimer ou réimprimer. Ne modifie rien. Disponible pour une commande `CRAFTED` ou `SHIPPED`. |
@@ -111,6 +111,7 @@ Les e-mails suivent les règles de [`docs/tech/emails.md`](../tech/emails.md). C
 - L'étiquette est créée **une seule fois** par commande : une commande qui en a déjà une ne peut pas être refabriquée. Si l'écriture en base échoue après la création chez Mondial Relay, une étiquette orpheline peut exister chez eux ; la création de l'étiquette n'est pas idempotente côté transporteur.
 - Les transitions inverses ne sont pas permises ; seule `CANCELLED` sort du flux.
 - Les montants sont des `BigDecimal` en euros à deux décimales, jamais des `double`.
+- Les délais se comptent en **heures ouvrées** : un service statique `service/BusinessTime` (sans provider, l'heure en paramètre) calcule l'échéance à partir de `paid_at` ou `crafted_at` en sautant les samedis, les dimanches et les jours fériés français (dont ceux qui dépendent de Pâques), dans le fuseau `Europe/Paris`. Il sert à signaler les commandes en retard dans la liste, et peut resservir pour les textes et l'e-mail de confirmation.
 
 ## Persistance (migration à numéroter à l'implémentation)
 
@@ -167,7 +168,7 @@ Un vrai paiement n'est pas testable en local sans clé de test Stripe. Les tests
 3. **Mondial Relay.** La création de l'étiquette par l'API est décidée (décision 8) : il faut un contrat Mondial Relay avec accès à l'API et des identifiants (étape 0), et choisir l'API (la plus récente ou l'ancienne). À vérifier avec eux : la livraison à domicile (le site l'annonce) ou en point relais, les pays FR/BE/CH/LU, le poids et les dimensions exigés, l'annulation d'une étiquette inutilisée et sa facturation. **Suivi** (décision 14) : l'API doit exposer le statut du colis ; vérifier surtout qu'un **dépôt en consigne (locker)** produit bien un statut « pris en charge / déposé » chez le transporteur, et au bout de combien de temps, car toute la transition automatique vers `SHIPPED` repose dessus. Si ce n'est pas le cas, seul le bouton « Colis remis » joue ce rôle.
    Le poids de chaque bijou n'est pas dans le modèle : en V1, un poids par défaut est confirmé à chaque fabrication.
 4. **Commandes à l'étranger.** Les pays autorisés sont FR, BE, CH et LU ; la Suisse est hors Union européenne (douane). À confirmer.
-6. ~~**Délai annoncé.**~~ Tranché : fabrication 48 h au maximum, puis expédition 24 h (décision 13). Reste à confirmer que ce sont des heures ouvrées. Le délai remplace le « expédié sous 48h » actuel dans la page Livraison, la FAQ, le bandeau, les CGV et l'e-mail de confirmation. Il change aussi le point 1 : si tout est fabriqué à la commande, il n'y a pas de stock à gérer, seulement une charge de travail.
+6. ~~**Délai annoncé.**~~ Tranché : fabrication 48 h ouvrées au maximum, puis expédition 24 h ouvrées (décision 13). Le délai remplace le « expédié sous 48h » actuel dans la page Livraison, la FAQ, le bandeau, les CGV et l'e-mail de confirmation. Il change aussi le point 1 : si tout est fabriqué à la commande, il n'y a pas de stock à gérer, seulement une charge de travail.
 7. **Annulation par la cliente.** Pas de parcours en V1 : elle écrit à EOSA, qui rembourse dans Stripe et marque la commande annulée. Une pièce déjà fabriquée (`CRAFTED`) ou en cours de fabrication peut ne plus être annulable librement (pièce personnalisée) : à ajouter aux CGV.
 
 ## Sujets juridiques et fiscaux à valider
@@ -185,7 +186,7 @@ Chaque étape est une pull request ; la boutique reste utilisable entre deux.
 
 | # | Étape | Contenu |
 |---|---|---|
-| 0 | Prérequis (hors code) | Trancher les points ouverts 1 à 4, et confirmer que les délais de la décision 13 sont en heures ouvrées ; **obtenir le contrat et les identifiants de l'API Mondial Relay** (obligatoire : sans eux, `CraftOrder` ne peut pas passer une commande à `CRAFTED`). Les étapes 1 à 4 n'en dépendent pas. |
+| 0 | Prérequis (hors code) | Trancher les points ouverts 1 à 4, ; **obtenir le contrat et les identifiants de l'API Mondial Relay** (obligatoire : sans eux, `CraftOrder` ne peut pas passer une commande à `CRAFTED`). Les étapes 1 à 4 n'en dépendent pas. |
 | 1 | Commande enregistrée | Migration, `Order`, `OrderProvider`, lecture élargie de Stripe, création dans `ConfirmCheckoutSession`, numéro affiché sur la page de succès. Aucune administration encore. |
 | 2 | Administration | `ReadOrders`, `ReadOrder`, écrans liste et détail, pastille « à fabriquer » et commandes en retard. |
 | 3 | Rattrapage | `SettleOrders`, liste des sessions payées dans `CheckoutProvider`, CronJob, service compose, e-mails renvoyés. |
