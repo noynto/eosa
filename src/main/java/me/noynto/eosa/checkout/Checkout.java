@@ -13,8 +13,56 @@ public class Checkout {
     private CheckoutStatus status;
     private CartId cartId;
     private BigDecimal shippingAmount;
+    private BigDecimal totalAmount;
+    private String customerName;
+    private String customerEmail;
+    private String customerPhone;
+    private CheckoutShippingAddress shippingAddress;
 
     public Checkout() {
+    }
+
+    /**
+     * Total payé chez Stripe, livraison comprise. Null tant qu'il n'a pas été lu chez Stripe.
+     */
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+
+    public CheckoutShippingAddress getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(CheckoutShippingAddress shippingAddress) {
+        this.shippingAddress = shippingAddress;
     }
 
     public CheckoutId getId() {

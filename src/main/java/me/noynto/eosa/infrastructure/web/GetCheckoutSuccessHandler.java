@@ -22,7 +22,8 @@ public record GetCheckoutSuccessHandler(
         CheckoutSessionId checkoutSessionId = new CheckoutSessionId();
         checkoutSessionId.setStripe(stripeSessionId);
         String cartCookie = ctx.cookie("cart");
-        var session = confirmCheckoutSession.handle(new ConfirmCheckoutSession.Command(checkoutSessionId)).checkout();
+        var confirmed = confirmCheckoutSession.handle(new ConfirmCheckoutSession.Command(checkoutSessionId));
+        var session = confirmed.checkout();
         ctx.cookie("cart", "");
 
         boolean isCompleted = session.getStatus() == CheckoutStatus.COMPLETED;
@@ -41,6 +42,7 @@ public record GetCheckoutSuccessHandler(
         model.put("description", "Confirmation de votre commande Eosa.");
         model.put("ogImageUrl", baseUrl + "/hero.webp");
         model.put("canonicalUrl", baseUrl + ctx.path());
+        model.put("orderNumber", confirmed.order().getNumber());
         model.put("isCompleted", isCompleted);
         model.put("isExpired", isExpired);
         model.put("hasItems", hasItems);

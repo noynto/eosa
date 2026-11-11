@@ -6,8 +6,11 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
         </div>
         <h1 class="font-serif text-4xl font-normal mb-3">Merci pour votre commande !</h1>
-        <p class="text-sm text-secondary leading-relaxed max-w-sm mb-8">
+        <p class="text-sm text-secondary leading-relaxed max-w-sm mb-3">
             Votre paiement a bien été reçu. Vous allez recevoir un e-mail de confirmation.
+        </p>
+        <p class="text-sm text-secondary leading-relaxed max-w-sm mb-8">
+            Numéro de commande : <strong class="text-primary font-medium">{{orderNumber}}</strong>
         </p>
         {{#hasItems}}
             <div class="bg-bg-soft rounded-2xl px-6 py-5 mb-8 text-left w-full max-w-sm">

@@ -75,7 +75,7 @@ paiement Stripe     confirmation          pièce terminée (admin)   colis dépo
 3. Si le paiement n'est pas confirmé (en attente, abandonné, expiré), la page le dit, sans créer de commande.
 4. La tâche `SettleOrders` (toutes les 5 minutes) fait le même travail pour les sessions payées dont personne n'est revenu, et **renvoie les e-mails qui ne sont pas partis**. Elle ne regarde que les sessions des dernières 48 heures.
 
-Le numéro de commande est attribué par une séquence en base au moment de l'écriture, pour qu'il n'y ait ni doublon ni trou dû à la course entre le retour de la cliente et la tâche.
+Le numéro de commande est attribué par une séquence en base au moment de l'écriture, pour qu'il n'y ait pas de doublon entre le retour de la cliente et la tâche. Le préfixe porte l'année du paiement (fuseau `Europe/Paris`) ; la séquence, elle, ne repart pas de 1 au 1er janvier. Une écriture qui trouve déjà la commande de la session (course entre le retour de la cliente et la tâche) consomme un numéro sans l'utiliser : un trou dans les numéros est possible, mais jamais un doublon.
 
 ## Parcours : préparer et expédier (administration)
 
@@ -187,7 +187,7 @@ Chaque étape est une pull request ; la boutique reste utilisable entre deux.
 | # | Étape | Contenu |
 |---|---|---|
 | 0 | Prérequis (hors code) | Trancher les points ouverts 1 à 4, ; **obtenir le contrat et les identifiants de l'API Mondial Relay** (obligatoire : sans eux, `CraftOrder` ne peut pas passer une commande à `CRAFTED`). Les étapes 1 à 4 n'en dépendent pas. |
-| 1 | Commande enregistrée | Migration, `Order`, `OrderProvider`, lecture élargie de Stripe, création dans `ConfirmCheckoutSession`, numéro affiché sur la page de succès. Aucune administration encore. |
+| 1 | Commande enregistrée | Migration, `Order`, `OrderProvider`, lecture élargie de Stripe, création dans `ConfirmCheckoutSession`, numéro affiché sur la page de succès. Aucune administration encore. **Fait** : la migration ne contient que les colonnes de cette étape (les suivantes arrivent avec leur étape, par de nouvelles migrations) ; les lignes sont copiées depuis les lignes Stripe, donc `jewel_id` et `image_id` restent vides tant que Stripe ne les renvoie pas (à traiter avec l'écran de détail, étape 2). |
 | 2 | Administration | `ReadOrders`, `ReadOrder`, écrans liste et détail, pastille « à fabriquer » et commandes en retard. |
 | 3 | Rattrapage | `SettleOrders`, liste des sessions payées dans `CheckoutProvider`, CronJob, service compose, e-mails renvoyés. |
 | 4 | E-mails | Confirmation à la cliente, nouvelle commande à EOSA (envoyés à la création et par la tâche). |

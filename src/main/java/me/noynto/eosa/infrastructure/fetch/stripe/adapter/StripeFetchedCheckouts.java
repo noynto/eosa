@@ -54,7 +54,7 @@ public record StripeFetchedCheckouts(
         }
     }
 
-    private Checkout toCheckout(StripeCheckoutSessionResource.CheckoutSession stripeSession) {
+    Checkout toCheckout(StripeCheckoutSessionResource.CheckoutSession stripeSession) {
         Checkout checkout = new Checkout();
 
         CheckoutId id = new CheckoutId();
@@ -79,7 +79,31 @@ public record StripeFetchedCheckouts(
         checkoutSession.setStatus(CheckoutSessionStatus.OPENED);
         checkout.setSession(checkoutSession);
 
+        if (stripeSession.amountTotal() != null) {
+            checkout.setTotalAmount(fromStripeAmount(stripeSession.amountTotal()));
+        }
+        if (stripeSession.shippingCost() != null && stripeSession.shippingCost().amountTotal() != null) {
+            checkout.setShippingAmount(fromStripeAmount(stripeSession.shippingCost().amountTotal()));
+        }
+        var customer = stripeSession.customerDetails();
+        if (customer != null) {
+            checkout.setCustomerName(customer.name());
+            checkout.setCustomerEmail(customer.email());
+            checkout.setCustomerPhone(customer.phone());
+        }
+        var shipping = stripeSession.shippingDetailsOrCollected();
+        if (shipping != null && shipping.address() != null) {
+            var address = shipping.address();
+            checkout.setShippingAddress(new CheckoutShippingAddress(
+                    shipping.name(), address.line1(), address.line2(),
+                    address.postalCode(), address.city(), address.country()));
+        }
+
         return checkout;
+    }
+
+    private static BigDecimal fromStripeAmount(long amount) {
+        return BigDecimal.valueOf(amount, 2);
     }
 
     @Override
