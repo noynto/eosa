@@ -23,7 +23,7 @@ public record ReadOrder(
         }
         Order order = orderProvider.read(command.orderId())
                 .orElseThrow(() -> new RuntimeException("La commande " + command.orderId.value() + " n'existe pas."));
-        Instant craftingDeadline = BusinessTime.deadline(order.getPaidAt(), ReadOrders.CRAFTING_HOURS);
+        Instant craftingDeadline = BusinessTime.deadline(order.getPaidAt(), Order.CRAFTING_HOURS);
         boolean overdue = order.getState() == OrderState.PAID && clock.instant().isAfter(craftingDeadline);
         return new Result(order, craftingDeadline, overdue);
     }

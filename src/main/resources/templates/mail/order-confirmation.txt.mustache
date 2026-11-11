@@ -1,0 +1,25 @@
+Merci pour votre commande
+
+{{#hasName}}Merci {{{name}}}, c{{/hasName}}{{^hasName}}C{{/hasName}}'est bien reçu. Votre commande porte le numéro {{{number}}}.
+
+{{#items}}
+- {{{name}}} : {{{quantity}}} × {{{unitPrice}}} = {{{lineTotal}}}
+{{/items}}
+Livraison : {{{shippingAmount}}}
+Total : {{{totalAmount}}}
+{{#hasAddress}}
+
+Adresse de livraison :
+{{{addressName}}}
+{{{addressLine1}}}
+{{#hasAddressLine2}}
+{{{addressLine2}}}
+{{/hasAddressLine2}}
+{{{addressPostalCode}}} {{{addressCity}}}
+{{{addressCountry}}}
+{{/hasAddress}}
+
+Chaque pièce est fabriquée à la commande : comptez 48 h au maximum pour la fabrication, puis 24 h pour l'expédition, soit un envoi sous 72 h ouvrées au plus (les week-ends et les jours fériés ne comptent pas). Vous recevrez un e-mail avec le lien de suivi dès que votre colis sera remis au transporteur.
+
+Une question ? Répondez à cet e-mail ou écrivez-nous à {{{contactEmail}}}.
+{{> partials/footer.txt.mustache}}

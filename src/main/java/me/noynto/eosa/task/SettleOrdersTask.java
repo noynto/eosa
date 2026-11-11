@@ -15,7 +15,8 @@ public record SettleOrdersTask(
         LOGGER.log(Level.INFO, "Démarrage de la tâche de rattrapage des commandes payées.");
         try {
             var result = settleOrders.handle();
-            LOGGER.log(Level.INFO, result.settled() + " commande(s) rattrapée(s), " + result.failed() + " échec(s).");
+            LOGGER.log(Level.INFO, result.settled() + " commande(s) rattrapée(s), " + result.emailsSent() + " e-mail(s) envoyé(s), "
+                    + result.failed() + " échec(s).");
             return result.failed() == 0;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Le rattrapage des commandes payées a échoué.", e);

@@ -1,0 +1,12 @@
+Nouvelle commande {{{number}}}
+
+{{{pieces}}} pièce(s) à fabriquer pour {{{totalAmount}}}, commandée(s) par {{{customerName}}} ({{{customerEmail}}}).
+
+{{#items}}
+- {{{quantity}}} × {{{name}}}
+{{/items}}
+
+À fabriquer avant le {{{craftingDeadline}}}.
+
+Voir la commande : {{{orderUrl}}}
+{{> partials/footer.txt.mustache}}

@@ -8,6 +8,8 @@ import me.noynto.eosa.checkout.CheckoutProvider;
 import me.noynto.eosa.checkout.CheckoutSession;
 import me.noynto.eosa.checkout.CheckoutShippingAddress;
 import me.noynto.eosa.checkout.CheckoutStatus;
+import me.noynto.eosa.mail.Mail;
+import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
@@ -15,12 +17,14 @@ import me.noynto.eosa.shared.CheckoutSessionId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -29,11 +33,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +50,7 @@ class ConfirmCheckoutSessionTest {
 
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartProvider cartProvider;
+    @Mock MailProvider mailProvider;
 
     private final Instant now = Instant.parse("2026-11-12T10:15:00Z");
     private final CartId cartId = new CartId("cart");
@@ -124,14 +132,40 @@ class ConfirmCheckoutSessionTest {
 
     @Test
     void handle_refusesAMissingSessionIdentifier() {
-        assertThrows(RuntimeException.class, () -> new ConfirmCheckoutSession(
-                checkoutProvider, cartProvider, orders, Clock.fixed(now, ZoneOffset.UTC))
-                .handle(new ConfirmCheckoutSession.Command(null)));
+        assertThrows(RuntimeException.class, () -> useCase().handle(new ConfirmCheckoutSession.Command(null)));
+    }
+
+    @Test
+    void handle_sendsTheConfirmationAndTheNotificationOnceAndRecordsThem() throws Exception {
+        var order = confirm().order();
+        confirm();
+
+        var mails = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider, times(2)).send(mails.capture());
+        assertEquals(List.of("ada@example.com", "contact@eosa.me"), mails.getAllValues().stream().map(Mail::to).toList());
+        assertEquals(now, order.getConfirmationSentAt());
+        assertEquals(now, order.getNotificationSentAt());
+    }
+
+    @Test
+    void handle_stillRecordsTheOrderWhenAnEmailFailsAndLeavesItUnsent() throws Exception {
+        doThrow(new RuntimeException("SMTP indisponible")).when(mailProvider).send(any());
+
+        var order = confirm().order();
+
+        assertEquals(1, orders.all().size());
+        assertNull(order.getConfirmationSentAt());
+        assertNull(order.getNotificationSentAt());
+        assertTrue(cart.getItems().isEmpty());
+    }
+
+    private ConfirmCheckoutSession useCase() {
+        return new ConfirmCheckoutSession(checkoutProvider, cartProvider, orders, mailProvider,
+                Clock.fixed(now, ZoneOffset.UTC), URI.create("https://admin.eosa.me"));
     }
 
     private ConfirmCheckoutSession.Result confirm() throws Exception {
-        return new ConfirmCheckoutSession(checkoutProvider, cartProvider, orders, Clock.fixed(now, ZoneOffset.UTC))
-                .handle(new ConfirmCheckoutSession.Command(sessionId));
+        return useCase().handle(new ConfirmCheckoutSession.Command(sessionId));
     }
 
     private CheckoutItem item(String name, String unitPrice, int quantity) {

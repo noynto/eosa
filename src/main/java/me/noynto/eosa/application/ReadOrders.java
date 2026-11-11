@@ -20,15 +20,10 @@ public record ReadOrders(
         Clock clock
 ) {
 
-    /**
-     * Délai de fabrication annoncé, en heures ouvrées, à compter du paiement.
-     */
-    public static final long CRAFTING_HOURS = 48;
-
     public Result handle(Command command) {
         Instant now = clock.instant();
         String search = command.search == null ? "" : command.search.strip().toLowerCase(Locale.ROOT);
-        List<Entry> entries = orderProvider.readIds(null, command.states)
+        List<Entry> entries = orderProvider.readIds(null, command.states, null)
                 .map(id -> orderProvider.read(id).orElseThrow())
                 .filter(order -> matches(order, search))
                 .map(order -> new Entry(order, isOverdue(order, now)))
@@ -51,7 +46,7 @@ public record ReadOrders(
 
     private static boolean isOverdue(Order order, Instant now) {
         return order.getState() == OrderState.PAID
-                && BusinessTime.isOverdue(order.getPaidAt(), CRAFTING_HOURS, now);
+                && BusinessTime.isOverdue(order.getPaidAt(), Order.CRAFTING_HOURS, now);
     }
 
     /**

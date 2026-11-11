@@ -1,0 +1,42 @@
+{{> partials/header.html.mustache}}
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                        Nouvelle commande {{number}}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        {{pieces}} pièce(s) à fabriquer pour {{totalAmount}}, commandée(s) par {{customerName}}
+                        (<a href="mailto:{{customerEmail}}" style="color:#775546;">{{customerEmail}}</a>).
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5" width="100%">
+                            {{#items}}
+                            <tr>
+                                <td style="padding:12px 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    {{quantity}} × {{name}}
+                                </td>
+                            </tr>
+                            {{/items}}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        À fabriquer avant le {{craftingDeadline}}.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 32px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td bgcolor="#601414" style="padding:12px 24px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:20px;">
+                                    <a href="{{orderUrl}}" style="color:#FDFBF7;text-decoration:none;">Voir la commande</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+{{> partials/footer.html.mustache}}
