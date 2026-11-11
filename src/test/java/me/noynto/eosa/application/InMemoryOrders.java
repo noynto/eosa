@@ -2,6 +2,7 @@ package me.noynto.eosa.application;
 
 import me.noynto.eosa.order.Order;
 import me.noynto.eosa.order.OrderProvider;
+import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.OrderId;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -21,10 +23,11 @@ class InMemoryOrders implements OrderProvider {
     private final List<Order> orders = new ArrayList<>();
 
     @Override
-    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId) {
+    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states) {
         return orders.stream()
                 .filter(order -> stripeSessionId == null
                         || stripeSessionId.getStripe().equals(order.getStripeSessionId().getStripe()))
+                .filter(order -> states == null || states.contains(order.getState()))
                 .sorted(Comparator.comparing(Order::getPaidAt).reversed())
                 .map(Order::getId)
                 .toList()

@@ -38,6 +38,7 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 | GET/POST | `/sign-in` | Connexion (pose le cookie `identity-session-id`) |
 | GET | `/` | Redirection vers `/jewels` |
 | * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue |
+| GET | `/orders`, `/orders/{id}`, `/orders/badge` | Commandes : liste filtrée (état, recherche), détail, pastille « à fabriquer » du menu (fragment htmx) |
 | * | `/workshop-venues*` | Lieux des ateliers : création, modification, photo, archivage |
 | * | `/workshops*` | Sessions : création, modification, annulation ; réservations (annulation, présente, absente) et liste d'attente |
 | GET | `/workshops/new` | Fragment : le formulaire « Nouvelle session », chargé à l'ouverture de la fenêtre |

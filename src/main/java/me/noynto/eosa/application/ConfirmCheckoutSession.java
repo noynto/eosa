@@ -42,7 +42,7 @@ public record ConfirmCheckoutSession(
         }
 
         // 2. Enregistre la commande, une seule fois par session de paiement : recharger la page ne crée rien de plus
-        Order order = orderProvider.readIds(checkoutSessionId)
+        Order order = orderProvider.readIds(checkoutSessionId, null)
                 .findFirst()
                 .flatMap(orderProvider::read)
                 .orElseGet(() -> orderProvider.write(OrdersFromCheckouts.fromPaidCheckout(checkout, clock.instant())));

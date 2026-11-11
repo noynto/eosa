@@ -5,6 +5,8 @@ import me.noynto.eosa.infrastructure.fetch.stripe.resource.StripeCheckoutSession
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
 import me.noynto.eosa.shared.CheckoutSessionId;
+import me.noynto.eosa.shared.ImageId;
+import me.noynto.eosa.shared.JewelId;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -38,6 +40,14 @@ public record StripeFetchedCheckouts(
                     CheckoutItem checkoutItem = new CheckoutItem();
                     checkoutItem.setName(item.description());
                     checkoutItem.setQuantity((int) item.quantity());
+                    String jewelId = item.productMetadata("jewel_id");
+                    if (jewelId != null) {
+                        checkoutItem.setJewelId(new JewelId(jewelId));
+                    }
+                    String imageId = item.productMetadata("image_id");
+                    if (imageId != null) {
+                        checkoutItem.setImageId(new ImageId(imageId));
+                    }
                     if (item.quantity() > 0) {
                         checkoutItem.setUnitPrice(
                             BigDecimal.valueOf(item.amountTotal())
@@ -117,7 +127,9 @@ public record StripeFetchedCheckouts(
                             checkoutItem.getQuantity(),
                             checkoutItem.getImageId() != null
                                     ? baseUrl + "/images/" + checkoutItem.getImageId().value()
-                                    : null
+                                    : null,
+                            checkoutItem.getJewelId() != null ? checkoutItem.getJewelId().value() : null,
+                            checkoutItem.getImageId() != null ? checkoutItem.getImageId().value() : null
                     ))
                     .toList();
 

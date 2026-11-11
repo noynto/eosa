@@ -204,6 +204,8 @@ public class Bootstrap {
             workshopVenueProvider,
             imageProvider
         );
+        ReadOrders readOrders = new ReadOrders(orderProvider, clock);
+        ReadOrder readOrder = new ReadOrder(orderProvider, clock);
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
         ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
             workshopSessionProvider,
@@ -726,6 +728,19 @@ public class Bootstrap {
                 )
             );
             javalinConfig.routes.before(ensureIdentityHandler);
+            javalinConfig.routes.get(
+                "/orders",
+                new GetAdminOrdersHandler(readOrders)
+            );
+            // Avant « /orders/{id} » : « badge » ne doit pas être pris pour un identifiant.
+            javalinConfig.routes.get(
+                "/orders/badge",
+                new GetAdminOrdersBadgeHandler(readOrders)
+            );
+            javalinConfig.routes.get(
+                "/orders/{id}",
+                new GetAdminOrderHandler(readOrder)
+            );
             javalinConfig.routes.get(
                 "/jewels",
                 new GetAdminJewelsHandler(readJewelIds)
