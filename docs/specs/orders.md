@@ -169,7 +169,7 @@ Chaque étape est une pull request ; la boutique reste utilisable entre deux.
 
 | # | Étape | Contenu |
 |---|---|---|
-| 0 | Prérequis (hors code) | Trancher les points ouverts 1 à 4 ; compte et contrat Mondial Relay si l'étiquette est automatisée. |
+| 0 | Prérequis (hors code) | Trancher les points ouverts 1 à 4 et 6 ; compte et contrat Mondial Relay si l'étiquette est automatisée. |
 | 1 | Commande enregistrée | Migration, `Order`, `OrderProvider`, lecture élargie de Stripe, création dans `ConfirmCheckoutSession`, numéro affiché sur la page de succès. Aucune administration encore. |
 | 2 | Administration | `ReadOrders`, `ReadOrder`, écrans liste et détail, pastille « à préparer ». |
 | 3 | Rattrapage | `SettleOrders`, liste des sessions payées dans `CheckoutProvider`, CronJob, service compose, e-mails renvoyés. |
