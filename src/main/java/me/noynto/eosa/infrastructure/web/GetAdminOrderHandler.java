@@ -36,6 +36,20 @@ public record GetAdminOrderHandler(
         model.put("showCraftingDeadline", order.getState() == OrderState.PAID);
         model.put("craftingDeadline", OrderFormat.dateTime(result.craftingDeadline()));
         model.put("overdue", result.overdue());
+        model.put("showShippingDeadline", order.getState() == OrderState.CRAFTED && result.shippingDeadline() != null);
+        model.put("shippingDeadline", OrderFormat.dateTime(result.shippingDeadline()));
+        model.put("id", order.getId().value());
+        // Fabriquer : seulement une commande à fabriquer ; l'étiquette s'imprime une fois créée.
+        model.put("canCraft", order.getState() == OrderState.PAID && order.getLabel() == null && order.getShippingAddress() != null);
+        model.put("defaultWeight", result.defaultParcelWeightGrams());
+        var label = order.getLabel();
+        model.put("hasLabel", label != null);
+        if (label != null) {
+            model.put("trackingNumber", label.getTrackingNumber());
+            model.put("labelWeight", label.getWeightGrams());
+            model.put("craftedAt", OrderFormat.dateTime(order.getCraftedAt()));
+            model.put("canPrintLabel", order.getState() == OrderState.CRAFTED || order.getState() == OrderState.SHIPPED);
+        }
         model.put("customerName", order.getCustomerName());
         model.put("customerEmail", order.getCustomerEmail());
         model.put("hasPhone", order.getCustomerPhone() != null);

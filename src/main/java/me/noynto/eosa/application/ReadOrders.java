@@ -46,7 +46,9 @@ public record ReadOrders(
 
     private static boolean isOverdue(Order order, Instant now) {
         return order.getState() == OrderState.PAID
-                && BusinessTime.isOverdue(order.getPaidAt(), Order.CRAFTING_HOURS, now);
+                && BusinessTime.isOverdue(order.getPaidAt(), Order.CRAFTING_HOURS, now)
+                || order.getState() == OrderState.CRAFTED && order.getCraftedAt() != null
+                && BusinessTime.isOverdue(order.getCraftedAt(), Order.SHIPPING_HOURS, now);
     }
 
     /**

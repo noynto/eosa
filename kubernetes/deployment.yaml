@@ -208,6 +208,73 @@ spec:
                 secretKeyRef:
                   name: eosa-secrets
                   key: smtp-password
+            # Mondial Relay : facultatif au démarrage ; sans ces valeurs, « Pièce fabriquée » échoue avec un message clair.
+            - name: EOSA_MONDIAL_RELAY_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: mondial-relay-api-url
+                  optional: true
+            - name: EOSA_MONDIAL_RELAY_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: mondial-relay-login
+                  optional: true
+            - name: EOSA_MONDIAL_RELAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eosa-secrets
+                  key: mondial-relay-password
+                  optional: true
+            - name: EOSA_MONDIAL_RELAY_CUSTOMER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: mondial-relay-customer-id
+                  optional: true
+            - name: EOSA_SHIPPING_SENDER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-sender-name
+                  optional: true
+            - name: EOSA_SHIPPING_SENDER_LINE1
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-sender-line1
+                  optional: true
+            - name: EOSA_SHIPPING_SENDER_POSTAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-sender-postal-code
+                  optional: true
+            - name: EOSA_SHIPPING_SENDER_CITY
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-sender-city
+                  optional: true
+            - name: EOSA_SHIPPING_SENDER_PHONE
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-sender-phone
+                  optional: true
+            - name: EOSA_SHIPPING_SENDER_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-sender-email
+                  optional: true
+            - name: EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-default-parcel-weight-grams
+                  optional: true
           readinessProbe:
             httpGet:
               path: /

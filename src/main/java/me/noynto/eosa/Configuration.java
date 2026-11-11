@@ -11,6 +11,9 @@ public class Configuration {
     private static final String ADMIN_SECRET = "EOSA_ADMIN_SECRET";
     private static final String ADMIN_BASE_URL = "EOSA_ADMIN_BASE_URL";
     private static final String ADMIN_SERVER_PORT = "EOSA_ADMIN_SERVER_PORT";
+    private static final String DEFAULT_PARCEL_WEIGHT_GRAMS =
+        "EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS";
+    private static final int DEFAULT_PARCEL_WEIGHT_GRAMS_VALUE = 150;
     private static final String DEFAULT_PUBLIC_SERVER_PORT = "8080";
     private static final String DEFAULT_ADMIN_SERVER_PORT = "18080";
 
@@ -93,6 +96,24 @@ public class Configuration {
             adminName,
             adminSecret
         );
+    }
+
+    /**
+     * Poids du colis proposé à la fabrication d'une commande, en grammes (aucun bijou n'a de poids dans le modèle).
+     */
+    public static int getDefaultParcelWeightGrams() {
+        String value = System.getenv(DEFAULT_PARCEL_WEIGHT_GRAMS);
+        if (value == null || value.isBlank()) {
+            return DEFAULT_PARCEL_WEIGHT_GRAMS_VALUE;
+        }
+        try {
+            return Integer.parseInt(value.strip());
+        } catch (NumberFormatException e) {
+            throw new InvalidProperties(
+                "Le poids de colis par défaut est invalide.",
+                e
+            );
+        }
     }
 
     public static class MissingProperties extends RuntimeException {

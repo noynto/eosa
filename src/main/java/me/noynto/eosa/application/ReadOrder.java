@@ -10,11 +10,14 @@ import java.time.Clock;
 import java.time.Instant;
 
 /**
- * Une commande pour l'écran de détail de l'administration, avec l'échéance de sa fabrication.
+ * Une commande pour l'écran de détail de l'administration, avec l'échéance de sa fabrication ou de son expédition.
+ *
+ * @param defaultParcelWeightGrams poids du colis proposé à la fabrication
  */
 public record ReadOrder(
         OrderProvider orderProvider,
-        Clock clock
+        Clock clock,
+        int defaultParcelWeightGrams
 ) {
 
     public Result handle(Command command) {
@@ -23,9 +26,13 @@ public record ReadOrder(
         }
         Order order = orderProvider.read(command.orderId())
                 .orElseThrow(() -> new RuntimeException("La commande " + command.orderId.value() + " n'existe pas."));
+        Instant now = clock.instant();
         Instant craftingDeadline = BusinessTime.deadline(order.getPaidAt(), Order.CRAFTING_HOURS);
-        boolean overdue = order.getState() == OrderState.PAID && clock.instant().isAfter(craftingDeadline);
-        return new Result(order, craftingDeadline, overdue);
+        Instant shippingDeadline = order.getCraftedAt() != null
+                ? BusinessTime.deadline(order.getCraftedAt(), Order.SHIPPING_HOURS) : null;
+        boolean overdue = order.getState() == OrderState.PAID && now.isAfter(craftingDeadline)
+                || order.getState() == OrderState.CRAFTED && shippingDeadline != null && now.isAfter(shippingDeadline);
+        return new Result(order, craftingDeadline, shippingDeadline, overdue, defaultParcelWeightGrams);
     }
 
     public record Command(
@@ -34,13 +41,18 @@ public record ReadOrder(
     }
 
     /**
-     * @param craftingDeadline échéance de fabrication (48 h ouvrées après le paiement)
-     * @param overdue          la commande est à fabriquer et son échéance est dépassée
+     * @param craftingDeadline         échéance de fabrication (48 h ouvrées après le paiement)
+     * @param shippingDeadline         échéance d'expédition (24 h ouvrées après la fabrication), null tant que la
+     *                                 commande n'est pas fabriquée
+     * @param overdue                  la commande est à fabriquer ou à expédier et son échéance est dépassée
+     * @param defaultParcelWeightGrams poids du colis proposé à la fabrication
      */
     public record Result(
             Order order,
             Instant craftingDeadline,
-            boolean overdue
+            Instant shippingDeadline,
+            boolean overdue,
+            int defaultParcelWeightGrams
     ) {
     }
 

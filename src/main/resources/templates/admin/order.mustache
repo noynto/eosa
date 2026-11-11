@@ -44,6 +44,51 @@
         </div>
     </section>
 
+    <!-- Fabrication : crée l'étiquette Mondial Relay -->
+    {{#canCraft}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-1">Pièce fabriquée</h2>
+        <p class="text-xs text-muted mb-3">Crée l'étiquette Mondial Relay et passe la commande à « Fabriquée ». Confirmez le poids du colis.</p>
+        <form hx-post="/orders/{{id}}/craft" hx-target="#craft-error" hx-swap="innerHTML"
+              class="flex flex-wrap items-end gap-3">
+            <div class="flex flex-col gap-1.5">
+                <label for="weight" class="text-xs text-secondary">Poids du colis</label>
+                <div class="relative">
+                    <input id="weight" name="weight" type="number" min="10" max="30000" step="1" required value="{{defaultWeight}}"
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:border-secondary w-36">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">g</span>
+                </div>
+            </div>
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                Pièce fabriquée
+            </button>
+            <span id="craft-error" class="text-xs w-full"></span>
+        </form>
+    </section>
+    {{/canCraft}}
+
+    <!-- Étiquette -->
+    {{#hasLabel}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-3">Étiquette d'expédition</h2>
+        <dl class="text-sm flex flex-col gap-1">
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Transporteur</dt><dd>Mondial Relay</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Numéro de suivi</dt><dd class="break-all text-right">{{trackingNumber}}</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Poids</dt><dd>{{labelWeight}} g</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Fabriquée le</dt><dd>{{craftedAt}}</dd></div>
+        </dl>
+        {{#showShippingDeadline}}
+        <p class="text-xs text-secondary mt-3">À expédier avant le {{shippingDeadline}}</p>
+        {{/showShippingDeadline}}
+        {{#canPrintLabel}}
+        <a href="/orders/{{id}}/label" target="_blank" rel="noopener"
+           class="mt-4 border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-secondary hover:border-secondary hover:text-primary transition-colors">
+            Imprimer l'étiquette
+        </a>
+        {{/canPrintLabel}}
+    </section>
+    {{/hasLabel}}
+
     <!-- Lignes -->
     <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
         <h2 class="text-sm font-medium mb-3">Pièces à fabriquer</h2>
