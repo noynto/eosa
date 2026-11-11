@@ -28,6 +28,7 @@ L'objectif est de **modéliser la commande** : l'enregistrer au paiement, la mon
 | 10 | Remboursement | Fait **dans le tableau de bord Stripe**. L'administratrice marque ensuite la commande « annulée » avec un motif libre. Pas de remboursement depuis le site en V1. |
 | 11 | Compte cliente | Toujours **aucun compte** : la commande est liée à l'e-mail saisi chez Stripe. La cliente suit son colis par le lien de l'e-mail. |
 | 12 | Périmètre | Les ateliers (sans paiement en ligne) et les cartes cadeaux (leur propre parcours) ne créent **pas** de commande de bijoux. |
+| 13 | Délais annoncés | **Fabrication : 48 h au maximum** après le paiement (`PAID → CRAFTED`), puis **expédition : 24 h** (`CRAFTED → SHIPPED`), soit **72 h au plus** entre le paiement et l'envoi du colis. Heures ouvrées, comme le texte actuel (hors week-ends et jours fériés) : à confirmer. Ces délais remplacent le « expédié sous 48h » partout. |
 
 ## Ce que le code actuel impose
 
@@ -77,7 +78,7 @@ Le numéro de commande est attribué par une séquence en base au moment de l'é
 
 | Écran | Contenu |
 |---|---|
-| `GET /orders` (liste) | Commandes, les plus récentes d'abord, filtre par état (par défaut : **à fabriquer** `PAID` et **fabriquées** `CRAFTED`), recherche par numéro ou e-mail. Pastille du nombre de commandes `PAID` (à fabriquer) dans le menu. |
+| `GET /orders` (liste) | Commandes, les plus récentes d'abord, filtre par état (par défaut : **à fabriquer** `PAID` et **fabriquées** `CRAFTED`), recherche par numéro ou e-mail. Pastille du nombre de commandes `PAID` (à fabriquer) dans le menu. Une commande **en retard** (`PAID` depuis plus de 48 h, `CRAFTED` depuis plus de 24 h) est signalée dans la liste ; l'heure limite se calcule en Java à partir de `paid_at` et `crafted_at`. |
 | `GET /orders/{id}` (détail) | Numéro, date, cliente (nom, e-mail, téléphone), adresse de livraison **copiable** pour l'étiquette, lignes avec image, sous-total, livraison, total, état, expédition, journal des e-mails. |
 | `POST /orders/{id}/craft` | Passage à `CRAFTED`. Le bouton ne s'affiche que pour une commande `PAID`. |
 | `POST /orders/{id}/ship` | Saisie du numéro de suivi, passage à `SHIPPED`, e-mail d'expédition. Le bouton ne s'affiche que pour une commande `CRAFTED`. |
@@ -90,7 +91,7 @@ Les écrans suivent les composants de l'administration et se chargent en fragmen
 
 | E-mail | Destinataire | Quand | Contenu |
 |---|---|---|---|
-| Confirmation de commande | Cliente | À la création | Numéro, lignes, montants, adresse de livraison, **délai de fabrication puis d'expédition** (à fixer, voir points ouverts), coordonnées de contact. |
+| Confirmation de commande | Cliente | À la création | Numéro, lignes, montants, adresse de livraison, **délais** (fabrication sous 48 h, expédition sous 24 h, soit un envoi sous 72 h ouvrées au plus), coordonnées de contact. |
 | Nouvelle commande | `contact@eosa.me` | À la création | Numéro, nombre d'articles, total, lien vers la commande dans l'administration. |
 | Commande expédiée | Cliente | Au passage à `SHIPPED` | Numéro, **lien de suivi** Mondial Relay, adresse. |
 
@@ -150,7 +151,7 @@ Un vrai paiement n'est pas testable en local sans clé de test Stripe. Les tests
 2. **Facture.** Selon le régime d'EOSA, une facture ou un justificatif doit être remis. Le reçu Stripe n'est pas une facture. À confirmer avant l'étape 4.
 3. **Transporteur et mode de livraison.** Le site parle de livraison à domicile Mondial Relay ; l'API de Mondial Relay (création d'étiquette) demande un contrat et des identifiants à obtenir (étape 0).
 4. **Commandes à l'étranger.** Les pays autorisés sont FR, BE, CH et LU ; la Suisse est hors Union européenne (douane). À confirmer.
-6. **Délai annoncé.** Avec une fabrication à la commande, quel délai afficher (par exemple « fabriqué sous X jours ouvrés, expédié sous 48 h ») ? Il remplace le « expédié sous 48h » actuel dans la page Livraison, la FAQ, le bandeau, les CGV et l'e-mail de confirmation. Il change aussi le point 1 : si tout est fabriqué à la commande, il n'y a pas de stock à gérer, seulement une charge de travail.
+6. ~~**Délai annoncé.**~~ Tranché : fabrication 48 h au maximum, puis expédition 24 h (décision 13). Reste à confirmer que ce sont des heures ouvrées. Le délai remplace le « expédié sous 48h » actuel dans la page Livraison, la FAQ, le bandeau, les CGV et l'e-mail de confirmation. Il change aussi le point 1 : si tout est fabriqué à la commande, il n'y a pas de stock à gérer, seulement une charge de travail.
 7. **Annulation par la cliente.** Pas de parcours en V1 : elle écrit à EOSA, qui rembourse dans Stripe et marque la commande annulée. Une pièce déjà fabriquée (`CRAFTED`) ou en cours de fabrication peut ne plus être annulable librement (pièce personnalisée) : à ajouter aux CGV.
 
 ## Sujets juridiques et fiscaux à valider
@@ -158,7 +159,7 @@ Un vrai paiement n'est pas testable en local sans clé de test Stripe. Les tests
 - [ ] **Durée de conservation des commandes** : les pièces comptables se conservent 10 ans (Code de commerce), mais l'adresse et le téléphone n'ont pas besoin de rester aussi longtemps ; proposition à valider : garder les montants et les lignes, effacer l'adresse et le téléphone après un délai à fixer (par exemple 1 an après la livraison, pour couvrir retours et garantie), par une tâche de purge comme pour les ateliers.
 - [ ] **Politique de confidentialité** : ajouter le traitement « commandes » (données, finalités, base légale : exécution du contrat, destinataires : Stripe, Mondial Relay, hébergeur, Infomaniak).
 - [ ] **Registre des traitements** : la fiche « commandes » existe en brouillon ; la compléter avec les nouvelles données (adresse, téléphone, numéro de suivi).
-- [ ] **CGV et pages Livraison, Retours, FAQ** : vérifier qu'elles décrivent bien les e-mails réellement envoyés (confirmation, expédition avec suivi) et le délai. **Le texte actuel promet une expédition sous 48 heures ouvrées** (page Livraison, FAQ, bandeau « expédié sous 48h ») : il n'est plus vrai si chaque pièce est fabriquée après la commande. À remplacer par un délai de fabrication plus d'expédition (voir point ouvert 6).
+- [ ] **CGV et pages Livraison, Retours, FAQ** : vérifier qu'elles décrivent bien les e-mails réellement envoyés (confirmation, expédition avec suivi) et le délai. **Le texte actuel promet une expédition sous 48 heures ouvrées** (page Livraison, FAQ, bandeau « expédié sous 48h ») : il n'est plus vrai si chaque pièce est fabriquée après la commande. À remplacer par « fabrication sous 48 h, expédition sous 24 h » (décision 13), aux quatre endroits : page Livraison, FAQ, bandeau de livraison (`shipping-info`), CGV.
 - [ ] **Droit de rétractation** : 14 jours après réception ; vérifier le parcours de retour et de remboursement avec le suivi de livraison (la date de réception vient de `DELIVERED`).
 - [ ] **Facture** : voir point ouvert 2.
 
@@ -168,7 +169,7 @@ Chaque étape est une pull request ; la boutique reste utilisable entre deux.
 
 | # | Étape | Contenu |
 |---|---|---|
-| 0 | Prérequis (hors code) | Trancher les points ouverts 1 à 4 et 6 ; compte et contrat Mondial Relay si l'étiquette est automatisée. |
+| 0 | Prérequis (hors code) | Trancher les points ouverts 1 à 4, et confirmer que les délais de la décision 13 sont en heures ouvrées ; compte et contrat Mondial Relay si l'étiquette est automatisée. |
 | 1 | Commande enregistrée | Migration, `Order`, `OrderProvider`, lecture élargie de Stripe, création dans `ConfirmCheckoutSession`, numéro affiché sur la page de succès. Aucune administration encore. |
 | 2 | Administration | `ReadOrders`, `ReadOrder`, écrans liste et détail, pastille « à préparer ». |
 | 3 | Rattrapage | `SettleOrders`, liste des sessions payées dans `CheckoutProvider`, CronJob, service compose, e-mails renvoyés. |
