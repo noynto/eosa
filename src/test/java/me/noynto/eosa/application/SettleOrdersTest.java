@@ -190,6 +190,87 @@ class SettleOrdersTest {
         assertNull(order.getNotificationSentAt());
     }
 
+    @Test
+    void handle_resendsTheShippingEmailThatNeverLeft() {
+        var order = shippedOrder("cs_ship", now.minus(Duration.ofHours(1)));
+
+        var result = settle();
+
+        assertEquals(1, result.emailsSent());
+        assertEquals(now, order.getShippingSentAt());
+        var mails = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider).send(mails.capture());
+        assertEquals("ada@example.com", mails.getValue().to());
+        assertEquals("order-shipped", mails.getValue().template());
+    }
+
+    @Test
+    void handle_waitsForTheGracePeriodAndNeverSendsTheShippingEmailTwice() {
+        var tooRecent = shippedOrder("cs_recent", now.minus(Duration.ofMinutes(2)));
+        var alreadySent = shippedOrder("cs_sent", now.minus(Duration.ofHours(1)));
+        alreadySent.setShippingSentAt(now.minus(Duration.ofMinutes(50)));
+
+        settle();
+        settle();
+
+        assertNull(tooRecent.getShippingSentAt());
+        verify(mailProvider, never()).send(any());
+    }
+
+    @Test
+    void handle_resendsTheShippingEmailOfAnOrderOlderThanItsCreationWindow() {
+        // Créée il y a 20 jours (hors des 7 jours des e-mails de commande), expédiée il y a une heure.
+        var order = shippedOrder("cs_old", now.minus(Duration.ofDays(20)));
+        order.setShippedAt(now.minus(Duration.ofHours(1)));
+
+        var result = settle();
+
+        assertEquals(1, result.emailsSent());
+        assertEquals(now, order.getShippingSentAt());
+    }
+
+    @Test
+    void handle_sendsNoEmailForACancelledOrder() {
+        var unsent = unsentOrder("cs_cancelled", now.minus(Duration.ofHours(1)));
+        unsent.setState(OrderState.CANCELLED);
+        var shipped = shippedOrder("cs_cancelled_shipped", now.minus(Duration.ofHours(1)));
+        shipped.setState(OrderState.CANCELLED);
+
+        var result = settle();
+
+        assertEquals(0, result.emailsSent());
+        assertEquals(0, result.failed());
+        assertNull(unsent.getConfirmationSentAt());
+        assertNull(shipped.getShippingSentAt());
+        verify(mailProvider, never()).send(any());
+    }
+
+    @Test
+    void handle_countsAShippingEmailFailureAndKeepsItForTheNextPass() {
+        var order = shippedOrder("cs_ship", now.minus(Duration.ofHours(1)));
+        doThrow(new RuntimeException("SMTP indisponible")).when(mailProvider).send(any());
+
+        var result = settle();
+
+        assertEquals(0, result.emailsSent());
+        assertEquals(1, result.failed());
+        assertNull(order.getShippingSentAt());
+    }
+
+    private Order shippedOrder(String stripeSession, Instant createdAt) {
+        var order = unsentOrder(stripeSession, createdAt);
+        order.setConfirmationSentAt(createdAt);
+        order.setNotificationSentAt(createdAt);
+        order.setState(OrderState.SHIPPED);
+        order.setShippedAt(createdAt);
+        var label = new me.noynto.eosa.shipping.ShippingLabel();
+        label.setCarrier(me.noynto.eosa.shipping.ShippingCarrier.MONDIAL_RELAY);
+        label.setTrackingNumber("00581108");
+        label.setStatus(me.noynto.eosa.shipping.ShippingLabelStatus.CREATED);
+        order.setLabel(label);
+        return order;
+    }
+
     private Order unsentOrder(String stripeSession, Instant createdAt) {
         var sessionId = new CheckoutSessionId();
         sessionId.setStripe(stripeSession);

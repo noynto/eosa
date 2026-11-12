@@ -37,7 +37,8 @@ public record GetAdminOrderHandler(
         model.put("craftingDeadline", OrderFormat.dateTime(result.craftingDeadline()));
         model.put("overdue", result.overdue());
         model.put("showShippingDeadline", order.getState() == OrderState.CRAFTED && result.shippingDeadline() != null);
-        model.put("shippingDeadline", OrderFormat.dateTime(result.shippingDeadline()));
+        // Vide tant que la commande n'est pas fabriquée : rien à formater alors.
+        model.put("shippingDeadline", result.shippingDeadline() == null ? null : OrderFormat.dateTime(result.shippingDeadline()));
         model.put("id", order.getId().value());
         // Fabriquer : seulement une commande à fabriquer ; l'étiquette s'imprime une fois créée.
         model.put("canCraft", order.getState() == OrderState.PAID && order.getLabel() == null && order.getShippingAddress() != null);
@@ -50,6 +51,23 @@ public record GetAdminOrderHandler(
             model.put("craftedAt", OrderFormat.dateTime(order.getCraftedAt()));
             model.put("canPrintLabel", order.getState() == OrderState.CRAFTED || order.getState() == OrderState.SHIPPED);
         }
+        // Les actions de la suite : remettre, livrer, annuler (le bouton ne s'affiche que si l'état le permet).
+        model.put("canShip", order.getState() == OrderState.CRAFTED && label != null);
+        model.put("canDeliver", order.getState() == OrderState.SHIPPED);
+        model.put("canCancel", order.getState() == OrderState.PAID || order.getState() == OrderState.CRAFTED
+                || order.getState() == OrderState.SHIPPED);
+        model.put("hasShippedAt", order.getShippedAt() != null);
+        model.put("shippedAt", order.getShippedAt() == null ? null : OrderFormat.dateTime(order.getShippedAt()));
+        model.put("hasDeliveredAt", order.getDeliveredAt() != null);
+        model.put("deliveredAt", order.getDeliveredAt() == null ? null : OrderFormat.dateTime(order.getDeliveredAt()));
+        model.put("isCancelled", order.getState() == OrderState.CANCELLED);
+        model.put("cancelledAt", order.getCancelledAt() == null ? null : OrderFormat.dateTime(order.getCancelledAt()));
+        model.put("cancelReason", order.getCancelReason());
+        // Journal des e-mails : ce qui est parti, et ce qui reste à envoyer.
+        model.put("confirmationMail", mailStatus(order.getConfirmationSentAt()));
+        model.put("notificationMail", mailStatus(order.getNotificationSentAt()));
+        model.put("showShippingMail", order.getShippedAt() != null);
+        model.put("shippingMail", mailStatus(order.getShippingSentAt()));
         model.put("customerName", order.getCustomerName());
         model.put("customerEmail", order.getCustomerEmail());
         model.put("hasPhone", order.getCustomerPhone() != null);
@@ -86,6 +104,11 @@ public record GetAdminOrderHandler(
         model.put("shippingAmount", OrderFormat.amount(order.getShippingAmount()));
         model.put("totalAmount", OrderFormat.amount(order.getTotalAmount()));
         ctx.render("admin/order.mustache", model);
+    }
+
+    /** « Envoyé le 12 nov. 2026 à 10 h 15 » ou « Pas encore envoyé ». */
+    private static String mailStatus(java.time.Instant sentAt) {
+        return sentAt == null ? "Pas encore envoyé" : "Envoyé le " + OrderFormat.dateTime(sentAt);
     }
 
 }

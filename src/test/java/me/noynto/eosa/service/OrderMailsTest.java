@@ -84,6 +84,65 @@ class OrderMailsTest {
         assertTrue(rendered.text().contains("2 × Collier Lune"));
     }
 
+    @Test
+    void shipped_goesToTheCustomerWithTheTrackingNumberAndThePublicTrackingLink() {
+        var mail = OrderMails.shipped(shippedOrder());
+
+        assertEquals("ada@example.com", mail.to());
+        assertEquals("Votre commande EOSA EOSA-2026-0001 est en route", mail.subject());
+        var link = "https://www.mondialrelay.fr/suivi-de-colis/?NumeroExpedition=00581108&CodePostal=54000";
+        var rendered = templates.render(mail.template(), mail.model());
+        // Mustache échappe l'attribut (= devient &#61;, & devient &amp;) : le navigateur le décode en lien exact.
+        var decoded = rendered.html().replace("&#61;", "=").replace("&amp;", "&");
+        assertTrue(decoded.contains("href=\"" + link + "\""), rendered.html());
+        // Le texte n'échappe rien : le lien y est brut.
+        assertTrue(rendered.text().contains("https://www.mondialrelay.fr/suivi-de-colis/?NumeroExpedition=00581108&CodePostal=54000"));
+        for (String content : List.of(rendered.html(), rendered.text())) {
+            assertTrue(content.contains("00581108"), "le numéro de suivi garde ses zéros");
+            assertTrue(content.contains("EOSA-2026-0001"));
+            assertTrue(content.contains("1 rue des Arts"));
+            assertTrue(content.contains("Mondial Relay"));
+        }
+        assertFalse(rendered.text().contains("<"), "la version texte ne contient pas de HTML");
+    }
+
+    @Test
+    void shipped_worksWithoutAddressAndLeavesThePostalCodeOutOfTheLink() {
+        var order = shippedOrder();
+        order.setShippingAddress(null);
+        order.setCustomerName(null);
+
+        var mail = OrderMails.shipped(order);
+        var rendered = templates.render(mail.template(), mail.model());
+
+        assertEquals("https://www.mondialrelay.fr/suivi-de-colis/?NumeroExpedition=00581108", mail.model().get("trackingUrl"));
+        assertFalse(rendered.text().contains("Adresse de livraison"));
+    }
+
+    @Test
+    void shipped_escapesWhatTheCustomerTypedAndEncodesThePostalCodeInTheLink() {
+        var order = shippedOrder();
+        order.setCustomerName("Ada <script>alert(1)</script>");
+        order.setShippingAddress(new OrderShippingAddress("Ada", "1 rue", null, "L-1536 & co", "Luxembourg", "LU"));
+
+        var mail = OrderMails.shipped(order);
+        var rendered = templates.render(mail.template(), mail.model());
+
+        assertFalse(rendered.html().contains("<script>"));
+        assertTrue(((String) mail.model().get("trackingUrl")).endsWith("&CodePostal=L-1536+%26+co"));
+    }
+
+    private Order shippedOrder() {
+        var order = order();
+        var label = new me.noynto.eosa.shipping.ShippingLabel();
+        label.setCarrier(me.noynto.eosa.shipping.ShippingCarrier.MONDIAL_RELAY);
+        label.setTrackingNumber("00581108");
+        label.setStatus(me.noynto.eosa.shipping.ShippingLabelStatus.CREATED);
+        order.setLabel(label);
+        order.setState(OrderState.SHIPPED);
+        return order;
+    }
+
     private Order order() {
         var item = new OrderItem();
         item.setName("Collier Lune");

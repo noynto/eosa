@@ -6,6 +6,8 @@ import me.noynto.eosa.order.OrderItem;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -85,6 +87,52 @@ public final class OrderMails {
                 "order-notification",
                 model
         );
+    }
+
+    /**
+     * Prévient la cliente que son colis est remis au transporteur, avec le lien de suivi public de Mondial Relay
+     * (numéro d'expédition et code postal de livraison). L'adresse de la commande peut manquer si ses données
+     * personnelles ont été effacées : le lien se passe alors du code postal.
+     */
+    public static Mail shipped(Order order) {
+        String trackingNumber = order.getLabel().getTrackingNumber();
+        var address = order.getShippingAddress();
+        Map<String, Object> model = new HashMap<>();
+        model.put("preheader", "Votre commande " + order.getNumber() + " est partie : suivez votre colis.");
+        model.put("hasName", order.getCustomerName() != null && !order.getCustomerName().isBlank());
+        model.put("name", order.getCustomerName());
+        model.put("number", order.getNumber());
+        model.put("trackingNumber", trackingNumber);
+        model.put("trackingUrl", trackingUrl(trackingNumber, address == null ? null : address.postalCode()));
+        model.put("hasAddress", address != null);
+        if (address != null) {
+            model.put("addressName", address.name());
+            model.put("addressLine1", address.line1());
+            model.put("hasAddressLine2", address.line2() != null && !address.line2().isBlank());
+            model.put("addressLine2", address.line2());
+            model.put("addressPostalCode", address.postalCode());
+            model.put("addressCity", address.city());
+            model.put("addressCountry", address.country());
+        }
+        model.put("contactEmail", NOTIFICATION_RECIPIENT);
+        return new Mail(
+                order.getCustomerEmail(),
+                "Votre commande EOSA " + order.getNumber() + " est en route",
+                "order-shipped",
+                model
+        );
+    }
+
+    /**
+     * Page publique de suivi de Mondial Relay : le site ne stocke pas l'adresse complète, elle se reconstruit.
+     */
+    static String trackingUrl(String trackingNumber, String postalCode) {
+        String url = "https://www.mondialrelay.fr/suivi-de-colis/?NumeroExpedition="
+                + URLEncoder.encode(trackingNumber, StandardCharsets.UTF_8);
+        if (postalCode != null && !postalCode.isBlank()) {
+            url += "&CodePostal=" + URLEncoder.encode(postalCode.strip(), StandardCharsets.UTF_8);
+        }
+        return url;
     }
 
     private static List<Map<String, Object>> itemsOf(Order order) {
