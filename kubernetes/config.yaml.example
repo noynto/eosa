@@ -27,3 +27,7 @@ stringData:
   shipping-sender-email: "contact@eosa.me"
   # Poids du colis proposé à la fabrication (grammes)
   shipping-default-parcel-weight-grams: "150"
+  # Boîte d'expédition en centimètres (exigée par Mondial Relay)
+  shipping-parcel-length-cm: "12"
+  shipping-parcel-width-cm: "9"
+  shipping-parcel-depth-cm: "4"
