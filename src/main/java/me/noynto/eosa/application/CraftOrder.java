@@ -31,7 +31,7 @@ public record CraftOrder(
         }
         Order order = orderProvider.read(command.orderId())
                 .orElseThrow(() -> new RuntimeException("La commande " + command.orderId.value() + " n'existe pas."));
-        if (order.getState() != OrderState.PAID || order.getLabel() != null) {
+        if (order.getState() != OrderState.PAID || order.getLabel() != null || order.isHandDelivery()) {
             throw new RuntimeException("La commande " + order.getNumber() + " n'est pas à fabriquer.");
         }
         var address = order.getShippingAddress();

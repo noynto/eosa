@@ -38,6 +38,7 @@ public class Order {
     private BigDecimal shippingAmount;
     private BigDecimal totalAmount;
     private Instant paidAt;
+    private boolean handDelivery;
     private ShippingLabel label;
     private Instant craftedAt;
     private Instant shippedAt;
@@ -178,7 +179,19 @@ public class Order {
         this.notificationSentAt = notificationSentAt;
     }
 
-    /** Étiquette d'expédition : présente dès que la commande est fabriquée, jamais avant. */
+    /**
+     * La commande est remise en main propre : ni transporteur, ni étiquette, ni suivi. Décidé à la fabrication ;
+     * elle passe alors de fabriquée à livrée sans être expédiée.
+     */
+    public boolean isHandDelivery() {
+        return handDelivery;
+    }
+
+    public void setHandDelivery(boolean handDelivery) {
+        this.handDelivery = handDelivery;
+    }
+
+    /** Étiquette d'expédition : présente dès que la commande est fabriquée pour être expédiée, jamais avant. */
     public ShippingLabel getLabel() {
         return label;
     }

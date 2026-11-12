@@ -47,7 +47,8 @@ public record ReadOrders(
     private static boolean isOverdue(Order order, Instant now) {
         return order.getState() == OrderState.PAID
                 && BusinessTime.isOverdue(order.getPaidAt(), Order.CRAFTING_HOURS, now)
-                || order.getState() == OrderState.CRAFTED && order.getCraftedAt() != null
+                // Une remise en main propre se convient avec la cliente : pas d'échéance d'expédition.
+                || order.getState() == OrderState.CRAFTED && !order.isHandDelivery() && order.getCraftedAt() != null
                 && BusinessTime.isOverdue(order.getCraftedAt(), Order.SHIPPING_HOURS, now);
     }
 

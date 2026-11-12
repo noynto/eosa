@@ -30,6 +30,9 @@ public record ShipOrder(
         }
         Order order = orderProvider.read(command.orderId())
                 .orElseThrow(() -> new RuntimeException("La commande " + command.orderId.value() + " n'existe pas."));
+        if (order.isHandDelivery()) {
+            throw new RuntimeException("La commande " + order.getNumber() + " est remise en main propre : elle n'est pas expédiée.");
+        }
         if (order.getState() != OrderState.CRAFTED || order.getLabel() == null) {
             throw new RuntimeException("La commande " + order.getNumber() + " n'est pas fabriquée : elle ne peut pas être expédiée.");
         }

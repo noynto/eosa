@@ -31,7 +31,7 @@
         </div>
         <div class="flex items-center justify-between sm:justify-end gap-4 shrink-0">
             {{#overdue}}<span class="text-xs font-medium text-error">En retard</span>{{/overdue}}
-            <span class="text-xs text-secondary">{{state}}</span>
+            <span class="text-xs text-secondary">{{state}}{{#handDelivery}} · main propre{{/handDelivery}}</span>
             <span class="text-sm font-medium w-24 text-right">{{total}}</span>
         </div>
     </a>
