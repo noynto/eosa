@@ -40,6 +40,8 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 | * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue |
 | GET | `/orders`, `/orders/{id}`, `/orders/badge` | Commandes : liste filtrée (état, recherche), détail, pastille « à fabriquer » du menu (fragment htmx) |
 | POST | `/orders/{id}/craft` | « Pièce fabriquée » : crée l'étiquette Mondial Relay (poids du colis) et passe la commande à fabriquée ; en cas d'échec, message en fragment (422) et la commande reste à fabriquer |
+| POST | `/orders/{id}/ship`, `/orders/{id}/deliver` | « Colis remis » (fabriquée → expédiée, e-mail de suivi à la cliente) et « Livrée » (expédiée → livrée) ; en cas de refus, message en fragment (422) |
+| POST | `/orders/{id}/cancel` | Annule une commande à fabriquer, fabriquée ou expédiée, avec un motif ; ni e-mail, ni remboursement |
 | GET | `/orders/{id}/label` | PDF de l'étiquette (redirection vers l'adresse protégée du transporteur), commande fabriquée ou expédiée ; ne modifie rien |
 | * | `/workshop-venues*` | Lieux des ateliers : création, modification, photo, archivage |
 | * | `/workshops*` | Sessions : création, modification, annulation ; réservations (annulation, présente, absente) et liste d'attente |

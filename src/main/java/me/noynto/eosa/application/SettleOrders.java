@@ -6,6 +6,7 @@ import me.noynto.eosa.checkout.CheckoutStatus;
 import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.order.Order;
 import me.noynto.eosa.order.OrderProvider;
+import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.service.OrderMails;
 import me.noynto.eosa.service.OrdersFromCheckouts;
 import me.noynto.eosa.shared.CheckoutId;
@@ -16,7 +17,9 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,6 +52,12 @@ public record SettleOrders(
      */
     static final Duration EMAIL_RETRY_WINDOW = Duration.ofDays(7);
 
+    /**
+     * Une commande expédiée est souvent plus ancienne que sa création : on regarde les expédiées et livrées des 30
+     * derniers jours (date de création) pour retrouver un e-mail d'expédition resté en attente.
+     */
+    static final Duration SHIPPING_LOOKBACK = Duration.ofDays(30);
+
     private static final Logger LOGGER = Logger.getLogger(SettleOrders.class.getName());
 
     public Result handle() {
@@ -73,25 +82,53 @@ public record SettleOrders(
             }
         }
 
-        // Les e-mails des commandes plus anciennes qui ne sont pas partis.
+        // Les e-mails des commandes plus anciennes qui ne sont pas partis : commande, puis expédition. Une commande
+        // expédiée peut être bien plus ancienne que sa création : on regarde aussi les expédiées et livrées récentes.
         Instant retryBefore = now.minus(EMAIL_GRACE_PERIOD);
-        List<OrderId> recent = orderProvider.readIds(null, null, now.minus(EMAIL_RETRY_WINDOW)).toList();
-        for (var orderId : recent) {
+        Instant retryAfter = now.minus(EMAIL_RETRY_WINDOW);
+        Set<OrderId> candidates = new LinkedHashSet<>(orderProvider.readIds(null, null, retryAfter).toList());
+        candidates.addAll(orderProvider.readIds(null, Set.of(OrderState.SHIPPED, OrderState.DELIVERED),
+                now.minus(SHIPPING_LOOKBACK)).toList());
+        for (var orderId : candidates) {
             try {
                 Order order = orderProvider.read(orderId).orElseThrow();
-                boolean pending = order.getConfirmationSentAt() == null || order.getNotificationSentAt() == null;
-                if (!pending || !order.getCreatedAt().isBefore(retryBefore)) {
+                // Une commande annulée n'envoie plus d'e-mail.
+                if (order.getState() == OrderState.CANCELLED) {
                     continue;
                 }
-                var sent = sendMissingEmails(order, now);
-                emailsSent += sent.sent();
-                failed += sent.failed();
+                boolean orderEmailsPending = (order.getConfirmationSentAt() == null || order.getNotificationSentAt() == null)
+                        && order.getCreatedAt().isAfter(retryAfter) && order.getCreatedAt().isBefore(retryBefore);
+                boolean shippingEmailPending = order.getShippedAt() != null && order.getShippingSentAt() == null
+                        && order.getShippedAt().isAfter(retryAfter) && order.getShippedAt().isBefore(retryBefore)
+                        && (order.getState() == OrderState.SHIPPED || order.getState() == OrderState.DELIVERED);
+                if (orderEmailsPending) {
+                    var sent = sendMissingEmails(order, now);
+                    emailsSent += sent.sent();
+                    failed += sent.failed();
+                }
+                if (shippingEmailPending) {
+                    var sent = sendMissingShippingEmail(order, now);
+                    emailsSent += sent.sent();
+                    failed += sent.failed();
+                }
             } catch (RuntimeException e) {
                 LOGGER.log(Level.WARNING, "Les e-mails de la commande " + orderId.value() + " n'ont pas pu être renvoyés.", e);
                 failed++;
             }
         }
         return new Result(settled, emailsSent, failed);
+    }
+
+    private EmailCount sendMissingShippingEmail(Order order, Instant now) {
+        try {
+            mailProvider.send(OrderMails.shipped(order));
+            order.setShippingSentAt(now);
+            orderProvider.write(order);
+            return new EmailCount(1, 0);
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.WARNING, "L'e-mail d'expédition de la commande " + order.getNumber() + " n'est toujours pas parti.", e);
+            return new EmailCount(0, 1);
+        }
     }
 
     private Order settle(CheckoutId checkoutId, Instant now) {
