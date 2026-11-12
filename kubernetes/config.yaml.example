@@ -14,10 +14,10 @@ stringData:
   smtp-port: "465"
   smtp-security: "ssl"
   mail-from: "contact@eosa.me"
-  # Mondial Relay : le bac à sable par défaut ; en production,
+  # Mondial Relay V2 (création de l'étiquette) : le bac à sable par défaut ; en production,
   # https://connect-api.mondialrelay.com/api/shipment
-  mondial-relay-api-url: "https://connect-api-sandbox.mondialrelay.com/api/shipment"
-  mondial-relay-customer-id: "BDTEST"
+  mondial-relay-v2-api-url: "https://connect-api-sandbox.mondialrelay.com/api/shipment"
+  mondial-relay-v2-customer-id: "BDTEST"
   # Adresse d'expédition imprimée sur l'étiquette
   shipping-sender-name: "EOSA"
   shipping-sender-line1: "change_me"

@@ -208,30 +208,31 @@ spec:
                 secretKeyRef:
                   name: eosa-secrets
                   key: smtp-password
-            # Mondial Relay : facultatif au démarrage ; sans ces valeurs, « Pièce fabriquée » échoue avec un message clair.
-            - name: EOSA_MONDIAL_RELAY_API_URL
+            # Mondial Relay V2 (création de l'étiquette) : facultatif au démarrage ; sans ces valeurs,
+            # « Pièce fabriquée » échoue avec un message clair.
+            - name: EOSA_CLIENT_MONDIAL_RELAY_V2_API_URL
               valueFrom:
                 configMapKeyRef:
                   name: eosa-configs
-                  key: mondial-relay-api-url
+                  key: mondial-relay-v2-api-url
                   optional: true
-            - name: EOSA_MONDIAL_RELAY_LOGIN
+            - name: EOSA_CLIENT_MONDIAL_RELAY_V2_LOGIN
               valueFrom:
                 secretKeyRef:
                   name: eosa-secrets
-                  key: mondial-relay-login
+                  key: mondial-relay-v2-login
                   optional: true
-            - name: EOSA_MONDIAL_RELAY_PASSWORD
+            - name: EOSA_CLIENT_MONDIAL_RELAY_V2_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: eosa-secrets
-                  key: mondial-relay-password
+                  key: mondial-relay-v2-password
                   optional: true
-            - name: EOSA_MONDIAL_RELAY_CUSTOMER_ID
+            - name: EOSA_CLIENT_MONDIAL_RELAY_V2_CUSTOMER_ID
               valueFrom:
                 configMapKeyRef:
                   name: eosa-configs
-                  key: mondial-relay-customer-id
+                  key: mondial-relay-v2-customer-id
                   optional: true
             - name: EOSA_SHIPPING_SENDER_NAME
               valueFrom:
