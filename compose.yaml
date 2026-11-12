@@ -173,6 +173,18 @@ services:
         condition: service_healthy
     restart: "no"
 
+  # Equivalent of the purge-order-personal-data CronJob.
+  purge-order-personal-data:
+    <<: *eosa-container
+    profiles: [jobs]
+    environment:
+      <<: *eosa-environment
+      EOSA_PURGE_ORDER_PERSONAL_DATA_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   # Equivalent of the track-order-shipments CronJob.
   track-order-shipments:
     <<: *eosa-container
