@@ -126,6 +126,24 @@ Montant total du panier (en euros) à partir duquel la livraison est offerte.
 
 ---
 
+### Étiquette d'expédition (Mondial Relay)
+
+Ces variables servent à « Pièce fabriquée » dans l'administration, qui crée l'étiquette par l'API Connect (V2.0) de Mondial Relay. Elles sont **facultatives au démarrage** : sans elles, l'application et les tâches fonctionnent, et « Pièce fabriquée » échoue avec un message clair. Dans Kubernetes, elles ne concernent que le `Deployment` (les CronJobs n'en ont pas besoin tant qu'aucune tâche n'appelle Mondial Relay). Les identifiants se génèrent dans Connect, sous « Configuration des API », en choisissant « API Version V2.0 ».
+
+| Variable | Rôle | Exemple |
+|---|---|---|
+| `EOSA_MONDIAL_RELAY_API_URL` | Adresse de l'API ; le **bac à sable** par défaut, la production à configurer explicitement | `https://connect-api.mondialrelay.com/api/shipment` |
+| `EOSA_MONDIAL_RELAY_LOGIN` | Identifiant de l'API (secret) | `CODE@business-api.mondialrelay.com` |
+| `EOSA_MONDIAL_RELAY_PASSWORD` | Mot de passe de l'API (secret) | `change_me` |
+| `EOSA_MONDIAL_RELAY_CUSTOMER_ID` | Code client de 8 caractères | `BDTEST` |
+| `EOSA_SHIPPING_SENDER_NAME`, `_LINE1`, `_POSTAL_CODE`, `_CITY` | Adresse d'expédition imprimée sur l'étiquette (nom, rue, code postal, ville) | `EOSA`, `1 rue Exemple`, `54000`, `Nancy` |
+| `EOSA_SHIPPING_SENDER_PHONE`, `_EMAIL` | Téléphone et e-mail de l'expéditeur (facultatifs) | `+33600000000` |
+| `EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS` | Poids du colis proposé à la fabrication (150 par défaut) | `150` |
+
+Les étiquettes créées dans le bac à sable ne sont pas expédiables : passer à la production en changeant l'adresse de l'API et les identifiants.
+
+---
+
 ### `EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK`
 
 When set to `true`, the application creates the default administrator identity on startup and exits. Intended for one-shot initialisation jobs.

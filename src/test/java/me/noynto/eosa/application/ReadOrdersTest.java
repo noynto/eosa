@@ -84,8 +84,9 @@ class ReadOrdersTest {
         var paidAt = LocalDateTime.of(2026, 11, 16, 10, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant();
         var order = order("cs_1", "Ada", "ada@example.com", paidAt, OrderState.PAID);
 
-        var result = new ReadOrder(orders, clock).handle(new ReadOrder.Command(order.getId()));
+        var result = new ReadOrder(orders, clock, 150).handle(new ReadOrder.Command(order.getId()));
 
+        assertEquals(150, result.defaultParcelWeightGrams());
         assertEquals(order.getId(), result.order().getId());
         assertEquals(LocalDateTime.of(2026, 11, 18, 10, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant(),
                 result.craftingDeadline());
@@ -94,8 +95,28 @@ class ReadOrdersTest {
 
     @Test
     void readOrder_refusesAnUnknownOrder() {
-        assertThrows(RuntimeException.class, () -> new ReadOrder(orders, clock)
+        assertThrows(RuntimeException.class, () -> new ReadOrder(orders, clock, 150)
                 .handle(new ReadOrder.Command(new me.noynto.eosa.shared.OrderId("unknown"))));
+    }
+
+    @Test
+    void handle_flagsACraftedOrderNotShippedWithinTwentyFourBusinessHours() {
+        // Fabriquée le lundi 16 novembre à 10 h : à expédier avant le mardi 17 à 10 h, dépassé le mercredi 18 à 12 h.
+        var late = order("cs_1", "Ada", "ada@example.com",
+                LocalDateTime.of(2026, 11, 2, 10, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant(),
+                OrderState.CRAFTED);
+        late.setCraftedAt(LocalDateTime.of(2026, 11, 16, 10, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant());
+        // Fabriquée le mardi 17 à 14 h : à expédier avant le mercredi 18 à 14 h, encore dans les délais.
+        var onTime = order("cs_2", "Grace", "grace@example.com",
+                LocalDateTime.of(2026, 11, 2, 10, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant(),
+                OrderState.CRAFTED);
+        onTime.setCraftedAt(LocalDateTime.of(2026, 11, 17, 14, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant());
+
+        var entries = new ReadOrders(orders, clock).handle(new ReadOrders.Command(null, null)).orders();
+
+        assertTrue(overdue(entries, late));
+        assertFalse(overdue(entries, onTime));
+        assertTrue(new ReadOrder(orders, clock, 150).handle(new ReadOrder.Command(late.getId())).overdue());
     }
 
     private boolean overdue(List<ReadOrders.Entry> entries, Order order) {

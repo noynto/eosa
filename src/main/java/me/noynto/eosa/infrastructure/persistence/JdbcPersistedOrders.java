@@ -9,6 +9,9 @@ import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shipping.ShippingCarrier;
+import me.noynto.eosa.shipping.ShippingLabel;
+import me.noynto.eosa.shipping.ShippingLabelStatus;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -88,7 +91,8 @@ public record JdbcPersistedOrders(
                 SELECT id, number, state, stripe_session_id, customer_name, customer_email, customer_phone,
                        shipping_name, shipping_line1, shipping_line2, shipping_postal_code, shipping_city,
                        shipping_country, items_amount, shipping_amount, total_amount, paid_at, created_at,
-                       confirmation_sent_at, notification_sent_at
+                       confirmation_sent_at, notification_sent_at, crafted_at, carrier, tracking_number,
+                       parcel_weight_grams, label_reference, label_status
                 FROM orders WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -178,7 +182,9 @@ public record JdbcPersistedOrders(
         String sql = """
                 UPDATE orders SET state = ?, customer_name = ?, customer_email = ?, customer_phone = ?,
                     shipping_name = ?, shipping_line1 = ?, shipping_line2 = ?, shipping_postal_code = ?,
-                    shipping_city = ?, shipping_country = ?, confirmation_sent_at = ?, notification_sent_at = ?
+                    shipping_city = ?, shipping_country = ?, confirmation_sent_at = ?, notification_sent_at = ?,
+                    crafted_at = ?, carrier = ?, tracking_number = ?, parcel_weight_grams = ?, label_reference = ?,
+                    label_status = ?
                 WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -190,7 +196,14 @@ public record JdbcPersistedOrders(
             setShippingAddress(statement, 5, order.getShippingAddress());
             statement.setObject(11, toOffsetDateTime(order.getConfirmationSentAt()));
             statement.setObject(12, toOffsetDateTime(order.getNotificationSentAt()));
-            statement.setObject(13, UUID.fromString(order.getId().value()));
+            ShippingLabel label = order.getLabel();
+            statement.setObject(13, toOffsetDateTime(order.getCraftedAt()));
+            statement.setString(14, label != null ? label.getCarrier().name() : null);
+            statement.setString(15, label != null ? label.getTrackingNumber() : null);
+            statement.setObject(16, label != null ? label.getWeightGrams() : null);
+            statement.setString(17, label != null ? label.getReference() : null);
+            statement.setString(18, label != null ? label.getStatus().name() : null);
+            statement.setObject(19, UUID.fromString(order.getId().value()));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Impossible d'écrire la commande " + order.getId().value() + ".", e);
@@ -297,6 +310,18 @@ public record JdbcPersistedOrders(
         order.setCreatedAt(toInstant(resultSet, "created_at"));
         order.setConfirmationSentAt(toInstant(resultSet, "confirmation_sent_at"));
         order.setNotificationSentAt(toInstant(resultSet, "notification_sent_at"));
+        order.setCraftedAt(toInstant(resultSet, "crafted_at"));
+        String trackingNumber = resultSet.getString("tracking_number");
+        if (trackingNumber != null) {
+            ShippingLabel label = new ShippingLabel();
+            label.setCarrier(ShippingCarrier.valueOf(resultSet.getString("carrier")));
+            label.setTrackingNumber(trackingNumber);
+            label.setWeightGrams(resultSet.getInt("parcel_weight_grams"));
+            label.setReference(resultSet.getString("label_reference"));
+            label.setStatus(ShippingLabelStatus.valueOf(resultSet.getString("label_status")));
+            label.setCreatedAt(order.getCraftedAt());
+            order.setLabel(label);
+        }
         return order;
     }
 

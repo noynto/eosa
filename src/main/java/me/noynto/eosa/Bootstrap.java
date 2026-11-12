@@ -17,6 +17,11 @@ import me.noynto.eosa.hash.CryptProvider;
 import me.noynto.eosa.identity.IdentityProvider;
 import me.noynto.eosa.identity.IdentitySessionProvider;
 import me.noynto.eosa.image.ImageProvider;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.adapter.MondialRelayFetchedShippingLabels;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayConnectConfiguration;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayConnectProperties;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.resource.MondialRelayShipmentResource;
+import me.noynto.eosa.shipping.ShippingLabelProvider;
 import me.noynto.eosa.infrastructure.fetch.stripe.adapter.StripeFetchedCheckouts;
 import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeConfiguration;
 import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeHttpClient;
@@ -207,7 +212,27 @@ public class Bootstrap {
             imageProvider
         );
         ReadOrders readOrders = new ReadOrders(orderProvider, clock);
-        ReadOrder readOrder = new ReadOrder(orderProvider, clock);
+        ReadOrder readOrder = new ReadOrder(
+            orderProvider,
+            clock,
+            Configuration.getDefaultParcelWeightGrams()
+        );
+        MondialRelayConnectProperties mondialRelayProperties =
+            MondialRelayConnectConfiguration.getProperties();
+        ShippingLabelProvider shippingLabelProvider =
+            new MondialRelayFetchedShippingLabels(
+                new MondialRelayShipmentResource(
+                    MondialRelayConnectConfiguration.getClient(),
+                    mondialRelayProperties
+                ),
+                mondialRelayProperties
+            );
+        CraftOrder craftOrder = new CraftOrder(
+            orderProvider,
+            shippingLabelProvider,
+            clock
+        );
+        ReadOrderLabel readOrderLabel = new ReadOrderLabel(orderProvider);
         SettleOrders settleOrders = new SettleOrders(
             stripeFetchedCheckouts, orderProvider, mailProvider, clock, properties.adminBaseUrl());
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
@@ -748,6 +773,14 @@ public class Bootstrap {
             javalinConfig.routes.get(
                 "/orders/{id}",
                 new GetAdminOrderHandler(readOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/craft",
+                new PostOrderCraftHandler(craftOrder)
+            );
+            javalinConfig.routes.get(
+                "/orders/{id}/label",
+                new GetAdminOrderLabelHandler(readOrderLabel)
             );
             javalinConfig.routes.get(
                 "/jewels",
