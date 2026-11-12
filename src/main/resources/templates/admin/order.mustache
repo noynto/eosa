@@ -89,6 +89,53 @@
     </section>
     {{/hasLabel}}
 
+    <!-- Suite de la commande : remettre le colis, le déclarer livré -->
+    {{#canShip}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-1">Colis remis</h2>
+        <p class="text-xs text-muted mb-3">À faire quand le colis est déposé chez le transporteur. La commande passe à « Expédiée » et la cliente reçoit l'e-mail avec le lien de suivi.</p>
+        <button hx-post="/orders/{{id}}/ship" hx-target="#ship-error" hx-swap="innerHTML"
+                hx-confirm="Confirmer que le colis est remis au transporteur ? La cliente sera prévenue par e-mail."
+                class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+            Colis remis
+        </button>
+        <span id="ship-error" class="text-xs block mt-2"></span>
+    </section>
+    {{/canShip}}
+    {{#canDeliver}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-1">Livrée</h2>
+        <p class="text-xs text-muted mb-3">À faire quand le colis est arrivé chez la cliente. Aucun e-mail n'est envoyé.</p>
+        <button hx-post="/orders/{{id}}/deliver" hx-target="#deliver-error" hx-swap="innerHTML"
+                hx-confirm="Confirmer que le colis est livré ?"
+                class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+            Livrée
+        </button>
+        <span id="deliver-error" class="text-xs block mt-2"></span>
+    </section>
+    {{/canDeliver}}
+
+    <!-- Dates de l'expédition, de la livraison et de l'annulation -->
+    {{#hasShippedAt}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-3">Suite</h2>
+        <dl class="text-sm flex flex-col gap-1">
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Expédiée le</dt><dd>{{shippedAt}}</dd></div>
+            {{#hasDeliveredAt}}<div class="flex justify-between gap-4"><dt class="text-secondary">Livrée le</dt><dd>{{deliveredAt}}</dd></div>{{/hasDeliveredAt}}
+        </dl>
+    </section>
+    {{/hasShippedAt}}
+    {{#isCancelled}}
+    <section class="bg-bg border border-error rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium text-error mb-3">Commande annulée</h2>
+        <dl class="text-sm flex flex-col gap-1">
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Annulée le</dt><dd>{{cancelledAt}}</dd></div>
+            <div><dt class="text-secondary">Motif</dt><dd class="break-words">{{cancelReason}}</dd></div>
+        </dl>
+        <p class="text-xs text-muted mt-3">Le remboursement se fait dans Stripe, à la main. La cliente n'a reçu aucun e-mail.</p>
+    </section>
+    {{/isCancelled}}
+
     <!-- Lignes -->
     <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
         <h2 class="text-sm font-medium mb-3">Pièces à fabriquer</h2>
@@ -114,6 +161,39 @@
             <div class="flex justify-between font-medium"><dt>Total</dt><dd>{{totalAmount}}</dd></div>
         </dl>
     </section>
+
+    <!-- Journal des e-mails -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-3">E-mails</h2>
+        <dl class="text-sm flex flex-col gap-1">
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Confirmation à la cliente</dt><dd class="text-right">{{confirmationMail}}</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-secondary">Nouvelle commande à EOSA</dt><dd class="text-right">{{notificationMail}}</dd></div>
+            {{#showShippingMail}}<div class="flex justify-between gap-4"><dt class="text-secondary">Expédition à la cliente</dt><dd class="text-right">{{shippingMail}}</dd></div>{{/showShippingMail}}
+        </dl>
+    </section>
+
+    {{#canCancel}}
+    <!-- Annulation -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-1">Annuler la commande</h2>
+        <p class="text-xs text-muted mb-3">Aucun e-mail n'est envoyé à la cliente et rien n'est remboursé : le remboursement se fait dans Stripe, à la main. Une étiquette déjà créée reste chez le transporteur. Cette action est irréversible.</p>
+        <form hx-post="/orders/{{id}}/cancel" hx-target="#cancel-error" hx-swap="innerHTML"
+              hx-confirm="Annuler la commande {{number}} ? Cette action est irréversible."
+              class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1.5">
+                <label for="reason" class="text-xs text-secondary">Motif</label>
+                <textarea id="reason" name="reason" rows="2" maxlength="500" required
+                          class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full"></textarea>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <button type="submit" class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-secondary hover:border-error hover:text-error transition-colors">
+                    Annuler la commande
+                </button>
+                <span id="cancel-error" class="text-xs"></span>
+            </div>
+        </form>
+    </section>
+    {{/canCancel}}
 
     <p class="text-xs text-muted break-all">Session Stripe : {{stripeSessionId}}</p>
 

@@ -40,6 +40,11 @@ public class Order {
     private Instant paidAt;
     private ShippingLabel label;
     private Instant craftedAt;
+    private Instant shippedAt;
+    private Instant deliveredAt;
+    private Instant cancelledAt;
+    private String cancelReason;
+    private Instant shippingSentAt;
     private Instant createdAt;
     private Instant confirmationSentAt;
     private Instant notificationSentAt;
@@ -188,6 +193,51 @@ public class Order {
 
     public void setCraftedAt(Instant craftedAt) {
         this.craftedAt = craftedAt;
+    }
+
+    /** Instant où le colis a été remis au transporteur, null avant. */
+    public Instant getShippedAt() {
+        return shippedAt;
+    }
+
+    public void setShippedAt(Instant shippedAt) {
+        this.shippedAt = shippedAt;
+    }
+
+    /** Instant de la livraison, null avant. */
+    public Instant getDeliveredAt() {
+        return deliveredAt;
+    }
+
+    public void setDeliveredAt(Instant deliveredAt) {
+        this.deliveredAt = deliveredAt;
+    }
+
+    /** Instant de l'annulation, null si la commande n'est pas annulée. */
+    public Instant getCancelledAt() {
+        return cancelledAt;
+    }
+
+    public void setCancelledAt(Instant cancelledAt) {
+        this.cancelledAt = cancelledAt;
+    }
+
+    /** Motif de l'annulation, noté par l'administratrice, null si la commande n'est pas annulée. */
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    /** Instant d'envoi de l'e-mail d'expédition à la cliente, null tant qu'il n'est pas parti. */
+    public Instant getShippingSentAt() {
+        return shippingSentAt;
+    }
+
+    public void setShippingSentAt(Instant shippingSentAt) {
+        this.shippingSentAt = shippingSentAt;
     }
 
     public Instant getCreatedAt() {

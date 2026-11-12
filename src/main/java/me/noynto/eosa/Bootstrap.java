@@ -233,6 +233,9 @@ public class Bootstrap {
             clock
         );
         ReadOrderLabel readOrderLabel = new ReadOrderLabel(orderProvider);
+        ShipOrder shipOrder = new ShipOrder(orderProvider, mailProvider, clock);
+        DeliverOrder deliverOrder = new DeliverOrder(orderProvider, clock);
+        CancelOrder cancelOrder = new CancelOrder(orderProvider, clock);
         SettleOrders settleOrders = new SettleOrders(
             stripeFetchedCheckouts, orderProvider, mailProvider, clock, properties.adminBaseUrl());
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
@@ -781,6 +784,18 @@ public class Bootstrap {
             javalinConfig.routes.get(
                 "/orders/{id}/label",
                 new GetAdminOrderLabelHandler(readOrderLabel)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/ship",
+                new PostOrderShipHandler(shipOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/deliver",
+                new PostOrderDeliverHandler(deliverOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/cancel",
+                new PostOrderCancelHandler(cancelOrder)
             );
             javalinConfig.routes.get(
                 "/jewels",

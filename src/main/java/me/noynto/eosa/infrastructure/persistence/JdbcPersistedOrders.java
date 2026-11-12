@@ -92,7 +92,8 @@ public record JdbcPersistedOrders(
                        shipping_name, shipping_line1, shipping_line2, shipping_postal_code, shipping_city,
                        shipping_country, items_amount, shipping_amount, total_amount, paid_at, created_at,
                        confirmation_sent_at, notification_sent_at, crafted_at, carrier, tracking_number,
-                       parcel_weight_grams, label_reference, label_status
+                       parcel_weight_grams, label_reference, label_status, shipped_at, delivered_at, cancelled_at,
+                       cancel_reason, shipping_sent_at
                 FROM orders WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -184,7 +185,8 @@ public record JdbcPersistedOrders(
                     shipping_name = ?, shipping_line1 = ?, shipping_line2 = ?, shipping_postal_code = ?,
                     shipping_city = ?, shipping_country = ?, confirmation_sent_at = ?, notification_sent_at = ?,
                     crafted_at = ?, carrier = ?, tracking_number = ?, parcel_weight_grams = ?, label_reference = ?,
-                    label_status = ?
+                    label_status = ?, shipped_at = ?, delivered_at = ?, cancelled_at = ?, cancel_reason = ?,
+                    shipping_sent_at = ?
                 WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -203,7 +205,12 @@ public record JdbcPersistedOrders(
             statement.setObject(16, label != null ? label.getWeightGrams() : null);
             statement.setString(17, label != null ? label.getReference() : null);
             statement.setString(18, label != null ? label.getStatus().name() : null);
-            statement.setObject(19, UUID.fromString(order.getId().value()));
+            statement.setObject(19, toOffsetDateTime(order.getShippedAt()));
+            statement.setObject(20, toOffsetDateTime(order.getDeliveredAt()));
+            statement.setObject(21, toOffsetDateTime(order.getCancelledAt()));
+            statement.setString(22, order.getCancelReason());
+            statement.setObject(23, toOffsetDateTime(order.getShippingSentAt()));
+            statement.setObject(24, UUID.fromString(order.getId().value()));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Impossible d'écrire la commande " + order.getId().value() + ".", e);
@@ -311,6 +318,11 @@ public record JdbcPersistedOrders(
         order.setConfirmationSentAt(toInstant(resultSet, "confirmation_sent_at"));
         order.setNotificationSentAt(toInstant(resultSet, "notification_sent_at"));
         order.setCraftedAt(toInstant(resultSet, "crafted_at"));
+        order.setShippedAt(toInstant(resultSet, "shipped_at"));
+        order.setDeliveredAt(toInstant(resultSet, "delivered_at"));
+        order.setCancelledAt(toInstant(resultSet, "cancelled_at"));
+        order.setCancelReason(resultSet.getString("cancel_reason"));
+        order.setShippingSentAt(toInstant(resultSet, "shipping_sent_at"));
         String trackingNumber = resultSet.getString("tracking_number");
         if (trackingNumber != null) {
             ShippingLabel label = new ShippingLabel();
