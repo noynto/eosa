@@ -47,6 +47,7 @@ import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
 import me.noynto.eosa.task.PurgeWorkshopPersonalDataTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
+import me.noynto.eosa.task.PurgeOrderPersonalDataTask;
 import me.noynto.eosa.task.SettleOrdersTask;
 import me.noynto.eosa.task.TrackOrderShipmentsTask;
 import me.noynto.eosa.task.SendWorkshopRemindersTask;
@@ -249,6 +250,7 @@ public class Bootstrap {
             mailProvider,
             clock
         );
+        PurgeOrderPersonalData purgeOrderPersonalData = new PurgeOrderPersonalData(orderProvider, clock);
         ShipOrder shipOrder = new ShipOrder(orderProvider, mailProvider, clock);
         DeliverOrder deliverOrder = new DeliverOrder(orderProvider, clock);
         CancelOrder cancelOrder = new CancelOrder(orderProvider, clock);
@@ -437,6 +439,10 @@ public class Bootstrap {
         }
         if (TrackOrderShipmentsTask.activate()) {
             oneShotTasksSucceeded &= new TrackOrderShipmentsTask(trackOrderShipments).task();
+            ranOneShotTask = true;
+        }
+        if (PurgeOrderPersonalDataTask.activate()) {
+            oneShotTasksSucceeded &= new PurgeOrderPersonalDataTask(purgeOrderPersonalData).task();
             ranOneShotTask = true;
         }
         if (ranOneShotTask) {

@@ -68,6 +68,8 @@ public record GetAdminOrderHandler(
         model.put("notificationMail", mailStatus(order.getNotificationSentAt()));
         model.put("showShippingMail", order.getShippedAt() != null);
         model.put("shippingMail", mailStatus(order.getShippingSentAt()));
+        model.put("hasPurgedAt", order.getPersonalDataPurgedAt() != null);
+        model.put("purgedAt", order.getPersonalDataPurgedAt() == null ? null : OrderFormat.dateTime(order.getPersonalDataPurgedAt()));
         model.put("customerName", order.getCustomerName());
         model.put("customerEmail", order.getCustomerEmail());
         model.put("hasPhone", order.getCustomerPhone() != null);

@@ -39,7 +39,7 @@
             </div>
             {{/hasAddress}}
             {{^hasAddress}}
-            <div class="text-xs text-secondary">Adresse effacée.</div>
+            <div class="text-xs text-secondary">Adresse effacée{{#hasPurgedAt}} le {{purgedAt}}{{/hasPurgedAt}}.</div>
             {{/hasAddress}}
         </div>
     </section>

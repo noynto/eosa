@@ -93,7 +93,7 @@ public record JdbcPersistedOrders(
                        shipping_country, items_amount, shipping_amount, total_amount, paid_at, created_at,
                        confirmation_sent_at, notification_sent_at, crafted_at, carrier, tracking_number,
                        parcel_weight_grams, label_reference, label_status, shipped_at, delivered_at, cancelled_at,
-                       cancel_reason, shipping_sent_at
+                       cancel_reason, shipping_sent_at, personal_data_purged_at
                 FROM orders WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -186,7 +186,7 @@ public record JdbcPersistedOrders(
                     shipping_city = ?, shipping_country = ?, confirmation_sent_at = ?, notification_sent_at = ?,
                     crafted_at = ?, carrier = ?, tracking_number = ?, parcel_weight_grams = ?, label_reference = ?,
                     label_status = ?, shipped_at = ?, delivered_at = ?, cancelled_at = ?, cancel_reason = ?,
-                    shipping_sent_at = ?
+                    shipping_sent_at = ?, personal_data_purged_at = ?
                 WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -210,7 +210,8 @@ public record JdbcPersistedOrders(
             statement.setObject(21, toOffsetDateTime(order.getCancelledAt()));
             statement.setString(22, order.getCancelReason());
             statement.setObject(23, toOffsetDateTime(order.getShippingSentAt()));
-            statement.setObject(24, UUID.fromString(order.getId().value()));
+            statement.setObject(24, toOffsetDateTime(order.getPersonalDataPurgedAt()));
+            statement.setObject(25, UUID.fromString(order.getId().value()));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Impossible d'écrire la commande " + order.getId().value() + ".", e);
@@ -323,6 +324,7 @@ public record JdbcPersistedOrders(
         order.setCancelledAt(toInstant(resultSet, "cancelled_at"));
         order.setCancelReason(resultSet.getString("cancel_reason"));
         order.setShippingSentAt(toInstant(resultSet, "shipping_sent_at"));
+        order.setPersonalDataPurgedAt(toInstant(resultSet, "personal_data_purged_at"));
         String trackingNumber = resultSet.getString("tracking_number");
         if (trackingNumber != null) {
             ShippingLabel label = new ShippingLabel();

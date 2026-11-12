@@ -45,6 +45,7 @@ public class Order {
     private Instant cancelledAt;
     private String cancelReason;
     private Instant shippingSentAt;
+    private Instant personalDataPurgedAt;
     private Instant createdAt;
     private Instant confirmationSentAt;
     private Instant notificationSentAt;
@@ -229,6 +230,18 @@ public class Order {
 
     public void setCancelReason(String cancelReason) {
         this.cancelReason = cancelReason;
+    }
+
+    /**
+     * Instant où l'adresse de livraison et le téléphone ont été effacés au terme de leur durée de conservation,
+     * null tant qu'ils sont gardés.
+     */
+    public Instant getPersonalDataPurgedAt() {
+        return personalDataPurgedAt;
+    }
+
+    public void setPersonalDataPurgedAt(Instant personalDataPurgedAt) {
+        this.personalDataPurgedAt = personalDataPurgedAt;
     }
 
     /** Instant d'envoi de l'e-mail d'expédition à la cliente, null tant qu'il n'est pas parti. */
