@@ -156,7 +156,7 @@ Les identifiants du bac à sable et ceux de la production sont distincts : passe
 
 ### Mondial Relay V1 : suivi du colis
 
-Le web service SOAP (V1) lit le statut d'un colis pour le suivi automatique (`TrackOrderShipments`, **pas encore branché** : ces variables ne sont lues par aucun code aujourd'hui). Facultatives au démarrage. Les identifiants se trouvent dans Connect, sous « Configuration des API », en choisissant « API Version V1.0 » ; ce ne sont pas ceux de la V2.
+Le web service SOAP (V1) lit le statut d'un colis pour le suivi automatique : la tâche `TrackOrderShipments` (CronJob `track-order-shipments`, toutes les 15 minutes) en a besoin, pas le `Deployment`. Facultatives au démarrage : sans elles, la tâche échoue avec un message clair. Le web service V1 n'a **pas de bac à sable** : ce sont les identifiants de production, et l'appel ne fait que lire. Ils se trouvent dans Connect, sous « Configuration des API », en choisissant « API Version V1.0 » ; ce ne sont pas ceux de la V2. Le web service doit être activé sur l'enseigne par Mondial Relay (sans cela, il répond « compte non activé »).
 
 | Variable | Rôle | Exemple |
 |---|---|---|

@@ -9,6 +9,7 @@ L'application n'a pas de planificateur interne. Un traitement périodique est un
 | `CreateDefaultAdministratorIdentityTask` | `EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK` | Au déploiement (`initContainer`) | Crée l'administratrice par défaut si elle n'existe pas |
 | `SendTestEmailTask` | `EOSA_SEND_TEST_EMAIL_TO` (adresse) | À la demande | Envoie un e-mail de test |
 | `SettleOrdersTask` | `EOSA_SETTLE_ORDERS_TASK` | Toutes les 5 min | Crée la commande des paiements Stripe dont la cliente n'est pas revenue sur la page de succès, et renvoie les e-mails de commande et d'expédition qui ne sont pas partis (jamais pour une commande annulée) |
+| `TrackOrderShipmentsTask` | `EOSA_TRACK_ORDER_SHIPMENTS_TASK` | Toutes les 15 min | Relit le suivi Mondial Relay (web service V1) des commandes fabriquées ou expédiées : colis pris en charge → expédiée avec l'e-mail de suivi, colis livré → livrée |
 | `AnnounceWorkshopBookingOpeningsTask` | `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK` | Chaque minute | Prévient la liste d'attente à l'ouverture des réservations |
 | `ExpirePendingWorkshopBookingsTask` | `EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK` | Toutes les 5 min | Expire les demandes non confirmées et prévient la liste d'attente |
 | `SendWorkshopRemindersTask` | `EOSA_SEND_WORKSHOP_REMINDERS_TASK` | Toutes les 15 min | Envoie le rappel de la veille |
@@ -22,6 +23,7 @@ Les variables d'activation ne sont jamais définies dans le `Deployment`, seulem
 ```bash
 docker compose run --rm send-test-email
 docker compose run --rm settle-orders
+docker compose run --rm track-order-shipments
 docker compose run --rm announce-workshop-booking-openings
 docker compose run --rm expire-pending-workshop-bookings
 docker compose run --rm send-workshop-reminders

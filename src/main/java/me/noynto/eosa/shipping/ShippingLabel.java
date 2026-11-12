@@ -16,6 +16,8 @@ public class ShippingLabel {
     private String trackingNumber;
     private String reference;
     private ShippingLabelStatus status;
+    private Instant depositedAt;
+    private Instant deliveredAt;
     private Instant createdAt;
 
     public ShippingCarrier getCarrier() {
@@ -76,6 +78,24 @@ public class ShippingLabel {
 
     public void setStatus(ShippingLabelStatus status) {
         this.status = status;
+    }
+
+    /** Instant où le transporteur a pris le colis en charge, d'après son suivi. Renseigné par la lecture seulement. */
+    public Instant getDepositedAt() {
+        return depositedAt;
+    }
+
+    public void setDepositedAt(Instant depositedAt) {
+        this.depositedAt = depositedAt;
+    }
+
+    /** Instant de la livraison, d'après le suivi du transporteur. Renseigné par la lecture seulement. */
+    public Instant getDeliveredAt() {
+        return deliveredAt;
+    }
+
+    public void setDeliveredAt(Instant deliveredAt) {
+        this.deliveredAt = deliveredAt;
     }
 
     public Instant getCreatedAt() {
