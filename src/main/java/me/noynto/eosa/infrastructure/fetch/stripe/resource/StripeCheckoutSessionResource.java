@@ -37,7 +37,8 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
             params.add("client_reference_id=" + StripeHttpClient.encode(clientReferenceId));
         }
         params.add("phone_number_collection[enabled]=true");
-        String[] countries = {"FR", "BE", "CH", "LU"};
+        // Mondial Relay livre à domicile dans ces trois pays ; la Suisse est refusée à domicile (et demanderait la douane).
+        String[] countries = {"FR", "BE", "LU"};
         for (int i = 0; i < countries.length; i++) {
             params.add("shipping_address_collection[allowed_countries][" + i + "]=" + countries[i]);
         }
