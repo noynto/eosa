@@ -97,7 +97,7 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Déploiement](docs/ops/deployment.md) | Image Docker et référence complète des variables d'environnement |
 | [`.env.example`](.env.example) | Modèle de configuration locale, prêt à copier |
-| [`kubernetes/`](kubernetes/) | Manifestes de production : application, PostgreSQL, tâches planifiées des ateliers |
+| [`kubernetes/`](kubernetes/) | Manifestes de production : application, PostgreSQL, tâches planifiées des ateliers et des commandes |
 
 ### Pilotage
 

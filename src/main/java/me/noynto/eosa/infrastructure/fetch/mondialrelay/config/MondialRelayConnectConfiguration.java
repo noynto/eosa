@@ -6,6 +6,8 @@ import java.time.Duration;
 
 public class MondialRelayConnectConfiguration {
 
+    static final String TRACKING_ENDPOINT = "https://api.mondialrelay.com/WebService.asmx";
+
     static final String SANDBOX_ENDPOINT = "https://connect-api-sandbox.mondialrelay.com/api/shipment";
 
     public static HttpClient getClient() {
@@ -33,6 +35,14 @@ public class MondialRelayConnectConfiguration {
                         centimeters("EOSA_SHIPPING_PARCEL_WIDTH_CM", 9),
                         centimeters("EOSA_SHIPPING_PARCEL_DEPTH_CM", 4)
                 )
+        );
+    }
+
+    public static MondialRelayTrackingProperties getTrackingProperties() {
+        return new MondialRelayTrackingProperties(
+                URI.create(env("EOSA_CLIENT_MONDIAL_RELAY_V1_API_URL", TRACKING_ENDPOINT)),
+                env("EOSA_CLIENT_MONDIAL_RELAY_V1_ENSEIGNE", null),
+                env("EOSA_CLIENT_MONDIAL_RELAY_V1_PRIVATE_KEY", null)
         );
     }
 

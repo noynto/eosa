@@ -20,7 +20,9 @@ import me.noynto.eosa.image.ImageProvider;
 import me.noynto.eosa.infrastructure.fetch.mondialrelay.adapter.MondialRelayFetchedShippingLabels;
 import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayConnectConfiguration;
 import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayConnectProperties;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayTrackingProperties;
 import me.noynto.eosa.infrastructure.fetch.mondialrelay.resource.MondialRelayShipmentResource;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.resource.MondialRelayTrackingResource;
 import me.noynto.eosa.shipping.ShippingLabelProvider;
 import me.noynto.eosa.infrastructure.fetch.stripe.adapter.StripeFetchedCheckouts;
 import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeConfiguration;
@@ -46,6 +48,7 @@ import me.noynto.eosa.task.PurgeWorkshopPersonalDataTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
 import me.noynto.eosa.task.SettleOrdersTask;
+import me.noynto.eosa.task.TrackOrderShipmentsTask;
 import me.noynto.eosa.task.SendWorkshopRemindersTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSession;
@@ -219,13 +222,20 @@ public class Bootstrap {
         );
         MondialRelayConnectProperties mondialRelayProperties =
             MondialRelayConnectConfiguration.getProperties();
+        MondialRelayTrackingProperties mondialRelayTrackingProperties =
+            MondialRelayConnectConfiguration.getTrackingProperties();
         ShippingLabelProvider shippingLabelProvider =
             new MondialRelayFetchedShippingLabels(
                 new MondialRelayShipmentResource(
                     MondialRelayConnectConfiguration.getClient(),
                     mondialRelayProperties
                 ),
-                mondialRelayProperties
+                mondialRelayProperties,
+                new MondialRelayTrackingResource(
+                    MondialRelayConnectConfiguration.getClient(),
+                    mondialRelayTrackingProperties
+                ),
+                mondialRelayTrackingProperties
             );
         CraftOrder craftOrder = new CraftOrder(
             orderProvider,
@@ -233,6 +243,12 @@ public class Bootstrap {
             clock
         );
         ReadOrderLabel readOrderLabel = new ReadOrderLabel(orderProvider);
+        TrackOrderShipments trackOrderShipments = new TrackOrderShipments(
+            orderProvider,
+            shippingLabelProvider,
+            mailProvider,
+            clock
+        );
         ShipOrder shipOrder = new ShipOrder(orderProvider, mailProvider, clock);
         DeliverOrder deliverOrder = new DeliverOrder(orderProvider, clock);
         CancelOrder cancelOrder = new CancelOrder(orderProvider, clock);
@@ -417,6 +433,10 @@ public class Bootstrap {
         }
         if (SettleOrdersTask.activate()) {
             oneShotTasksSucceeded &= new SettleOrdersTask(settleOrders).task();
+            ranOneShotTask = true;
+        }
+        if (TrackOrderShipmentsTask.activate()) {
+            oneShotTasksSucceeded &= new TrackOrderShipmentsTask(trackOrderShipments).task();
             ranOneShotTask = true;
         }
         if (ranOneShotTask) {

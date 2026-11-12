@@ -18,6 +18,9 @@ stringData:
   # https://connect-api.mondialrelay.com/api/shipment
   mondial-relay-v2-api-url: "https://connect-api-sandbox.mondialrelay.com/api/shipment"
   mondial-relay-v2-customer-id: "BDTEST"
+  # Mondial Relay V1 (suivi du colis) : le même web service pour les essais et la production
+  mondial-relay-v1-api-url: "https://api.mondialrelay.com/WebService.asmx"
+  mondial-relay-v1-enseigne: "BDTEST13"
   # Adresse d'expédition imprimée sur l'étiquette
   shipping-sender-name: "EOSA"
   shipping-sender-line1: "change_me"
