@@ -250,6 +250,8 @@ public class Bootstrap {
             mailProvider,
             clock
         );
+        CraftOrderForHandDelivery craftOrderForHandDelivery = new CraftOrderForHandDelivery(orderProvider, clock);
+        HandOverOrder handOverOrder = new HandOverOrder(orderProvider, clock);
         PurgeOrderPersonalData purgeOrderPersonalData = new PurgeOrderPersonalData(orderProvider, clock);
         ShipOrder shipOrder = new ShipOrder(orderProvider, mailProvider, clock);
         DeliverOrder deliverOrder = new DeliverOrder(orderProvider, clock);
@@ -806,6 +808,14 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/orders/{id}/craft",
                 new PostOrderCraftHandler(craftOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/craft-hand-delivery",
+                new PostOrderCraftForHandDeliveryHandler(craftOrderForHandDelivery)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/hand-over",
+                new PostOrderHandOverHandler(handOverOrder)
             );
             javalinConfig.routes.get(
                 "/orders/{id}/label",

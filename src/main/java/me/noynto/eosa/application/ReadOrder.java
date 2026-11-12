@@ -31,7 +31,8 @@ public record ReadOrder(
         Instant shippingDeadline = order.getCraftedAt() != null
                 ? BusinessTime.deadline(order.getCraftedAt(), Order.SHIPPING_HOURS) : null;
         boolean overdue = order.getState() == OrderState.PAID && now.isAfter(craftingDeadline)
-                || order.getState() == OrderState.CRAFTED && shippingDeadline != null && now.isAfter(shippingDeadline);
+                // Une remise en main propre se convient avec la cliente : pas d'échéance d'expédition.
+                || order.getState() == OrderState.CRAFTED && !order.isHandDelivery() && shippingDeadline != null && now.isAfter(shippingDeadline);
         return new Result(order, craftingDeadline, shippingDeadline, overdue, defaultParcelWeightGrams);
     }
 

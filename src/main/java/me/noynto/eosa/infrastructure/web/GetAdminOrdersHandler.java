@@ -39,6 +39,7 @@ public record GetAdminOrdersHandler(
             row.put("total", OrderFormat.amount(order.getTotalAmount()));
             row.put("state", OrderFormat.state(order.getState()));
             row.put("overdue", entry.overdue());
+            row.put("handDelivery", order.isHandDelivery());
             return row;
         }).toList();
 

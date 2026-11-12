@@ -87,6 +87,8 @@ Le numéro de commande est attribué par une séquence en base au moment de l'é
 | `GET /orders/{id}/label` | PDF de l'étiquette, à imprimer ou réimprimer. Ne modifie rien. Disponible pour une commande `CRAFTED` ou `SHIPPED`. |
 | `POST /orders/{id}/ship` | **Secours** « Colis remis » : passage à `SHIPPED` et e-mail d'expédition, sans attendre la tâche. Le bouton ne s'affiche que pour une commande `CRAFTED`. |
 | `POST /orders/{id}/deliver` | Passage à `DELIVERED`. |
+| `POST /orders/{id}/craft-hand-delivery` | « Pièce fabriquée, remise en main propre » : passage à `CRAFTED` sans étiquette ni e-mail, pour une commande `PAID`. |
+| `POST /orders/{id}/hand-over` | « Remise effectuée » : une commande fabriquée pour une remise en main propre passe à `DELIVERED`. |
 | `POST /orders/{id}/cancel` | Annulation avec motif, sans e-mail automatique. |
 
 Les écrans suivent les composants de l'administration et se chargent en fragments htmx (la liste, le détail et ses actions sont des appels séparés), comme pour les ateliers.
@@ -107,7 +109,8 @@ Les e-mails suivent les règles de [`docs/tech/emails.md`](../tech/emails.md). C
 - Le total de la commande est celui **payé chez Stripe** (`amount_total`), pas un recalcul : si les règles de livraison changent, les commandes passées ne bougent pas.
 - Les lignes sont des copies ; supprimer un bijou ne supprime pas sa ligne (`jewel_id` devient `null`, l'image reste si elle existe encore).
 - L'adresse de livraison vient de Stripe (pays autorisés : FR, BE, LU, comme dans la session de paiement ; la Suisse a été retirée le 12 novembre 2026, voir le point ouvert 4).
-- Une commande `CRAFTED`, `SHIPPED` ou `DELIVERED` a toujours une étiquette, donc un numéro de suivi ; une commande `PAID` n'en a jamais.
+- Une commande `CRAFTED`, `SHIPPED` ou `DELIVERED` a toujours une étiquette, donc un numéro de suivi, **sauf une remise en main propre** ; une commande `PAID` n'en a jamais.
+- **Remise en main propre** (décidée le 12 novembre 2026) : à « Pièce fabriquée », l'administratrice choisit entre l'envoi par Mondial Relay (avec le poids, qui crée l'étiquette) et la remise en main propre (`CraftOrderForHandDelivery`, colonne `hand_delivery`, migration `V11`). Dans ce cas la commande passe à `CRAFTED` **sans étiquette, sans transporteur et sans e-mail** (la remise se convient avec la cliente) ; le bouton « Remise effectuée » (`HandOverOrder`) la passe ensuite directement à `DELIVERED`, sans jamais être `SHIPPED`. « Colis remis » et la fabrication avec étiquette lui sont refusés, la tâche de suivi l'ignore (pas d'étiquette), elle n'est jamais signalée « en retard » d'expédition, et l'adresse et le téléphone s'effacent un an après la remise comme pour toute commande livrée. Les frais de livraison déjà payés ne sont pas remboursés automatiquement : le remboursement se fait dans Stripe, à la main. Le choix ne se défait pas ; pour y renoncer, annuler la commande.
 - L'étiquette est créée **une seule fois** par commande : une commande qui en a déjà une ne peut pas être refabriquée. Si l'écriture en base échoue après la création chez Mondial Relay, une étiquette orpheline peut exister chez eux ; la création de l'étiquette n'est pas idempotente côté transporteur.
 - Les transitions inverses ne sont pas permises ; seule `CANCELLED` sort du flux.
 - Les montants sont des `BigDecimal` en euros à deux décimales, jamais des `double`.

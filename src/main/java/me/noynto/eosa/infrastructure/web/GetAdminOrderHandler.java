@@ -36,12 +36,20 @@ public record GetAdminOrderHandler(
         model.put("showCraftingDeadline", order.getState() == OrderState.PAID);
         model.put("craftingDeadline", OrderFormat.dateTime(result.craftingDeadline()));
         model.put("overdue", result.overdue());
-        model.put("showShippingDeadline", order.getState() == OrderState.CRAFTED && result.shippingDeadline() != null);
+        model.put("showShippingDeadline", order.getState() == OrderState.CRAFTED && !order.isHandDelivery()
+                && result.shippingDeadline() != null);
+        model.put("isHandDelivery", order.isHandDelivery());
+        model.put("canHandOver", order.getState() == OrderState.CRAFTED && order.isHandDelivery());
+        model.put("craftedHandAt", order.isHandDelivery() && order.getCraftedAt() != null
+                ? OrderFormat.dateTime(order.getCraftedAt()) : null);
         // Vide tant que la commande n'est pas fabriquée : rien à formater alors.
         model.put("shippingDeadline", result.shippingDeadline() == null ? null : OrderFormat.dateTime(result.shippingDeadline()));
         model.put("id", order.getId().value());
         // Fabriquer : seulement une commande à fabriquer ; l'étiquette s'imprime une fois créée.
-        model.put("canCraft", order.getState() == OrderState.PAID && order.getLabel() == null && order.getShippingAddress() != null);
+        boolean toCraft = order.getState() == OrderState.PAID && order.getLabel() == null && !order.isHandDelivery();
+        model.put("canCraft", toCraft);
+        // L'envoi par transporteur a besoin de l'adresse ; la remise en main propre n'en a pas besoin.
+        model.put("canCraftForShipping", toCraft && order.getShippingAddress() != null);
         model.put("defaultWeight", result.defaultParcelWeightGrams());
         var label = order.getLabel();
         model.put("hasLabel", label != null);
@@ -56,6 +64,7 @@ public record GetAdminOrderHandler(
         model.put("canDeliver", order.getState() == OrderState.SHIPPED);
         model.put("canCancel", order.getState() == OrderState.PAID || order.getState() == OrderState.CRAFTED
                 || order.getState() == OrderState.SHIPPED);
+        model.put("hasSuite", order.getShippedAt() != null || order.getDeliveredAt() != null);
         model.put("hasShippedAt", order.getShippedAt() != null);
         model.put("shippedAt", order.getShippedAt() == null ? null : OrderFormat.dateTime(order.getShippedAt()));
         model.put("hasDeliveredAt", order.getDeliveredAt() != null);
