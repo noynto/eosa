@@ -275,6 +275,24 @@ spec:
                   name: eosa-configs
                   key: shipping-default-parcel-weight-grams
                   optional: true
+            - name: EOSA_SHIPPING_PARCEL_LENGTH_CM
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-parcel-length-cm
+                  optional: true
+            - name: EOSA_SHIPPING_PARCEL_WIDTH_CM
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-parcel-width-cm
+                  optional: true
+            - name: EOSA_SHIPPING_PARCEL_DEPTH_CM
+              valueFrom:
+                configMapKeyRef:
+                  name: eosa-configs
+                  key: shipping-parcel-depth-cm
+                  optional: true
           readinessProbe:
             httpGet:
               path: /

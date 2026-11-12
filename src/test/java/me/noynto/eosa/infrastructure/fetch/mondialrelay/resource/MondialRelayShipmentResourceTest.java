@@ -18,7 +18,8 @@ class MondialRelayShipmentResourceTest {
     private final MondialRelayConnectProperties properties = new MondialRelayConnectProperties(
             URI.create("https://connect-api-sandbox.mondialrelay.com/api/shipment"),
             "BDTEST@business-api.mondialrelay.com", "s3cret&<pass>", "BDTEST",
-            new MondialRelayConnectProperties.Sender("EOSA", "1 rue de la Paix", "54000", "Nancy", "+33 3 83 00 00 00", "contact@eosa.me"));
+            new MondialRelayConnectProperties.Sender("EOSA", "1 rue de la Paix", "54000", "Nancy", "+33 3 83 00 00 00", "contact@eosa.me"),
+            new MondialRelayConnectProperties.Parcel(12, 9, 4));
 
     @Test
     void buildRequest_describesAHomeDeliveryOfOneParcel() {
@@ -31,6 +32,8 @@ class MondialRelayShipmentResourceTest {
         assertTrue(xml.contains("<DeliveryMode Mode=\"HOM\" Location=\"\" />"));
         assertTrue(xml.contains("<CollectionMode Mode=\"CCC\" Location=\"\" />"));
         assertTrue(xml.contains("<Weight Value=\"250\" Unit=\"gr\" />"));
+        // Sans dimensions, le transporteur répond WebApi_MandatoryParcelSize (constaté en bac à sable).
+        assertTrue(xml.contains("<Length Value=\"12\" Unit=\"cm\" /><Width Value=\"9\" Unit=\"cm\" /><Depth Value=\"4\" Unit=\"cm\" />"));
         assertTrue(xml.contains("<OrderNo>EOSA-2026-0001</OrderNo>"));
         assertTrue(xml.contains("<PhoneNo>+33383000000</PhoneNo>"));
     }
@@ -101,6 +104,32 @@ class MondialRelayShipmentResourceTest {
 
         assertTrue(error.getMessage().contains("Invalid user and/or password"));
         assertTrue(error.getMessage().contains("10001"));
+    }
+
+    @Test
+    void parseResponse_readsTheSuccessStatusOfTheSandboxAndKeepsTheLeadingZerosOfTheNumber() throws IOException {
+        // Réponse réelle du bac à sable : le statut de succès n'a pas d'attribut Level.
+        var created = MondialRelayShipmentResource.parseResponse("""
+                <ShipmentCreationResponse xmlns="http://www.example.org/Response">
+                  <ShipmentsList><Shipment ShipmentNumber="00581106"><LabelList><Label>
+                    <Output>https://connect-sandbox.mondialrelay.com//TTMRSDBX/etiquette/GetStickersExpeditionsAnonyme2?ens=TTMRSDBX&amp;expedition=00581106&amp;crc=ABC</Output>
+                  </Label></LabelList></Shipment></ShipmentsList>
+                  <StatusList><Status Code="0" Message="API Mondial Relay Sandbox, aucune donnée n'a été enregistrée." /></StatusList>
+                </ShipmentCreationResponse>
+                """);
+
+        assertEquals("00581106", created.shipmentNumber());
+    }
+
+    @Test
+    void parseResponse_turnsTheMissingParcelSizeIntoAReadableMessage() {
+        var error = assertThrows(RuntimeException.class, () -> MondialRelayShipmentResource.parseResponse("""
+                <ShipmentCreationResponse>
+                  <StatusList><Status Code="10106" Level="Error" Message="WebApi_MandatoryParcelSize" /></StatusList>
+                </ShipmentCreationResponse>
+                """));
+
+        assertTrue(error.getMessage().contains("WebApi_MandatoryParcelSize"));
     }
 
     @Test
