@@ -16,10 +16,10 @@ public class MondialRelayConnectConfiguration {
 
     public static MondialRelayConnectProperties getProperties() {
         return new MondialRelayConnectProperties(
-                URI.create(env("EOSA_MONDIAL_RELAY_API_URL", SANDBOX_ENDPOINT)),
-                env("EOSA_MONDIAL_RELAY_LOGIN", null),
-                env("EOSA_MONDIAL_RELAY_PASSWORD", null),
-                env("EOSA_MONDIAL_RELAY_CUSTOMER_ID", null),
+                URI.create(env("EOSA_CLIENT_MONDIAL_RELAY_V2_API_URL", SANDBOX_ENDPOINT)),
+                env("EOSA_CLIENT_MONDIAL_RELAY_V2_LOGIN", null),
+                env("EOSA_CLIENT_MONDIAL_RELAY_V2_PASSWORD", null),
+                env("EOSA_CLIENT_MONDIAL_RELAY_V2_CUSTOMER_ID", null),
                 new MondialRelayConnectProperties.Sender(
                         env("EOSA_SHIPPING_SENDER_NAME", null),
                         env("EOSA_SHIPPING_SENDER_LINE1", null),

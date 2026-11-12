@@ -17,7 +17,7 @@ public record MondialRelayFetchedShippingLabels(
     @Override
     public ShippingLabel write(ShippingLabel label) {
         if (!properties.isConfigured()) {
-            throw new RuntimeException("Mondial Relay n'est pas configuré : EOSA_MONDIAL_RELAY_* et EOSA_SHIPPING_SENDER_* sont nécessaires.");
+            throw new RuntimeException("Mondial Relay n'est pas configuré : EOSA_CLIENT_MONDIAL_RELAY_V2_* et EOSA_SHIPPING_SENDER_* sont nécessaires.");
         }
         if (label.getWeightGrams() < MondialRelayShipmentResource.MIN_WEIGHT_GRAMS
                 || label.getWeightGrams() > MondialRelayShipmentResource.MAX_WEIGHT_GRAMS) {
