@@ -43,6 +43,9 @@ public record MondialRelayFetchedShippingLabels(
                     + MondialRelayShipmentResource.MIN_WEIGHT_GRAMS + " g et "
                     + MondialRelayShipmentResource.MAX_WEIGHT_GRAMS + " g.");
         }
+        if (label.getLengthCm() <= 0 || label.getWidthCm() <= 0 || label.getDepthCm() <= 0) {
+            throw new RuntimeException("Les dimensions du colis sont nécessaires : Mondial Relay refuse une étiquette sans elles.");
+        }
         MondialRelayShipmentResource.Created created;
         try {
             created = shipmentResource.create(label);

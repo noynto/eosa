@@ -5,6 +5,7 @@ import me.noynto.eosa.order.OrderProvider;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.service.BusinessTime;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shipping.ParcelDefaults;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -12,12 +13,12 @@ import java.time.Instant;
 /**
  * Une commande pour l'écran de détail de l'administration, avec l'échéance de sa fabrication ou de son expédition.
  *
- * @param defaultParcelWeightGrams poids du colis proposé à la fabrication
+ * @param parcelDefaults poids et dimensions du colis proposés à la fabrication
  */
 public record ReadOrder(
         OrderProvider orderProvider,
         Clock clock,
-        int defaultParcelWeightGrams
+        ParcelDefaults parcelDefaults
 ) {
 
     public Result handle(Command command) {
@@ -33,7 +34,7 @@ public record ReadOrder(
         boolean overdue = order.getState() == OrderState.PAID && now.isAfter(craftingDeadline)
                 // Une remise en main propre se convient avec la cliente : pas d'échéance d'expédition.
                 || order.getState() == OrderState.CRAFTED && !order.isHandDelivery() && shippingDeadline != null && now.isAfter(shippingDeadline);
-        return new Result(order, craftingDeadline, shippingDeadline, overdue, defaultParcelWeightGrams);
+        return new Result(order, craftingDeadline, shippingDeadline, overdue, parcelDefaults);
     }
 
     public record Command(
@@ -46,14 +47,14 @@ public record ReadOrder(
      * @param shippingDeadline         échéance d'expédition (24 h ouvrées après la fabrication), null tant que la
      *                                 commande n'est pas fabriquée
      * @param overdue                  la commande est à fabriquer ou à expédier et son échéance est dépassée
-     * @param defaultParcelWeightGrams poids du colis proposé à la fabrication
+     * @param parcelDefaults           poids et dimensions du colis proposés à la fabrication
      */
     public record Result(
             Order order,
             Instant craftingDeadline,
             Instant shippingDeadline,
             boolean overdue,
-            int defaultParcelWeightGrams
+            ParcelDefaults parcelDefaults
     ) {
     }
 

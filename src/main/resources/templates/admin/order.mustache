@@ -50,15 +50,39 @@
     <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
         <h2 class="text-sm font-medium mb-1">Pièce fabriquée</h2>
         {{#canCraftForShipping}}
-        <p class="text-xs text-muted mb-3">Envoi par Mondial Relay : crée l'étiquette et passe la commande à « Fabriquée ». Confirmez le poids du colis.</p>
+        <p class="text-xs text-muted mb-3">Envoi par Mondial Relay : crée l'étiquette et passe la commande à « Fabriquée ». Confirmez le poids et les dimensions du colis, ils sont imprimés sur l'étiquette et servent au tarif.</p>
         <form hx-post="/orders/{{id}}/craft" hx-target="#craft-error" hx-swap="innerHTML"
               class="flex flex-wrap items-end gap-3">
             <div class="flex flex-col gap-1.5">
-                <label for="weight" class="text-xs text-secondary">Poids du colis</label>
+                <label for="weight" class="text-xs text-secondary">Poids</label>
                 <div class="relative">
                     <input id="weight" name="weight" type="number" min="10" max="30000" step="1" required value="{{defaultWeight}}"
-                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:border-secondary w-36">
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:border-secondary w-32">
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">g</span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="length" class="text-xs text-secondary">Longueur</label>
+                <div class="relative">
+                    <input id="length" name="length" type="number" min="1" max="200" step="1" required value="{{defaultLength}}"
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:border-secondary w-28">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">cm</span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="width" class="text-xs text-secondary">Largeur</label>
+                <div class="relative">
+                    <input id="width" name="width" type="number" min="1" max="200" step="1" required value="{{defaultWidth}}"
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:border-secondary w-28">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">cm</span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="depth" class="text-xs text-secondary">Profondeur</label>
+                <div class="relative">
+                    <input id="depth" name="depth" type="number" min="1" max="200" step="1" required value="{{defaultDepth}}"
+                           class="bg-bg-soft border border-outline rounded-lg pl-3 pr-10 py-2 text-sm text-primary focus:border-secondary w-28">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">cm</span>
                 </div>
             </div>
             <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
@@ -100,6 +124,7 @@
             <div class="flex justify-between gap-4"><dt class="text-secondary">Transporteur</dt><dd>Mondial Relay</dd></div>
             <div class="flex justify-between gap-4"><dt class="text-secondary">Numéro de suivi</dt><dd class="break-all text-right">{{trackingNumber}}</dd></div>
             <div class="flex justify-between gap-4"><dt class="text-secondary">Poids</dt><dd>{{labelWeight}} g</dd></div>
+            {{#hasLabelSize}}<div class="flex justify-between gap-4"><dt class="text-secondary">Dimensions</dt><dd>{{labelSize}}</dd></div>{{/hasLabelSize}}
             <div class="flex justify-between gap-4"><dt class="text-secondary">Fabriquée le</dt><dd>{{craftedAt}}</dd></div>
         </dl>
         {{#showShippingDeadline}}

@@ -29,11 +29,6 @@ public class MondialRelayConnectConfiguration {
                         env("EOSA_SHIPPING_SENDER_CITY", null),
                         env("EOSA_SHIPPING_SENDER_PHONE", null),
                         env("EOSA_SHIPPING_SENDER_EMAIL", null)
-                ),
-                new MondialRelayConnectProperties.Parcel(
-                        centimeters("EOSA_SHIPPING_PARCEL_LENGTH_CM", 12),
-                        centimeters("EOSA_SHIPPING_PARCEL_WIDTH_CM", 9),
-                        centimeters("EOSA_SHIPPING_PARCEL_DEPTH_CM", 4)
                 )
         );
     }
@@ -44,22 +39,6 @@ public class MondialRelayConnectConfiguration {
                 env("EOSA_CLIENT_MONDIAL_RELAY_V1_ENSEIGNE", null),
                 env("EOSA_CLIENT_MONDIAL_RELAY_V1_PRIVATE_KEY", null)
         );
-    }
-
-    private static int centimeters(String name, int defaultValue) {
-        String value = env(name, null);
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            int parsed = Integer.parseInt(value);
-            if (parsed <= 0) {
-                throw new NumberFormatException(value);
-            }
-            return parsed;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(name + " doit être un nombre entier de centimètres positif.", e);
-        }
     }
 
     private static String env(String name, String defaultValue) {

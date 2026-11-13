@@ -29,6 +29,9 @@ public record CraftOrder(
         if (command.weightGrams <= 0) {
             throw new RuntimeException("Le poids du colis doit être un nombre de grammes positif.");
         }
+        if (command.lengthCm <= 0 || command.widthCm <= 0 || command.depthCm <= 0) {
+            throw new RuntimeException("La longueur, la largeur et la profondeur du colis doivent être des nombres de centimètres positifs.");
+        }
         Order order = orderProvider.read(command.orderId())
                 .orElseThrow(() -> new RuntimeException("La commande " + command.orderId.value() + " n'existe pas."));
         if (order.getState() != OrderState.PAID || order.getLabel() != null || order.isHandDelivery()) {
@@ -42,6 +45,9 @@ public record CraftOrder(
         ShippingLabel label = new ShippingLabel();
         label.setOrderNumber(order.getNumber());
         label.setWeightGrams(command.weightGrams);
+        label.setLengthCm(command.lengthCm);
+        label.setWidthCm(command.widthCm);
+        label.setDepthCm(command.depthCm);
         label.setRecipient(new ShippingRecipient(
                 address.name() != null ? address.name() : order.getCustomerName(),
                 order.getCustomerEmail(), order.getCustomerPhone(),
@@ -60,10 +66,16 @@ public record CraftOrder(
 
     /**
      * @param weightGrams poids du colis confirmé par l'administratrice
+     * @param lengthCm    longueur du colis en centimètres
+     * @param widthCm     largeur du colis en centimètres
+     * @param depthCm     profondeur du colis en centimètres
      */
     public record Command(
             OrderId orderId,
-            int weightGrams
+            int weightGrams,
+            int lengthCm,
+            int widthCm,
+            int depthCm
     ) {
     }
 

@@ -83,7 +83,7 @@ Le numéro de commande est attribué par une séquence en base au moment de l'é
 |---|---|
 | `GET /orders` (liste) | Commandes, les plus récentes d'abord, filtre par état (par défaut : **à fabriquer** `PAID` et **fabriquées** `CRAFTED`), recherche par numéro ou e-mail. Pastille du nombre de commandes `PAID` (à fabriquer) dans le menu. Une commande **en retard** (`PAID` depuis plus de 48 h, `CRAFTED` depuis plus de 24 h) est signalée dans la liste ; l'échéance (en heures ouvrées) se calcule en Java à partir de `paid_at` et `crafted_at`. |
 | `GET /orders/{id}` (détail) | Numéro, date, cliente (nom, e-mail, téléphone), adresse de livraison, lignes avec image, sous-total, livraison, total, état, étiquette (numéro de suivi, lien d'impression), journal des e-mails. |
-| `POST /orders/{id}/craft` | Poids du colis, création de l'étiquette chez Mondial Relay, passage à `CRAFTED`. Le bouton ne s'affiche que pour une commande `PAID`. En cas d'échec du transporteur, l'erreur s'affiche dans la page (fragment htmx, 422) et la commande reste `PAID`. |
+| `POST /orders/{id}/craft` | Poids et dimensions du colis (longueur, largeur, profondeur, saisis et préremplis par défaut), création de l'étiquette chez Mondial Relay, passage à `CRAFTED`. Le poids et les dimensions saisis sont gardés avec la commande (migration `V12`) et affichés dans le détail. Le bouton ne s'affiche que pour une commande `PAID`. En cas d'échec du transporteur, l'erreur s'affiche dans la page (fragment htmx, 422) et la commande reste `PAID`. |
 | `GET /orders/{id}/label` | PDF de l'étiquette, à imprimer ou réimprimer. Ne modifie rien. Disponible pour une commande `CRAFTED` ou `SHIPPED`. |
 | `POST /orders/{id}/ship` | **Secours** « Colis remis » : passage à `SHIPPED` et e-mail d'expédition, sans attendre la tâche. Le bouton ne s'affiche que pour une commande `CRAFTED`. |
 | `POST /orders/{id}/deliver` | Passage à `DELIVERED`. |
@@ -158,6 +158,7 @@ Index sur `state` et `created_at` pour la liste, sur `customer_email` pour la re
 | `EOSA_CLIENT_MONDIAL_RELAY_V1_*` | Web service SOAP V1 (suivi du colis, étape 7) : adresse, code enseigne, clé privée. Secrets, jamais dans le dépôt. |
 | `EOSA_SHIPPING_SENDER_*` | Adresse de l'expéditeur (EOSA) imprimée sur l'étiquette. |
 | `EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS` | Poids du colis prérempli à la fabrication (aucun bijou n'a de poids dans le modèle). |
+| `EOSA_SHIPPING_PARCEL_LENGTH_CM`, `_WIDTH_CM`, `_DEPTH_CM` | Dimensions du colis préremplies à la fabrication, exigées par Mondial Relay (aucun bijou n'a de dimensions dans le modèle) ; à confirmer ou corriger pour chaque colis. |
 
 La clé secrète Stripe existante suffit pour les commandes. Les nouvelles variables obligatoires s'ajoutent aussi à `compose.yaml`, à `.env.example` et aux manifestes Kubernetes. Les CronJobs s'ajoutent dans `kubernetes/` à côté de ceux des ateliers, et les tâches dans [`docs/tech/scheduled-tasks.md`](../tech/scheduled-tasks.md).
 

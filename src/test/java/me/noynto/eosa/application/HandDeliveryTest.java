@@ -146,7 +146,7 @@ class HandDeliveryTest {
         order.setHandDelivery(true);
 
         assertThrows(RuntimeException.class, () -> new CraftOrder(orders, shippingLabelProvider, clock)
-                .handle(new CraftOrder.Command(order.getId(), 150)));
+                .handle(new CraftOrder.Command(order.getId(), 150, 12, 9, 4)));
 
         verify(shippingLabelProvider, never()).write(any());
     }
@@ -160,7 +160,7 @@ class HandDeliveryTest {
         order.setHandDelivery(true);
 
         var hand = new ReadOrders(orders, clock).handle(new ReadOrders.Command(null, null)).orders().getFirst();
-        var detail = new ReadOrder(orders, clock, 150).handle(new ReadOrder.Command(order.getId()));
+        var detail = new ReadOrder(orders, clock, new me.noynto.eosa.shipping.ParcelDefaults(150, 12, 9, 4)).handle(new ReadOrder.Command(order.getId()));
         assertFalse(hand.overdue());
         assertFalse(detail.overdue());
 

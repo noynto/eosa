@@ -84,9 +84,9 @@ class ReadOrdersTest {
         var paidAt = LocalDateTime.of(2026, 11, 16, 10, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant();
         var order = order("cs_1", "Ada", "ada@example.com", paidAt, OrderState.PAID);
 
-        var result = new ReadOrder(orders, clock, 150).handle(new ReadOrder.Command(order.getId()));
+        var result = new ReadOrder(orders, clock, new me.noynto.eosa.shipping.ParcelDefaults(150, 12, 9, 4)).handle(new ReadOrder.Command(order.getId()));
 
-        assertEquals(150, result.defaultParcelWeightGrams());
+        assertEquals(new me.noynto.eosa.shipping.ParcelDefaults(150, 12, 9, 4), result.parcelDefaults());
         assertEquals(order.getId(), result.order().getId());
         assertEquals(LocalDateTime.of(2026, 11, 18, 10, 0).atZone(me.noynto.eosa.service.BusinessTime.ZONE).toInstant(),
                 result.craftingDeadline());
@@ -95,7 +95,7 @@ class ReadOrdersTest {
 
     @Test
     void readOrder_refusesAnUnknownOrder() {
-        assertThrows(RuntimeException.class, () -> new ReadOrder(orders, clock, 150)
+        assertThrows(RuntimeException.class, () -> new ReadOrder(orders, clock, new me.noynto.eosa.shipping.ParcelDefaults(150, 12, 9, 4))
                 .handle(new ReadOrder.Command(new me.noynto.eosa.shared.OrderId("unknown"))));
     }
 
@@ -116,7 +116,7 @@ class ReadOrdersTest {
 
         assertTrue(overdue(entries, late));
         assertFalse(overdue(entries, onTime));
-        assertTrue(new ReadOrder(orders, clock, 150).handle(new ReadOrder.Command(late.getId())).overdue());
+        assertTrue(new ReadOrder(orders, clock, new me.noynto.eosa.shipping.ParcelDefaults(150, 12, 9, 4)).handle(new ReadOrder.Command(late.getId())).overdue());
     }
 
     private boolean overdue(List<ReadOrders.Entry> entries, Order order) {

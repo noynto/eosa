@@ -1,6 +1,7 @@
 package me.noynto.eosa;
 
 import java.net.URI;
+import me.noynto.eosa.shipping.ParcelDefaults;
 import java.net.URISyntaxException;
 
 public class Configuration {
@@ -99,18 +100,32 @@ public class Configuration {
     }
 
     /**
-     * Poids du colis proposé à la fabrication d'une commande, en grammes (aucun bijou n'a de poids dans le modèle).
+     * Poids et dimensions du colis proposés à la fabrication d'une commande (aucun bijou n'a de poids ni de
+     * dimensions dans le modèle) : l'administratrice les confirme ou les corrige à chaque fabrication.
      */
-    public static int getDefaultParcelWeightGrams() {
-        String value = System.getenv(DEFAULT_PARCEL_WEIGHT_GRAMS);
+    public static ParcelDefaults getDefaultParcel() {
+        return new ParcelDefaults(
+            positiveInt(DEFAULT_PARCEL_WEIGHT_GRAMS, DEFAULT_PARCEL_WEIGHT_GRAMS_VALUE),
+            positiveInt("EOSA_SHIPPING_PARCEL_LENGTH_CM", 12),
+            positiveInt("EOSA_SHIPPING_PARCEL_WIDTH_CM", 9),
+            positiveInt("EOSA_SHIPPING_PARCEL_DEPTH_CM", 4)
+        );
+    }
+
+    private static int positiveInt(String name, int defaultValue) {
+        String value = System.getenv(name);
         if (value == null || value.isBlank()) {
-            return DEFAULT_PARCEL_WEIGHT_GRAMS_VALUE;
+            return defaultValue;
         }
         try {
-            return Integer.parseInt(value.strip());
+            int parsed = Integer.parseInt(value.strip());
+            if (parsed <= 0) {
+                throw new NumberFormatException(value);
+            }
+            return parsed;
         } catch (NumberFormatException e) {
             throw new InvalidProperties(
-                "Le poids de colis par défaut est invalide.",
+                name + " doit être un nombre entier positif.",
                 e
             );
         }

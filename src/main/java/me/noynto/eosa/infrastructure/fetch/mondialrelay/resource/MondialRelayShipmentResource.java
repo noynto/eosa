@@ -80,10 +80,9 @@ public record MondialRelayShipmentResource(
         xml.append("<Parcels><Parcel>");
         element(xml, "Content", "BIJOU");
         // Les dimensions sont obligatoires (sinon WebApi_MandatoryParcelSize).
-        MondialRelayConnectProperties.Parcel parcel = properties.parcel();
-        xml.append("<Length Value=\"").append(parcel.lengthCm()).append("\" Unit=\"cm\" />");
-        xml.append("<Width Value=\"").append(parcel.widthCm()).append("\" Unit=\"cm\" />");
-        xml.append("<Depth Value=\"").append(parcel.depthCm()).append("\" Unit=\"cm\" />");
+        xml.append("<Length Value=\"").append(label.getLengthCm()).append("\" Unit=\"cm\" />");
+        xml.append("<Width Value=\"").append(label.getWidthCm()).append("\" Unit=\"cm\" />");
+        xml.append("<Depth Value=\"").append(label.getDepthCm()).append("\" Unit=\"cm\" />");
         xml.append("<Weight Value=\"").append(label.getWeightGrams()).append("\" Unit=\"gr\" />");
         xml.append("</Parcel></Parcels>");
         xml.append("<Sender><Address>");

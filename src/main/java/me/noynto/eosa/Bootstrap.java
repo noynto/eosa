@@ -219,7 +219,7 @@ public class Bootstrap {
         ReadOrder readOrder = new ReadOrder(
             orderProvider,
             clock,
-            Configuration.getDefaultParcelWeightGrams()
+            Configuration.getDefaultParcel()
         );
         MondialRelayConnectProperties mondialRelayProperties =
             MondialRelayConnectConfiguration.getProperties();
