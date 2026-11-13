@@ -28,9 +28,9 @@ stringData:
   shipping-sender-city: "Nancy"
   shipping-sender-phone: "+33600000000"
   shipping-sender-email: "contact@eosa.me"
-  # Poids du colis proposé à la fabrication (grammes)
+  # Poids du colis prérempli à la fabrication (grammes), à confirmer pour chaque colis
   shipping-default-parcel-weight-grams: "150"
-  # Boîte d'expédition en centimètres (exigée par Mondial Relay)
+  # Dimensions du colis préremplies à la fabrication (centimètres), exigées par Mondial Relay ; à confirmer pour chaque colis
   shipping-parcel-length-cm: "12"
   shipping-parcel-width-cm: "9"
   shipping-parcel-depth-cm: "4"

@@ -18,8 +18,7 @@ class MondialRelayShipmentResourceTest {
     private final MondialRelayConnectProperties properties = new MondialRelayConnectProperties(
             URI.create("https://connect-api-sandbox.mondialrelay.com/api/shipment"),
             "BDTEST@business-api.mondialrelay.com", "s3cret&<pass>", "BDTEST",
-            new MondialRelayConnectProperties.Sender("EOSA", "1 rue de la Paix", "54000", "Nancy", "+33 3 83 00 00 00", "contact@eosa.me"),
-            new MondialRelayConnectProperties.Parcel(12, 9, 4));
+            new MondialRelayConnectProperties.Sender("EOSA", "1 rue de la Paix", "54000", "Nancy", "+33 3 83 00 00 00", "contact@eosa.me"));
 
     @Test
     void buildRequest_describesAHomeDeliveryOfOneParcel() {
@@ -33,7 +32,8 @@ class MondialRelayShipmentResourceTest {
         assertTrue(xml.contains("<CollectionMode Mode=\"CCC\" Location=\"\" />"));
         assertTrue(xml.contains("<Weight Value=\"250\" Unit=\"gr\" />"));
         // Sans dimensions, le transporteur répond WebApi_MandatoryParcelSize (constaté en bac à sable).
-        assertTrue(xml.contains("<Length Value=\"12\" Unit=\"cm\" /><Width Value=\"9\" Unit=\"cm\" /><Depth Value=\"4\" Unit=\"cm\" />"));
+        // Les dimensions sont celles saisies à la fabrication, portées par l'étiquette.
+        assertTrue(xml.contains("<Length Value=\"20\" Unit=\"cm\" /><Width Value=\"15\" Unit=\"cm\" /><Depth Value=\"6\" Unit=\"cm\" />"));
         assertTrue(xml.contains("<OrderNo>EOSA-2026-0001</OrderNo>"));
         assertTrue(xml.contains("<PhoneNo>+33383000000</PhoneNo>"));
     }
@@ -157,6 +157,9 @@ class MondialRelayShipmentResourceTest {
         var label = new ShippingLabel();
         label.setOrderNumber("EOSA-2026-0001");
         label.setWeightGrams(250);
+        label.setLengthCm(20);
+        label.setWidthCm(15);
+        label.setDepthCm(6);
         label.setRecipient(new ShippingRecipient("Ada Lovelace", "ada@example.com", "+33600000000",
                 "1 rue des Arts", null, "54000", "Nancy", "FR"));
         return label;

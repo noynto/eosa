@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -153,12 +154,47 @@ class CraftOrderTest {
     @Test
     void handle_refusesAnUnknownOrder() {
         assertThrows(RuntimeException.class, () -> new CraftOrder(orders, shippingLabelProvider, Clock.fixed(now, ZoneOffset.UTC))
-                .handle(new CraftOrder.Command(new OrderId("unknown"), 250)));
+                .handle(new CraftOrder.Command(new OrderId("unknown"), 250, 12, 9, 4)));
+    }
+
+    @Test
+    void handle_sendsTheParcelSizeTypedByTheAdministratorAndKeepsItWithTheOrder() {
+        var sizes = new java.util.ArrayList<String>();
+        doAnswer(inv -> {
+            ShippingLabel label = inv.getArgument(0);
+            sizes.add(label.getLengthCm() + "x" + label.getWidthCm() + "x" + label.getDepthCm());
+            label.setTrackingNumber("96408887");
+            label.setReference("https://labels.example/96408887.pdf");
+            label.setStatus(ShippingLabelStatus.CREATED);
+            label.setCarrier(ShippingCarrier.MONDIAL_RELAY);
+            return label;
+        }).when(shippingLabelProvider).write(any());
+
+        craft(250, 20, 15, 6);
+
+        assertEquals(List.of("20x15x6"), sizes);
+        assertEquals(20, order.getLabel().getLengthCm());
+        assertEquals(15, order.getLabel().getWidthCm());
+        assertEquals(6, order.getLabel().getDepthCm());
+    }
+
+    @Test
+    void handle_refusesADimensionThatIsNotPositive() {
+        assertThrows(RuntimeException.class, () -> craft(250, 0, 9, 4));
+        assertThrows(RuntimeException.class, () -> craft(250, 12, -1, 4));
+        assertThrows(RuntimeException.class, () -> craft(250, 12, 9, 0));
+
+        verify(shippingLabelProvider, never()).write(any());
+        assertEquals(OrderState.PAID, order.getState());
     }
 
     private CraftOrder.Result craft(int weightGrams) {
+        return craft(weightGrams, 12, 9, 4);
+    }
+
+    private CraftOrder.Result craft(int weightGrams, int lengthCm, int widthCm, int depthCm) {
         return new CraftOrder(orders, shippingLabelProvider, Clock.fixed(now, ZoneOffset.UTC))
-                .handle(new CraftOrder.Command(order.getId(), weightGrams));
+                .handle(new CraftOrder.Command(order.getId(), weightGrams, lengthCm, widthCm, depthCm));
     }
 
 }

@@ -17,8 +17,7 @@ public record MondialRelayConnectProperties(
         String login,
         String password,
         String customerId,
-        Sender sender,
-        Parcel parcel
+        Sender sender
 ) {
 
     public boolean isConfigured() {
@@ -29,17 +28,6 @@ public record MondialRelayConnectProperties(
 
     private static boolean filled(String value) {
         return value != null && !value.isBlank();
-    }
-
-    /**
-     * Dimensions du colis en centimètres : le transporteur les exige (erreur {@code WebApi_MandatoryParcelSize}
-     * sans elles) et aucun bijou n'a de dimensions dans le modèle, donc la boîte d'expédition est la même pour tous.
-     */
-    public record Parcel(
-            int lengthCm,
-            int widthCm,
-            int depthCm
-    ) {
     }
 
     /**

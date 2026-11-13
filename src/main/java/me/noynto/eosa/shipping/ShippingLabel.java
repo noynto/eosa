@@ -13,6 +13,9 @@ public class ShippingLabel {
     private String orderNumber;
     private ShippingRecipient recipient;
     private int weightGrams;
+    private int lengthCm;
+    private int widthCm;
+    private int depthCm;
     private String trackingNumber;
     private String reference;
     private ShippingLabelStatus status;
@@ -52,6 +55,33 @@ public class ShippingLabel {
 
     public void setWeightGrams(int weightGrams) {
         this.weightGrams = weightGrams;
+    }
+
+    /** Longueur du colis en centimètres, saisie à la fabrication. */
+    public int getLengthCm() {
+        return lengthCm;
+    }
+
+    public void setLengthCm(int lengthCm) {
+        this.lengthCm = lengthCm;
+    }
+
+    /** Largeur du colis en centimètres, saisie à la fabrication. */
+    public int getWidthCm() {
+        return widthCm;
+    }
+
+    public void setWidthCm(int widthCm) {
+        this.widthCm = widthCm;
+    }
+
+    /** Profondeur du colis en centimètres, saisie à la fabrication. */
+    public int getDepthCm() {
+        return depthCm;
+    }
+
+    public void setDepthCm(int depthCm) {
+        this.depthCm = depthCm;
     }
 
     /** Numéro de suivi du colis chez le transporteur. */

@@ -50,12 +50,18 @@ public record GetAdminOrderHandler(
         model.put("canCraft", toCraft);
         // L'envoi par transporteur a besoin de l'adresse ; la remise en main propre n'en a pas besoin.
         model.put("canCraftForShipping", toCraft && order.getShippingAddress() != null);
-        model.put("defaultWeight", result.defaultParcelWeightGrams());
+        model.put("defaultWeight", result.parcelDefaults().weightGrams());
+        model.put("defaultLength", result.parcelDefaults().lengthCm());
+        model.put("defaultWidth", result.parcelDefaults().widthCm());
+        model.put("defaultDepth", result.parcelDefaults().depthCm());
         var label = order.getLabel();
         model.put("hasLabel", label != null);
         if (label != null) {
             model.put("trackingNumber", label.getTrackingNumber());
             model.put("labelWeight", label.getWeightGrams());
+            // Absentes d'une étiquette créée avant la saisie des dimensions.
+            model.put("hasLabelSize", label.getLengthCm() > 0);
+            model.put("labelSize", label.getLengthCm() + " × " + label.getWidthCm() + " × " + label.getDepthCm() + " cm");
             model.put("craftedAt", OrderFormat.dateTime(order.getCraftedAt()));
             model.put("canPrintLabel", order.getState() == OrderState.CRAFTED || order.getState() == OrderState.SHIPPED);
         }

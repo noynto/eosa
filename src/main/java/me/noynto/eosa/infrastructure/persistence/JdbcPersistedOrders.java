@@ -93,7 +93,8 @@ public record JdbcPersistedOrders(
                        shipping_country, items_amount, shipping_amount, total_amount, paid_at, created_at,
                        confirmation_sent_at, notification_sent_at, crafted_at, carrier, tracking_number,
                        parcel_weight_grams, label_reference, label_status, shipped_at, delivered_at, cancelled_at,
-                       cancel_reason, shipping_sent_at, personal_data_purged_at, hand_delivery
+                       cancel_reason, shipping_sent_at, personal_data_purged_at, hand_delivery,
+                       parcel_length_cm, parcel_width_cm, parcel_depth_cm
                 FROM orders WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -186,7 +187,8 @@ public record JdbcPersistedOrders(
                     shipping_city = ?, shipping_country = ?, confirmation_sent_at = ?, notification_sent_at = ?,
                     crafted_at = ?, carrier = ?, tracking_number = ?, parcel_weight_grams = ?, label_reference = ?,
                     label_status = ?, shipped_at = ?, delivered_at = ?, cancelled_at = ?, cancel_reason = ?,
-                    shipping_sent_at = ?, personal_data_purged_at = ?, hand_delivery = ?
+                    shipping_sent_at = ?, personal_data_purged_at = ?, hand_delivery = ?,
+                    parcel_length_cm = ?, parcel_width_cm = ?, parcel_depth_cm = ?
                 WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -212,7 +214,10 @@ public record JdbcPersistedOrders(
             statement.setObject(23, toOffsetDateTime(order.getShippingSentAt()));
             statement.setObject(24, toOffsetDateTime(order.getPersonalDataPurgedAt()));
             statement.setBoolean(25, order.isHandDelivery());
-            statement.setObject(26, UUID.fromString(order.getId().value()));
+            statement.setObject(26, label != null ? label.getLengthCm() : null);
+            statement.setObject(27, label != null ? label.getWidthCm() : null);
+            statement.setObject(28, label != null ? label.getDepthCm() : null);
+            statement.setObject(29, UUID.fromString(order.getId().value()));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Impossible d'écrire la commande " + order.getId().value() + ".", e);
@@ -333,6 +338,10 @@ public record JdbcPersistedOrders(
             label.setCarrier(ShippingCarrier.valueOf(resultSet.getString("carrier")));
             label.setTrackingNumber(trackingNumber);
             label.setWeightGrams(resultSet.getInt("parcel_weight_grams"));
+            // Nul pour une étiquette créée avant la saisie des dimensions : getInt rend alors 0.
+            label.setLengthCm(resultSet.getInt("parcel_length_cm"));
+            label.setWidthCm(resultSet.getInt("parcel_width_cm"));
+            label.setDepthCm(resultSet.getInt("parcel_depth_cm"));
             label.setReference(resultSet.getString("label_reference"));
             label.setStatus(ShippingLabelStatus.valueOf(resultSet.getString("label_status")));
             label.setCreatedAt(order.getCraftedAt());
