@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.8.2</version>
+                <version>13.12.1</version>
             </dependency>
             <!-- Pinned above flyway-core's bundled 2.15.2 to fix CVE-2026-54512/CVE-2026-54513 (jackson-databind PolymorphicTypeValidator bypass)
                  and CVE-2026-91776/CVE-2026-91777 (jackson-databind DoS, fixed in 2.18.11) -->
