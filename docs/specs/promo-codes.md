@@ -49,7 +49,7 @@ Migration : `V13__promo_codes.sql` (table `promo_codes`, colonne du panier, colo
 
 | # | Étape | Contenu |
 |---|---|---|
-| 1 | Codes et administration | Migration, `PromoCode`, provider JDBC, cas d'usage de création, modification, désactivation, lecture, pages d'administration. |
+| 1 | Codes et administration | Migration, `PromoCode`, provider JDBC, cas d'usage de création, modification, désactivation, lecture, pages d'administration. **Fait** : le provider n'a pas de cas d'usage de suppression, qui arrive à l'étape 3 avec le comptage des usages (un code qui a servi ne se supprime pas). Le code n'est pas modifiable après sa création ; type, valeur et limites le sont. |
 | 2 | Panier et paiement | Code appliqué au panier, `PromoDiscounts`, remise à l'écran, coupon Stripe. |
 | 3 | Commande | Colonnes de la commande, enregistrement de la remise, comptage des usages, affichage dans l'administration et les e-mails. |
 | 4 | Textes | Mention dans les CGV (remise non cumulable, non remboursée en cas d'annulation sans paiement), FAQ. |

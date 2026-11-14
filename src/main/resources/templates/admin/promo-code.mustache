@@ -1,0 +1,97 @@
+{{> ../partials/header-admin}}
+
+<div class="max-w-2xl">
+
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <a href="/promo-codes" class="text-xs text-muted hover:text-secondary transition-colors">← Codes de promotion</a>
+        <span class="text-muted">/</span>
+        <h1 class="text-xl font-medium">{{code}}</h1>
+        <span class="text-xs border border-bg-border rounded-full px-2 py-0.5 text-muted">{{status}}</span>
+    </div>
+
+    <!-- Règles -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Règles</h2>
+            <span id="toast-rules" class="text-xs text-success"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">La remise porte sur les bijoux, jamais sur la livraison. Les commandes déjà passées gardent la remise reçue.</p>
+        <form hx-patch="/promo-codes/{{promoCodeId}}"
+              hx-target="#toast-rules" hx-swap="innerHTML"
+              class="flex flex-col gap-3">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="type" class="text-xs text-secondary">Type</label>
+                    <select id="type" name="type"
+                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
+                        <option value="PERCENT" {{#isPercent}}selected{{/isPercent}}>Pourcentage</option>
+                        <option value="AMOUNT" {{#isAmount}}selected{{/isAmount}}>Montant fixe (€)</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="value" class="text-xs text-secondary">Valeur</label>
+                    <input id="value" name="value" type="text" inputmode="decimal" required value="{{value}}"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="startsOn" class="text-xs text-secondary">Valable dès le</label>
+                    <input id="startsOn" name="startsOn" type="date" value="{{startsOn}}"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="endsOn" class="text-xs text-secondary">Jusqu'au (inclus)</label>
+                    <input id="endsOn" name="endsOn" type="date" value="{{endsOn}}"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="minimumAmount" class="text-xs text-secondary">Minimum de bijoux (€)</label>
+                    <input id="minimumAmount" name="minimumAmount" type="text" inputmode="decimal" value="{{minimumAmount}}" placeholder="aucun"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="maxUses" class="text-xs text-secondary">Usages au plus</label>
+                    <input id="maxUses" name="maxUses" type="number" min="1" step="1" value="{{maxUses}}" placeholder="illimité"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+        <p class="text-xs text-muted mt-3">Créé le {{createdAt}}.</p>
+    </section>
+
+    <!-- Activation -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Activation</h2>
+            <span id="toast-active" class="text-xs"></span>
+        </div>
+        {{#active}}
+        <p class="text-xs text-muted mb-3">Un code désactivé n'est plus accepté dans le panier. Il reste dans la liste avec son historique.</p>
+        <button hx-post="/promo-codes/{{promoCodeId}}/deactivate"
+                hx-target="#toast-active" hx-swap="innerHTML"
+                hx-confirm="Désactiver le code « {{code}} » ?"
+                class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-secondary hover:border-secondary hover:text-primary transition-colors">
+            Désactiver ce code
+        </button>
+        {{/active}}
+        {{^active}}
+        <p class="text-xs text-muted mb-3">Ce code est désactivé : il n'est pas accepté dans le panier.</p>
+        <button hx-post="/promo-codes/{{promoCodeId}}/activate"
+                hx-target="#toast-active" hx-swap="innerHTML"
+                class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+            Réactiver ce code
+        </button>
+        {{/active}}
+    </section>
+
+</div>
+
+{{> ../partials/footer-admin}}
