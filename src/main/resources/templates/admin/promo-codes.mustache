@@ -1,0 +1,96 @@
+{{> ../partials/header-admin}}
+
+<div class="flex items-center justify-between gap-3 mb-6">
+    <h1 class="text-xl font-medium">Codes de promotion</h1>
+    <button onclick="document.getElementById('modal').classList.remove('hidden')"
+            class="bg-primary text-accent px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors shrink-0">
+        + Nouveau code
+    </button>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {{#promoCodes}}
+    <a href="/promo-codes/{{id}}"
+       class="bg-bg border border-bg-border rounded-xl p-4 flex flex-col gap-1 hover:border-secondary transition-colors {{^isActive}}opacity-60{{/isActive}}">
+        <div class="flex items-center justify-between gap-2">
+            <span class="text-sm font-medium truncate">{{code}}</span>
+            <span class="text-xs border border-bg-border rounded-full px-2 py-0.5 shrink-0 {{#isActive}}text-success{{/isActive}}{{^isActive}}text-muted{{/isActive}}">{{status}}</span>
+        </div>
+        <span class="text-xs text-secondary">{{discount}} de remise sur les bijoux</span>
+        <span class="text-xs text-muted">{{validity}}</span>
+        {{#hasMinimum}}<span class="text-xs text-muted">Dès {{minimum}} de bijoux</span>{{/hasMinimum}}
+        {{#hasMaxUses}}<span class="text-xs text-muted">{{maxUses}} usages au plus</span>{{/hasMaxUses}}
+    </a>
+    {{/promoCodes}}
+    {{^hasPromoCodes}}
+    <p class="col-span-full px-4 py-8 text-sm text-muted text-center">Aucun code pour l'instant.</p>
+    {{/hasPromoCodes}}
+</div>
+
+<!-- Modal création -->
+<div id="modal" class="hidden fixed inset-0 bg-primary/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+     onclick="if(event.target===this){this.classList.add('hidden')}">
+    <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg max-h-full overflow-y-auto">
+        <h2 class="text-sm font-medium mb-4">Nouveau code</h2>
+        <form hx-post="/promo-codes" hx-target="#create-error" hx-swap="innerHTML" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+                <label for="code" class="text-xs text-secondary">Code</label>
+                <input id="code" name="code" type="text" required autofocus placeholder="ex. BIENVENUE10" maxlength="30"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary uppercase">
+                <p class="text-xs text-muted">Lettres, chiffres et tirets ; la saisie de la cliente n'est pas sensible à la casse.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="type" class="text-xs text-secondary">Type</label>
+                    <select id="type" name="type"
+                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
+                        <option value="PERCENT">Pourcentage</option>
+                        <option value="AMOUNT">Montant fixe (€)</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="value" class="text-xs text-secondary">Valeur</label>
+                    <input id="value" name="value" type="text" inputmode="decimal" required placeholder="10"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="startsOn" class="text-xs text-secondary">Valable dès le</label>
+                    <input id="startsOn" name="startsOn" type="date"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="endsOn" class="text-xs text-secondary">Jusqu'au (inclus)</label>
+                    <input id="endsOn" name="endsOn" type="date"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="minimumAmount" class="text-xs text-secondary">Minimum de bijoux (€)</label>
+                    <input id="minimumAmount" name="minimumAmount" type="text" inputmode="decimal" placeholder="aucun"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="maxUses" class="text-xs text-secondary">Usages au plus</label>
+                    <input id="maxUses" name="maxUses" type="number" min="1" step="1" placeholder="illimité"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+                </div>
+            </div>
+            <span id="create-error"></span>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                        class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="bg-primary text-accent px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Créer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{> ../partials/footer-admin}}

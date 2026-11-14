@@ -54,6 +54,7 @@ import me.noynto.eosa.task.SendWorkshopRemindersTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
+import me.noynto.eosa.promo.PromoCodeProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
@@ -77,6 +78,7 @@ public class Bootstrap {
         MetalColorProvider metalColorProvider = jdbcConfiguration.metalColors();
         CharmProvider charmProvider = jdbcConfiguration.charms();
         WorkshopVenueProvider workshopVenueProvider = jdbcConfiguration.workshopVenues();
+        PromoCodeProvider promoCodeProvider = jdbcConfiguration.promoCodes();
         WorkshopSessionProvider workshopSessionProvider = jdbcConfiguration.workshopSessions();
         WorkshopBookingProvider workshopBookingProvider = jdbcConfiguration.workshopBookings();
         WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider = jdbcConfiguration.workshopWaitlistEntries();
@@ -205,6 +207,11 @@ public class Bootstrap {
         ReadCharms readCharms = new ReadCharms(charmProvider);
         UpdateCharm updateCharm = new UpdateCharm(charmProvider);
         DeleteCharm deleteCharm = new DeleteCharm(charmProvider);
+        CreatePromoCode createPromoCode = new CreatePromoCode(promoCodeProvider, clock);
+        ReadPromoCodes readPromoCodes = new ReadPromoCodes(promoCodeProvider);
+        ReadPromoCode readPromoCode = new ReadPromoCode(promoCodeProvider);
+        UpdatePromoCode updatePromoCode = new UpdatePromoCode(promoCodeProvider);
+        SetPromoCodeActive setPromoCodeActive = new SetPromoCodeActive(promoCodeProvider);
         CreateWorkshopVenue createWorkshopVenue = new CreateWorkshopVenue(workshopVenueProvider);
         ReadWorkshopVenues readWorkshopVenues = new ReadWorkshopVenues(workshopVenueProvider);
         ReadWorkshopVenue readWorkshopVenue = new ReadWorkshopVenue(workshopVenueProvider);
@@ -904,6 +911,30 @@ public class Bootstrap {
             javalinConfig.routes.delete(
                 "/charms/{id}",
                 new DeleteCharmHandler(deleteCharm)
+            );
+            javalinConfig.routes.get(
+                "/promo-codes",
+                new GetAdminPromoCodesHandler(readPromoCodes, clock)
+            );
+            javalinConfig.routes.post(
+                "/promo-codes",
+                new CreatePromoCodeHandler(createPromoCode)
+            );
+            javalinConfig.routes.get(
+                "/promo-codes/{id}",
+                new GetAdminPromoCodeHandler(readPromoCode, clock)
+            );
+            javalinConfig.routes.patch(
+                "/promo-codes/{id}",
+                new UpdatePromoCodeHandler(updatePromoCode)
+            );
+            javalinConfig.routes.post(
+                "/promo-codes/{id}/activate",
+                new SetPromoCodeActiveHandler(setPromoCodeActive, true)
+            );
+            javalinConfig.routes.post(
+                "/promo-codes/{id}/deactivate",
+                new SetPromoCodeActiveHandler(setPromoCodeActive, false)
             );
             javalinConfig.routes.get(
                 "/workshop-venues",

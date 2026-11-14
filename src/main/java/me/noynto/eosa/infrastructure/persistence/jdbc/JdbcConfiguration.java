@@ -12,6 +12,7 @@ import me.noynto.eosa.infrastructure.persistence.JdbcPersistedMetalColors;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedOrders;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopBookings;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopSessions;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedPromoCodes;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopVenues;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopWaitlistEntries;
 import org.flywaydb.core.Flyway;
@@ -96,6 +97,10 @@ public class JdbcConfiguration {
 
     public JdbcPersistedCharms charms() {
         return new JdbcPersistedCharms(dataSource);
+    }
+
+    public JdbcPersistedPromoCodes promoCodes() {
+        return new JdbcPersistedPromoCodes(dataSource);
     }
 
     public JdbcPersistedWorkshopVenues workshopVenues() {
