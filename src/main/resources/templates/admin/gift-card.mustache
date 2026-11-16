@@ -1,0 +1,107 @@
+{{> ../partials/header-admin}}
+
+<div class="max-w-2xl">
+
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <a href="/gift-cards" class="text-xs text-muted hover:text-secondary transition-colors">← Cartes cadeau</a>
+        <span class="text-muted">/</span>
+        <h1 class="text-xl font-medium">{{code}}</h1>
+        <span class="text-xs border border-bg-border rounded-full px-2 py-0.5 text-muted">{{status}}</span>
+    </div>
+
+    <!-- Carte -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-3">Carte</h2>
+        <dl class="grid grid-cols-2 gap-y-2 text-sm">
+            <dt class="text-xs text-muted">Solde</dt>
+            <dd class="font-medium">{{balance}}</dd>
+            <dt class="text-xs text-muted">Montant initial</dt>
+            <dd>{{initialAmount}}</dd>
+            <dt class="text-xs text-muted">Valable jusqu'au</dt>
+            <dd>{{validUntil}}</dd>
+            <dt class="text-xs text-muted">Créée le</dt>
+            <dd>{{createdAt}}</dd>
+            {{#hasBuyerFirstName}}
+            <dt class="text-xs text-muted">Prénom</dt>
+            <dd>{{buyerFirstName}}</dd>
+            {{/hasBuyerFirstName}}
+            {{#hasBuyerEmail}}
+            <dt class="text-xs text-muted">E-mail</dt>
+            <dd class="break-all">{{buyerEmail}}</dd>
+            {{/hasBuyerEmail}}
+        </dl>
+    </section>
+
+    <!-- Journal -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-1">Journal</h2>
+        <p class="text-xs text-muted mb-3">Le solde est la somme de ces mouvements.</p>
+        <ul class="flex flex-col divide-y divide-bg-border">
+            {{#movements}}
+            <li class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2 text-sm">
+                <span class="font-medium">{{kind}}</span>
+                <span class="text-xs text-muted">{{date}}</span>
+                <span class="text-secondary">{{sign}}{{amount}}</span>
+                {{#hasReason}}<span class="basis-full text-xs text-muted">{{reason}}</span>{{/hasReason}}
+            </li>
+            {{/movements}}
+        </ul>
+    </section>
+
+    {{#isActive}}
+    <!-- Recrédit -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Recréditer</h2>
+            <span id="toast-restore" class="text-xs"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">À faire à la main quand une commande payée en partie avec cette carte est annulée : le remboursement Stripe ne rend pas la part de la carte.</p>
+        <form hx-post="/gift-cards/{{giftCardId}}/restore"
+              hx-target="#toast-restore" hx-swap="innerHTML"
+              class="flex flex-col gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="amount" class="text-xs text-secondary">Montant (€)</label>
+                    <input id="amount" name="amount" type="text" inputmode="decimal" required
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+                <div class="flex flex-col gap-1.5 sm:col-span-2">
+                    <label for="reason" class="text-xs text-secondary">Motif</label>
+                    <input id="reason" name="reason" type="text" required maxlength="200" placeholder="ex. Commande EOSA-1042 annulée"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Recréditer
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Annulation -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Annulation</h2>
+            <span id="toast-void" class="text-xs"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">Une carte annulée ne se réactive pas : son solde restant est retiré du journal.</p>
+        <form hx-post="/gift-cards/{{giftCardId}}/void"
+              hx-target="#toast-void" hx-swap="innerHTML"
+              hx-confirm="Annuler cette carte ? Son solde restant sera perdu."
+              class="flex flex-wrap items-end gap-3">
+            <div class="flex flex-col gap-1.5 grow">
+                <label for="void-reason" class="text-xs text-secondary">Motif (facultatif)</label>
+                <input id="void-reason" name="reason" type="text" maxlength="200"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+            </div>
+            <button type="submit" class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-error hover:border-error transition-colors">
+                Annuler la carte
+            </button>
+        </form>
+    </section>
+    {{/isActive}}
+
+</div>
+
+{{> ../partials/footer-admin}}

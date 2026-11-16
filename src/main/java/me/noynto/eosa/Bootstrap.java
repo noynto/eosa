@@ -54,6 +54,7 @@ import me.noynto.eosa.task.SendWorkshopRemindersTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
 import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
+import me.noynto.eosa.giftcard.GiftCardProvider;
 import me.noynto.eosa.promo.PromoCodeProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
@@ -232,6 +233,16 @@ public class Bootstrap {
         DeletePromoCode deletePromoCode = new DeletePromoCode(promoCodeProvider, orderProvider);
         UpdatePromoCode updatePromoCode = new UpdatePromoCode(promoCodeProvider);
         SetPromoCodeActive setPromoCodeActive = new SetPromoCodeActive(promoCodeProvider);
+        GiftCardProvider giftCardProvider = jdbcConfiguration.giftCards();
+        IssueGiftCardByAdmin issueGiftCardByAdmin = new IssueGiftCardByAdmin(
+            giftCardProvider,
+            clock,
+            Integer.parseInt(System.getenv().getOrDefault("EOSA_GIFT_CARD_VALIDITY_DAYS", "365"))
+        );
+        ReadGiftCards readGiftCards = new ReadGiftCards(giftCardProvider);
+        ReadGiftCard readGiftCard = new ReadGiftCard(giftCardProvider);
+        VoidGiftCard voidGiftCard = new VoidGiftCard(giftCardProvider, clock);
+        RestoreGiftCardBalance restoreGiftCardBalance = new RestoreGiftCardBalance(giftCardProvider, clock);
         CreateWorkshopVenue createWorkshopVenue = new CreateWorkshopVenue(workshopVenueProvider);
         ReadWorkshopVenues readWorkshopVenues = new ReadWorkshopVenues(workshopVenueProvider);
         ReadWorkshopVenue readWorkshopVenue = new ReadWorkshopVenue(workshopVenueProvider);
@@ -971,6 +982,26 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/promo-codes/{id}/deactivate",
                 new SetPromoCodeActiveHandler(setPromoCodeActive, false)
+            );
+            javalinConfig.routes.get(
+                "/gift-cards",
+                new GetAdminGiftCardsHandler(readGiftCards, clock)
+            );
+            javalinConfig.routes.post(
+                "/gift-cards",
+                new IssueGiftCardHandler(issueGiftCardByAdmin)
+            );
+            javalinConfig.routes.get(
+                "/gift-cards/{id}",
+                new GetAdminGiftCardHandler(readGiftCard, clock)
+            );
+            javalinConfig.routes.post(
+                "/gift-cards/{id}/void",
+                new VoidGiftCardHandler(voidGiftCard)
+            );
+            javalinConfig.routes.post(
+                "/gift-cards/{id}/restore",
+                new RestoreGiftCardBalanceHandler(restoreGiftCardBalance)
             );
             javalinConfig.routes.get(
                 "/workshop-venues",

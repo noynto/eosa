@@ -43,7 +43,7 @@ record PromoCodeForm(
     }
 
     /** Accepte la virgule française : « 12,5 ». */
-    private static BigDecimal decimal(String value, String label) {
+    static BigDecimal decimal(String value, String label) {
         if (value == null || value.isBlank()) {
             return null;
         }

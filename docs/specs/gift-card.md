@@ -191,6 +191,8 @@ Rien à régler du côté de Stripe : la clé secrète déjà utilisée pour le 
 
 Domaine, persistance (`V17`), `GiftCardProvider`, cas d'usage d'administration (liste, détail, émission manuelle, annulation, recrédit). Aucun achat en ligne. Permet de vérifier le modèle et le journal.
 
+**Fait** : le solde est la somme du journal ; les montants du journal sont positifs et le type donne le sens (`ISSUED`, `RELEASED`, `RESTORED` ajoutent ; `RESERVED`, `VOIDED` retirent ; `USED` ne change rien, le solde ayant baissé à la réservation). L'expiration n'est pas un état enregistré : elle se déduit de `expires_at` (états `PENDING_PAYMENT`, `ACTIVE`, `VOID`). L'émission manuelle borne le montant à 1 000 € et demande un motif ; le recrédit n'est possible que sur une carte active et non expirée. Le détail affiche le code en clair (la liste le masque). Deux éléments passent à l'étape suivante : « Renvoyer l'e-mail » (l'e-mail de la carte arrive à l'étape 2) et les commandes qui ont utilisé la carte (elles ne portent pas encore la carte, `V18`, étape 4). `EOSA_GIFT_CARD_VALIDITY_DAYS` (365 par défaut) fixe la validité.
+
 ### Étape 2 — Achat d'une carte
 
 Page d'achat, session Stripe (expiration à 30 minutes, sans panier ni adresse), activation au retour de la personne, e-mail « Votre carte cadeau », page de retour, page imprimable. Vérifier que `SettleOrders` ignore la session.
