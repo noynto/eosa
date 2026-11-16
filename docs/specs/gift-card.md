@@ -21,20 +21,20 @@ Les deux sujets dont elle dépendait existent : les **commandes** sont enregistr
 | 7 | Bornes du montant libre (proposées) | De **10 à 200 €**. À confirmer. |
 | 8 | Hors périmètre | Carte physique, destinataire et petit mot, envoi à date choisie, achat d'une carte avec une carte, usage pour les ateliers, remboursement en argent, transfert de solde entre cartes, rappel d'expiration (la seule adresse connue est celle de l'acheteuse), plusieurs cartes sur une même commande. |
 | 9 | Confirmation du paiement | **Pas de webhook Stripe**, comme pour les commandes. La carte est activée au retour de la personne sur le site (le site interroge Stripe), et une **tâche planifiée toutes les 5 minutes** (`SettleGiftCards`, sur le modèle de `SettleOrders`) rattrape celles dont la personne n'est pas revenue. |
-| 10 | Cumul avec un code de promotion, livraison exclue | **Cumul permis.** Le code de promotion remise d'abord les bijoux ; la carte paie ensuite **les bijoux seulement, jamais la livraison** : `min(solde, bijoux remisés)`. La livraison reste à payer par carte bancaire chez Stripe, comme la remise d'un code. La carte ne change ni la remise du code, ni le seuil de livraison offerte (calculé sur les bijoux avant toute remise, comme aujourd'hui). |
-| 11 | Un seul coupon chez Stripe | Une session Checkout n'accepte **qu'une remise** (vérifié en mode test : « Array discounts exceeded maximum 1 allowed elements »). Le site crée donc **un seul coupon à usage unique**, du montant du code de promotion **plus** celui de la carte, et pose la part de chacun en métadonnées pour les retrouver à la commande. |
+| 10 | Pas de cumul avec un code de promotion ; bijoux seulement, livraison exclue | **Un panier porte un code de promotion ou une carte cadeau, jamais les deux** (décision du 16 novembre 2026, qui remplace le cumul proposé d'abord). Ajouter l'un quand l'autre est présent est **refusé avec un message** (« Retirez d'abord le code de promotion pour utiliser une carte cadeau », et l'inverse) : rien n'est remplacé en silence. La carte paie **les bijoux seulement, jamais la livraison** : `min(solde, bijoux)`. La livraison reste à payer par carte bancaire chez Stripe. La carte ne change pas le seuil de livraison offerte (calculé sur les bijoux, comme aujourd'hui). |
+| 11 | Un seul coupon chez Stripe | Une session Checkout n'accepte **qu'une remise** (vérifié en mode test : « Array discounts exceeded maximum 1 allowed elements »). Sans cumul, cette limite ne gêne plus : le site crée **un coupon à usage unique** du montant de la carte, comme il le fait pour un code de promotion, avec les métadonnées `gift_card_id` et `gift_card_amount` pour la retrouver à la commande. |
 | 12 | Reste à payer : 0 € ou au moins 0,50 € | Stripe **accepte un total de 0 €** (la session se crée) mais **refuse un total entre 0 et 0,50 €** (vérifié en mode test : `amount_too_small`). Quand la carte laisserait moins de 0,50 € à payer, elle déduit moins pour que **0,50 €** restent à payer chez Stripe, et garde ces centimes sur son solde. Le cas ne se présente que si la livraison est offerte (sinon la livraison, qui dépasse 0,50 €, suffit à laisser un reste valable). |
 | 13 | Panier entièrement couvert | Il ne l'est que si la carte couvre tous les bijoux **et** que la livraison est offerte (sinon la livraison reste à payer). **Par Stripe aussi, à 0 €.** Pas de chemin de commande sans Stripe : la session porte un coupon de 100 % et se conclut sans paiement (`payment_status` : `no_payment_required`, à lire comme payé ; aujourd'hui seul `paid` l'est). La cliente passe donc par la page Stripe, qui recueille son adresse et son téléphone comme pour toute commande. **À vérifier de bout en bout en mode test** (parcours dans un navigateur avec une carte de 100 % de la commande) avant de s'y fier. La première version de cette spécification supposait que Stripe refusait 0 € : c'est inexact. |
-| 14 | Ce que la commande garde | Le **montant payé par carte** et la carte (`gift_card_amount`, `gift_card_id`), à côté de la remise du code de promotion (`discount_amount`, inchangée) : le total reste ce que Stripe a encaissé. La commande, l'administration, l'e-mail de confirmation et l'e-mail à EOSA montrent une ligne « Carte cadeau ». |
+| 14 | Ce que la commande garde | Le **montant payé par carte** et la carte (`gift_card_amount`, `gift_card_id`), et **jamais en même temps qu'une remise de code de promotion** (`discount_amount` vaut zéro quand une carte a payé, décision 10) : le total reste ce que Stripe a encaissé. La commande, l'administration, l'e-mail de confirmation et l'e-mail à EOSA montrent une ligne « Carte cadeau ». |
 | 15 | Commande annulée (proposé) | Le remboursement se fait dans Stripe pour **la part réellement payée** ; la part de la carte n'est pas rendue automatiquement. L'administratrice **recrédite la carte à la main** depuis sa page (mouvement « recrédité », avec un motif). La page d'annulation d'une commande payée en partie par carte le rappelle. |
 | 16 | Aucune commande pour l'achat d'une carte | Une carte cadeau n'est pas une commande de bijoux (décision 12 des commandes). `SettleOrders` crée aujourd'hui une commande pour **toute session payée qui porte un panier** : la session d'achat d'une carte **n'a donc pas de `client_reference_id`** et se reconnaît à une métadonnée `gift_card_id`. Elle ne demande ni adresse ni téléphone (une méthode de création de session à part). |
 
 ## Ce que le code actuel apporte et impose
 
 1. **Les commandes sont enregistrées.** `ConfirmCheckoutSession` crée la commande au retour de la cliente et `SettleOrders` rattrape les autres. La carte cadeau reprend le même schéma, avec ses propres cas d'usage : `ConfirmGiftCardPayment` et `SettleGiftCards`.
-2. **La remise d'un code de promotion passe déjà par un coupon.** `StripeCheckoutSessionResource.post(…, Discount)` crée un coupon `amount_off` à usage unique puis le rattache à la session. La carte étend ce mécanisme : le coupon porte la **somme** des deux, avec les métadonnées `promo_code_id`, `promo_code`, `gift_card_id`, `gift_card_amount`. À la lecture, `total_details.amount_discount` est la somme : la part du code de promotion s'obtient en retranchant `gift_card_amount`.
+2. **La remise d'un code de promotion passe déjà par un coupon.** `StripeCheckoutSessionResource.post(…, Discount)` crée un coupon `amount_off` à usage unique puis le rattache à la session. La carte réutilise ce mécanisme, sans le cumuler : le coupon porte la part de la carte, avec les métadonnées `gift_card_id` et `gift_card_amount` (au lieu de `promo_code_id` et `promo_code`). À la lecture, une session qui porte `gift_card_id` a `total_details.amount_discount` pour montant de carte et aucune remise de code de promotion ; sinon c'est une remise de code, comme aujourd'hui.
 3. **Le prix d'une ligne se lit avant remise** (`amount_subtotal`), déjà fait pour les codes de promotion ; rien à changer.
-4. **Le panier sait déjà porter un code** (`Cart.promoCodeId`, `ON DELETE SET NULL`) : la carte s'ajoute de la même façon, avec son propre attribut.
+4. **Le panier sait déjà porter un code** (`Cart.promoCodeId`, `ON DELETE SET NULL`) : la carte s'ajoute de la même façon, avec son propre attribut. Les deux attributs ne sont jamais renseignés ensemble : `ApplyPromoCode` refuse un code quand une carte est attachée, et `ApplyGiftCardToCart` refuse une carte quand un code est attaché (décision 10).
 5. **Une session de commande avec carte doit expirer en 30 minutes** (`expires_at`, le minimum de Stripe) : le solde est réservé pour ce temps. Sans carte, la session garde son expiration par défaut (24 h).
 6. **`SettleOrders` ne doit jamais prendre une session d'achat de carte pour une commande** (décision 16) ; la tâche ignore déjà les sessions sans panier, ce que l'absence de `client_reference_id` garantit.
 7. **`StripeFetchedCheckouts` ne lit que `paid`** : `no_payment_required` doit passer pour payé (décision 13).
@@ -79,14 +79,14 @@ Pour les cartes `PENDING_PAYMENT` créées depuis moins de 24 h, la tâche inter
 
 ### Au panier — `POST /cart/gift-card`, `DELETE /cart/gift-card`
 
-La personne saisit son code, sous celui des codes de promotion. Le site vérifie qu'il est valide (carte `ACTIVE`, non expirée, solde positif) et affiche le montant déduit et le reste à payer. Un code faux ou expiré donne le même message (« Ce code n'est pas valable »), sans révéler lequel. Les essais sont limités par IP (10 par heure) : un code de 12 caractères aléatoires n'est pas devinable, mais la limite empêche d'essayer.
+La personne saisit son code, sous celui des codes de promotion. Si le panier porte un code de promotion, la saisie est refusée avec le message de la décision 10 (et un code de promotion est refusé de la même façon quand une carte est attachée). Le site vérifie qu'il est valide (carte `ACTIVE`, non expirée, solde positif) et affiche le montant déduit et le reste à payer. Un code faux ou expiré donne le même message (« Ce code n'est pas valable »), sans révéler lequel. Les essais sont limités par IP (10 par heure) : un code de 12 caractères aléatoires n'est pas devinable, mais la limite empêche d'essayer.
 
-Le montant déduit suit les décisions 10 et 12 : `min(solde, bijoux remisés)`, la livraison n'est jamais déduite, ajusté pour laisser 0 € ou au moins 0,50 € à payer. Une seule carte par commande. Comme le code de promotion, la carte reste attachée au panier même quand elle ne s'applique plus, avec la raison affichée ; elle est détachée au paiement confirmé.
+Le montant déduit suit les décisions 10 et 12 : `min(solde, bijoux)`, la livraison n'est jamais déduite, ajusté pour laisser 0 € ou au moins 0,50 € à payer. Une seule carte par commande. Comme le code de promotion, la carte reste attachée au panier même quand elle ne s'applique plus, avec la raison affichée ; elle est détachée au paiement confirmé.
 
 ### Au paiement
 
 1. **Réservation du solde** : à la création de la session Stripe, le montant déduit est réservé sur la carte (mouvement « réservé »), pour 30 minutes, et la session expire en 30 minutes. Deux paiements en même temps avec la même carte ne peuvent pas dépasser le solde.
-2. **Stripe reçoit le reste à payer** : **un seul coupon** à usage unique, somme du code de promotion et de la carte (décision 11).
+2. **Stripe reçoit le reste à payer** : un coupon à usage unique du montant de la carte (décision 11).
 3. **À la confirmation du paiement** (`ConfirmCheckoutSession` au retour de la cliente, `SettleOrders` par la tâche), la commande est créée avec sa part de carte et la réservation devient une utilisation (mouvement « utilisé »). Chacun de ces deux cas d'usage l'écrit lui-même (un cas d'usage n'en injecte pas un autre) ; la règle est une méthode du domaine, `GiftCard`.
 4. **Session abandonnée ou expirée** : la réservation est libérée (mouvement « libéré ») par la tâche `SettleGiftCards`.
 
@@ -142,7 +142,7 @@ Même architecture que les ateliers et les commandes ([architecture](../tech/arc
 | `RemoveGiftCardFromCart` | Retire la carte du panier |
 | `ListGiftCards`, `ReadGiftCardMovements`, `VoidGiftCard`, `IssueGiftCardByAdmin`, `ResendGiftCard`, `RestoreGiftCardBalance` | Administration |
 
-Cas d'usage existants modifiés à l'étape 4 : `ReadCart` et `InitiateCheckout` (carte, déduction, réservation, coupon unique), `ConfirmCheckoutSession` et `SettleOrders` (part de carte sur la commande, utilisation du solde), `CancelOrder` (rappel).
+Cas d'usage existants modifiés à l'étape 4 : `ApplyPromoCode` (refus quand une carte est attachée), `ReadCart` et `InitiateCheckout` (carte, déduction, réservation, coupon), `ConfirmCheckoutSession` et `SettleOrders` (part de carte sur la commande, utilisation du solde), `CancelOrder` (rappel).
 
 L'activation d'une carte est écrite dans `ConfirmGiftCardPayment` **et** dans `SettleGiftCards` : un cas d'usage n'en injecte pas un autre. Ce qui se partage est le contenu de l'e-mail, dans un service statique (`GiftCardMails`). Pour interroger Stripe, la piste est de réutiliser `CheckoutProvider` (une ligne « Carte cadeau » sans bijou) plutôt que d'ajouter un provider ; à confirmer à l'étape 2.
 
@@ -164,7 +164,7 @@ L'activation d'une carte est écrite dans `ConfirmGiftCardPayment` **et** dans `
 - [ ] **Validité** : durée à afficher sur la carte et dans les CGV ; règles applicables aux cartes cadeau pour un consommateur.
 - [ ] **TVA** : traitement d'une carte cadeau à la vente (bon à usage unique ou à usages multiples) selon votre régime de TVA ; conséquence sur la **facture** d'une commande payée en partie par carte.
 - [ ] **Droit de rétractation** : application de la rétractation de 14 jours à l'achat d'une carte à distance.
-- [ ] **CGV** : un article « Cartes cadeau » (validité, non remboursable en espèces, solde, carte au porteur, perte ou transmission du code, usage de la boutique en ligne uniquement, cumul avec un code de promotion, bijoux seulement (jamais la livraison), commande annulée : la part de la carte est recréditée par EOSA).
+- [ ] **CGV** : un article « Cartes cadeau » (validité, non remboursable en espèces, solde, carte au porteur, perte ou transmission du code, usage de la boutique en ligne uniquement, pas de cumul avec un code de promotion, bijoux seulement (jamais la livraison), commande annulée : la part de la carte est recréditée par EOSA).
 - [ ] **Données personnelles** : seule l'acheteuse est connue (prénom, e-mail) ; durée de conservation (proposée : cartes soldées ou expirées supprimées 5 ans après, pour la comptabilité) ; mention dans la politique de confidentialité et le registre des traitements.
 - [ ] **Comptabilité** : suivi des cartes vendues non encore utilisées (dette envers les porteurs) ; export de la liste.
 
@@ -181,7 +181,7 @@ Chaque étape est une pull request qui garde le site fonctionnel.
 
 ### Étape 0 — Prérequis (hors code)
 
-- [x] Valider ce document : cumul avec un code de promotion, recrédit manuel à l'annulation (validés le 16 novembre 2026), carte limitée aux bijoux (demandé le 16 novembre 2026).
+- [x] Valider ce document : recrédit manuel à l'annulation (validé le 16 novembre 2026), carte limitée aux bijoux et **pas de cumul avec un code de promotion** (demandés le 16 novembre 2026 ; le cumul validé d'abord est abandonné).
 - [ ] Confirmer la validité (1 an) et les bornes (10 à 200 €).
 - [ ] Lancer les points juridiques et fiscaux ci-dessus.
 
@@ -213,7 +213,7 @@ Tâche `SettleGiftCards` (cartes payées sans retour, e-mails non partis, cartes
 
 ### Étape 4 — Utilisation au panier
 
-Saisie du code, déduction (cumul avec le code de promotion, règle des 0,50 €), réservation du solde, coupon unique, session de 30 minutes, part de carte sur la commande (`V19`), utilisation à la confirmation, libération à l'expiration, ligne « Carte cadeau » dans l'administration et les e-mails.
+Saisie du code, déduction (refus quand un code de promotion est attaché, règle des 0,50 €), réservation du solde, coupon, session de 30 minutes, part de carte sur la commande (`V19`), utilisation à la confirmation, libération à l'expiration, ligne « Carte cadeau » dans l'administration et les e-mails.
 
 ### Étape 5 — Panier entièrement couvert
 
