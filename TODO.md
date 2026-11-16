@@ -1,5 +1,4 @@
 - retirer le Chez au niveau des lieux, cela fait bizarre sur les mails et la page web.
-- dans les nouveautés cela n'apparait pas bien, c'est pas dans l'ordre chronologique.
 - conceptualiser et modéliser les commandes après le tunnel de paiement Stripe.
 - pouvoir initialiser l'étiquette de livraison MondialRelay.
 - pouvoir suivre la livraison.

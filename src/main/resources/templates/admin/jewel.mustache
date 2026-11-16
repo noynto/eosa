@@ -102,6 +102,26 @@
         </form>
     </section>
 
+    {{#hasPublishedAt}}
+    <!-- Date de publication -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mt-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Date de publication</h2>
+            <span id="toast-published-at" class="text-xs text-success"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">Elle ordonne les nouveautés et le catalogue : les bijoux les plus récemment publiés passent en premier. Posée à la première publication, elle se corrige ici.</p>
+        <form hx-patch="/jewels/{{jewelId}}/published-at"
+              hx-target="#toast-published-at" hx-swap="innerHTML"
+              class="flex flex-wrap items-center gap-3">
+            <input name="publishedOn" type="date" required value="{{publishedOn}}"
+                   class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                Enregistrer
+            </button>
+        </form>
+    </section>
+    {{/hasPublishedAt}}
+
 </div>
 
 {{> ../partials/footer-admin}}
