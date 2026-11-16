@@ -67,3 +67,4 @@ Migration : `V13__promo_codes.sql` (table `promo_codes`, colonne du panier, colo
 - Livraison offerte (une règle de livraison gratuite existe déjà dans le panier).
 - Génération de codes en masse et export.
 - Panier entièrement couvert : carte cadeau.
+- Cumul avec une carte cadeau : un panier porte un code de promotion ou une carte cadeau, jamais les deux (voir [Carte cadeau](gift-card.md), décision 10).
