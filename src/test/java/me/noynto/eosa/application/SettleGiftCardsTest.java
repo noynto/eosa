@@ -96,7 +96,7 @@ class SettleGiftCardsTest {
 
         var result = useCase.handle();
 
-        assertEquals(new SettleGiftCards.Result(1, 1, 0, 0), result);
+        assertEquals(new SettleGiftCards.Result(1, 1, 0, 0, 0), result);
         assertEquals(GiftCardState.ACTIVE, card.getState());
         assertEquals(1, card.getMovements().size());
         assertEquals(Instant.parse("2027-11-16T23:00:00Z"), card.getExpiresAt());
@@ -111,7 +111,7 @@ class SettleGiftCardsTest {
 
         var result = useCase.handle();
 
-        assertEquals(new SettleGiftCards.Result(0, 0, 0, 0), result);
+        assertEquals(new SettleGiftCards.Result(0, 0, 0, 0, 0), result);
         verify(giftCardProvider, never()).delete(any());
         verify(mailProvider, never()).send(any());
     }
@@ -215,12 +215,56 @@ class SettleGiftCardsTest {
         assertNull(card.getEmailSentAt());
     }
 
+    private void reserved(Instant at) {
+        active(now.minus(Duration.ofDays(1)), now.minus(Duration.ofDays(1)));
+        var reservation = card.reserve(new BigDecimal("20.00"), at);
+        reservation.setCheckoutSessionId("cs_1");
+    }
+
+    @Test
+    void handle_releasesAReservationWhoseSessionWasNeverPaidOnceItIsOldEnough() {
+        reserved(now.minus(Duration.ofMinutes(41)));
+        stripeSession(CheckoutStatus.PENDING, "30.00");
+
+        var result = useCase.handle();
+
+        assertEquals(1, result.released());
+        assertEquals(0, new BigDecimal("50.00").compareTo(card.balance()));
+        assertEquals(0, card.openReservations().size());
+    }
+
+    @Test
+    void handle_keepsAYoungReservationAndNeverReleasesAPaidSession() {
+        reserved(now.minus(Duration.ofMinutes(10)));
+        useCase.handle();
+        assertEquals(1, card.openReservations().size());
+
+        card.getMovements().clear();
+        reserved(now.minus(Duration.ofMinutes(60)));
+        stripeSession(CheckoutStatus.COMPLETED, "30.00");
+        var result = useCase.handle();
+
+        assertEquals(0, result.released());
+        assertEquals(1, card.openReservations().size(), "le rattrapage des commandes en fera une utilisation");
+    }
+
+    @Test
+    void handle_releasesNothingWhenStripeDoesNotReturnTheSession() {
+        reserved(now.minus(Duration.ofMinutes(60)));
+        when(checkoutProvider.readIds(any(), any(), any())).thenAnswer(inv -> Stream.empty());
+
+        var result = useCase.handle();
+
+        assertEquals(1, result.failed());
+        assertEquals(1, card.openReservations().size());
+    }
+
     @Test
     void handle_ignoresAVoidCard() {
         card.setState(GiftCardState.VOID);
         card.getMovements().add(new GiftCardMovement(GiftCardMovementKind.ISSUED, card.getInitialAmount(), null, now.minus(Duration.ofHours(1))));
 
-        assertEquals(new SettleGiftCards.Result(0, 0, 0, 0), useCase.handle());
+        assertEquals(new SettleGiftCards.Result(0, 0, 0, 0, 0), useCase.handle());
         verify(mailProvider, never()).send(any());
         verify(giftCardProvider, times(0)).write(any());
     }

@@ -108,7 +108,10 @@ public record StripeFetchedCheckouts(
             checkout.setCartId(new CartId(stripeSession.clientReferenceId()));
         }
 
+        // Un panier entièrement couvert (carte cadeau, livraison offerte) se conclut à 0 € : Stripe ne demande aucun
+        // paiement et le dit par « no_payment_required ».
         checkout.setStatus("paid".equals(stripeSession.paymentStatus())
+                || "no_payment_required".equals(stripeSession.paymentStatus())
                 ? CheckoutStatus.COMPLETED
                 : CheckoutStatus.PENDING);
 
@@ -136,6 +139,14 @@ public record StripeFetchedCheckouts(
         if (promoCodeId != null && !promoCodeId.isBlank()) {
             checkout.setPromoCodeId(new PromoCodeId(promoCodeId));
             checkout.setPromoCode(stripeSession.metadata("promo_code"));
+        }
+        // Une carte cadeau qui paie une part du panier : sa part est la remise de la session (un seul coupon, jamais
+        // avec un code de promotion), qui n'est donc pas une remise de code.
+        String usedGiftCardId = stripeSession.metadata("used_gift_card_id");
+        if (usedGiftCardId != null && !usedGiftCardId.isBlank()) {
+            checkout.setUsedGiftCardId(new GiftCardId(usedGiftCardId));
+            checkout.setUsedGiftCardAmount(checkout.getDiscountAmount());
+            checkout.setDiscountAmount(BigDecimal.ZERO);
         }
         String giftCardId = stripeSession.metadata("gift_card_id");
         if (giftCardId != null && !giftCardId.isBlank()) {
@@ -190,8 +201,20 @@ public record StripeFetchedCheckouts(
                             checkout.getDiscountAmount(), checkout.getPromoCodeId().value(), checkout.getPromoCode())
                     : null;
 
-            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession = checkoutSessionResource.post(
-                    lineItems, clientReferenceId, checkout.getShippingAmount(), discount);
+            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession;
+            if (checkout.getUsedGiftCardId() != null && checkout.getUsedGiftCardAmount() != null
+                    && checkout.getUsedGiftCardAmount().signum() > 0 && checkout.getExpiresAt() != null) {
+                // Une carte cadeau paie une part : un coupon à son montant, et une session qui expire quand la
+                // réservation du solde prend fin. Jamais avec un code de promotion (une seule remise par session).
+                stripeCheckoutSession = checkoutSessionResource.postWithGiftCard(
+                        lineItems, clientReferenceId, checkout.getShippingAmount(),
+                        new StripeCheckoutSessionResource.GiftCardDiscount(
+                                checkout.getUsedGiftCardAmount(), checkout.getUsedGiftCardId().value()),
+                        checkout.getExpiresAt().getEpochSecond());
+            } else {
+                stripeCheckoutSession = checkoutSessionResource.post(
+                        lineItems, clientReferenceId, checkout.getShippingAmount(), discount);
+            }
 
             CheckoutSession checkoutSession = new CheckoutSession();
             checkoutSession.setUri(URI.create(stripeCheckoutSession.url()));

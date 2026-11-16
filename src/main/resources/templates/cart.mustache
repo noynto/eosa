@@ -74,6 +74,12 @@
                     <span class="text-success font-medium">−{{discount}} €</span>
                 </div>
                 {{/hasDiscount}}
+                {{#hasGiftCardDeduction}}
+                <div class="flex justify-between text-sm text-secondary">
+                    <span>Carte cadeau</span>
+                    <span class="text-success font-medium">−{{giftCardDeduction}} €</span>
+                </div>
+                {{/hasGiftCardDeduction}}
                 <div class="flex justify-between text-sm text-secondary">
                     <span>Livraison</span>
                     {{#isShippingPaid}}
@@ -107,6 +113,30 @@
                 {{#hasPromoRefusal}}<div class="text-xs text-error" role="status">{{promoRefusal}}</div>{{/hasPromoRefusal}}
             </div>
             {{/hasPromoCode}}
+            {{#canEnterGiftCard}}
+            <form hx-post="/cart/gift-card" hx-target="#gift-card-error" hx-swap="innerHTML" class="mb-4">
+                <label for="gift-card-code" class="block text-xs text-secondary mb-2">Carte cadeau</label>
+                <div class="flex gap-2">
+                    <input id="gift-card-code" name="code" type="text" required maxlength="30" autocomplete="off" autocapitalize="characters"
+                           class="min-w-0 flex-1 bg-bg border border-bg-border rounded-full px-4 min-h-11 text-sm uppercase focus:border-secondary">
+                    <button type="submit"
+                            class="min-h-11 px-5 rounded-full border border-bg-border text-sm text-primary hover:border-secondary transition-colors shrink-0">Appliquer</button>
+                </div>
+                <div id="gift-card-error" class="mt-2 text-xs" aria-live="polite"></div>
+                <p class="mt-2 text-xs text-muted">Une carte cadeau ne se cumule pas avec un code de promotion. Elle paie les bijoux, pas la livraison.</p>
+            </form>
+            {{/canEnterGiftCard}}
+            {{#hasGiftCard}}
+            <div class="mb-4">
+                <div class="flex items-center justify-between gap-3 text-sm">
+                    <span class="text-secondary">Carte cadeau : <span class="text-primary font-medium">{{giftCardCode}}</span></span>
+                    <button class="min-h-11 text-xs text-muted hover:text-secondary transition-colors"
+                            hx-delete="/cart/gift-card">Retirer</button>
+                </div>
+                {{#hasGiftCardRefusal}}<div class="text-xs text-error" role="status">{{giftCardRefusal}}</div>{{/hasGiftCardRefusal}}
+                {{#hasGiftCardRemaining}}<div class="text-xs text-muted">Solde restant sur la carte après cette commande : {{giftCardRemaining}} €</div>{{/hasGiftCardRemaining}}
+            </div>
+            {{/hasGiftCard}}
 
             <div class="flex justify-between items-baseline py-4 border-t border-bg-border mb-4">
                 <span class="text-sm">Total</span>

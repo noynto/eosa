@@ -84,6 +84,7 @@ public class Bootstrap {
         CharmProvider charmProvider = jdbcConfiguration.charms();
         WorkshopVenueProvider workshopVenueProvider = jdbcConfiguration.workshopVenues();
         PromoCodeProvider promoCodeProvider = jdbcConfiguration.promoCodes();
+        GiftCardProvider giftCardProvider = jdbcConfiguration.giftCards();
         WorkshopSessionProvider workshopSessionProvider = jdbcConfiguration.workshopSessions();
         WorkshopBookingProvider workshopBookingProvider = jdbcConfiguration.workshopBookings();
         WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider = jdbcConfiguration.workshopWaitlistEntries();
@@ -174,8 +175,16 @@ public class Bootstrap {
             shippingRuleProvider,
             promoCodeProvider,
             orderProvider,
+            giftCardProvider,
             clock
         );
+        ApplyGiftCardToCart applyGiftCardToCart = new ApplyGiftCardToCart(
+            cartProvider,
+            giftCardProvider,
+            shippingRuleProvider,
+            clock
+        );
+        RemoveGiftCardFromCart removeGiftCardFromCart = new RemoveGiftCardFromCart(cartProvider);
         ApplyPromoCode applyPromoCode = new ApplyPromoCode(
             cartProvider,
             promoCodeProvider,
@@ -206,11 +215,12 @@ public class Bootstrap {
             shippingRuleProvider,
             promoCodeProvider,
             orderProvider,
+            giftCardProvider,
             clock
         );
         ConfirmCheckoutSession confirmCheckoutSession =
             new ConfirmCheckoutSession(
-                stripeFetchedCheckouts, cartProvider, orderProvider, mailProvider, clock, properties.adminBaseUrl());
+                stripeFetchedCheckouts, cartProvider, orderProvider, giftCardProvider, mailProvider, clock, properties.adminBaseUrl());
         CreateAdministratorIdentity createAdministratorIdentity =
             new CreateAdministratorIdentity(identityProvider, cryptProvider);
         CreateMetalColor createMetalColor = new CreateMetalColor(
@@ -237,7 +247,6 @@ public class Bootstrap {
         DeletePromoCode deletePromoCode = new DeletePromoCode(promoCodeProvider, orderProvider);
         UpdatePromoCode updatePromoCode = new UpdatePromoCode(promoCodeProvider);
         SetPromoCodeActive setPromoCodeActive = new SetPromoCodeActive(promoCodeProvider);
-        GiftCardProvider giftCardProvider = jdbcConfiguration.giftCards();
         int giftCardValidityDays = Integer.parseInt(
             System.getenv().getOrDefault("EOSA_GIFT_CARD_VALIDITY_DAYS", "365")
         );
@@ -343,7 +352,7 @@ public class Bootstrap {
         DeliverOrder deliverOrder = new DeliverOrder(orderProvider, clock);
         CancelOrder cancelOrder = new CancelOrder(orderProvider, clock);
         SettleOrders settleOrders = new SettleOrders(
-            stripeFetchedCheckouts, orderProvider, mailProvider, clock, properties.adminBaseUrl());
+            stripeFetchedCheckouts, orderProvider, giftCardProvider, mailProvider, clock, properties.adminBaseUrl());
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
         ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
             workshopSessionProvider,
@@ -828,6 +837,16 @@ public class Bootstrap {
             javalinConfig.routes.delete(
                 "/cart/promo-code",
                 new DeleteCartPromoCodeHandler(removePromoCode)
+            );
+            // Un code de 12 caractères aléatoires n'est pas devinable ; la limite empêche d'essayer.
+            RequestRateLimiter cartGiftCardRateLimiter = new RequestRateLimiter(10, Duration.ofHours(1), clock);
+            javalinConfig.routes.post(
+                "/cart/gift-card",
+                new PostCartGiftCardHandler(applyGiftCardToCart, cartGiftCardRateLimiter)
+            );
+            javalinConfig.routes.delete(
+                "/cart/gift-card",
+                new DeleteCartGiftCardHandler(removeGiftCardFromCart)
             );
             javalinConfig.routes.patch(
                 "/cart/items/{item-id}",

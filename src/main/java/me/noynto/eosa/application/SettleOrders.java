@@ -3,6 +3,7 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.checkout.Checkout;
 import me.noynto.eosa.checkout.CheckoutProvider;
 import me.noynto.eosa.checkout.CheckoutStatus;
+import me.noynto.eosa.giftcard.GiftCardProvider;
 import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.order.Order;
 import me.noynto.eosa.order.OrderProvider;
@@ -32,6 +33,7 @@ import java.util.logging.Logger;
 public record SettleOrders(
         CheckoutProvider checkoutProvider,
         OrderProvider orderProvider,
+        GiftCardProvider giftCardProvider,
         MailProvider mailProvider,
         Clock clock,
         URI adminBaseUrl
@@ -141,6 +143,16 @@ public record SettleOrders(
                 .orElseThrow(() -> new RuntimeException("Session Stripe introuvable : " + checkoutId.getStripe()));
         if (checkout.getStatus() != CheckoutStatus.COMPLETED || checkout.getCartId() == null) {
             return null;
+        }
+        // La carte cadeau d'abord : l'utilisation est idempotente (voir ConfirmCheckoutSession).
+        if (checkout.getUsedGiftCardId() != null && checkout.getUsedGiftCardAmount() != null
+                && checkout.getUsedGiftCardAmount().signum() > 0) {
+            var giftCard = giftCardProvider.read(checkout.getUsedGiftCardId()).orElse(null);
+            if (giftCard == null) {
+                checkout.setUsedGiftCardId(null);
+            } else if (giftCard.markUsed(checkout.getSession().getId().getStripe(), checkout.getUsedGiftCardAmount(), now)) {
+                giftCardProvider.write(giftCard);
+            }
         }
         return orderProvider.write(OrdersFromCheckouts.fromPaidCheckout(checkout, now));
     }

@@ -9,6 +9,7 @@ import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 import me.noynto.eosa.shipping.ShippingCarrier;
 import me.noynto.eosa.shipping.ShippingLabel;
@@ -103,7 +104,8 @@ public record JdbcPersistedOrders(
                        confirmation_sent_at, notification_sent_at, crafted_at, carrier, tracking_number,
                        parcel_weight_grams, label_reference, label_status, shipped_at, delivered_at, cancelled_at,
                        cancel_reason, shipping_sent_at, personal_data_purged_at, hand_delivery,
-                       parcel_length_cm, parcel_width_cm, parcel_depth_cm, promo_code_id, promo_code, discount_amount
+                       parcel_length_cm, parcel_width_cm, parcel_depth_cm, promo_code_id, promo_code, discount_amount,
+                       gift_card_id, gift_card_amount
                 FROM orders WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -137,10 +139,10 @@ public record JdbcPersistedOrders(
                 INSERT INTO orders (id, number, state, stripe_session_id, customer_name, customer_email, customer_phone,
                                     shipping_name, shipping_line1, shipping_line2, shipping_postal_code, shipping_city,
                                     shipping_country, items_amount, shipping_amount, total_amount, paid_at,
-                                    promo_code_id, promo_code, discount_amount)
+                                    promo_code_id, promo_code, discount_amount, gift_card_id, gift_card_amount)
                 VALUES (?, ? || (SELECT CASE WHEN n < 10000 THEN lpad(n::text, 4, '0') ELSE n::text END
                                  FROM (SELECT nextval('order_number_seq') AS n) sequence),
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (stripe_session_id) DO NOTHING
                 RETURNING number, created_at
                 """;
@@ -165,6 +167,8 @@ public record JdbcPersistedOrders(
                     statement.setObject(18, order.getPromoCodeId() != null ? UUID.fromString(order.getPromoCodeId().value()) : null);
                     statement.setString(19, order.getPromoCode());
                     statement.setBigDecimal(20, order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO);
+                    statement.setObject(21, order.getGiftCardId() != null ? UUID.fromString(order.getGiftCardId().value()) : null);
+                    statement.setBigDecimal(22, order.getGiftCardAmount() != null ? order.getGiftCardAmount() : BigDecimal.ZERO);
                     try (ResultSet resultSet = statement.executeQuery()) {
                         if (!resultSet.next()) {
                             connection.rollback();
@@ -349,6 +353,9 @@ public record JdbcPersistedOrders(
         order.setPromoCode(resultSet.getString("promo_code"));
         String promoCodeId = resultSet.getString("promo_code_id");
         if (promoCodeId != null) order.setPromoCodeId(new PromoCodeId(promoCodeId));
+        order.setGiftCardAmount(resultSet.getBigDecimal("gift_card_amount"));
+        String giftCardId = resultSet.getString("gift_card_id");
+        if (giftCardId != null) order.setGiftCardId(new GiftCardId(giftCardId));
         String trackingNumber = resultSet.getString("tracking_number");
         if (trackingNumber != null) {
             ShippingLabel label = new ShippingLabel();

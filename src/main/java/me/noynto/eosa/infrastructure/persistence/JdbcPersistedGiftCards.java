@@ -135,6 +135,17 @@ public record JdbcPersistedGiftCards(
                 }
                 for (GiftCardMovement movement : giftCard.getMovements()) {
                     if (movement.getId() != null) {
+                        // Le journal ne se réécrit pas, sauf pour une réservation : elle est écrite avant la session de
+                        // paiement, et la session lui est rattachée une fois créée (une seule fois).
+                        if (movement.getCheckoutSessionId() != null) {
+                            try (PreparedStatement statement = connection.prepareStatement(
+                                    "UPDATE gift_card_movements SET checkout_session_id = ? "
+                                            + "WHERE id = ? AND checkout_session_id IS NULL")) {
+                                statement.setString(1, movement.getCheckoutSessionId());
+                                statement.setObject(2, UUID.fromString(movement.getId().value()));
+                                statement.executeUpdate();
+                            }
+                        }
                         continue;
                     }
                     movement.setId(new GiftCardMovementId(UUID.randomUUID().toString()));

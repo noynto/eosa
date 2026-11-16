@@ -50,6 +50,7 @@ class SettleOrdersTest {
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartProvider cartProvider;
     @Mock MailProvider mailProvider;
+    @Mock me.noynto.eosa.giftcard.GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-12T10:15:00Z");
     private InMemoryOrders orders;
@@ -105,6 +106,30 @@ class SettleOrdersTest {
         assertEquals(2, orders.all().size());
         assertEquals(OrderState.SHIPPED, orders.all().stream()
                 .filter(order -> order.getStripeSessionId().getStripe().equals("cs_1")).findFirst().orElseThrow().getState());
+    }
+
+    @Test
+    void handle_usesTheGiftCardOfAPaidSessionWhoseBuyerNeverCameBack() {
+        var giftCardId = new me.noynto.eosa.shared.GiftCardId("card-1");
+        var giftCard = new me.noynto.eosa.giftcard.GiftCard();
+        giftCard.setId(giftCardId);
+        giftCard.getMovements().add(new me.noynto.eosa.giftcard.GiftCardMovement(
+                me.noynto.eosa.giftcard.GiftCardMovementKind.ISSUED, new BigDecimal("50.00"), null, now));
+        giftCard.reserve(new BigDecimal("20.00"), now).setCheckoutSessionId("cs_1");
+        when(giftCardProvider.read(giftCardId)).thenReturn(java.util.Optional.of(giftCard));
+        paid("cs_1", "cart-1");
+        var checkout = checkoutProvider.read(paidIds.getFirst()).orElseThrow();
+        checkout.setUsedGiftCardId(giftCardId);
+        checkout.setUsedGiftCardAmount(new BigDecimal("20.00"));
+
+        settle();
+        settle();
+
+        var order = orders.all().getFirst();
+        assertEquals(new BigDecimal("20.00"), order.getGiftCardAmount());
+        assertEquals(giftCardId, order.getGiftCardId());
+        assertTrue(giftCard.openReservations().isEmpty());
+        assertEquals(0, new BigDecimal("30.00").compareTo(giftCard.balance()));
     }
 
     @Test
@@ -289,7 +314,7 @@ class SettleOrdersTest {
     }
 
     private SettleOrders.Result settle() {
-        return new SettleOrders(checkoutProvider, orders, mailProvider, Clock.fixed(now, ZoneOffset.UTC),
+        return new SettleOrders(checkoutProvider, orders, giftCardProvider, mailProvider, Clock.fixed(now, ZoneOffset.UTC),
                 URI.create("https://admin.eosa.me")).handle();
     }
 

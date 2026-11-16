@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,7 @@ class InitiateCheckoutTest {
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartShippingRuleProvider shippingRuleProvider;
     @Mock PromoCodeProvider promoCodeProvider;
+    @Mock me.noynto.eosa.giftcard.GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-14T10:00:00Z");
     private final CartId cartId = new CartId("cart");
@@ -58,12 +60,12 @@ class InitiateCheckoutTest {
         rule.setFreeThreshold(new BigDecimal("60"));
         rule.setAmount(new BigDecimal("5"));
         when(shippingRuleProvider.get()).thenReturn(rule);
-        when(checkoutProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+        org.mockito.Mockito.lenient().when(checkoutProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     private Checkout initiate() throws Exception {
         var useCase = new InitiateCheckout(cartProvider, checkoutProvider, shippingRuleProvider, promoCodeProvider,
-                new InMemoryOrders(), Clock.fixed(now, ZoneOffset.UTC));
+                new InMemoryOrders(), giftCardProvider, Clock.fixed(now, ZoneOffset.UTC));
         useCase.handle(new InitiateCheckout.Command(cartId));
         var captor = ArgumentCaptor.forClass(Checkout.class);
         verify(checkoutProvider).write(captor.capture());
@@ -106,6 +108,89 @@ class InitiateCheckoutTest {
         assertNull(checkout.getDiscountAmount());
         assertNull(checkout.getPromoCodeId());
         assertNull(checkout.getPromoCode());
+    }
+
+    private me.noynto.eosa.giftcard.GiftCard giftCard(String balance) {
+        var giftCard = new me.noynto.eosa.giftcard.GiftCard();
+        giftCard.setId(new me.noynto.eosa.shared.GiftCardId("card-1"));
+        giftCard.setState(me.noynto.eosa.giftcard.GiftCardState.ACTIVE);
+        giftCard.setExpiresAt(now.plusSeconds(3600));
+        giftCard.getMovements().add(new me.noynto.eosa.giftcard.GiftCardMovement(
+                me.noynto.eosa.giftcard.GiftCardMovementKind.ISSUED, new BigDecimal(balance), null, now));
+        // Chaque écriture donne leur identifiant aux mouvements neufs, comme le fait la persistance.
+        org.mockito.Mockito.lenient().when(giftCardProvider.write(any())).thenAnswer(inv -> {
+            me.noynto.eosa.giftcard.GiftCard written = inv.getArgument(0);
+            written.getMovements().forEach(movement -> {
+                if (movement.getId() == null) {
+                    movement.setId(new me.noynto.eosa.shared.GiftCardMovementId("m-" + written.getMovements().indexOf(movement)));
+                }
+            });
+            return written;
+        });
+        org.mockito.Mockito.lenient().when(giftCardProvider.read(giftCard.getId())).thenReturn(Optional.of(giftCard));
+        cart.setGiftCardId(giftCard.getId());
+        return giftCard;
+    }
+
+    @Test
+    void handle_reservesTheCardAndAsksStripeForItsPartWithAnExpiry() throws Exception {
+        var giftCard = giftCard("20");
+        when(checkoutProvider.write(any())).thenAnswer(inv -> {
+            Checkout opened = inv.getArgument(0);
+            var session = new me.noynto.eosa.checkout.CheckoutSession();
+            var sessionId = new me.noynto.eosa.shared.CheckoutSessionId();
+            sessionId.setStripe("cs_1");
+            session.setId(sessionId);
+            opened.setSession(session);
+            return opened;
+        });
+
+        var checkout = initiate();
+
+        assertEquals(new BigDecimal("20.00"), checkout.getUsedGiftCardAmount());
+        assertEquals(giftCard.getId(), checkout.getUsedGiftCardId());
+        assertNull(checkout.getDiscountAmount(), "une carte n'est pas une remise de code");
+        assertEquals(now.plus(PurchaseGiftCard.SESSION_DURATION), checkout.getExpiresAt());
+        // Le solde est réservé, et la réservation suit la session.
+        assertEquals(0, BigDecimal.ZERO.compareTo(giftCard.balance()));
+        assertEquals(1, giftCard.openReservations().size());
+        assertEquals("cs_1", giftCard.openReservations().getFirst().getCheckoutSessionId());
+    }
+
+    @Test
+    void handle_opensThePaymentWithoutTheCardWhenItNoLongerApplies() throws Exception {
+        var giftCard = giftCard("20");
+        giftCard.setExpiresAt(now);
+
+        var checkout = initiate();
+
+        assertNull(checkout.getUsedGiftCardId());
+        assertNull(checkout.getUsedGiftCardAmount());
+        assertEquals(1, giftCard.getMovements().size(), "rien n'est réservé");
+    }
+
+    @Test
+    void handle_releasesTheReservationWhenStripeRefuses() {
+        var giftCard = giftCard("20");
+        org.mockito.Mockito.doThrow(new RuntimeException("Stripe")).when(checkoutProvider).write(any());
+        var useCase = new InitiateCheckout(cartProvider, checkoutProvider, shippingRuleProvider, promoCodeProvider,
+                new InMemoryOrders(), giftCardProvider, Clock.fixed(now, ZoneOffset.UTC));
+
+        assertThrows(RuntimeException.class, () -> useCase.handle(new InitiateCheckout.Command(cartId)));
+
+        assertEquals(0, new BigDecimal("20").compareTo(giftCard.balance()), "le solde est rendu");
+    }
+
+    @Test
+    void handle_ignoresTheCardWhenAPromoCodeIsAlsoAttached() throws Exception {
+        var giftCard = giftCard("20");
+        cart.setPromoCodeId(promoCodeId);
+        when(promoCodeProvider.read(promoCodeId)).thenReturn(Optional.empty());
+
+        var checkout = initiate();
+
+        assertNull(checkout.getUsedGiftCardId());
+        assertEquals(1, giftCard.getMovements().size());
     }
 
     @Test

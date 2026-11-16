@@ -41,12 +41,13 @@ class ReadCartTest {
     @Mock CartProvider cartProvider;
     @Mock CartShippingRuleProvider shippingRuleProvider;
     @Mock PromoCodeProvider promoCodeProvider;
+    @Mock me.noynto.eosa.giftcard.GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-14T10:00:00Z");
 
     private ReadCart readCart() {
         return new ReadCart(cartProvider, shippingRuleProvider, promoCodeProvider, new InMemoryOrders(),
-                Clock.fixed(now, ZoneOffset.UTC));
+                giftCardProvider, Clock.fixed(now, ZoneOffset.UTC));
     }
 
     private Cart cartOf(String price, PromoCodeId promoCodeId) {

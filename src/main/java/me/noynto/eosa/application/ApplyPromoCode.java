@@ -43,6 +43,9 @@ public record ApplyPromoCode(
         if (cart.getItems().isEmpty()) {
             throw new RuntimeException("Votre panier est vide.");
         }
+        if (cart.getGiftCardId() != null) {
+            throw new RuntimeException("Retirez d'abord la carte cadeau pour utiliser un code de promotion.");
+        }
         cart.applyShippingRule(shippingRuleProvider.get());
 
         PromoCode promoCode = promoCodeProvider.readIds(code).findFirst()

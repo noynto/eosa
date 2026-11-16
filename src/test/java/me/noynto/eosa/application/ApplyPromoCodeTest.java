@@ -151,6 +151,21 @@ class ApplyPromoCodeTest {
     }
 
     @Test
+    void handle_refusesACodeWhenAGiftCardIsAttached() {
+        var cart = new Cart();
+        cart.setId(cartId);
+        cart.setItems(List.of(new CartItem(new CartItemId("i"), new JewelId("j"), "Collier Lune", new BigDecimal("40"),
+                null, 1, null, null, null, List.of())));
+        cart.setGiftCardId(new me.noynto.eosa.shared.GiftCardId("card-1"));
+        when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
+
+        var error = assertThrows(RuntimeException.class, () -> useCase().handle(new ApplyPromoCode.Command(cartId, "BIENVENUE10")));
+
+        assertEquals("Retirez d'abord la carte cadeau pour utiliser un code de promotion.", error.getMessage());
+        verify(cartProvider, never()).write(any());
+    }
+
+    @Test
     void handle_refusesABlankCodeAnEmptyCartAndAMissingCart() {
         assertThrows(RuntimeException.class, () -> useCase().handle(new ApplyPromoCode.Command(cartId, "  ")));
         assertThrows(RuntimeException.class, () -> useCase().handle(new ApplyPromoCode.Command(null, "X")));

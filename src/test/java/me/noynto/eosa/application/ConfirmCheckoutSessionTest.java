@@ -52,6 +52,7 @@ class ConfirmCheckoutSessionTest {
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartProvider cartProvider;
     @Mock MailProvider mailProvider;
+    @Mock me.noynto.eosa.giftcard.GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-12T10:15:00Z");
     private final CartId cartId = new CartId("cart");
@@ -130,6 +131,34 @@ class ConfirmCheckoutSessionTest {
     }
 
     @Test
+    void handle_usesTheGiftCardOnceRecordsItsPartOnTheOrderAndDetachesItFromTheCart() throws Exception {
+        var giftCard = new me.noynto.eosa.giftcard.GiftCard();
+        var giftCardId = new me.noynto.eosa.shared.GiftCardId("card-1");
+        giftCard.setId(giftCardId);
+        giftCard.getMovements().add(new me.noynto.eosa.giftcard.GiftCardMovement(
+                me.noynto.eosa.giftcard.GiftCardMovementKind.ISSUED, new BigDecimal("50.00"), null, now));
+        giftCard.reserve(new BigDecimal("20.00"), now).setCheckoutSessionId("cs_test_1");
+        when(giftCardProvider.read(giftCardId)).thenReturn(Optional.of(giftCard));
+        checkout.setUsedGiftCardId(giftCardId);
+        checkout.setUsedGiftCardAmount(new BigDecimal("20.00"));
+        checkout.setDiscountAmount(BigDecimal.ZERO);
+        checkout.setTotalAmount(new BigDecimal("50.90"));
+        cart.setGiftCardId(giftCardId);
+
+        var first = confirm().order();
+        confirm();
+
+        assertEquals(new BigDecimal("20.00"), first.getGiftCardAmount());
+        assertEquals(giftCardId, first.getGiftCardId());
+        assertEquals(new BigDecimal("50.90"), first.getTotalAmount());
+        assertTrue(giftCard.openReservations().isEmpty(), "la réservation est devenue une utilisation");
+        assertEquals(0, new BigDecimal("30.00").compareTo(giftCard.balance()), "débitée une seule fois");
+        assertEquals(1, giftCard.getMovements().stream()
+                .filter(movement -> movement.getKind() == me.noynto.eosa.giftcard.GiftCardMovementKind.USED).count());
+        assertNull(cart.getGiftCardId());
+    }
+
+    @Test
     void handle_createsOneOrderEvenWhenThePageIsReloaded() throws Exception {
         var first = confirm().order();
         var second = confirm().order();
@@ -178,7 +207,7 @@ class ConfirmCheckoutSessionTest {
     }
 
     private ConfirmCheckoutSession useCase() {
-        return new ConfirmCheckoutSession(checkoutProvider, cartProvider, orders, mailProvider,
+        return new ConfirmCheckoutSession(checkoutProvider, cartProvider, orders, giftCardProvider, mailProvider,
                 Clock.fixed(now, ZoneOffset.UTC), URI.create("https://admin.eosa.me"));
     }
 

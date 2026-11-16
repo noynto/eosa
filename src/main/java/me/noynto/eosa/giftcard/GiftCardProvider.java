@@ -18,7 +18,8 @@ public interface GiftCardProvider {
 
     /**
      * Écrit la carte et ajoute les mouvements qui n'ont pas encore d'identifiant (le journal ne se réécrit pas).
-     * Attribue les identifiants manquants.
+     * Attribue les identifiants manquants. Seule exception : la session de paiement d'une réservation, posée après
+     * coup, est enregistrée une fois si elle manquait.
      */
     GiftCard write(GiftCard giftCard);
 

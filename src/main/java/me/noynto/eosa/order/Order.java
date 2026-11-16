@@ -2,6 +2,7 @@ package me.noynto.eosa.order;
 
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 import me.noynto.eosa.shipping.ShippingLabel;
 
@@ -39,6 +40,8 @@ public class Order {
     private BigDecimal discountAmount = BigDecimal.ZERO;
     private String promoCode;
     private PromoCodeId promoCodeId;
+    private BigDecimal giftCardAmount = BigDecimal.ZERO;
+    private GiftCardId giftCardId;
     private BigDecimal shippingAmount;
     private BigDecimal totalAmount;
     private Instant paidAt;
@@ -151,6 +154,28 @@ public class Order {
 
     public void setDiscountAmount(BigDecimal discountAmount) {
         this.discountAmount = discountAmount;
+    }
+
+    /**
+     * Part du total payée par une carte cadeau, déjà déduite du total payé chez Stripe ; zéro sans carte, et jamais
+     * en même temps qu'une remise de code de promotion. Le total vaut les bijoux, moins la part de la carte, plus
+     * la livraison.
+     */
+    public BigDecimal getGiftCardAmount() {
+        return giftCardAmount;
+    }
+
+    public void setGiftCardAmount(BigDecimal giftCardAmount) {
+        this.giftCardAmount = giftCardAmount;
+    }
+
+    /** La carte cadeau qui a payé une part de la commande, pour la retrouver ; null sans carte. */
+    public GiftCardId getGiftCardId() {
+        return giftCardId;
+    }
+
+    public void setGiftCardId(GiftCardId giftCardId) {
+        this.giftCardId = giftCardId;
     }
 
     /** Le code de promotion utilisé, tel qu'il s'appelait à la commande ; null sans code. */

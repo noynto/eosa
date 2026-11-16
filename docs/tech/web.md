@@ -18,6 +18,7 @@
 | GET | `/about` | Notre histoire |
 | GET | `/cart` | Panier, avec la remise de son code de promotion |
 | POST, DELETE | `/cart/promo-code` | Applique le code saisi (refus en fragment, 422) ou le retire ; `HX-Redirect` vers le panier |
+| POST, DELETE | `/cart/gift-card` | Applique le code de carte cadeau saisi (refus en fragment, 422 ; 10 essais par heure et par IP ; jamais avec un code de promotion) ou la retire ; `HX-Redirect` vers le panier |
 | POST | `/checkout` | Paiement Stripe |
 | GET, POST | `/gift-cards` | Achat d'une carte cadeau : page (non indexée tant que les textes ne sont pas écrits) ; le `POST` (champ piège + limite par IP) crée la carte en attente et la session Stripe puis redirige vers le paiement ; un refus réaffiche la page (422) |
 | GET | `/gift-cards/success` | Retour de Stripe : active la carte payée et envoie l'e-mail ; aucun code n'est affiché |
