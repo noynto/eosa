@@ -289,13 +289,15 @@ public class Bootstrap {
             properties.publicBaseUrl()
         );
         ReadGiftCardByToken readGiftCardByToken = new ReadGiftCardByToken(giftCardProvider, clock);
-        GiftCardPurchasePage giftCardPurchasePage = new GiftCardPurchasePage(
-            baseUrl,
+        // La vente de cartes cadeau n'existe pas pour le public tant que cet interrupteur n'est pas levé.
+        GiftCardOffer giftCardOffer = new GiftCardOffer(
+            Boolean.parseBoolean(System.getenv().getOrDefault("EOSA_GIFT_CARDS_ENABLED", "false")),
             giftCardAmounts,
             giftCardMinimumAmount,
             giftCardMaximumAmount,
             giftCardValidityDays
         );
+        GiftCardPurchasePage giftCardPurchasePage = new GiftCardPurchasePage(baseUrl, giftCardOffer);
         ReadGiftCards readGiftCards = new ReadGiftCards(giftCardProvider);
         ReadGiftCard readGiftCard = new ReadGiftCard(giftCardProvider, orderProvider);
         VoidGiftCard voidGiftCard = new VoidGiftCard(giftCardProvider, clock);
@@ -642,7 +644,7 @@ public class Bootstrap {
             );
             javalinConfig.routes.get(
                 "/sitemap.xml",
-                new GetSitemapHandler(readSitemap, baseUrl)
+                new GetSitemapHandler(readSitemap, baseUrl, giftCardOffer)
             );
 
             // LEGAL PART
@@ -661,38 +663,23 @@ public class Bootstrap {
                     )
                 )
             );
-            javalinConfig.routes.get("/terms", context ->
-                context.render(
-                    "cgv.mustache",
-                    Map.of(
-                        "title",
-                        "Eosa — Conditions générales de vente",
-                        "description",
-                        "Conditions générales de vente du site Eosa.",
-                        "ogImageUrl",
-                        baseUrl + "/hero.webp",
-                        "canonicalUrl",
-                        baseUrl + context.path(),
-                        "bookingOpeningDays",
-                        WorkshopSession.BOOKING_OPENING_DAYS
-                    )
-                )
-            );
-            javalinConfig.routes.get("/privacy", context ->
-                context.render(
-                    "privacy.mustache",
-                    Map.of(
-                        "title",
-                        "Eosa — Politique de confidentialité",
-                        "description",
-                        "Politique de confidentialité du site Eosa.",
-                        "ogImageUrl",
-                        baseUrl + "/hero.webp",
-                        "canonicalUrl",
-                        baseUrl + context.path()
-                    )
-                )
-            );
+            javalinConfig.routes.get("/terms", context -> {
+                Map<String, Object> model = new HashMap<>(giftCardOffer.textModel());
+                model.put("title", "Eosa — Conditions générales de vente");
+                model.put("description", "Conditions générales de vente du site Eosa.");
+                model.put("ogImageUrl", baseUrl + "/hero.webp");
+                model.put("canonicalUrl", baseUrl + context.path());
+                model.put("bookingOpeningDays", WorkshopSession.BOOKING_OPENING_DAYS);
+                context.render("cgv.mustache", model);
+            });
+            javalinConfig.routes.get("/privacy", context -> {
+                Map<String, Object> model = new HashMap<>(giftCardOffer.textModel());
+                model.put("title", "Eosa — Politique de confidentialité");
+                model.put("description", "Politique de confidentialité du site Eosa.");
+                model.put("ogImageUrl", baseUrl + "/hero.webp");
+                model.put("canonicalUrl", baseUrl + context.path());
+                context.render("privacy.mustache", model);
+            });
 
             // BRAND PAGES
             javalinConfig.routes.get("/about", context ->
@@ -773,23 +760,15 @@ public class Bootstrap {
                     )
                 )
             );
-            javalinConfig.routes.get("/faq", context ->
-                context.render(
-                    "faq.mustache",
-                    Map.of(
-                        "title",
-                        "Eosa — Questions fréquentes",
-                        "description",
-                        "Livraison, retours, entretien des bijoux : toutes les réponses à vos questions.",
-                        "ogImageUrl",
-                        baseUrl + "/hero.webp",
-                        "canonicalUrl",
-                        baseUrl + context.path(),
-                        "bookingOpeningDays",
-                        WorkshopSession.BOOKING_OPENING_DAYS
-                    )
-                )
-            );
+            javalinConfig.routes.get("/faq", context -> {
+                Map<String, Object> model = new HashMap<>(giftCardOffer.textModel());
+                model.put("title", "Eosa — Questions fréquentes");
+                model.put("description", "Livraison, retours, entretien des bijoux : toutes les réponses à vos questions.");
+                model.put("ogImageUrl", baseUrl + "/hero.webp");
+                model.put("canonicalUrl", baseUrl + context.path());
+                model.put("bookingOpeningDays", WorkshopSession.BOOKING_OPENING_DAYS);
+                context.render("faq.mustache", model);
+            });
             javalinConfig.routes.get("/contact", context ->
                 context.render(
                     "contact.mustache",

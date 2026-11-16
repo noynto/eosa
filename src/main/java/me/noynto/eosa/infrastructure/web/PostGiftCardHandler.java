@@ -22,6 +22,10 @@ public record PostGiftCardHandler(
 
     @Override
     public void handle(Context ctx) {
+        if (!page.offer().enabled()) {
+            ctx.status(404);
+            return;
+        }
         String honeypot = ctx.formParam(HONEYPOT);
         if (honeypot != null && !honeypot.isBlank()) {
             // Robot : on fait comme si rien ne s'était passé.

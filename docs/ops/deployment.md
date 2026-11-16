@@ -134,6 +134,7 @@ Imprimés sur l'étiquette que « Pièce fabriquée » crée dans l'administrati
 |---|---|---|
 | `EOSA_SHIPPING_SENDER_NAME`, `_LINE1`, `_POSTAL_CODE`, `_CITY` | Adresse d'expédition (nom, rue, code postal, ville) | `EOSA`, `1 rue Exemple`, `54000`, `Nancy` |
 | `EOSA_SHIPPING_SENDER_PHONE`, `_EMAIL` | Téléphone et e-mail de l'expéditeur (facultatifs) | `+33600000000` |
+| `EOSA_GIFT_CARDS_ENABLED` | Ouvre la vente de cartes cadeau au public : page d'achat, entrée du sitemap, article des CGV, question de la FAQ et mentions de confidentialité. Fermée par défaut (`false`) : la page d'achat répond 404 tant que les points juridiques de la spécification ne sont pas validés. L'utilisation d'une carte au panier fonctionne toujours | `false` |
 | `EOSA_GIFT_CARD_AMOUNTS` | Montants proposés en boutons sur la page d'achat d'une carte cadeau, séparés par des virgules, en euros entiers (`25,50,100` par défaut) | `25,50,100` |
 | `EOSA_GIFT_CARD_MIN_AMOUNT`, `EOSA_GIFT_CARD_MAX_AMOUNT` | Bornes du montant libre d'une carte cadeau, en euros entiers (`10` et `200` par défaut) | `10`, `200` |
 | `EOSA_GIFT_CARD_VALIDITY_DAYS` | Validité d'une carte cadeau, en jours calendaires (fuseau de Paris), le dernier jour inclus (365 par défaut) | `365` |

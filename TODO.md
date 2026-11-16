@@ -4,3 +4,4 @@
 - pouvoir suivre la livraison.
 - conceptualiser des patterns de collier, et concevoir un chemin utilisateur complet de la couleur du métal, aux couleurs de perles et enfin un pattern d'assemblage pour concevoir son collier du plus que l'on peut.
 - déterminer toutes les manières d'augmenter le traffic sur le site internet afin d'obtenir un super référencement / améliorer le SEO.
+- ajouter un tableau de bord principale dans l'administration
