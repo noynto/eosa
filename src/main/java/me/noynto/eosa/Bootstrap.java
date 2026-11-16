@@ -297,7 +297,7 @@ public class Bootstrap {
             giftCardValidityDays
         );
         ReadGiftCards readGiftCards = new ReadGiftCards(giftCardProvider);
-        ReadGiftCard readGiftCard = new ReadGiftCard(giftCardProvider);
+        ReadGiftCard readGiftCard = new ReadGiftCard(giftCardProvider, orderProvider);
         VoidGiftCard voidGiftCard = new VoidGiftCard(giftCardProvider, clock);
         RestoreGiftCardBalance restoreGiftCardBalance = new RestoreGiftCardBalance(giftCardProvider, clock);
         CreateWorkshopVenue createWorkshopVenue = new CreateWorkshopVenue(workshopVenueProvider);

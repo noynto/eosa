@@ -126,6 +126,15 @@ public record GetAdminOrderHandler(
             model.put("promoCode", order.getPromoCode());
             model.put("promoCodeId", order.getPromoCodeId() != null ? order.getPromoCodeId().value() : null);
         }
+        // La part payée par une carte cadeau, avec le lien vers la carte : à recréditer à la main si la commande est annulée.
+        boolean hasGiftCard = order.getGiftCardAmount() != null && order.getGiftCardAmount().signum() > 0;
+        model.put("hasGiftCard", hasGiftCard);
+        if (hasGiftCard) {
+            model.put("giftCardAmount", "−" + OrderFormat.amount(order.getGiftCardAmount()));
+            model.put("giftCardAmountPlain", OrderFormat.amount(order.getGiftCardAmount()));
+            model.put("hasGiftCardId", order.getGiftCardId() != null);
+            model.put("giftCardId", order.getGiftCardId() != null ? order.getGiftCardId().value() : null);
+        }
         model.put("shippingAmount", OrderFormat.amount(order.getShippingAmount()));
         model.put("totalAmount", OrderFormat.amount(order.getTotalAmount()));
         ctx.render("admin/order.mustache", model);

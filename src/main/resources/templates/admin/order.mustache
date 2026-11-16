@@ -183,6 +183,9 @@
             <div><dt class="text-secondary">Motif</dt><dd class="break-words">{{cancelReason}}</dd></div>
         </dl>
         <p class="text-xs text-muted mt-3">Le remboursement se fait dans Stripe, à la main. La cliente n'a reçu aucun e-mail.</p>
+        {{#hasGiftCard}}
+        <p class="text-xs text-error mt-2" role="note">Une carte cadeau a payé {{giftCardAmountPlain}} de cette commande : recréditez-la{{#hasGiftCardId}} depuis <a href="/gift-cards/{{giftCardId}}" class="underline underline-offset-4">sa page</a>{{/hasGiftCardId}} si ce n'est pas déjà fait.</p>
+        {{/hasGiftCard}}
     </section>
     {{/isCancelled}}
 
@@ -213,6 +216,12 @@
                 <dd>{{discountAmount}}</dd>
             </div>
             {{/hasDiscount}}
+            {{#hasGiftCard}}
+            <div class="flex justify-between">
+                <dt class="text-secondary">Carte cadeau{{#hasGiftCardId}} · <a href="/gift-cards/{{giftCardId}}" class="underline underline-offset-4 hover:text-primary">voir la carte</a>{{/hasGiftCardId}}</dt>
+                <dd>{{giftCardAmount}}</dd>
+            </div>
+            {{/hasGiftCard}}
             <div class="flex justify-between"><dt class="text-secondary">Livraison</dt><dd>{{shippingAmount}}</dd></div>
             <div class="flex justify-between font-medium"><dt>Total</dt><dd>{{totalAmount}}</dd></div>
         </dl>
@@ -233,6 +242,9 @@
     <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
         <h2 class="text-sm font-medium mb-1">Annuler la commande</h2>
         <p class="text-xs text-muted mb-3">Aucun e-mail n'est envoyé à la cliente et rien n'est remboursé : le remboursement se fait dans Stripe, à la main. Une étiquette déjà créée reste chez le transporteur. Cette action est irréversible.</p>
+        {{#hasGiftCard}}
+        <p class="text-xs text-error mb-3" role="note">Cette commande a été payée en partie avec une carte cadeau ({{giftCardAmountPlain}}). Le remboursement Stripe ne rend pas cette part : après l'annulation, recréditez la carte{{#hasGiftCardId}} depuis <a href="/gift-cards/{{giftCardId}}" class="underline underline-offset-4">sa page</a>{{/hasGiftCardId}}, avec le numéro de la commande comme motif.</p>
+        {{/hasGiftCard}}
         <form hx-post="/orders/{{id}}/cancel" hx-target="#cancel-error" hx-swap="innerHTML"
               hx-confirm="Annuler la commande {{number}} ? Cette action est irréversible."
               class="flex flex-col gap-3">

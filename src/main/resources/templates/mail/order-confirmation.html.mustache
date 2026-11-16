@@ -33,6 +33,16 @@
                                 </td>
                             </tr>
                             {{/hasDiscount}}
+                            {{#hasGiftCard}}
+                            <tr>
+                                <td style="padding:16px 20px 0 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#775546;">
+                                    Carte cadeau
+                                </td>
+                                <td align="right" style="padding:16px 20px 0 0;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                                    {{giftCardAmount}}
+                                </td>
+                            </tr>
+                            {{/hasGiftCard}}
                             <tr>
                                 <td style="padding:16px 20px 0 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#775546;">
                                     Livraison

@@ -223,11 +223,11 @@ Cette étape est livrée en deux pull requests. **Première partie, faite** (pan
 - `SettleGiftCards` rend au solde les réservations des paiements abandonnés : réservation de plus de 40 minutes dont la session n'est pas payée. Une session payée n'est jamais rendue par cette tâche (c'est `SettleOrders` qui la transforme en utilisation) ; une session que Stripe ne rend pas ne libère rien.
 - Limite connue : le solde réservé par un paiement abandonné ne revient qu'au bout d'environ 40 minutes ; pendant ce temps, le panier de la même personne affiche un solde disponible réduit.
 
-**Seconde partie, à faire** : la ligne « Carte cadeau » dans l'administration d'une commande et dans les e-mails de commande, et le rappel de recréditer à l'annulation (`CancelOrder`).
+**Seconde partie, faite** (affichage, sans changer le comportement de la première) : une ligne « Carte cadeau −X € » entre le sous-total et la livraison dans l'e-mail de confirmation (HTML et texte), une mention dans l'e-mail à EOSA (le total est ce que la cliente a réglé par carte bancaire), une ligne avec le lien vers la carte dans l'administration d'une commande, et le rappel de recréditer la carte à la main : dans la section d'annulation d'une commande payée en partie par carte et sur une commande déjà annulée (`CancelOrder` n'envoie ni e-mail ni remboursement, il n'y a donc rien à y changer). La page d'une carte liste les commandes qu'elle a payées en partie (retrouvées par la session de paiement de chaque utilisation du journal : `ReadGiftCard` lit aussi les commandes).
 
 ### Étape 5 — Panier entièrement couvert
 
-Lire `no_payment_required` comme payé : **fait avec l'étape 4** (`StripeFetchedCheckouts`, couvert par un test sur une réponse d'exemple). Reste à valider le parcours à 0 € de bout en bout en mode test dans un navigateur (carte de solde supérieur aux bijoux, livraison offerte), et à ajuster ce qui manque. Pas de commande sans Stripe.
+Lire `no_payment_required` comme payé : **fait avec l'étape 4** (`StripeFetchedCheckouts`, couvert par un test sur une réponse d'exemple). Le parcours à 0 € a été essayé de bout en bout en mode test dans un navigateur le 17 novembre 2026 (carte de solde supérieur aux bijoux, livraison offerte) : les commandes se créent avec un total de 0,00 €, la part de la carte et le solde débité. Reste à vérifier l'e-mail de confirmation d'une commande à 0 € (aucun paiement chez Stripe, pas de reçu Stripe) et à ajuster ce qui manque. Pas de commande sans Stripe.
 
 ### Étape 6 — Textes
 

@@ -48,6 +48,28 @@
         </ul>
     </section>
 
+    <!-- Commandes -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <h2 class="text-sm font-medium mb-1">Commandes</h2>
+        {{#hasOrders}}
+        <p class="text-xs text-muted mb-3">Les commandes que cette carte a payées en partie. Une commande annulée ne rend pas la part de la carte : recréditez-la ci-dessous.</p>
+        <ul class="flex flex-col divide-y divide-bg-border">
+            {{#orders}}
+            <li>
+                <a href="/orders/{{id}}" class="flex flex-wrap items-center justify-between gap-2 py-2 min-h-11 text-sm hover:text-secondary transition-colors">
+                    <span class="font-medium">{{number}}</span>
+                    <span class="text-xs text-muted">{{paidAt}} · {{state}}</span>
+                    <span class="text-xs text-secondary">{{amount}} payés par la carte</span>
+                </a>
+            </li>
+            {{/orders}}
+        </ul>
+        {{/hasOrders}}
+        {{^hasOrders}}
+        <p class="text-xs text-muted">Aucune commande n'a encore utilisé cette carte.</p>
+        {{/hasOrders}}
+    </section>
+
     {{#isActive}}
     <!-- Recrédit -->
     <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
