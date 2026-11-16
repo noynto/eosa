@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -113,7 +114,7 @@ class ConfirmGiftCardPaymentTest {
         useCase.handle(new ConfirmGiftCardPayment.Command(sessionId));
 
         assertEquals(1, card.getMovements().size());
-        verify(mailProvider, org.mockito.Mockito.times(1)).send(any());
+        verify(mailProvider, times(1)).send(any());
     }
 
     @Test

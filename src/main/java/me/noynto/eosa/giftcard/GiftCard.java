@@ -42,6 +42,71 @@ public class GiftCard {
         return balance;
     }
 
+    /**
+     * Met de côté une part du solde pour un paiement en cours : le solde baisse tout de suite, et la session de
+     * paiement est rattachée à la réservation quand elle existe ({@link GiftCardMovement#setCheckoutSessionId}).
+     */
+    public GiftCardMovement reserve(BigDecimal amount, Instant now) {
+        var reservation = new GiftCardMovement(GiftCardMovementKind.RESERVED, amount, null, now);
+        movements.add(reservation);
+        return reservation;
+    }
+
+    /** Rend une réservation au solde (session expirée, abandonnée ou jamais ouverte). */
+    public void release(GiftCardMovement reservation, Instant now) {
+        var released = new GiftCardMovement(GiftCardMovementKind.RELEASED, reservation.getAmount(), null, now);
+        released.setCheckoutSessionId(reservation.getCheckoutSessionId());
+        movements.add(released);
+    }
+
+    /**
+     * Réservations rattachées à une session de paiement et ni utilisées ni rendues, de la plus ancienne à la plus
+     * récente. Une session compte autant de réservations que de fois où elle a été réservée : elle est ouverte
+     * tant qu'il y en a plus que d'utilisations et de libérations.
+     */
+    public List<GiftCardMovement> openReservations() {
+        List<GiftCardMovement> open = new ArrayList<>();
+        for (GiftCardMovement reservation : movements) {
+            String session = reservation.getCheckoutSessionId();
+            if (reservation.getKind() != GiftCardMovementKind.RESERVED || session == null) {
+                continue;
+            }
+            long reserved = countOf(GiftCardMovementKind.RESERVED, session);
+            long closed = countOf(GiftCardMovementKind.USED, session) + countOf(GiftCardMovementKind.RELEASED, session);
+            if (reserved > closed && open.stream().noneMatch(other -> session.equals(other.getCheckoutSessionId()))) {
+                open.add(reservation);
+            }
+        }
+        return open;
+    }
+
+    /**
+     * Enregistre qu'un paiement abouti a utilisé {@code amount} de la carte, une seule fois par session. Le solde
+     * avait baissé à la réservation ; si elle manque ou a déjà été rendue (paiement très tardif, ou session que le
+     * site n'avait pas réservée), le montant est retiré maintenant. Rend faux si la session était déjà enregistrée.
+     */
+    public boolean markUsed(String sessionId, BigDecimal amount, Instant now) {
+        if (countOf(GiftCardMovementKind.USED, sessionId) > 0) {
+            return false;
+        }
+        boolean reserved = countOf(GiftCardMovementKind.RESERVED, sessionId) > 0;
+        boolean released = countOf(GiftCardMovementKind.RELEASED, sessionId) > 0;
+        if (!reserved || released) {
+            var reservation = reserve(amount, now);
+            reservation.setCheckoutSessionId(sessionId);
+        }
+        var used = new GiftCardMovement(GiftCardMovementKind.USED, amount, null, now);
+        used.setCheckoutSessionId(sessionId);
+        movements.add(used);
+        return true;
+    }
+
+    private long countOf(GiftCardMovementKind kind, String sessionId) {
+        return movements.stream()
+                .filter(movement -> movement.getKind() == kind && sessionId.equals(movement.getCheckoutSessionId()))
+                .count();
+    }
+
     public boolean isExpired(Instant now) {
         return expiresAt != null && !now.isBefore(expiresAt);
     }

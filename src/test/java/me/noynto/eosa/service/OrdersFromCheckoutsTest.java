@@ -6,6 +6,7 @@ import me.noynto.eosa.checkout.CheckoutSession;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.Test;
 
@@ -59,6 +60,23 @@ class OrdersFromCheckoutsTest {
         assertEquals("p-1", order.getPromoCodeId().value());
         // Sans total de Stripe : bijoux, moins la remise, plus la livraison.
         assertEquals(new BigDecimal("64.30"), order.getTotalAmount());
+    }
+
+    @Test
+    void keepsTheGiftCardAndItsPartWithoutAnyPromoDiscount() {
+        var checkout = checkout();
+        checkout.setItems(List.of(item("Collier Lune", "33.00", 2)));
+        checkout.setShippingAmount(new BigDecimal("4.90"));
+        checkout.setUsedGiftCardId(new GiftCardId("card-1"));
+        checkout.setUsedGiftCardAmount(new BigDecimal("20.00"));
+
+        var order = OrdersFromCheckouts.fromPaidCheckout(checkout, paidAt);
+
+        assertEquals("card-1", order.getGiftCardId().value());
+        assertEquals(new BigDecimal("20.00"), order.getGiftCardAmount());
+        assertEquals(0, BigDecimal.ZERO.compareTo(order.getDiscountAmount()));
+        // Sans total de Stripe : bijoux, moins la part de la carte, plus la livraison.
+        assertEquals(new BigDecimal("50.90"), order.getTotalAmount());
     }
 
     @Test

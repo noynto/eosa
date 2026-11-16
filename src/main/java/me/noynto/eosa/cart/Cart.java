@@ -1,6 +1,7 @@
 package me.noynto.eosa.cart;
 
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ public class Cart {
     private List<CartItem> items = new ArrayList<>();
     private CartShipping shipping;
     private PromoCodeId promoCodeId;
+    private GiftCardId giftCardId;
 
     /**
      * Le code de promotion que la cliente a saisi, ou null. Il reste attaché même quand il ne s'applique plus
@@ -23,6 +25,18 @@ public class Cart {
 
     public void setPromoCodeId(PromoCodeId promoCodeId) {
         this.promoCodeId = promoCodeId;
+    }
+
+    /**
+     * La carte cadeau que la cliente a saisie, ou null. Jamais en même temps qu'un code de promotion. Elle reste
+     * attachée même quand elle ne s'applique plus : la déduction se recalcule à chaque lecture.
+     */
+    public GiftCardId getGiftCardId() {
+        return giftCardId;
+    }
+
+    public void setGiftCardId(GiftCardId giftCardId) {
+        this.giftCardId = giftCardId;
     }
 
     public CartId getId() {

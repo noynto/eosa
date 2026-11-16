@@ -4,6 +4,7 @@ import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.checkout.Checkout;
 import me.noynto.eosa.checkout.CheckoutProvider;
 import me.noynto.eosa.checkout.CheckoutStatus;
+import me.noynto.eosa.giftcard.GiftCardProvider;
 import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.order.Order;
 import me.noynto.eosa.order.OrderProvider;
@@ -23,6 +24,7 @@ public record ConfirmCheckoutSession(
         CheckoutProvider checkoutProvider,
         CartProvider cartProvider,
         OrderProvider orderProvider,
+        GiftCardProvider giftCardProvider,
         MailProvider mailProvider,
         Clock clock,
         URI adminBaseUrl
@@ -59,6 +61,9 @@ public record ConfirmCheckoutSession(
                 .flatMap(orderProvider::read)
                 .orElse(null);
         if (order == null) {
+            // La carte cadeau d'abord : l'utilisation est idempotente, et une commande sans sa carte débitée serait pire
+            // qu'une carte débitée dont la commande se crée au passage suivant.
+            useGiftCard(checkout, now);
             order = orderProvider.write(OrdersFromCheckouts.fromPaidCheckout(checkout, now));
             sendEmails(order, now);
         }
@@ -68,10 +73,30 @@ public record ConfirmCheckoutSession(
                 .ifPresent(cart -> {
                     cart.setItems(List.of());
                     cart.setPromoCodeId(null);
+                    cart.setGiftCardId(null);
                     cartProvider.write(cart);
                 });
 
         return new Result(checkout, order);
+    }
+
+    /**
+     * La réservation de la carte devient une utilisation : le solde avait baissé à l'ouverture du paiement. Sans carte
+     * (ou si elle a disparu), la commande est créée sans part de carte.
+     */
+    private void useGiftCard(Checkout checkout, Instant now) {
+        if (checkout.getUsedGiftCardId() == null || checkout.getUsedGiftCardAmount() == null
+                || checkout.getUsedGiftCardAmount().signum() <= 0) {
+            return;
+        }
+        var giftCard = giftCardProvider.read(checkout.getUsedGiftCardId()).orElse(null);
+        if (giftCard == null) {
+            checkout.setUsedGiftCardId(null);
+            return;
+        }
+        if (giftCard.markUsed(checkout.getSession().getId().getStripe(), checkout.getUsedGiftCardAmount(), now)) {
+            giftCardProvider.write(giftCard);
+        }
     }
 
     /**

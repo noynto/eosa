@@ -25,6 +25,8 @@ public class Checkout {
     private String customerPhone;
     private CheckoutShippingAddress shippingAddress;
     private GiftCardId giftCardId;
+    private GiftCardId usedGiftCardId;
+    private BigDecimal usedGiftCardAmount;
     private Instant expiresAt;
 
     public Checkout() {
@@ -40,6 +42,28 @@ public class Checkout {
 
     public void setGiftCardId(GiftCardId giftCardId) {
         this.giftCardId = giftCardId;
+    }
+
+    /**
+     * Carte cadeau qui paie une part de ce panier de bijoux ; null sans carte. Distincte de {@link #getGiftCardId()}
+     * (la carte qu'une session achète). Chez Stripe, sa part est portée par un coupon à usage unique, jamais en même
+     * temps qu'un code de promotion.
+     */
+    public GiftCardId getUsedGiftCardId() {
+        return usedGiftCardId;
+    }
+
+    public void setUsedGiftCardId(GiftCardId usedGiftCardId) {
+        this.usedGiftCardId = usedGiftCardId;
+    }
+
+    /** Part du panier payée par la carte ; null ou zéro sans carte. À la lecture, c'est la remise réellement appliquée. */
+    public BigDecimal getUsedGiftCardAmount() {
+        return usedGiftCardAmount;
+    }
+
+    public void setUsedGiftCardAmount(BigDecimal usedGiftCardAmount) {
+        this.usedGiftCardAmount = usedGiftCardAmount;
     }
 
     /**

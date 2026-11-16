@@ -7,6 +7,7 @@ import me.noynto.eosa.cart.SelectedCharm;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CartItemId;
 import me.noynto.eosa.shared.CharmId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.MetalColorId;
@@ -37,7 +38,7 @@ public record JdbcPersistedCarts(
             return Optional.empty();
         }
         String sql = """
-                SELECT c.id, c.promo_code_id, ci.id AS item_id, ci.jewel_id, ci.name, ci.price, ci.image_id, ci.quantity,
+                SELECT c.id, c.promo_code_id, c.gift_card_id, ci.id AS item_id, ci.jewel_id, ci.name, ci.price, ci.image_id, ci.quantity,
                        ci.metal_color_id, ci.metal_color_name, ci.metal_color_image_id,
                        cic.charm_id, cic.charm_name, cic.charm_price, cic.charm_image_id
                 FROM carts c
@@ -52,10 +53,12 @@ public record JdbcPersistedCarts(
             try (ResultSet resultSet = statement.executeQuery()) {
                 boolean found = false;
                 String promoCodeId = null;
+                String giftCardId = null;
                 Map<String, CartItem> itemsById = new LinkedHashMap<>();
                 while (resultSet.next()) {
                     found = true;
                     promoCodeId = resultSet.getString("promo_code_id");
+                    giftCardId = resultSet.getString("gift_card_id");
                     String itemId = resultSet.getString("item_id");
                     if (itemId == null) continue;
 
@@ -96,6 +99,7 @@ public record JdbcPersistedCarts(
                 cart.setId(new CartId(id.toString()));
                 cart.setItems(new ArrayList<>(itemsById.values()));
                 if (promoCodeId != null) cart.setPromoCodeId(new PromoCodeId(promoCodeId));
+                if (giftCardId != null) cart.setGiftCardId(new GiftCardId(giftCardId));
                 return Optional.of(cart);
             }
         } catch (SQLException e) {
@@ -113,10 +117,12 @@ public record JdbcPersistedCarts(
             connection.setAutoCommit(false);
             try {
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO carts (id, promo_code_id) VALUES (?, ?) "
-                                + "ON CONFLICT (id) DO UPDATE SET promo_code_id = EXCLUDED.promo_code_id")) {
+                        "INSERT INTO carts (id, promo_code_id, gift_card_id) VALUES (?, ?, ?) "
+                                + "ON CONFLICT (id) DO UPDATE SET promo_code_id = EXCLUDED.promo_code_id, "
+                                + "gift_card_id = EXCLUDED.gift_card_id")) {
                     statement.setObject(1, id);
                     statement.setObject(2, cart.getPromoCodeId() != null ? UUID.fromString(cart.getPromoCodeId().value()) : null);
+                    statement.setObject(3, cart.getGiftCardId() != null ? UUID.fromString(cart.getGiftCardId().value()) : null);
                     statement.executeUpdate();
                 }
                 try (PreparedStatement statement = connection.prepareStatement("DELETE FROM cart_items WHERE cart_id = ?")) {

@@ -16,6 +16,7 @@ import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CartItemId;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -147,6 +148,21 @@ class ApplyPromoCodeTest {
         var error = assertThrows(RuntimeException.class, () -> useCase().handle(new ApplyPromoCode.Command(cartId, "BIENVENUE10")));
 
         assertEquals("Ce code n'est plus disponible.", error.getMessage());
+        verify(cartProvider, never()).write(any());
+    }
+
+    @Test
+    void handle_refusesACodeWhenAGiftCardIsAttached() {
+        var cart = new Cart();
+        cart.setId(cartId);
+        cart.setItems(List.of(new CartItem(new CartItemId("i"), new JewelId("j"), "Collier Lune", new BigDecimal("40"),
+                null, 1, null, null, null, List.of())));
+        cart.setGiftCardId(new GiftCardId("card-1"));
+        when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
+
+        var error = assertThrows(RuntimeException.class, () -> useCase().handle(new ApplyPromoCode.Command(cartId, "BIENVENUE10")));
+
+        assertEquals("Retirez d'abord la carte cadeau pour utiliser un code de promotion.", error.getMessage());
         verify(cartProvider, never()).write(any());
     }
 

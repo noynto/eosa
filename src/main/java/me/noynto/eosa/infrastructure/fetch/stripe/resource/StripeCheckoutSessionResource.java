@@ -26,10 +26,37 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
                 CheckoutSession.class);
     }
 
+    /**
+     * Crée la session d'un panier dont une carte cadeau paie une part des bijoux. Comme pour un code de promotion, le
+     * site crée d'abord un coupon à usage unique du montant déduit : Stripe n'a aucune notion de carte, il ne reçoit
+     * que la valeur. La session expire à {@code expiresAt} (le solde de la carte est réservé jusque-là) et porte la
+     * carte en métadonnées, relues à la commande. Jamais en même temps qu'un code de promotion : Stripe n'accepte
+     * qu'une remise par session.
+     */
+    public CheckoutSession postWithGiftCard(List<LineItem> lineItems, String clientReferenceId, BigDecimal shippingAmount,
+                                            GiftCardDiscount giftCardDiscount, long expiresAt) throws IOException, InterruptedException {
+        String couponId = createCoupon(giftCardDiscount.amount(), "Carte cadeau");
+        List<String> params = buildParams(lineItems, clientReferenceId, shippingAmount, null, null);
+        params.addAll(giftCardParams(giftCardDiscount, couponId, expiresAt));
+        return http.post("/v1/checkout/sessions", String.join("&", params), CheckoutSession.class);
+    }
+
+    List<String> giftCardParams(GiftCardDiscount giftCardDiscount, String couponId, long expiresAt) {
+        return List.of(
+                "discounts[0][coupon]=" + StripeHttpClient.encode(couponId),
+                "metadata[used_gift_card_id]=" + StripeHttpClient.encode(giftCardDiscount.giftCardId()),
+                "metadata[used_gift_card_amount]=" + StripeHttpClient.toStripeAmount(giftCardDiscount.amount()),
+                "expires_at=" + expiresAt);
+    }
+
     /** Coupon d'un montant fixe, valable une seule fois : il ne sert qu'à cette session. */
     String createCoupon(Discount discount) throws IOException, InterruptedException {
-        String body = "amount_off=" + StripeHttpClient.toStripeAmount(discount.amount())
-                + "&currency=eur&duration=once&max_redemptions=1&name=" + StripeHttpClient.encode(discount.code());
+        return createCoupon(discount.amount(), discount.code());
+    }
+
+    String createCoupon(BigDecimal amount, String name) throws IOException, InterruptedException {
+        String body = "amount_off=" + StripeHttpClient.toStripeAmount(amount)
+                + "&currency=eur&duration=once&max_redemptions=1&name=" + StripeHttpClient.encode(name);
         Coupon coupon = http.post("/v1/coupons", body, Coupon.class);
         if (coupon == null || coupon.id() == null) {
             throw new IOException("Stripe n'a pas créé le coupon de la remise.");
@@ -142,6 +169,12 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
             BigDecimal amount,
             String promoCodeId,
             String code
+    ) {}
+
+    /** La part d'une carte cadeau : son montant, et la carte pour la retrouver à la commande. */
+    public record GiftCardDiscount(
+            BigDecimal amount,
+            String giftCardId
     ) {}
 
     public record Coupon(

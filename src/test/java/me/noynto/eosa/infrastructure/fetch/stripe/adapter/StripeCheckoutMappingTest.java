@@ -87,6 +87,44 @@ class StripeCheckoutMappingTest {
     }
 
     @Test
+    void readsTheGiftCardPartOfTheSessionAsItsDiscountNotAsAPromoDiscount() {
+        var checkout = adapter.toCheckout(session("""
+                {
+                  "id": "cs_test_5",
+                  "payment_status": "paid",
+                  "client_reference_id": "cart-1",
+                  "amount_total": 2290,
+                  "total_details": {"amount_discount": 2000},
+                  "metadata": {"used_gift_card_id": "card-1", "used_gift_card_amount": "2000"}
+                }
+                """));
+
+        assertEquals("card-1", checkout.getUsedGiftCardId().value());
+        assertEquals(new BigDecimal("20.00"), checkout.getUsedGiftCardAmount());
+        assertEquals(0, BigDecimal.ZERO.compareTo(checkout.getDiscountAmount()));
+        assertNull(checkout.getPromoCodeId());
+        assertNull(checkout.getGiftCardId(), "la carte utilisée n'est pas une carte achetée");
+    }
+
+    @Test
+    void readsACartCoveredByTheCardAtZeroEuroAsPaid() {
+        var checkout = adapter.toCheckout(session("""
+                {
+                  "id": "cs_test_6",
+                  "payment_status": "no_payment_required",
+                  "client_reference_id": "cart-1",
+                  "amount_total": 0,
+                  "total_details": {"amount_discount": 7000},
+                  "metadata": {"used_gift_card_id": "card-1"}
+                }
+                """));
+
+        assertEquals(CheckoutStatus.COMPLETED, checkout.getStatus());
+        assertEquals(new BigDecimal("0.00"), checkout.getTotalAmount());
+        assertEquals(new BigDecimal("70.00"), checkout.getUsedGiftCardAmount());
+    }
+
+    @Test
     void leavesAmountsAndAddressEmptyWhenStripeDidNotGiveThem() {
         var checkout = adapter.toCheckout(session("""
                 {"id": "cs_test_3", "payment_status": "unpaid"}

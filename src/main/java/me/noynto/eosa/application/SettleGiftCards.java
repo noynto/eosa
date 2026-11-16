@@ -46,6 +46,9 @@ public record SettleGiftCards(
     /** Âge à partir duquel une carte jamais payée est supprimée. */
     static final Duration UNPAID_RETENTION = Duration.ofHours(24);
 
+    /** Âge à partir duquel une réservation dont la session n'est pas payée est rendue (la session expire à 31 minutes). */
+    static final Duration RESERVATION_HOLD = Duration.ofMinutes(40);
+
     /** Laisse le temps à l'envoi immédiat d'avoir lieu, pour ne pas envoyer deux fois le même e-mail. */
     static final Duration EMAIL_GRACE_PERIOD = Duration.ofMinutes(5);
 
@@ -61,6 +64,7 @@ public record SettleGiftCards(
         int activated = 0;
         int emailsSent = 0;
         int deleted = 0;
+        int released = 0;
         int failed = 0;
         for (GiftCardId id : ids) {
             try {
@@ -83,6 +87,7 @@ public record SettleGiftCards(
                         }
                     }
                 }
+                released += releaseExpiredReservations(giftCard, now);
                 // Une carte que ce passage vient d'activer part tout de suite : personne d'autre ne l'enverra.
                 if (justActivated ? giftCard.getEmailSentAt() == null : needsEmail(giftCard, now)) {
                     mailProvider.send(GiftCardMails.delivery(giftCard, publicBaseUrl));
@@ -95,7 +100,40 @@ public record SettleGiftCards(
                 failed++;
             }
         }
-        return new Result(activated, emailsSent, deleted, failed);
+        return new Result(activated, emailsSent, deleted, released, failed);
+    }
+
+    /**
+     * Rend au solde les réservations d'un paiement abandonné : la session expire au bout de 31 minutes, la
+     * réservation est rendue quand elle a plus de 40 minutes et que Stripe ne la dit pas payée. Une session payée
+     * n'est jamais rendue ici : c'est le rattrapage des commandes qui la transforme en utilisation. Une session que
+     * Stripe ne rend pas ne libère rien (échec repris au passage suivant).
+     */
+    private int releaseExpiredReservations(GiftCard giftCard, Instant now) {
+        if (giftCard.getState() != GiftCardState.ACTIVE) {
+            return 0;
+        }
+        int released = 0;
+        for (GiftCardMovement reservation : giftCard.openReservations()) {
+            if (reservation.getCreatedAt().isAfter(now.minus(RESERVATION_HOLD))) {
+                continue;
+            }
+            var sessionId = new CheckoutSessionId();
+            sessionId.setStripe(reservation.getCheckoutSessionId());
+            Checkout checkout = checkoutProvider.readIds(sessionId, null, null)
+                    .findFirst()
+                    .flatMap(checkoutProvider::read)
+                    .orElseThrow(() -> new RuntimeException("Session Stripe introuvable : " + reservation.getCheckoutSessionId()));
+            if (checkout.getStatus() == CheckoutStatus.COMPLETED) {
+                continue;
+            }
+            giftCard.release(reservation, now);
+            released++;
+        }
+        if (released > 0) {
+            giftCardProvider.write(giftCard);
+        }
+        return released;
     }
 
     private enum Outcome {ACTIVATED, DELETED, WAITING}
@@ -158,12 +196,14 @@ public record SettleGiftCards(
      * @param activated  cartes payées activées par ce passage
      * @param emailsSent e-mails de carte partis pendant ce passage
      * @param deleted    cartes jamais payées supprimées
+     * @param released   réservations rendues au solde (paiement abandonné)
      * @param failed     cartes non rattrapées et e-mails non partis (repris au prochain passage)
      */
     public record Result(
             int activated,
             int emailsSent,
             int deleted,
+            int released,
             int failed
     ) {
     }

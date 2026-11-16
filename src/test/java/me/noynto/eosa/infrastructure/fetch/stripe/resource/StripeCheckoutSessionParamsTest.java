@@ -52,6 +52,18 @@ class StripeCheckoutSessionParamsTest {
     }
 
     @Test
+    void giftCardPartIsOneCouponWithTheCardInMetadataAndAnExpiry() {
+        var params = resource.giftCardParams(
+                new StripeCheckoutSessionResource.GiftCardDiscount(new BigDecimal("20.00"), "card-1"), "coupon_1", 1_700_000_000L);
+
+        assertTrue(params.contains("discounts[0][coupon]=coupon_1"), params.toString());
+        assertTrue(params.contains("metadata[used_gift_card_id]=card-1"), params.toString());
+        assertTrue(params.contains("metadata[used_gift_card_amount]=2000"), params.toString());
+        assertTrue(params.contains("expires_at=1700000000"), params.toString());
+        assertFalse(params.stream().anyMatch(param -> param.contains("promo_code")), params.toString());
+    }
+
+    @Test
     void sendsNothingAboutPromotionsWithoutADiscount() {
         var params = resource.buildParams(items, "cart-1", new BigDecimal("4.90"), null, null);
 

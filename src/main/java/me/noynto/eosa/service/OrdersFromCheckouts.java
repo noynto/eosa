@@ -37,9 +37,10 @@ public final class OrdersFromCheckouts {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal shippingAmount = checkout.getShippingAmount() != null ? checkout.getShippingAmount() : BigDecimal.ZERO;
         BigDecimal discountAmount = checkout.getDiscountAmount() != null ? checkout.getDiscountAmount() : BigDecimal.ZERO;
+        BigDecimal giftCardAmount = checkout.getUsedGiftCardAmount() != null ? checkout.getUsedGiftCardAmount() : BigDecimal.ZERO;
         BigDecimal totalAmount = checkout.getTotalAmount() != null
                 ? checkout.getTotalAmount()
-                : itemsAmount.subtract(discountAmount).add(shippingAmount);
+                : itemsAmount.subtract(discountAmount).subtract(giftCardAmount).add(shippingAmount);
 
         Order order = new Order();
         order.setState(OrderState.PAID);
@@ -60,6 +61,11 @@ public final class OrdersFromCheckouts {
         if (discountAmount.signum() > 0) {
             order.setPromoCodeId(checkout.getPromoCodeId());
             order.setPromoCode(checkout.getPromoCode());
+        }
+        // La carte n'est gardée que si elle a réellement payé une part.
+        if (giftCardAmount.signum() > 0) {
+            order.setGiftCardId(checkout.getUsedGiftCardId());
+            order.setGiftCardAmount(giftCardAmount);
         }
         order.setShippingAmount(shippingAmount);
         order.setTotalAmount(totalAmount);

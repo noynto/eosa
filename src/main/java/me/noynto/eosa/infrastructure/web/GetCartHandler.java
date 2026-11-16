@@ -25,7 +25,9 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
         BigDecimal subtotal = cart.getTotal();
         BigDecimal discount = result.discount();
         BigDecimal shippingAmount = shipping != null ? shipping.getAmount() : null;
-        BigDecimal total = (shippingAmount != null ? subtotal.add(shippingAmount) : subtotal).subtract(discount);
+        BigDecimal giftCardDeduction = result.giftCardDeduction();
+        BigDecimal total = (shippingAmount != null ? subtotal.add(shippingAmount) : subtotal)
+                .subtract(discount).subtract(giftCardDeduction);
         BigDecimal remaining = shipping != null ? shipping.getRule().getFreeThreshold().subtract(subtotal) : BigDecimal.ZERO;
 
         boolean hasItems = !cart.getItems().isEmpty();
@@ -82,13 +84,32 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
         model.put("discount", hasDiscount ? discount.stripTrailingZeros().toPlainString() : "");
         model.put("hasPromoRefusal", hasPromoCode && result.refusal() != null);
         model.put("promoRefusal", result.refusal() != null ? result.refusal() : "");
-        model.put("canEnterPromoCode", hasItems && !hasPromoCode);
+        // Une carte cadeau, comme un code de promotion : saisie ou refusée, elle reste affichée avec la raison.
+        boolean hasGiftCard = result.giftCard() != null;
+        boolean hasGiftCardDeduction = giftCardDeduction.signum() > 0;
+        model.put("hasGiftCard", hasGiftCard);
+        model.put("giftCardCode", hasGiftCard ? maskedCode(result.giftCard().getCode()) : "");
+        model.put("hasGiftCardDeduction", hasGiftCardDeduction);
+        model.put("giftCardDeduction", hasGiftCardDeduction ? giftCardDeduction.stripTrailingZeros().toPlainString() : "");
+        model.put("hasGiftCardRefusal", hasGiftCard && result.giftCardRefusal() != null);
+        model.put("giftCardRefusal", result.giftCardRefusal() != null ? result.giftCardRefusal() : "");
+        BigDecimal giftCardRemaining = hasGiftCardDeduction ? result.giftCard().balance().subtract(giftCardDeduction) : BigDecimal.ZERO;
+        model.put("hasGiftCardRemaining", hasGiftCardDeduction && giftCardRemaining.signum() > 0);
+        model.put("giftCardRemaining", giftCardRemaining.stripTrailingZeros().toPlainString());
+        // Un code de promotion ou une carte cadeau, jamais les deux : on saisit l'un tant que l'autre est absent.
+        model.put("canEnterPromoCode", hasItems && !hasPromoCode && !hasGiftCard);
+        model.put("canEnterGiftCard", hasItems && !hasPromoCode && !hasGiftCard);
         model.put("isShippingPaid", isShippingPaid);
         model.put("shippingAmount", isShippingPaid ? shippingAmount.stripTrailingZeros().toPlainString() : "");
         model.put("total", total.stripTrailingZeros().toPlainString());
         model.put("hasRemainingForFreeShipping", hasRemainingForFreeShipping);
         model.put("remaining", hasRemainingForFreeShipping ? remaining.stripTrailingZeros().toPlainString() : "");
         ctx.render("cart.mustache", model);
+    }
+
+    /** Le code d'une carte saisie dans le panier n'est jamais réaffiché en clair : « ••••••••AB3K ». */
+    private static String maskedCode(String code) {
+        return "••••••••" + code.substring(Math.max(0, code.length() - 4));
     }
 
 }

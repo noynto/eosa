@@ -7,11 +7,20 @@ import me.noynto.eosa.cart.CartShippingRule;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.checkout.Checkout;
 import me.noynto.eosa.checkout.CheckoutProvider;
+import me.noynto.eosa.checkout.CheckoutSession;
+import me.noynto.eosa.giftcard.GiftCard;
+import me.noynto.eosa.giftcard.GiftCardMovement;
+import me.noynto.eosa.giftcard.GiftCardMovementKind;
+import me.noynto.eosa.giftcard.GiftCardProvider;
+import me.noynto.eosa.giftcard.GiftCardState;
 import me.noynto.eosa.promo.PromoCode;
 import me.noynto.eosa.promo.PromoCodeProvider;
 import me.noynto.eosa.promo.PromoCodeType;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CartItemId;
+import me.noynto.eosa.shared.CheckoutSessionId;
+import me.noynto.eosa.shared.GiftCardId;
+import me.noynto.eosa.shared.GiftCardMovementId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +39,10 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +53,7 @@ class InitiateCheckoutTest {
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartShippingRuleProvider shippingRuleProvider;
     @Mock PromoCodeProvider promoCodeProvider;
+    @Mock GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-14T10:00:00Z");
     private final CartId cartId = new CartId("cart");
@@ -58,12 +71,12 @@ class InitiateCheckoutTest {
         rule.setFreeThreshold(new BigDecimal("60"));
         rule.setAmount(new BigDecimal("5"));
         when(shippingRuleProvider.get()).thenReturn(rule);
-        when(checkoutProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(checkoutProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     private Checkout initiate() throws Exception {
         var useCase = new InitiateCheckout(cartProvider, checkoutProvider, shippingRuleProvider, promoCodeProvider,
-                new InMemoryOrders(), Clock.fixed(now, ZoneOffset.UTC));
+                new InMemoryOrders(), giftCardProvider, Clock.fixed(now, ZoneOffset.UTC));
         useCase.handle(new InitiateCheckout.Command(cartId));
         var captor = ArgumentCaptor.forClass(Checkout.class);
         verify(checkoutProvider).write(captor.capture());
@@ -106,6 +119,88 @@ class InitiateCheckoutTest {
         assertNull(checkout.getDiscountAmount());
         assertNull(checkout.getPromoCodeId());
         assertNull(checkout.getPromoCode());
+    }
+
+    private GiftCard giftCard(String balance) {
+        var giftCard = new GiftCard();
+        giftCard.setId(new GiftCardId("card-1"));
+        giftCard.setState(GiftCardState.ACTIVE);
+        giftCard.setExpiresAt(now.plusSeconds(3600));
+        giftCard.getMovements().add(new GiftCardMovement(GiftCardMovementKind.ISSUED, new BigDecimal(balance), null, now));
+        // Chaque écriture donne leur identifiant aux mouvements neufs, comme le fait la persistance.
+        lenient().when(giftCardProvider.write(any())).thenAnswer(inv -> {
+            GiftCard written = inv.getArgument(0);
+            written.getMovements().forEach(movement -> {
+                if (movement.getId() == null) {
+                    movement.setId(new GiftCardMovementId("m-" + written.getMovements().indexOf(movement)));
+                }
+            });
+            return written;
+        });
+        lenient().when(giftCardProvider.read(giftCard.getId())).thenReturn(Optional.of(giftCard));
+        cart.setGiftCardId(giftCard.getId());
+        return giftCard;
+    }
+
+    @Test
+    void handle_reservesTheCardAndAsksStripeForItsPartWithAnExpiry() throws Exception {
+        var giftCard = giftCard("20");
+        when(checkoutProvider.write(any())).thenAnswer(inv -> {
+            Checkout opened = inv.getArgument(0);
+            var session = new CheckoutSession();
+            var sessionId = new CheckoutSessionId();
+            sessionId.setStripe("cs_1");
+            session.setId(sessionId);
+            opened.setSession(session);
+            return opened;
+        });
+
+        var checkout = initiate();
+
+        assertEquals(new BigDecimal("20.00"), checkout.getUsedGiftCardAmount());
+        assertEquals(giftCard.getId(), checkout.getUsedGiftCardId());
+        assertNull(checkout.getDiscountAmount(), "une carte n'est pas une remise de code");
+        assertEquals(now.plus(PurchaseGiftCard.SESSION_DURATION), checkout.getExpiresAt());
+        // Le solde est réservé, et la réservation suit la session.
+        assertEquals(0, BigDecimal.ZERO.compareTo(giftCard.balance()));
+        assertEquals(1, giftCard.openReservations().size());
+        assertEquals("cs_1", giftCard.openReservations().getFirst().getCheckoutSessionId());
+    }
+
+    @Test
+    void handle_opensThePaymentWithoutTheCardWhenItNoLongerApplies() throws Exception {
+        var giftCard = giftCard("20");
+        giftCard.setExpiresAt(now);
+
+        var checkout = initiate();
+
+        assertNull(checkout.getUsedGiftCardId());
+        assertNull(checkout.getUsedGiftCardAmount());
+        assertEquals(1, giftCard.getMovements().size(), "rien n'est réservé");
+    }
+
+    @Test
+    void handle_releasesTheReservationWhenStripeRefuses() {
+        var giftCard = giftCard("20");
+        doThrow(new RuntimeException("Stripe")).when(checkoutProvider).write(any());
+        var useCase = new InitiateCheckout(cartProvider, checkoutProvider, shippingRuleProvider, promoCodeProvider,
+                new InMemoryOrders(), giftCardProvider, Clock.fixed(now, ZoneOffset.UTC));
+
+        assertThrows(RuntimeException.class, () -> useCase.handle(new InitiateCheckout.Command(cartId)));
+
+        assertEquals(0, new BigDecimal("20").compareTo(giftCard.balance()), "le solde est rendu");
+    }
+
+    @Test
+    void handle_ignoresTheCardWhenAPromoCodeIsAlsoAttached() throws Exception {
+        var giftCard = giftCard("20");
+        cart.setPromoCodeId(promoCodeId);
+        when(promoCodeProvider.read(promoCodeId)).thenReturn(Optional.empty());
+
+        var checkout = initiate();
+
+        assertNull(checkout.getUsedGiftCardId());
+        assertEquals(1, giftCard.getMovements().size());
     }
 
     @Test

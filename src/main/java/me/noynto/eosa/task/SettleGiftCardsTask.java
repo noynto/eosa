@@ -16,7 +16,8 @@ public record SettleGiftCardsTask(
         try {
             var result = settleGiftCards.handle();
             LOGGER.log(Level.INFO, result.activated() + " carte(s) activée(s), " + result.emailsSent() + " e-mail(s) envoyé(s), "
-                    + result.deleted() + " carte(s) jamais payée(s) supprimée(s), " + result.failed() + " échec(s).");
+                    + result.deleted() + " carte(s) jamais payée(s) supprimée(s), " + result.released()
+                    + " réservation(s) rendue(s), " + result.failed() + " échec(s).");
             return result.failed() == 0;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Le rattrapage des cartes cadeau a échoué.", e);

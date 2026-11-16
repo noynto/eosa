@@ -29,8 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -87,7 +89,7 @@ class PurchaseGiftCardTest {
         assertTrue(checkout.getValue().getExpiresAt().isAfter(now.plusSeconds(30 * 60)), "au moins 30 minutes pour Stripe");
 
         var card = ArgumentCaptor.forClass(GiftCard.class);
-        verify(giftCardProvider, org.mockito.Mockito.times(2)).write(card.capture());
+        verify(giftCardProvider, times(2)).write(card.capture());
         var written = card.getValue();
         assertEquals(GiftCardState.PENDING_PAYMENT, written.getState());
         assertEquals("cs_1", written.getStripeSessionId());
@@ -117,7 +119,7 @@ class PurchaseGiftCardTest {
 
     @Test
     void handle_deletesThePendingCardWhenStripeRefuses() {
-        org.mockito.Mockito.doThrow(new RuntimeException("Stripe indisponible")).when(checkoutProvider).write(any());
+        doThrow(new RuntimeException("Stripe indisponible")).when(checkoutProvider).write(any());
 
         assertThrows(RuntimeException.class, () -> useCase.handle(command("50")));
 
