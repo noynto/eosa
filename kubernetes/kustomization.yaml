@@ -6,3 +6,4 @@ resources:
   - postgres.yaml
   - workshop-cronjobs.yaml
   - order-cronjobs.yaml
+  - gift-card-cronjobs.yaml

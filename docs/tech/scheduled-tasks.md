@@ -9,6 +9,7 @@ L'application n'a pas de planificateur interne. Un traitement périodique est un
 | `CreateDefaultAdministratorIdentityTask` | `EOSA_CREATE_DEFAULT_ADMINISTRATOR_IDENTITY_TASK` | Au déploiement (`initContainer`) | Crée l'administratrice par défaut si elle n'existe pas |
 | `SendTestEmailTask` | `EOSA_SEND_TEST_EMAIL_TO` (adresse) | À la demande | Envoie un e-mail de test |
 | `SettleOrdersTask` | `EOSA_SETTLE_ORDERS_TASK` | Toutes les 5 min | Crée la commande des paiements Stripe dont la cliente n'est pas revenue sur la page de succès, et renvoie les e-mails de commande et d'expédition qui ne sont pas partis (jamais pour une commande annulée) |
+| `SettleGiftCardsTask` | `EOSA_SETTLE_GIFT_CARDS_TASK` | Toutes les 5 min | Active les cartes cadeau payées dont la personne n'est pas revenue sur la page de succès, renvoie les e-mails de carte qui ne sont pas partis (y compris celui d'une carte offerte par l'administration) et supprime les cartes jamais payées après 24 h |
 | `TrackOrderShipmentsTask` | `EOSA_TRACK_ORDER_SHIPMENTS_TASK` | Toutes les 15 min | Relit le suivi Mondial Relay (web service V1) des commandes fabriquées ou expédiées : colis pris en charge → expédiée avec l'e-mail de suivi, colis livré → livrée |
 | `PurgeOrderPersonalDataTask` | `EOSA_PURGE_ORDER_PERSONAL_DATA_TASK` | Chaque nuit à 3 h 45 | Efface l'adresse de livraison et le téléphone des commandes livrées ou annulées depuis plus d'un an (montants, lignes, nom et e-mail gardés) |
 | `AnnounceWorkshopBookingOpeningsTask` | `EOSA_ANNOUNCE_WORKSHOP_BOOKING_OPENINGS_TASK` | Chaque minute | Prévient la liste d'attente à l'ouverture des réservations |
@@ -24,6 +25,7 @@ Les variables d'activation ne sont jamais définies dans le `Deployment`, seulem
 ```bash
 docker compose run --rm send-test-email
 docker compose run --rm settle-orders
+docker compose run --rm settle-gift-cards
 docker compose run --rm track-order-shipments
 docker compose run --rm purge-order-personal-data
 docker compose run --rm announce-workshop-booking-openings
@@ -35,7 +37,7 @@ docker compose run --rm purge-workshop-personal-data
 
 ## En production
 
-Les CronJobs sont dans `kubernetes/workshop-cronjobs.yaml` (ateliers) et `kubernetes/order-cronjobs.yaml` (commandes), inclus dans la kustomization : même image et mêmes variables que le `Deployment`, fuseau `Europe/Paris`, `concurrencyPolicy: Forbid`, historique des échecs conservé. Pour lancer une tâche à la main et lire son résultat :
+Les CronJobs sont dans `kubernetes/workshop-cronjobs.yaml` (ateliers), `kubernetes/order-cronjobs.yaml` (commandes) et `kubernetes/gift-card-cronjobs.yaml` (cartes cadeau), inclus dans la kustomization : même image et mêmes variables que le `Deployment`, fuseau `Europe/Paris`, `concurrencyPolicy: Forbid`, historique des échecs conservé. Pour lancer une tâche à la main et lire son résultat :
 
 ```bash
 kubectl -n eosa create job --from=cronjob/<nom> <nom>-manuel

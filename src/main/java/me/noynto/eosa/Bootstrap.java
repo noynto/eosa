@@ -51,6 +51,7 @@ import me.noynto.eosa.task.PurgeWorkshopPersonalDataTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
 import me.noynto.eosa.task.PurgeOrderPersonalDataTask;
+import me.noynto.eosa.task.SettleGiftCardsTask;
 import me.noynto.eosa.task.SettleOrdersTask;
 import me.noynto.eosa.task.TrackOrderShipmentsTask;
 import me.noynto.eosa.task.SendWorkshopRemindersTask;
@@ -263,6 +264,14 @@ public class Bootstrap {
             giftCardMaximumAmount
         );
         ConfirmGiftCardPayment confirmGiftCardPayment = new ConfirmGiftCardPayment(
+            giftCardProvider,
+            stripeFetchedCheckouts,
+            mailProvider,
+            clock,
+            giftCardValidityDays,
+            properties.publicBaseUrl()
+        );
+        SettleGiftCards settleGiftCards = new SettleGiftCards(
             giftCardProvider,
             stripeFetchedCheckouts,
             mailProvider,
@@ -514,6 +523,10 @@ public class Bootstrap {
         }
         if (SettleOrdersTask.activate()) {
             oneShotTasksSucceeded &= new SettleOrdersTask(settleOrders).task();
+            ranOneShotTask = true;
+        }
+        if (SettleGiftCardsTask.activate()) {
+            oneShotTasksSucceeded &= new SettleGiftCardsTask(settleGiftCards).task();
             ranOneShotTask = true;
         }
         if (TrackOrderShipmentsTask.activate()) {
