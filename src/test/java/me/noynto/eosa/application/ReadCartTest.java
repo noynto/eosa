@@ -6,6 +6,7 @@ import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRule;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.promo.PromoCode;
+import me.noynto.eosa.giftcard.GiftCardProvider;
 import me.noynto.eosa.promo.PromoCodeProvider;
 import me.noynto.eosa.promo.PromoCodeType;
 import me.noynto.eosa.shared.CartId;
@@ -41,7 +42,7 @@ class ReadCartTest {
     @Mock CartProvider cartProvider;
     @Mock CartShippingRuleProvider shippingRuleProvider;
     @Mock PromoCodeProvider promoCodeProvider;
-    @Mock me.noynto.eosa.giftcard.GiftCardProvider giftCardProvider;
+    @Mock GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-14T10:00:00Z");
 

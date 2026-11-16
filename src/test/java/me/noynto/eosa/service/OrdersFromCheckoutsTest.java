@@ -6,6 +6,7 @@ import me.noynto.eosa.checkout.CheckoutSession;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.Test;
 
@@ -66,7 +67,7 @@ class OrdersFromCheckoutsTest {
         var checkout = checkout();
         checkout.setItems(List.of(item("Collier Lune", "33.00", 2)));
         checkout.setShippingAmount(new BigDecimal("4.90"));
-        checkout.setUsedGiftCardId(new me.noynto.eosa.shared.GiftCardId("card-1"));
+        checkout.setUsedGiftCardId(new GiftCardId("card-1"));
         checkout.setUsedGiftCardAmount(new BigDecimal("20.00"));
 
         var order = OrdersFromCheckouts.fromPaidCheckout(checkout, paidAt);

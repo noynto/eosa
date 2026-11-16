@@ -7,12 +7,17 @@ import me.noynto.eosa.checkout.CheckoutProvider;
 import me.noynto.eosa.checkout.CheckoutSession;
 import me.noynto.eosa.checkout.CheckoutStatus;
 import me.noynto.eosa.mail.Mail;
+import me.noynto.eosa.giftcard.GiftCard;
+import me.noynto.eosa.giftcard.GiftCardMovement;
+import me.noynto.eosa.giftcard.GiftCardMovementKind;
+import me.noynto.eosa.giftcard.GiftCardProvider;
 import me.noynto.eosa.mail.MailProvider;
 import me.noynto.eosa.order.Order;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
 import me.noynto.eosa.shared.CheckoutSessionId;
+import me.noynto.eosa.shared.GiftCardId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +55,7 @@ class SettleOrdersTest {
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartProvider cartProvider;
     @Mock MailProvider mailProvider;
-    @Mock me.noynto.eosa.giftcard.GiftCardProvider giftCardProvider;
+    @Mock GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-12T10:15:00Z");
     private InMemoryOrders orders;
@@ -110,13 +115,12 @@ class SettleOrdersTest {
 
     @Test
     void handle_usesTheGiftCardOfAPaidSessionWhoseBuyerNeverCameBack() {
-        var giftCardId = new me.noynto.eosa.shared.GiftCardId("card-1");
-        var giftCard = new me.noynto.eosa.giftcard.GiftCard();
+        var giftCardId = new GiftCardId("card-1");
+        var giftCard = new GiftCard();
         giftCard.setId(giftCardId);
-        giftCard.getMovements().add(new me.noynto.eosa.giftcard.GiftCardMovement(
-                me.noynto.eosa.giftcard.GiftCardMovementKind.ISSUED, new BigDecimal("50.00"), null, now));
+        giftCard.getMovements().add(new GiftCardMovement(GiftCardMovementKind.ISSUED, new BigDecimal("50.00"), null, now));
         giftCard.reserve(new BigDecimal("20.00"), now).setCheckoutSessionId("cs_1");
-        when(giftCardProvider.read(giftCardId)).thenReturn(java.util.Optional.of(giftCard));
+        when(giftCardProvider.read(giftCardId)).thenReturn(Optional.of(giftCard));
         paid("cs_1", "cart-1");
         var checkout = checkoutProvider.read(paidIds.getFirst()).orElseThrow();
         checkout.setUsedGiftCardId(giftCardId);

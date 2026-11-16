@@ -16,6 +16,7 @@ import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CartItemId;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -156,7 +157,7 @@ class ApplyPromoCodeTest {
         cart.setId(cartId);
         cart.setItems(List.of(new CartItem(new CartItemId("i"), new JewelId("j"), "Collier Lune", new BigDecimal("40"),
                 null, 1, null, null, null, List.of())));
-        cart.setGiftCardId(new me.noynto.eosa.shared.GiftCardId("card-1"));
+        cart.setGiftCardId(new GiftCardId("card-1"));
         when(cartProvider.read(cartId)).thenReturn(Optional.of(cart));
 
         var error = assertThrows(RuntimeException.class, () -> useCase().handle(new ApplyPromoCode.Command(cartId, "BIENVENUE10")));

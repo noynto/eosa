@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,7 +18,7 @@ class GiftCardTest {
         var giftCard = new GiftCard();
         giftCard.setState(state);
         giftCard.setExpiresAt(expiresAt);
-        giftCard.getMovements().addAll(java.util.List.of(movements));
+        giftCard.getMovements().addAll(List.of(movements));
         return giftCard;
     }
 

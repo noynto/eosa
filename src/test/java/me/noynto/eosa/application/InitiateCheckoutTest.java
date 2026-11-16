@@ -7,11 +7,20 @@ import me.noynto.eosa.cart.CartShippingRule;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.checkout.Checkout;
 import me.noynto.eosa.checkout.CheckoutProvider;
+import me.noynto.eosa.checkout.CheckoutSession;
+import me.noynto.eosa.giftcard.GiftCard;
+import me.noynto.eosa.giftcard.GiftCardMovement;
+import me.noynto.eosa.giftcard.GiftCardMovementKind;
+import me.noynto.eosa.giftcard.GiftCardProvider;
+import me.noynto.eosa.giftcard.GiftCardState;
 import me.noynto.eosa.promo.PromoCode;
 import me.noynto.eosa.promo.PromoCodeProvider;
 import me.noynto.eosa.promo.PromoCodeType;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CartItemId;
+import me.noynto.eosa.shared.CheckoutSessionId;
+import me.noynto.eosa.shared.GiftCardId;
+import me.noynto.eosa.shared.GiftCardMovementId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +53,7 @@ class InitiateCheckoutTest {
     @Mock CheckoutProvider checkoutProvider;
     @Mock CartShippingRuleProvider shippingRuleProvider;
     @Mock PromoCodeProvider promoCodeProvider;
-    @Mock me.noynto.eosa.giftcard.GiftCardProvider giftCardProvider;
+    @Mock GiftCardProvider giftCardProvider;
 
     private final Instant now = Instant.parse("2026-11-14T10:00:00Z");
     private final CartId cartId = new CartId("cart");
@@ -112,19 +121,18 @@ class InitiateCheckoutTest {
         assertNull(checkout.getPromoCode());
     }
 
-    private me.noynto.eosa.giftcard.GiftCard giftCard(String balance) {
-        var giftCard = new me.noynto.eosa.giftcard.GiftCard();
-        giftCard.setId(new me.noynto.eosa.shared.GiftCardId("card-1"));
-        giftCard.setState(me.noynto.eosa.giftcard.GiftCardState.ACTIVE);
+    private GiftCard giftCard(String balance) {
+        var giftCard = new GiftCard();
+        giftCard.setId(new GiftCardId("card-1"));
+        giftCard.setState(GiftCardState.ACTIVE);
         giftCard.setExpiresAt(now.plusSeconds(3600));
-        giftCard.getMovements().add(new me.noynto.eosa.giftcard.GiftCardMovement(
-                me.noynto.eosa.giftcard.GiftCardMovementKind.ISSUED, new BigDecimal(balance), null, now));
+        giftCard.getMovements().add(new GiftCardMovement(GiftCardMovementKind.ISSUED, new BigDecimal(balance), null, now));
         // Chaque écriture donne leur identifiant aux mouvements neufs, comme le fait la persistance.
         lenient().when(giftCardProvider.write(any())).thenAnswer(inv -> {
-            me.noynto.eosa.giftcard.GiftCard written = inv.getArgument(0);
+            GiftCard written = inv.getArgument(0);
             written.getMovements().forEach(movement -> {
                 if (movement.getId() == null) {
-                    movement.setId(new me.noynto.eosa.shared.GiftCardMovementId("m-" + written.getMovements().indexOf(movement)));
+                    movement.setId(new GiftCardMovementId("m-" + written.getMovements().indexOf(movement)));
                 }
             });
             return written;
@@ -139,8 +147,8 @@ class InitiateCheckoutTest {
         var giftCard = giftCard("20");
         when(checkoutProvider.write(any())).thenAnswer(inv -> {
             Checkout opened = inv.getArgument(0);
-            var session = new me.noynto.eosa.checkout.CheckoutSession();
-            var sessionId = new me.noynto.eosa.shared.CheckoutSessionId();
+            var session = new CheckoutSession();
+            var sessionId = new CheckoutSessionId();
             sessionId.setStripe("cs_1");
             session.setId(sessionId);
             opened.setSession(session);
