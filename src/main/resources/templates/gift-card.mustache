@@ -1,0 +1,33 @@
+{{> partials/header-main}}
+
+<section class="px-5 md:px-8 py-12 md:py-16 flex flex-col items-center text-center">
+    <div class="w-full max-w-md border border-bg-border rounded-2xl bg-bg-soft px-6 py-10 flex flex-col items-center">
+        <span class="font-display text-3xl text-primary mb-6">eosa</span>
+        <p class="text-xs text-secondary tracking-widest mb-3">CARTE CADEAU</p>
+        <p class="font-serif text-5xl font-normal mb-6">{{initialAmount}}</p>
+        <p class="text-xs text-muted mb-1">Code</p>
+        <p class="font-mono text-2xl tracking-widest text-primary mb-6 break-all">{{code}}</p>
+        <p class="text-sm text-secondary mb-1">Valable jusqu'au {{validUntil}} inclus</p>
+        {{#usable}}
+        <p class="text-sm text-secondary">Solde restant : <strong class="text-primary font-medium">{{balance}}</strong></p>
+        {{/usable}}
+        {{^usable}}
+        <p class="text-sm text-error">{{status}}</p>
+        {{/usable}}
+    </div>
+
+    <p class="text-xs text-muted leading-relaxed max-w-sm mt-6">
+        À saisir dans le panier de la boutique en ligne. Utilisable en une ou plusieurs fois, non remboursable en argent.
+        Carte au porteur : gardez ce code précieusement.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4 mt-8 print:hidden">
+        <button type="button" onclick="window.print()"
+                class="bg-primary text-accent px-8 py-3.5 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">
+            Imprimer
+        </button>
+        <a href="/jewels" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors">Découvrir les bijoux</a>
+    </div>
+</section>
+
+{{> partials/footer-main}}

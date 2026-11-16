@@ -1,0 +1,66 @@
+{{> partials/header-main}}
+
+<section class="px-5 md:px-8 py-12 md:py-16 flex flex-col items-center">
+    <div class="w-full max-w-md">
+        <p class="text-xs text-secondary tracking-widest mb-3 text-center">CARTE CADEAU</p>
+        <h1 class="font-serif text-4xl md:text-5xl font-normal leading-[1.05] mb-4 text-center">Offrir un bijou EOSA</h1>
+        <p class="text-sm text-secondary leading-relaxed mb-8 text-center">
+            Une carte cadeau est un montant à dépenser dans la boutique en ligne. Vous la recevez par e-mail
+            avec son code et une page à imprimer : à vous de l'offrir en main propre ou de la transmettre.
+        </p>
+
+        <form method="post" action="/gift-cards" class="flex flex-col gap-5">
+            <fieldset class="flex flex-col gap-2">
+                <legend class="text-xs text-secondary mb-2">Montant</legend>
+                <div class="grid grid-cols-3 gap-3">
+                    {{#presets}}
+                    <div>
+                        <input type="radio" id="preset-{{value}}" name="preset" value="{{value}}" class="peer sr-only" {{#checked}}checked{{/checked}}>
+                        <label for="preset-{{value}}"
+                               class="flex items-center justify-center min-h-11 rounded-xl border border-outline text-sm cursor-pointer hover:border-secondary peer-checked:bg-primary peer-checked:text-accent peer-checked:border-primary peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary transition-colors">
+                            {{value}} €
+                        </label>
+                    </div>
+                    {{/presets}}
+                </div>
+                <div class="flex flex-col gap-1.5 mt-2">
+                    <label for="amount" class="text-xs text-secondary">Ou un autre montant, de {{minimum}} à {{maximum}} €</label>
+                    <input id="amount" name="amount" type="text" inputmode="numeric" placeholder="ex. 70" value="{{amount}}"
+                           class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+                </div>
+            </fieldset>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="firstName" class="text-xs text-secondary">Votre prénom</label>
+                <input id="firstName" name="firstName" type="text" required maxlength="100" autocomplete="given-name" value="{{firstName}}"
+                       class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="email" class="text-xs text-secondary">Votre e-mail</label>
+                <input id="email" name="email" type="email" required maxlength="200" autocomplete="email" value="{{email}}"
+                       class="bg-bg border border-outline rounded-xl px-4 py-3 text-sm focus:border-secondary">
+                <span class="text-xs text-muted">La carte et son code arrivent à cette adresse, et elle sert de reçu.</span>
+            </div>
+            <!-- Piège à robots : invisible et inaccessible au clavier, seuls les robots le remplissent. -->
+            <div class="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+                <label for="website">Ne pas remplir</label>
+                <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <p class="text-xs text-muted leading-relaxed">
+                Valable {{validityLabel}} après l'achat, dans la boutique en ligne uniquement, en une ou plusieurs fois. Elle ne se
+                rembourse pas en argent. Le paiement se fait en ligne, par Stripe.
+            </p>
+
+            {{#hasError}}
+            <p role="alert" class="text-sm text-error">{{error}}</p>
+            {{/hasError}}
+
+            <button type="submit" class="bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">
+                Payer ma carte cadeau
+            </button>
+        </form>
+    </div>
+</section>
+
+{{> partials/footer-main}}

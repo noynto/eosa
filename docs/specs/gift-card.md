@@ -197,6 +197,14 @@ Domaine, persistance (`V17`), `GiftCardProvider`, cas d'usage d'administration (
 
 Page d'achat, session Stripe (expiration à 30 minutes, sans panier ni adresse), activation au retour de la personne, e-mail « Votre carte cadeau », page de retour, page imprimable. Vérifier que `SettleOrders` ignore la session.
 
+**Fait** : `PurchaseGiftCard`, `ConfirmGiftCardPayment` et `ReadGiftCardByToken`, les pages `GET`/`POST /gift-cards`, `/gift-cards/success` et `/gift-cards/{token}`, l'e-mail `gift-card` (service `GiftCardMails`). La session passe par `CheckoutProvider` (`Checkout.giftCardId`, `Checkout.expiresAt`) et une méthode de création à part chez Stripe (`postGiftCard`), sans `client_reference_id` : `SettleOrders` l'ignore comme toute session sans panier. Vérifié chez Stripe en mode test : une ligne de 50 €, métadonnée `gift_card_id`, ni livraison, ni adresse, ni téléphone. Écarts et choix :
+- la session expire à **31 minutes** (Stripe exige au moins 30 minutes après la création, la minute de marge couvre la latence) ;
+- le code et le jeton sont générés **à la création** de la carte en attente (colonnes uniques non nulles) et ne sont révélés qu'à l'activation ; la validité compte depuis le **paiement confirmé** (`expires_at` est recalculée à l'activation) ;
+- le montant libre est un **nombre entier d'euros** ; la carte n'est activée que si le montant payé chez Stripe égale celui de la carte et si la session est bien celle enregistrée sur elle ;
+- la page d'achat est **non indexée, hors sitemap et sans lien** depuis le site tant que les textes (étape 6) et les points juridiques ne sont pas validés ;
+- la page imprimable porte aussi les en-têtes du site à l'impression ; une feuille de style d'impression dédiée reste à faire si elle gêne.
+Le paiement abouti n'est pas détecté si la personne ferme l'onglet avant le retour : c'est l'étape 3. En attendant, la carte reste en attente.
+
 ### Étape 3 — Rattrapage
 
 Tâche `SettleGiftCards` (cartes payées sans retour, e-mails non partis, cartes jamais payées), CronJob Kubernetes toutes les 5 minutes et service du profil `jobs` de `compose.yaml`. La libération des soldes réservés arrive avec l'étape 4.

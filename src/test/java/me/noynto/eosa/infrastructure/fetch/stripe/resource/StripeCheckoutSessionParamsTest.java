@@ -36,6 +36,22 @@ class StripeCheckoutSessionParamsTest {
     }
 
     @Test
+    void giftCardSessionHasNoCartNoShippingNoAddressAndCarriesTheCardInMetadata() {
+        var params = resource.buildGiftCardParams(
+                new StripeCheckoutSessionResource.LineItem("Carte cadeau EOSA", new BigDecimal("50.00"), 1, null, null, null),
+                "card-1", "lea@example.com", 1_700_000_000L, "https://shop/gift-cards/success", "https://shop/gift-cards");
+
+        assertTrue(params.contains("metadata[gift_card_id]=card-1"), params.toString());
+        assertTrue(params.contains("expires_at=1700000000"), params.toString());
+        assertTrue(params.contains("line_items[0][price_data][unit_amount]=5000"), params.toString());
+        assertTrue(params.contains("customer_email=lea%40example.com"), params.toString());
+        assertFalse(params.stream().anyMatch(param -> param.startsWith("client_reference_id")), params.toString());
+        assertFalse(params.stream().anyMatch(param -> param.startsWith("shipping_")), params.toString());
+        assertFalse(params.stream().anyMatch(param -> param.startsWith("phone_number_collection")), params.toString());
+        assertFalse(params.stream().anyMatch(param -> param.startsWith("discounts")), params.toString());
+    }
+
+    @Test
     void sendsNothingAboutPromotionsWithoutADiscount() {
         var params = resource.buildParams(items, "cart-1", new BigDecimal("4.90"), null, null);
 

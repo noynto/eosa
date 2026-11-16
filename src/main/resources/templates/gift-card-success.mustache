@@ -1,0 +1,26 @@
+{{> partials/header-main}}
+
+<section class="px-5 md:px-8 py-20 flex flex-col items-center text-center">
+    {{#paid}}
+    <div class="w-16 h-16 rounded-full bg-success flex items-center justify-center mb-6">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <h1 class="font-serif text-4xl font-normal mb-3">Merci, votre carte arrive par e-mail</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-sm mb-8">
+        Nous venons d'envoyer la carte cadeau et son code à <strong class="text-primary font-medium">{{email}}</strong>.
+        Pensez à regarder dans vos courriers indésirables.
+    </p>
+    {{/paid}}
+    {{^paid}}
+    <h1 class="font-serif text-4xl font-normal mb-3">Paiement en cours de confirmation</h1>
+    <p class="text-sm text-secondary leading-relaxed max-w-sm mb-8">
+        Stripe n'a pas encore confirmé votre paiement. Si vous avez payé, votre carte vous sera envoyée par e-mail
+        à <strong class="text-primary font-medium">{{email}}</strong> dès qu'il sera confirmé.
+    </p>
+    {{/paid}}
+    <a href="/jewels" class="bg-primary text-accent px-8 py-3.5 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">
+        Découvrir les bijoux
+    </a>
+</section>
+
+{{> partials/footer-main}}

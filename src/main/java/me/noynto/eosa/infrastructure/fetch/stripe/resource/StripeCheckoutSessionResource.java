@@ -85,6 +85,36 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
         return params;
     }
 
+    /**
+     * Crée la session d'achat d'une carte cadeau : une seule ligne, ni livraison, ni adresse, ni téléphone à
+     * recueillir, et surtout pas de {@code client_reference_id} (le rattrapage des commandes ne prend que les
+     * sessions d'un panier). La carte est reconnue à la métadonnée {@code gift_card_id}.
+     */
+    public CheckoutSession postGiftCard(LineItem lineItem, String giftCardId, String customerEmail, long expiresAt,
+                                        String successUrl, String cancelUrl) throws IOException, InterruptedException {
+        return http.post("/v1/checkout/sessions",
+                String.join("&", buildGiftCardParams(lineItem, giftCardId, customerEmail, expiresAt, successUrl, cancelUrl)),
+                CheckoutSession.class);
+    }
+
+    List<String> buildGiftCardParams(LineItem lineItem, String giftCardId, String customerEmail, long expiresAt,
+                                     String successUrl, String cancelUrl) {
+        List<String> params = new ArrayList<>();
+        params.add("mode=payment");
+        params.add("success_url=" + StripeHttpClient.encode(successUrl));
+        params.add("cancel_url=" + StripeHttpClient.encode(cancelUrl));
+        params.add("line_items[0][price_data][currency]=eur");
+        params.add("line_items[0][price_data][unit_amount]=" + StripeHttpClient.toStripeAmount(lineItem.amount()));
+        params.add("line_items[0][price_data][product_data][name]=" + StripeHttpClient.encode(lineItem.name()));
+        params.add("line_items[0][quantity]=1");
+        if (customerEmail != null) {
+            params.add("customer_email=" + StripeHttpClient.encode(customerEmail));
+        }
+        params.add("expires_at=" + expiresAt);
+        params.add("metadata[gift_card_id]=" + StripeHttpClient.encode(giftCardId));
+        return params;
+    }
+
     public CheckoutSession retrieveSession(String sessionId) throws IOException, InterruptedException {
         return http.get("/v1/checkout/sessions/" + sessionId, CheckoutSession.class);
     }

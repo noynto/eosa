@@ -64,7 +64,7 @@ class IssueGiftCardByAdminTest {
         assertEquals(GiftCardMovementKind.ISSUED, card.getMovements().getFirst().getKind());
         assertEquals("Lot du concours", card.getMovements().getFirst().getReason());
         assertEquals(12, card.getCode().length());
-        assertTrue(card.getCode().chars().allMatch(c -> IssueGiftCardByAdmin.CODE_ALPHABET.indexOf(c) >= 0));
+        assertTrue(card.getCode().chars().allMatch(c -> me.noynto.eosa.service.GiftCardIssuing.CODE_ALPHABET.indexOf(c) >= 0));
         assertTrue(card.getToken().length() >= 43);
     }
 
