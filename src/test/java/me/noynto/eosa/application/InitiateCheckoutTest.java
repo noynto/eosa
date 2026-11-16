@@ -32,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +62,7 @@ class InitiateCheckoutTest {
         rule.setFreeThreshold(new BigDecimal("60"));
         rule.setAmount(new BigDecimal("5"));
         when(shippingRuleProvider.get()).thenReturn(rule);
-        org.mockito.Mockito.lenient().when(checkoutProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(checkoutProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     private Checkout initiate() throws Exception {
@@ -118,7 +120,7 @@ class InitiateCheckoutTest {
         giftCard.getMovements().add(new me.noynto.eosa.giftcard.GiftCardMovement(
                 me.noynto.eosa.giftcard.GiftCardMovementKind.ISSUED, new BigDecimal(balance), null, now));
         // Chaque écriture donne leur identifiant aux mouvements neufs, comme le fait la persistance.
-        org.mockito.Mockito.lenient().when(giftCardProvider.write(any())).thenAnswer(inv -> {
+        lenient().when(giftCardProvider.write(any())).thenAnswer(inv -> {
             me.noynto.eosa.giftcard.GiftCard written = inv.getArgument(0);
             written.getMovements().forEach(movement -> {
                 if (movement.getId() == null) {
@@ -127,7 +129,7 @@ class InitiateCheckoutTest {
             });
             return written;
         });
-        org.mockito.Mockito.lenient().when(giftCardProvider.read(giftCard.getId())).thenReturn(Optional.of(giftCard));
+        lenient().when(giftCardProvider.read(giftCard.getId())).thenReturn(Optional.of(giftCard));
         cart.setGiftCardId(giftCard.getId());
         return giftCard;
     }
@@ -172,7 +174,7 @@ class InitiateCheckoutTest {
     @Test
     void handle_releasesTheReservationWhenStripeRefuses() {
         var giftCard = giftCard("20");
-        org.mockito.Mockito.doThrow(new RuntimeException("Stripe")).when(checkoutProvider).write(any());
+        doThrow(new RuntimeException("Stripe")).when(checkoutProvider).write(any());
         var useCase = new InitiateCheckout(cartProvider, checkoutProvider, shippingRuleProvider, promoCodeProvider,
                 new InMemoryOrders(), giftCardProvider, Clock.fixed(now, ZoneOffset.UTC));
 

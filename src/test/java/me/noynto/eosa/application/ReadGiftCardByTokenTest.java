@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +41,7 @@ class ReadGiftCardByTokenTest {
         giftCard.setState(state);
         giftCard.setExpiresAt(expiresAt);
         giftCard.getMovements().add(new GiftCardMovement(GiftCardMovementKind.ISSUED, new BigDecimal("50.00"), null, now));
-        when(giftCardProvider.readIds(isNull(), org.mockito.ArgumentMatchers.eq("tok"))).thenReturn(Stream.of(id));
+        when(giftCardProvider.readIds(isNull(), eq("tok"))).thenReturn(Stream.of(id));
         when(giftCardProvider.read(id)).thenReturn(Optional.of(giftCard));
     }
 
@@ -71,7 +72,7 @@ class ReadGiftCardByTokenTest {
 
     @Test
     void handle_failsForAnUnknownOrMissingToken() {
-        when(giftCardProvider.readIds(isNull(), org.mockito.ArgumentMatchers.eq("nope"))).thenReturn(Stream.empty());
+        when(giftCardProvider.readIds(isNull(), eq("nope"))).thenReturn(Stream.empty());
         var useCase = new ReadGiftCardByToken(giftCardProvider, clock);
 
         assertThrows(RuntimeException.class, () -> useCase.handle(new ReadGiftCardByToken.Command("nope")));
