@@ -134,6 +134,7 @@ Imprimés sur l'étiquette que « Pièce fabriquée » crée dans l'administrati
 |---|---|---|
 | `EOSA_SHIPPING_SENDER_NAME`, `_LINE1`, `_POSTAL_CODE`, `_CITY` | Adresse d'expédition (nom, rue, code postal, ville) | `EOSA`, `1 rue Exemple`, `54000`, `Nancy` |
 | `EOSA_SHIPPING_SENDER_PHONE`, `_EMAIL` | Téléphone et e-mail de l'expéditeur (facultatifs) | `+33600000000` |
+| `EOSA_GIFT_CARD_VALIDITY_DAYS` | Validité d'une carte cadeau, en jours calendaires (fuseau de Paris), le dernier jour inclus (365 par défaut) | `365` |
 | `EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS` | Poids du colis **prérempli** à la fabrication (150 par défaut) ; l'administratrice le confirme ou le corrige pour chaque colis | `150` |
 | `EOSA_SHIPPING_PARCEL_LENGTH_CM`, `_WIDTH_CM`, `_DEPTH_CM` | Dimensions du colis en centimètres, **préremplies** à la fabrication (12 × 9 × 4 par défaut) et à confirmer ou corriger pour chaque colis. Mondial Relay les exige (sans elles : `WebApi_MandatoryParcelSize`) | `12`, `9`, `4` |
 

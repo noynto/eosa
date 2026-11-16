@@ -1,0 +1,72 @@
+{{> ../partials/header-admin}}
+
+<div class="flex items-center justify-between gap-3 mb-6">
+    <h1 class="text-xl font-medium">Cartes cadeau</h1>
+    <button onclick="document.getElementById('modal').classList.remove('hidden')"
+            class="bg-primary text-accent px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors shrink-0">
+        + Offrir une carte
+    </button>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {{#giftCards}}
+    <a href="/gift-cards/{{id}}"
+       class="bg-bg border border-bg-border rounded-xl p-4 flex flex-col gap-1 hover:border-secondary transition-colors {{^isActive}}opacity-60{{/isActive}}">
+        <div class="flex items-center justify-between gap-2">
+            <span class="text-sm font-medium truncate">{{code}}</span>
+            <span class="text-xs border border-bg-border rounded-full px-2 py-0.5 shrink-0 {{#isActive}}text-success{{/isActive}}{{^isActive}}text-muted{{/isActive}}">{{status}}</span>
+        </div>
+        <span class="text-xs text-secondary">Solde {{balance}} sur {{initialAmount}}</span>
+        <span class="text-xs text-muted">Valable jusqu'au {{validUntil}}</span>
+        <span class="text-xs text-muted truncate">{{buyerEmail}} · {{createdAt}}</span>
+    </a>
+    {{/giftCards}}
+    {{^hasGiftCards}}
+    <p class="col-span-full px-4 py-8 text-sm text-muted text-center">Aucune carte pour l'instant.</p>
+    {{/hasGiftCards}}
+</div>
+
+<!-- Modal émission -->
+<div id="modal" class="hidden fixed inset-0 bg-primary/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+     onclick="if(event.target===this){this.classList.add('hidden')}">
+    <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg max-h-full overflow-y-auto">
+        <h2 class="text-sm font-medium mb-1">Offrir une carte</h2>
+        <p class="text-xs text-muted mb-4">Une carte offerte sans paiement : geste commercial, lot d'un concours. Elle est active tout de suite.</p>
+        <form hx-post="/gift-cards" hx-target="#create-error" hx-swap="innerHTML" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+                <label for="amount" class="text-xs text-secondary">Montant (€)</label>
+                <input id="amount" name="amount" type="text" inputmode="decimal" required autofocus placeholder="50"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="recipientFirstName" class="text-xs text-secondary">Prénom (facultatif)</label>
+                <input id="recipientFirstName" name="recipientFirstName" type="text" maxlength="200"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="recipientEmail" class="text-xs text-secondary">E-mail de la personne qui la reçoit</label>
+                <input id="recipientEmail" name="recipientEmail" type="email" required maxlength="200"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="reason" class="text-xs text-secondary">Motif</label>
+                <input id="reason" name="reason" type="text" required maxlength="200" placeholder="ex. Lot du concours d'octobre"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
+                <p class="text-xs text-muted">Il s'écrit dans le journal de la carte.</p>
+            </div>
+            <span id="create-error"></span>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                        class="px-4 min-h-11 md:min-h-9 rounded-lg text-sm text-secondary hover:text-primary transition-colors">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="bg-primary text-accent px-5 min-h-11 md:min-h-9 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Offrir
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{> ../partials/footer-admin}}
