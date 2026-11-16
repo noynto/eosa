@@ -161,8 +161,19 @@ public class Bootstrap {
         );
         ReadCart readCart = new ReadCart(
             cartProvider,
-            shippingRuleProvider
+            shippingRuleProvider,
+            promoCodeProvider,
+            orderProvider,
+            clock
         );
+        ApplyPromoCode applyPromoCode = new ApplyPromoCode(
+            cartProvider,
+            promoCodeProvider,
+            orderProvider,
+            shippingRuleProvider,
+            clock
+        );
+        RemovePromoCode removePromoCode = new RemovePromoCode(cartProvider);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(
             getOrCreateCart
         );
@@ -182,7 +193,10 @@ public class Bootstrap {
         InitiateCheckout initiateCheckout = new InitiateCheckout(
             cartProvider,
             stripeFetchedCheckouts,
-            shippingRuleProvider
+            shippingRuleProvider,
+            promoCodeProvider,
+            orderProvider,
+            clock
         );
         ConfirmCheckoutSession confirmCheckoutSession =
             new ConfirmCheckoutSession(
@@ -738,6 +752,14 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/cart/items/{jewel-id}",
                 new PostCartItemHandler(addJewelToCart)
+            );
+            javalinConfig.routes.post(
+                "/cart/promo-code",
+                new PostCartPromoCodeHandler(applyPromoCode)
+            );
+            javalinConfig.routes.delete(
+                "/cart/promo-code",
+                new DeleteCartPromoCodeHandler(removePromoCode)
             );
             javalinConfig.routes.patch(
                 "/cart/items/{item-id}",

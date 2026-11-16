@@ -63,10 +63,11 @@ public record ConfirmCheckoutSession(
             sendEmails(order, now);
         }
 
-        // 3. Vide le panier payé
+        // 3. Vide le panier payé, et détache son code de promotion : il ne suit pas la cliente à l'achat suivant.
         cartProvider.read(checkout.getCartId())
                 .ifPresent(cart -> {
                     cart.setItems(List.of());
+                    cart.setPromoCodeId(null);
                     cartProvider.write(cart);
                 });
 

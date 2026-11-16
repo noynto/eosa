@@ -11,6 +11,34 @@ import java.util.List;
 public record StripeCheckoutSessionResource(StripeHttpClient http) {
 
     public CheckoutSession post(List<LineItem> lineItems, String clientReferenceId, BigDecimal shippingAmount) throws IOException, InterruptedException {
+        return post(lineItems, clientReferenceId, shippingAmount, null);
+    }
+
+    /**
+     * Crée la session. Avec {@code discount}, le site crée d'abord chez Stripe un coupon à usage unique du montant de
+     * la remise : Stripe n'a aucune notion de code de promotion, il ne reçoit que la valeur à déduire. Le coupon se
+     * répartit sur les lignes, la livraison n'est pas remisée. Le code est posé en métadonnées, relues à la commande.
+     */
+    public CheckoutSession post(List<LineItem> lineItems, String clientReferenceId, BigDecimal shippingAmount,
+                                Discount discount) throws IOException, InterruptedException {
+        String couponId = discount == null ? null : createCoupon(discount);
+        return http.post("/v1/checkout/sessions", String.join("&", buildParams(lineItems, clientReferenceId, shippingAmount, discount, couponId)),
+                CheckoutSession.class);
+    }
+
+    /** Coupon d'un montant fixe, valable une seule fois : il ne sert qu'à cette session. */
+    String createCoupon(Discount discount) throws IOException, InterruptedException {
+        String body = "amount_off=" + StripeHttpClient.toStripeAmount(discount.amount())
+                + "&currency=eur&duration=once&max_redemptions=1&name=" + StripeHttpClient.encode(discount.code());
+        Coupon coupon = http.post("/v1/coupons", body, Coupon.class);
+        if (coupon == null || coupon.id() == null) {
+            throw new IOException("Stripe n'a pas créé le coupon de la remise.");
+        }
+        return coupon.id();
+    }
+
+    List<String> buildParams(List<LineItem> lineItems, String clientReferenceId, BigDecimal shippingAmount,
+                                    Discount discount, String couponId) {
         List<String> params = new ArrayList<>();
         params.add("mode=payment");
         params.add("success_url=" + StripeHttpClient.encode(http.properties().successPath()));
@@ -49,7 +77,12 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
             params.add("shipping_options[0][shipping_rate_data][fixed_amount][amount]=" + StripeHttpClient.toStripeAmount(shippingAmount));
             params.add("shipping_options[0][shipping_rate_data][fixed_amount][currency]=eur");
         }
-        return http.post("/v1/checkout/sessions", String.join("&", params), CheckoutSession.class);
+        if (couponId != null) {
+            params.add("discounts[0][coupon]=" + StripeHttpClient.encode(couponId));
+            params.add("metadata[promo_code_id]=" + StripeHttpClient.encode(discount.promoCodeId()));
+            params.add("metadata[promo_code]=" + StripeHttpClient.encode(discount.code()));
+        }
+        return params;
     }
 
     public CheckoutSession retrieveSession(String sessionId) throws IOException, InterruptedException {
@@ -73,6 +106,17 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
     public LineItemList retrieveLineItems(String sessionId) throws IOException, InterruptedException {
         return http.get("/v1/checkout/sessions/" + sessionId + "/line_items?expand[]=data.price.product", LineItemList.class);
     }
+
+    /** La remise d'un code de promotion : son montant, et le code pour le retrouver à la commande. */
+    public record Discount(
+            BigDecimal amount,
+            String promoCodeId,
+            String code
+    ) {}
+
+    public record Coupon(
+            String id
+    ) {}
 
     public record LineItem(
             String name,

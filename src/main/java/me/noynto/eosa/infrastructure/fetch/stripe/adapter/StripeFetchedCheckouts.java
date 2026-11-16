@@ -176,7 +176,14 @@ public record StripeFetchedCheckouts(
 
             String clientReferenceId = checkout.getCartId() != null ? checkout.getCartId().value() : null;
 
-            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession = checkoutSessionResource.post(lineItems, clientReferenceId, checkout.getShippingAmount());
+            StripeCheckoutSessionResource.Discount discount = checkout.getDiscountAmount() != null
+                    && checkout.getDiscountAmount().signum() > 0 && checkout.getPromoCodeId() != null
+                    ? new StripeCheckoutSessionResource.Discount(
+                            checkout.getDiscountAmount(), checkout.getPromoCodeId().value(), checkout.getPromoCode())
+                    : null;
+
+            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession = checkoutSessionResource.post(
+                    lineItems, clientReferenceId, checkout.getShippingAmount(), discount);
 
             CheckoutSession checkoutSession = new CheckoutSession();
             checkoutSession.setUri(URI.create(stripeCheckoutSession.url()));

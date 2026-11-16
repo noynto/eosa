@@ -1,6 +1,7 @@
 package me.noynto.eosa.cart;
 
 import me.noynto.eosa.shared.CartId;
+import me.noynto.eosa.shared.PromoCodeId;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,6 +11,19 @@ public class Cart {
     private CartId id;
     private List<CartItem> items = new ArrayList<>();
     private CartShipping shipping;
+    private PromoCodeId promoCodeId;
+
+    /**
+     * Le code de promotion que la cliente a saisi, ou null. Il reste attaché même quand il ne s'applique plus
+     * (minimum non atteint) : la remise se recalcule à chaque lecture.
+     */
+    public PromoCodeId getPromoCodeId() {
+        return promoCodeId;
+    }
+
+    public void setPromoCodeId(PromoCodeId promoCodeId) {
+        this.promoCodeId = promoCodeId;
+    }
 
     public CartId getId() {
         return id;
