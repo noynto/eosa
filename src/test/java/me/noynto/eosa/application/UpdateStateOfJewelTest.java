@@ -13,10 +13,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -26,6 +30,53 @@ class UpdateStateOfJewelTest {
 
     @Mock JewelProvider jewelProvider;
 
+    private final Instant now = Instant.parse("2026-11-16T09:30:00Z");
+    private final Clock clock = Clock.fixed(now, ZoneOffset.UTC);
+
+    @Test
+    void handle_datesTheJewelAtItsFirstPublication() {
+        var jewelId = new JewelId("abc");
+        var jewel = completeJewel(jewelId, JewelState.DRAFTED);
+        when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
+        when(jewelProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        var result = new UpdateStateOfJewel(jewelProvider, clock).handle(
+                new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
+        ).jewel();
+
+        assertEquals(now, result.getPublishedAt());
+    }
+
+    @Test
+    void handle_keepsTheFirstPublicationDateWhenAnArchivedJewelIsPublishedAgain() {
+        var jewelId = new JewelId("abc");
+        var jewel = completeJewel(jewelId, JewelState.ARCHIVED);
+        var firstPublication = Instant.parse("2026-01-05T10:00:00Z");
+        jewel.setPublishedAt(firstPublication);
+        when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
+        when(jewelProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        var result = new UpdateStateOfJewel(jewelProvider, clock).handle(
+                new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
+        ).jewel();
+
+        assertEquals(firstPublication, result.getPublishedAt());
+    }
+
+    @Test
+    void handle_datesNothingWhenTheJewelIsArchived() {
+        var jewelId = new JewelId("abc");
+        var jewel = completeJewel(jewelId, JewelState.DRAFTED);
+        when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
+        when(jewelProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        var result = new UpdateStateOfJewel(jewelProvider, clock).handle(
+                new UpdateStateOfJewel.Command(jewelId, JewelState.ARCHIVED)
+        ).jewel();
+
+        assertNull(result.getPublishedAt());
+    }
+
     @Test
     void handle_publishesCompleteJewel() {
         var jewelId = new JewelId("abc");
@@ -33,7 +84,7 @@ class UpdateStateOfJewelTest {
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
         when(jewelProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        var result = new UpdateStateOfJewel(jewelProvider).handle(
+        var result = new UpdateStateOfJewel(jewelProvider, clock).handle(
                 new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
         ).jewel();
 
@@ -47,7 +98,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
         when(jewelProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        var result = new UpdateStateOfJewel(jewelProvider).handle(
+        var result = new UpdateStateOfJewel(jewelProvider, clock).handle(
                 new UpdateStateOfJewel.Command(jewelId, JewelState.ARCHIVED)
         ).jewel();
 
@@ -57,7 +108,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
     @Test
     void handle_throwsWhenStateIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(new JewelId("abc"), null)
                 )
         );
@@ -66,7 +117,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
     @Test
     void handle_throwsWhenJewelIdIsNull() {
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(null, JewelState.PUBLISHED)
                 )
         );
@@ -78,7 +129,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
                 )
         );
@@ -91,7 +142,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.DRAFTED)
                 )
         );
@@ -104,7 +155,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.DRAFTED)
                 )
         );
@@ -118,7 +169,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
                 )
         );
@@ -132,7 +183,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
                 )
         );
@@ -146,7 +197,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
                 )
         );
@@ -160,7 +211,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
                 )
         );
@@ -174,7 +225,7 @@ assertEquals(JewelState.PUBLISHED, result.getState());
         when(jewelProvider.read(jewelId)).thenReturn(Optional.of(jewel));
 
         assertThrows(RuntimeException.class, () ->
-                new UpdateStateOfJewel(jewelProvider).handle(
+                new UpdateStateOfJewel(jewelProvider, clock).handle(
                         new UpdateStateOfJewel.Command(jewelId, JewelState.PUBLISHED)
                 )
         );

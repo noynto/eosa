@@ -1,0 +1,21 @@
+Votre commande est en route
+
+{{#hasName}}Bonne nouvelle {{{name}}} : v{{/hasName}}{{^hasName}}V{{/hasName}}otre commande {{{number}}} vient d'être remise au transporteur Mondial Relay.
+
+Numéro de suivi : {{{trackingNumber}}}
+{{#hasAddress}}
+
+Adresse de livraison :
+{{{addressName}}}
+{{{addressLine1}}}
+{{#hasAddressLine2}}
+{{{addressLine2}}}
+{{/hasAddressLine2}}
+{{{addressPostalCode}}} {{{addressCity}}}
+{{{addressCountry}}}
+{{/hasAddress}}
+
+Suivre mon colis : {{{trackingUrl}}}
+
+Une question ? Répondez à cet e-mail ou écrivez-nous à {{{contactEmail}}}.
+{{> partials/footer.txt.mustache}}

@@ -1,0 +1,14 @@
+Nouvelle commande {{{number}}}
+
+{{{pieces}}} pièce(s) à fabriquer pour {{{totalAmount}}}, commandée(s) par {{{customerName}}} ({{{customerEmail}}}).
+{{#hasDiscount}}Code de promotion {{{promoCode}}} : {{{discountAmount}}} de remise.
+{{/hasDiscount}}
+
+{{#items}}
+- {{{quantity}}} × {{{name}}}
+{{/items}}
+
+À fabriquer avant le {{{craftingDeadline}}}.
+
+Voir la commande : {{{orderUrl}}}
+{{> partials/footer.txt.mustache}}

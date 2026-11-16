@@ -18,12 +18,14 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
     public void handle(Context ctx) {
         // Posé par EnsureCartHandler, qui a déjà créé le panier au besoin.
         CartId cartId = ctx.attribute("cartId");
-        Cart cart = readCart.handle(new ReadCart.Command(cartId)).cart();
+        var result = readCart.handle(new ReadCart.Command(cartId));
+        Cart cart = result.cart();
 
         CartShipping shipping = cart.getShipping();
         BigDecimal subtotal = cart.getTotal();
+        BigDecimal discount = result.discount();
         BigDecimal shippingAmount = shipping != null ? shipping.getAmount() : null;
-        BigDecimal total = shippingAmount != null ? subtotal.add(shippingAmount) : subtotal;
+        BigDecimal total = (shippingAmount != null ? subtotal.add(shippingAmount) : subtotal).subtract(discount);
         BigDecimal remaining = shipping != null ? shipping.getRule().getFreeThreshold().subtract(subtotal) : BigDecimal.ZERO;
 
         boolean hasItems = !cart.getItems().isEmpty();
@@ -71,6 +73,16 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
         model.put("hasItems", hasItems);
         model.put("items", items);
         model.put("subtotal", subtotal.stripTrailingZeros().toPlainString());
+        // Le code saisi, qu'il remise ou non : refusé, il reste affiché avec la raison et peut être retiré.
+        boolean hasPromoCode = result.promoCode() != null;
+        boolean hasDiscount = discount.signum() > 0;
+        model.put("hasPromoCode", hasPromoCode);
+        model.put("promoCode", hasPromoCode ? result.promoCode().getCode() : "");
+        model.put("hasDiscount", hasDiscount);
+        model.put("discount", hasDiscount ? discount.stripTrailingZeros().toPlainString() : "");
+        model.put("hasPromoRefusal", hasPromoCode && result.refusal() != null);
+        model.put("promoRefusal", result.refusal() != null ? result.refusal() : "");
+        model.put("canEnterPromoCode", hasItems && !hasPromoCode);
         model.put("isShippingPaid", isShippingPaid);
         model.put("shippingAmount", isShippingPaid ? shippingAmount.stripTrailingZeros().toPlainString() : "");
         model.put("total", total.stripTrailingZeros().toPlainString());

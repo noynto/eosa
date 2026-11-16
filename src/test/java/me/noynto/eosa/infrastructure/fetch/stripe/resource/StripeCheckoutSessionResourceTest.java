@@ -36,8 +36,8 @@ class StripeCheckoutSessionResourceTest {
     @Test
     void postWithIdAndUrl() throws Exception {
         var items = List.of(
-                new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null),
-                new StripeCheckoutSessionResource.LineItem("Bracelet Soleil", new BigDecimal("22.00"), 2, null)
+                new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null, "jewel-1", null),
+                new StripeCheckoutSessionResource.LineItem("Bracelet Soleil", new BigDecimal("22.00"), 2, null, null, null)
         );
 
         var session = resource.post(items, null, null);
@@ -53,7 +53,7 @@ class StripeCheckoutSessionResourceTest {
     @Test
     void retrieveSession_returnsCreatedSession() throws Exception {
         var items = List.of(
-                new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null)
+                new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null, "jewel-1", null)
         );
         var created = resource.post(items, null, null);
 
@@ -68,8 +68,8 @@ class StripeCheckoutSessionResourceTest {
     @Test
     void retrieveLineItems_returnsItemsOfCreatedSession() throws Exception {
         var items = List.of(
-                new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null),
-                new StripeCheckoutSessionResource.LineItem("Bracelet Soleil", new BigDecimal("22.00"), 2, null)
+                new StripeCheckoutSessionResource.LineItem("Collier Lune", new BigDecimal("29.90"), 1, null, "jewel-1", null),
+                new StripeCheckoutSessionResource.LineItem("Bracelet Soleil", new BigDecimal("22.00"), 2, null, null, null)
         );
         var created = resource.post(items, null, null);
 
@@ -84,6 +84,9 @@ class StripeCheckoutSessionResourceTest {
             assertTrue(item.amountTotal() > 0);
             System.out.println(item.description() + " × " + item.quantity() + " = " + item.amountTotal() + " cts");
         });
+        // Le bijou est relu depuis les métadonnées du produit.
+        var necklace = lineItems.data().stream().filter(item -> "Collier Lune".equals(item.description())).findFirst().orElseThrow();
+        assertEquals("jewel-1", necklace.productMetadata("jewel_id"));
     }
 
 }

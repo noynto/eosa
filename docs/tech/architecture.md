@@ -137,7 +137,7 @@ Le relevé du 4 novembre 2026 a été corrigé au fil de plusieurs pull requests
 
 - JDBC brut, sans ORM : une requête SQL par méthode, écriture par `INSERT … ON CONFLICT (id) DO UPDATE` (upsert), identifiants `UUID` générés à l'écriture.
 - Le schéma évolue par migrations Flyway (`src/main/resources/db/migration/Vn__description.sql`), appliquées automatiquement au démarrage de l'application et de chaque tâche. Une migration déjà déployée ne se modifie jamais : on en ajoute une nouvelle.
-- Les dates sont des `Instant` côté Java et des `timestamptz` en base, stockées en UTC. Les règles calendaires des ateliers (ouverture à J-7, 48 h, rappel la veille) se calculent dans le fuseau `Europe/Paris` (`WorkshopSession.ZONE`), et les dates s'affichent via `WorkshopDates`.
+- Les dates sont des `Instant` côté Java et des `timestamptz` en base, stockées en UTC. Les règles calendaires des ateliers (ouverture à J-14, 48 h, rappel la veille) se calculent dans le fuseau `Europe/Paris` (`WorkshopSession.ZONE`), et les dates s'affichent via `WorkshopDates`.
 
 ## Tâches planifiées
 

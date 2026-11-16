@@ -18,7 +18,7 @@ Deux risques sont à maîtriser : **les fausses réservations** (robot, blague, 
 | 2 | Confirmation de la place | Après le formulaire, la place est **retenue 30 minutes** et la participante reçoit un e-mail avec un bouton **« Confirmer ma place »**. Sans confirmation dans ce délai, la place est libérée. Une adresse inventée ne peut donc rien bloquer longtemps. |
 | 3 | Anti-abus | Une place par adresse e-mail et par session ; **piège à robots** invisible (champ caché) ; **limite de demandes par adresse IP**. |
 | 4 | Absences | Après l'atelier, l'admin marque chaque inscrite présente ou absente. Une adresse marquée **absente** ne peut plus réserver en ligne : elle doit passer par Instagram. |
-| 5 | Ouverture des réservations | Les réservations d'une session ouvrent **toujours 7 jours avant** son début, à la même heure. Avant l'ouverture, la session est visible avec un **compte à rebours**, et l'on peut s'inscrire pour **être prévenue par e-mail à l'ouverture**. Une fois ouverte, un **compteur de places restantes** est affiché. |
+| 5 | Ouverture des réservations | Les réservations d'une session ouvrent **toujours 14 jours avant** son début (7 jours à l'origine, portés à 14 le 5 novembre 2026), à la même heure. Avant l'ouverture, la session est visible avec un **compte à rebours**, et l'on peut s'inscrire pour **être prévenue par e-mail à l'ouverture**. Une fois ouverte, un **compteur de places restantes** est affiché. |
 | 6 | Type de bijou | La participante **ne choisit pas** collier ou bracelet à la réservation : le choix se fait sur place. |
 | 7 | Nombre de places | **Une réservation = une place.** Chaque participante réserve la sienne (pas de réservation groupée). |
 | 8 | Lieux | Le lieu est une entité à part (`WorkshopVenue`), réutilisable d'une session à l'autre et **mis en avant** partout : nom du café, photo, adresse, lien vers le partenaire. |
@@ -35,7 +35,7 @@ Deux risques sont à maîtriser : **les fausses réservations** (robot, blague, 
 |---|---|
 | `WorkshopVenue` | Lieu partenaire (café, bar, boutique…) : nom, courte présentation, adresse, ville, photo, lien (site ou Instagram), capacité et durée par défaut, actif/archivé. |
 | `WorkshopSession` | Session datée : lieu, début, durée, capacité, état. |
-| `WorkshopSessionState` | `SCHEDULED` \| `CANCELLED`. L'ouverture (J-7) et la fin des réservations sont calculées à partir de la date de début, sans changement d'état. |
+| `WorkshopSessionState` | `SCHEDULED` \| `CANCELLED`. L'ouverture (J-14) et la fin des réservations sont calculées à partir de la date de début, sans changement d'état. |
 | `WorkshopBooking` | Réservation d'une place par une participante sur une session. |
 | `WorkshopBookingState` | `PENDING` (en attente de confirmation par e-mail) \| `CONFIRMED` \| `CANCELLED` \| `EXPIRED` (jamais confirmée). Après la session : `ATTENDED` \| `NO_SHOW`. |
 | `WorkshopWaitlistEntry` | Inscription sur la liste d'attente d'une session complète. |
@@ -52,11 +52,11 @@ création (admin)            ouverture = début - 7 j          début - 48 h    
 ```
 
 - **Avant l'ouverture** : la session est affichée avec le lieu et un compte à rebours (« Ouverture des réservations dans 2 j 5 h », puis l'heure exacte : « lundi 9 novembre à 14 h 00 »). Le bouton est désactivé.
-- **Réservations ouvertes** : de début − 7 jours jusqu'au début de la session. Le compteur indique les places restantes (« 5 places restantes », « Dernière place », « Complet »).
+- **Réservations ouvertes** : de début − 14 jours jusqu'au début de la session. Le compteur indique les places restantes (« 5 places restantes », « Dernière place », « Complet »).
 - **Complet** : le bouton « Réserver » est remplacé par « Me prévenir si une place se libère » (liste d'attente).
 - **Session passée** : elle n'apparaît plus côté public.
 
-L'heure d'ouverture est exactement l'heure de début moins 7 jours, dans le fuseau `Europe/Paris`.
+L'heure d'ouverture est exactement l'heure de début moins 14 jours (`WorkshopSession.BOOKING_OPENING_DAYS`), dans le fuseau `Europe/Paris`.
 
 ## Parcours participante
 
@@ -219,7 +219,7 @@ Principes de robustesse :
 - Une adresse e-mail marquée `NO_SHOW` sur un atelier ne peut plus réserver en ligne pendant un an : le blocage disparaît avec la réservation, supprimée 1 an après l'atelier.
 - **Limite par adresse IP** : 5 demandes de réservation par heure (en mémoire, par instance ; l'adresse vient de l'en-tête `X-Forwarded-For` posé par l'ingress, sinon de la connexion).
 - Une participante peut être marquée présente dès le début de la séance, et absente à partir de **début + 30 minutes** seulement.
-- La limite des 48 h et l'ouverture à J-7 se calculent à partir du début de la session, dans le fuseau `Europe/Paris`. Les dates sont stockées en `timestamptz`.
+- La limite des 48 h et l'ouverture à J-14 se calculent à partir du début de la session, dans le fuseau `Europe/Paris`. Les dates sont stockées en `timestamptz`.
 
 ## Persistance — migration `V4__workshops.sql`
 
@@ -373,7 +373,7 @@ Fait : CGV (article 11 — Ateliers), FAQ, page `/workshops` (bouton « Voir les
 
 Si les absences restent fréquentes malgré la V1, une **empreinte bancaire Stripe de 10 €** pourra être ajoutée : prise à la réservation (Stripe Checkout en capture manuelle) à la place de la confirmation par e-mail, rendue après l'atelier, débitée seulement en cas d'absence non excusée (à partir de début + 30 min). Points déjà identifiés :
 
-- une empreinte n'est valable qu'environ 7 jours chez Stripe : avec une ouverture à J-7, une empreinte prise dès l'ouverture peut expirer avant le moment où l'absence peut être débitée (ouvrir à J-6 laisserait une marge) ;
+- une empreinte n'est valable qu'environ 7 jours chez Stripe : avec une ouverture à J-14 (J-7 à l'origine de cette note), une empreinte prise dès la réservation expirerait bien avant l'atelier : il faudra la prendre plus tard, ou un autre mécanisme ;
 - les CGV et la FAQ devront décrire l'empreinte ;
 - les colonnes `stripe_checkout_session_id`, `stripe_payment_intent_id` et `hold_capture_before` de `workshop_bookings` sont déjà prévues.
 

@@ -8,6 +8,7 @@
 #
 # One-shot jobs (Kubernetes CronJobs in production) are in the "jobs" profile:
 #   docker compose run --rm send-test-email
+#   docker compose run --rm settle-orders
 #   docker compose run --rm expire-pending-workshop-bookings
 #   docker compose run --rm announce-workshop-booking-openings
 #   docker compose run --rm send-workshop-reminders
@@ -34,6 +35,26 @@ x-eosa-environment: &eosa-environment
   EOSA_CLIENT_STRIPE_SECRET_KEY: ${EOSA_CLIENT_STRIPE_SECRET_KEY:-not-configured}
   EOSA_SHIPPING_AMOUNT: ${EOSA_SHIPPING_AMOUNT:-4.90}
   EOSA_SHIPPING_FREE_THRESHOLD: ${EOSA_SHIPPING_FREE_THRESHOLD:-60.00}
+  # Colis et expéditeur de l'étiquette : sans l'adresse d'expédition, « Pièce fabriquée » échoue avec un message clair.
+  EOSA_SHIPPING_SENDER_NAME: ${EOSA_SHIPPING_SENDER_NAME:-}
+  EOSA_SHIPPING_SENDER_LINE1: ${EOSA_SHIPPING_SENDER_LINE1:-}
+  EOSA_SHIPPING_SENDER_POSTAL_CODE: ${EOSA_SHIPPING_SENDER_POSTAL_CODE:-}
+  EOSA_SHIPPING_SENDER_CITY: ${EOSA_SHIPPING_SENDER_CITY:-}
+  EOSA_SHIPPING_SENDER_PHONE: ${EOSA_SHIPPING_SENDER_PHONE:-}
+  EOSA_SHIPPING_SENDER_EMAIL: ${EOSA_SHIPPING_SENDER_EMAIL:-}
+  EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS: ${EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS:-150}
+  EOSA_SHIPPING_PARCEL_LENGTH_CM: ${EOSA_SHIPPING_PARCEL_LENGTH_CM:-12}
+  EOSA_SHIPPING_PARCEL_WIDTH_CM: ${EOSA_SHIPPING_PARCEL_WIDTH_CM:-9}
+  EOSA_SHIPPING_PARCEL_DEPTH_CM: ${EOSA_SHIPPING_PARCEL_DEPTH_CM:-4}
+  # Mondial Relay V2 (création de l'étiquette) : sans ces valeurs, « Pièce fabriquée » échoue avec un message clair.
+  EOSA_CLIENT_MONDIAL_RELAY_V2_API_URL: ${EOSA_CLIENT_MONDIAL_RELAY_V2_API_URL:-}
+  EOSA_CLIENT_MONDIAL_RELAY_V2_LOGIN: ${EOSA_CLIENT_MONDIAL_RELAY_V2_LOGIN:-}
+  EOSA_CLIENT_MONDIAL_RELAY_V2_PASSWORD: ${EOSA_CLIENT_MONDIAL_RELAY_V2_PASSWORD:-}
+  EOSA_CLIENT_MONDIAL_RELAY_V2_CUSTOMER_ID: ${EOSA_CLIENT_MONDIAL_RELAY_V2_CUSTOMER_ID:-}
+  # Mondial Relay V1 (suivi du colis) : sans ces valeurs, la tâche track-order-shipments échoue avec un message clair.
+  EOSA_CLIENT_MONDIAL_RELAY_V1_API_URL: ${EOSA_CLIENT_MONDIAL_RELAY_V1_API_URL:-}
+  EOSA_CLIENT_MONDIAL_RELAY_V1_ENSEIGNE: ${EOSA_CLIENT_MONDIAL_RELAY_V1_ENSEIGNE:-}
+  EOSA_CLIENT_MONDIAL_RELAY_V1_PRIVATE_KEY: ${EOSA_CLIENT_MONDIAL_RELAY_V1_PRIVATE_KEY:-}
   # Mailpit by default; set these in .env to test with the real SMTP server.
   EOSA_SMTP_HOST: ${EOSA_SMTP_HOST:-mailpit}
   EOSA_SMTP_PORT: ${EOSA_SMTP_PORT:-1025}
@@ -135,6 +156,42 @@ services:
     environment:
       <<: *eosa-environment
       EOSA_EXPIRE_PENDING_WORKSHOP_BOOKINGS_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Equivalent of the settle-orders CronJob.
+  settle-orders:
+    <<: *eosa-container
+    profiles: [jobs]
+    environment:
+      <<: *eosa-environment
+      EOSA_SETTLE_ORDERS_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Equivalent of the purge-order-personal-data CronJob.
+  purge-order-personal-data:
+    <<: *eosa-container
+    profiles: [jobs]
+    environment:
+      <<: *eosa-environment
+      EOSA_PURGE_ORDER_PERSONAL_DATA_TASK: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Equivalent of the track-order-shipments CronJob.
+  track-order-shipments:
+    <<: *eosa-container
+    profiles: [jobs]
+    environment:
+      <<: *eosa-environment
+      EOSA_TRACK_ORDER_SHIPMENTS_TASK: "true"
     depends_on:
       postgres:
         condition: service_healthy

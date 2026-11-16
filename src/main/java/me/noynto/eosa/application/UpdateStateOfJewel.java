@@ -5,8 +5,11 @@ import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.jewel.JewelState;
 import me.noynto.eosa.shared.JewelId;
 
+import java.time.Clock;
+
 public record UpdateStateOfJewel(
-        JewelProvider jewelProvider
+        JewelProvider jewelProvider,
+        Clock clock
 ) {
 
     public Result handle(Command command) {
@@ -52,8 +55,12 @@ public record UpdateStateOfJewel(
             }
         }
 
-        // 3. Modification de l'état sur le produit
+        // 3. Modification de l'état sur le produit. La première publication date le bijou : elle ordonne les
+        //    nouveautés, et une republication après archivage ne le remet pas en tête.
         jewel.setState(command.state);
+        if (command.state == JewelState.PUBLISHED && jewel.getPublishedAt() == null) {
+            jewel.setPublishedAt(clock.instant());
+        }
 
         // 4. Enregistrer le produit chez le fournisseur
         return new Result(this.jewelProvider.write(jewel));

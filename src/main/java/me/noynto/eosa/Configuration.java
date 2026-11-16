@@ -1,6 +1,7 @@
 package me.noynto.eosa;
 
 import java.net.URI;
+import me.noynto.eosa.shipping.ParcelDefaults;
 import java.net.URISyntaxException;
 
 public class Configuration {
@@ -11,6 +12,9 @@ public class Configuration {
     private static final String ADMIN_SECRET = "EOSA_ADMIN_SECRET";
     private static final String ADMIN_BASE_URL = "EOSA_ADMIN_BASE_URL";
     private static final String ADMIN_SERVER_PORT = "EOSA_ADMIN_SERVER_PORT";
+    private static final String DEFAULT_PARCEL_WEIGHT_GRAMS =
+        "EOSA_SHIPPING_DEFAULT_PARCEL_WEIGHT_GRAMS";
+    private static final int DEFAULT_PARCEL_WEIGHT_GRAMS_VALUE = 150;
     private static final String DEFAULT_PUBLIC_SERVER_PORT = "8080";
     private static final String DEFAULT_ADMIN_SERVER_PORT = "18080";
 
@@ -93,6 +97,38 @@ public class Configuration {
             adminName,
             adminSecret
         );
+    }
+
+    /**
+     * Poids et dimensions du colis proposés à la fabrication d'une commande (aucun bijou n'a de poids ni de
+     * dimensions dans le modèle) : l'administratrice les confirme ou les corrige à chaque fabrication.
+     */
+    public static ParcelDefaults getDefaultParcel() {
+        return new ParcelDefaults(
+            positiveInt(DEFAULT_PARCEL_WEIGHT_GRAMS, DEFAULT_PARCEL_WEIGHT_GRAMS_VALUE),
+            positiveInt("EOSA_SHIPPING_PARCEL_LENGTH_CM", 12),
+            positiveInt("EOSA_SHIPPING_PARCEL_WIDTH_CM", 9),
+            positiveInt("EOSA_SHIPPING_PARCEL_DEPTH_CM", 4)
+        );
+    }
+
+    private static int positiveInt(String name, int defaultValue) {
+        String value = System.getenv(name);
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        try {
+            int parsed = Integer.parseInt(value.strip());
+            if (parsed <= 0) {
+                throw new NumberFormatException(value);
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            throw new InvalidProperties(
+                name + " doit être un nombre entier positif.",
+                e
+            );
+        }
     }
 
     public static class MissingProperties extends RuntimeException {

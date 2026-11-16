@@ -69,7 +69,9 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Bijoux et personnalisation](docs/specs/jewel-customization.md) | Renommage `Product` → `Jewel`, matériaux, breloques, parcours de personnalisation |
 | [Réservation des ateliers](docs/specs/workshop-booking.md) | Lieux, sessions, réservation confirmée par e-mail, liste d'attente, rappels, absences, sujets juridiques |
-| [Carte cadeau](docs/specs/gift-card.md) | Achat en ligne, code par e-mail, solde utilisable en plusieurs fois, dépendances (confirmation du paiement par tâche de rattrapage, commandes), sujets juridiques et fiscaux, étapes (à valider) |
+| [Commandes](docs/specs/orders.md) | Commande enregistrée au paiement Stripe (sans webhook), administration, expédition et e-mail de suivi, étiquette et suivi Mondial Relay, sujets juridiques, étapes (à valider) |
+| [Codes de promotion](docs/specs/promo-codes.md) | Codes gérés par EOSA (pourcentage ou montant), limites, remise envoyée à Stripe sous forme de coupon, enregistrée sur la commande, étapes (à valider) |
+| [Carte cadeau](docs/specs/gift-card.md) | Achat en ligne, code par e-mail, solde utilisable en plusieurs fois, cumul avec un code de promotion, un seul coupon Stripe, tâche de rattrapage, sujets juridiques et fiscaux, étapes (à valider) |
 
 ### Design — [`docs/design/`](docs/design/)
 
@@ -97,7 +99,7 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Déploiement](docs/ops/deployment.md) | Image Docker et référence complète des variables d'environnement |
 | [`.env.example`](.env.example) | Modèle de configuration locale, prêt à copier |
-| [`kubernetes/`](kubernetes/) | Manifestes de production : application, PostgreSQL, tâches planifiées des ateliers |
+| [`kubernetes/`](kubernetes/) | Manifestes de production : application, PostgreSQL, tâches planifiées des ateliers et des commandes |
 
 ### Pilotage
 

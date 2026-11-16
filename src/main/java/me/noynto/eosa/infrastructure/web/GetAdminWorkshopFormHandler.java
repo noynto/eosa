@@ -3,6 +3,7 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadWorkshopVenues;
+import me.noynto.eosa.workshop.WorkshopSession;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ public record GetAdminWorkshopFormHandler(ReadWorkshopVenues readWorkshopVenues)
         Map<String, Object> model = new HashMap<>();
         model.put("venues", venues);
         model.put("hasVenues", !venues.isEmpty());
+        model.put("bookingOpeningDays", WorkshopSession.BOOKING_OPENING_DAYS);
         model.put("firstVenueCapacity", venues.isEmpty() ? "" : venues.getFirst().get("defaultCapacity"));
         model.put("firstVenueDuration", venues.isEmpty() ? "" : venues.getFirst().get("defaultDurationMinutes"));
         ctx.render("admin/partials/workshop-create-form.mustache", model);

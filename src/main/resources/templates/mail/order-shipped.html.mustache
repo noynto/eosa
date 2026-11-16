@@ -1,0 +1,46 @@
+{{> partials/header.html.mustache}}
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                        Votre commande est en route
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        {{#hasName}}Bonne nouvelle {{name}} : v{{/hasName}}{{^hasName}}V{{/hasName}}otre commande <b>{{number}}</b> vient d'être remise au transporteur Mondial Relay.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                        <span style="color:#775546;">Numéro de suivi</span><br>
+                        {{trackingNumber}}
+                    </td>
+                </tr>
+                {{#hasAddress}}
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                        <span style="color:#775546;">Adresse de livraison</span><br>
+                        {{addressName}}<br>
+                        {{addressLine1}}<br>
+                        {{#hasAddressLine2}}{{addressLine2}}<br>{{/hasAddressLine2}}
+                        {{addressPostalCode}} {{addressCity}}<br>
+                        {{addressCountry}}
+                    </td>
+                </tr>
+                {{/hasAddress}}
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td bgcolor="#601414" style="padding:12px 24px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:20px;">
+                                    <a href="{{trackingUrl}}" style="color:#FDFBF7;text-decoration:none;">Suivre mon colis</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#775546;">
+                        Une question ? Répondez à cet e-mail ou écrivez-nous à <a href="mailto:{{contactEmail}}" style="color:#601414;">{{contactEmail}}</a>.
+                    </td>
+                </tr>
+{{> partials/footer.html.mustache}}

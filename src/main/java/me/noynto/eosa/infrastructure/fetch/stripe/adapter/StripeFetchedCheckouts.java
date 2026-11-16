@@ -5,9 +5,14 @@ import me.noynto.eosa.infrastructure.fetch.stripe.resource.StripeCheckoutSession
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
 import me.noynto.eosa.shared.CheckoutSessionId;
+import me.noynto.eosa.shared.ImageId;
+import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.PromoCodeId;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -17,14 +22,41 @@ public record StripeFetchedCheckouts(
         String baseUrl
 ) implements CheckoutProvider {
 
+    // 20 pages de 100 sessions : bien plus que ce que la boutique crée entre deux passages de la tâche de rattrapage.
+    private static final int MAX_PAGES = 20;
+
     @Override
-    public Stream<CheckoutId> readIds(CheckoutSessionId sessionId) {
-        try {
-            var stripeSession = checkoutSessionResource.retrieveSession(sessionId.getStripe());
-            return Stream.of(toCheckout(stripeSession).getId());
-        } catch (Exception e) {
-            return Stream.empty();
+    public Stream<CheckoutId> readIds(CheckoutSessionId sessionId, CheckoutStatus status, Instant createdSince) {
+        if (sessionId != null) {
+            try {
+                var stripeSession = checkoutSessionResource.retrieveSession(sessionId.getStripe());
+                return Stream.of(toCheckout(stripeSession).getId());
+            } catch (Exception e) {
+                return Stream.empty();
+            }
         }
+        // Une liste incomplète ferait passer des paiements pour absents : toute erreur remonte à l'appelant.
+        List<CheckoutId> ids = new ArrayList<>();
+        try {
+            long since = createdSince != null ? createdSince.getEpochSecond() : 0;
+            String startingAfter = null;
+            for (int page = 0; page < MAX_PAGES; page++) {
+                var list = checkoutSessionResource.listSessions(since, startingAfter);
+                for (var stripeSession : list.data()) {
+                    var checkout = toCheckout(stripeSession);
+                    if (status == null || checkout.getStatus() == status) {
+                        ids.add(checkout.getId());
+                    }
+                }
+                if (!list.hasMore() || list.data().isEmpty()) {
+                    return ids.stream();
+                }
+                startingAfter = list.data().getLast().id();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de lister les sessions Stripe.", e);
+        }
+        throw new RuntimeException("Trop de sessions Stripe à lister depuis " + createdSince + ".");
     }
 
     @Override
@@ -38,9 +70,19 @@ public record StripeFetchedCheckouts(
                     CheckoutItem checkoutItem = new CheckoutItem();
                     checkoutItem.setName(item.description());
                     checkoutItem.setQuantity((int) item.quantity());
+                    String jewelId = item.productMetadata("jewel_id");
+                    if (jewelId != null) {
+                        checkoutItem.setJewelId(new JewelId(jewelId));
+                    }
+                    String imageId = item.productMetadata("image_id");
+                    if (imageId != null) {
+                        checkoutItem.setImageId(new ImageId(imageId));
+                    }
                     if (item.quantity() > 0) {
+                        // Le prix du bijou, avant la remise : amount_total est déjà remisé quand un coupon s'applique.
+                        long amount = item.amountSubtotal() != null ? item.amountSubtotal() : item.amountTotal();
                         checkoutItem.setUnitPrice(
-                            BigDecimal.valueOf(item.amountTotal())
+                            BigDecimal.valueOf(amount)
                                 .divide(BigDecimal.valueOf(100))
                                 .divide(BigDecimal.valueOf(item.quantity()))
                         );
@@ -54,7 +96,7 @@ public record StripeFetchedCheckouts(
         }
     }
 
-    private Checkout toCheckout(StripeCheckoutSessionResource.CheckoutSession stripeSession) {
+    Checkout toCheckout(StripeCheckoutSessionResource.CheckoutSession stripeSession) {
         Checkout checkout = new Checkout();
 
         CheckoutId id = new CheckoutId();
@@ -79,7 +121,40 @@ public record StripeFetchedCheckouts(
         checkoutSession.setStatus(CheckoutSessionStatus.OPENED);
         checkout.setSession(checkoutSession);
 
+        if (stripeSession.amountTotal() != null) {
+            checkout.setTotalAmount(fromStripeAmount(stripeSession.amountTotal()));
+        }
+        if (stripeSession.shippingCost() != null && stripeSession.shippingCost().amountTotal() != null) {
+            checkout.setShippingAmount(fromStripeAmount(stripeSession.shippingCost().amountTotal()));
+        }
+        if (stripeSession.totalDetails() != null && stripeSession.totalDetails().amountDiscount() != null) {
+            checkout.setDiscountAmount(fromStripeAmount(stripeSession.totalDetails().amountDiscount()));
+        }
+        // Posées à la création de la session quand un code de promotion s'applique.
+        String promoCodeId = stripeSession.metadata("promo_code_id");
+        if (promoCodeId != null && !promoCodeId.isBlank()) {
+            checkout.setPromoCodeId(new PromoCodeId(promoCodeId));
+            checkout.setPromoCode(stripeSession.metadata("promo_code"));
+        }
+        var customer = stripeSession.customerDetails();
+        if (customer != null) {
+            checkout.setCustomerName(customer.name());
+            checkout.setCustomerEmail(customer.email());
+            checkout.setCustomerPhone(customer.phone());
+        }
+        var shipping = stripeSession.shippingDetailsOrCollected();
+        if (shipping != null && shipping.address() != null) {
+            var address = shipping.address();
+            checkout.setShippingAddress(new CheckoutShippingAddress(
+                    shipping.name(), address.line1(), address.line2(),
+                    address.postalCode(), address.city(), address.country()));
+        }
+
         return checkout;
+    }
+
+    private static BigDecimal fromStripeAmount(long amount) {
+        return BigDecimal.valueOf(amount, 2);
     }
 
     @Override
@@ -93,13 +168,22 @@ public record StripeFetchedCheckouts(
                             checkoutItem.getQuantity(),
                             checkoutItem.getImageId() != null
                                     ? baseUrl + "/images/" + checkoutItem.getImageId().value()
-                                    : null
+                                    : null,
+                            checkoutItem.getJewelId() != null ? checkoutItem.getJewelId().value() : null,
+                            checkoutItem.getImageId() != null ? checkoutItem.getImageId().value() : null
                     ))
                     .toList();
 
             String clientReferenceId = checkout.getCartId() != null ? checkout.getCartId().value() : null;
 
-            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession = checkoutSessionResource.post(lineItems, clientReferenceId, checkout.getShippingAmount());
+            StripeCheckoutSessionResource.Discount discount = checkout.getDiscountAmount() != null
+                    && checkout.getDiscountAmount().signum() > 0 && checkout.getPromoCodeId() != null
+                    ? new StripeCheckoutSessionResource.Discount(
+                            checkout.getDiscountAmount(), checkout.getPromoCodeId().value(), checkout.getPromoCode())
+                    : null;
+
+            StripeCheckoutSessionResource.CheckoutSession stripeCheckoutSession = checkoutSessionResource.post(
+                    lineItems, clientReferenceId, checkout.getShippingAmount(), discount);
 
             CheckoutSession checkoutSession = new CheckoutSession();
             checkoutSession.setUri(URI.create(stripeCheckoutSession.url()));

@@ -17,6 +17,13 @@ import me.noynto.eosa.hash.CryptProvider;
 import me.noynto.eosa.identity.IdentityProvider;
 import me.noynto.eosa.identity.IdentitySessionProvider;
 import me.noynto.eosa.image.ImageProvider;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.adapter.MondialRelayFetchedShippingLabels;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayConnectConfiguration;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayConnectProperties;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.config.MondialRelayTrackingProperties;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.resource.MondialRelayShipmentResource;
+import me.noynto.eosa.infrastructure.fetch.mondialrelay.resource.MondialRelayTrackingResource;
+import me.noynto.eosa.shipping.ShippingLabelProvider;
 import me.noynto.eosa.infrastructure.fetch.stripe.adapter.StripeFetchedCheckouts;
 import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeConfiguration;
 import me.noynto.eosa.infrastructure.fetch.stripe.config.StripeHttpClient;
@@ -29,6 +36,7 @@ import me.noynto.eosa.infrastructure.web.*;
 import me.noynto.eosa.jewel.JewelCategory;
 import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.metal.MetalColorProvider;
+import me.noynto.eosa.order.OrderProvider;
 import me.noynto.eosa.infrastructure.mail.MailTemplates;
 import me.noynto.eosa.infrastructure.mail.SmtpSentMails;
 import me.noynto.eosa.infrastructure.mail.config.SmtpConfiguration;
@@ -39,9 +47,14 @@ import me.noynto.eosa.task.ExpirePendingWorkshopBookingsTask;
 import me.noynto.eosa.task.PurgeWorkshopPersonalDataTask;
 import me.noynto.eosa.task.RetryWorkshopEmailsTask;
 import me.noynto.eosa.task.SendTestEmailTask;
+import me.noynto.eosa.task.PurgeOrderPersonalDataTask;
+import me.noynto.eosa.task.SettleOrdersTask;
+import me.noynto.eosa.task.TrackOrderShipmentsTask;
 import me.noynto.eosa.task.SendWorkshopRemindersTask;
 import me.noynto.eosa.workshop.WorkshopBookingProvider;
+import me.noynto.eosa.workshop.WorkshopSession;
 import me.noynto.eosa.workshop.WorkshopSessionProvider;
+import me.noynto.eosa.promo.PromoCodeProvider;
 import me.noynto.eosa.workshop.WorkshopVenueProvider;
 import me.noynto.eosa.workshop.WorkshopWaitlistEntryProvider;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
@@ -65,9 +78,11 @@ public class Bootstrap {
         MetalColorProvider metalColorProvider = jdbcConfiguration.metalColors();
         CharmProvider charmProvider = jdbcConfiguration.charms();
         WorkshopVenueProvider workshopVenueProvider = jdbcConfiguration.workshopVenues();
+        PromoCodeProvider promoCodeProvider = jdbcConfiguration.promoCodes();
         WorkshopSessionProvider workshopSessionProvider = jdbcConfiguration.workshopSessions();
         WorkshopBookingProvider workshopBookingProvider = jdbcConfiguration.workshopBookings();
         WorkshopWaitlistEntryProvider workshopWaitlistEntryProvider = jdbcConfiguration.workshopWaitlistEntries();
+        OrderProvider orderProvider = jdbcConfiguration.orders();
         Clock clock = Clock.systemUTC();
         CartShippingRuleProvider shippingRuleProvider =
             new ConfiguredCartShippingRules();
@@ -114,6 +129,10 @@ public class Bootstrap {
         UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(
             jewelProvider
         );
+        UpdatePublishedAtOfJewel updatePublishedAtOfJewel = new UpdatePublishedAtOfJewel(
+            jewelProvider,
+            clock
+        );
         UpdatePriceOfJewel updatePriceOfJewel = new UpdatePriceOfJewel(
             jewelProvider
         );
@@ -121,7 +140,8 @@ public class Bootstrap {
             jewelProvider
         );
         UpdateStateOfJewel updateStateOfJewel = new UpdateStateOfJewel(
-            jewelProvider
+            jewelProvider,
+            clock
         );
         DownloadImage downloadImage = new DownloadImage(imageProvider);
         AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(
@@ -146,8 +166,19 @@ public class Bootstrap {
         );
         ReadCart readCart = new ReadCart(
             cartProvider,
-            shippingRuleProvider
+            shippingRuleProvider,
+            promoCodeProvider,
+            orderProvider,
+            clock
         );
+        ApplyPromoCode applyPromoCode = new ApplyPromoCode(
+            cartProvider,
+            promoCodeProvider,
+            orderProvider,
+            shippingRuleProvider,
+            clock
+        );
+        RemovePromoCode removePromoCode = new RemovePromoCode(cartProvider);
         EnsureCartHandler ensureCartHandler = new EnsureCartHandler(
             getOrCreateCart
         );
@@ -167,10 +198,14 @@ public class Bootstrap {
         InitiateCheckout initiateCheckout = new InitiateCheckout(
             cartProvider,
             stripeFetchedCheckouts,
-            shippingRuleProvider
+            shippingRuleProvider,
+            promoCodeProvider,
+            orderProvider,
+            clock
         );
         ConfirmCheckoutSession confirmCheckoutSession =
-            new ConfirmCheckoutSession(stripeFetchedCheckouts, cartProvider);
+            new ConfirmCheckoutSession(
+                stripeFetchedCheckouts, cartProvider, orderProvider, mailProvider, clock, properties.adminBaseUrl());
         CreateAdministratorIdentity createAdministratorIdentity =
             new CreateAdministratorIdentity(identityProvider, cryptProvider);
         CreateMetalColor createMetalColor = new CreateMetalColor(
@@ -191,6 +226,12 @@ public class Bootstrap {
         ReadCharms readCharms = new ReadCharms(charmProvider);
         UpdateCharm updateCharm = new UpdateCharm(charmProvider);
         DeleteCharm deleteCharm = new DeleteCharm(charmProvider);
+        CreatePromoCode createPromoCode = new CreatePromoCode(promoCodeProvider, clock);
+        ReadPromoCodes readPromoCodes = new ReadPromoCodes(promoCodeProvider, orderProvider);
+        ReadPromoCode readPromoCode = new ReadPromoCode(promoCodeProvider, orderProvider);
+        DeletePromoCode deletePromoCode = new DeletePromoCode(promoCodeProvider, orderProvider);
+        UpdatePromoCode updatePromoCode = new UpdatePromoCode(promoCodeProvider);
+        SetPromoCodeActive setPromoCodeActive = new SetPromoCodeActive(promoCodeProvider);
         CreateWorkshopVenue createWorkshopVenue = new CreateWorkshopVenue(workshopVenueProvider);
         ReadWorkshopVenues readWorkshopVenues = new ReadWorkshopVenues(workshopVenueProvider);
         ReadWorkshopVenue readWorkshopVenue = new ReadWorkshopVenue(workshopVenueProvider);
@@ -201,6 +242,49 @@ public class Bootstrap {
             workshopVenueProvider,
             imageProvider
         );
+        ReadOrders readOrders = new ReadOrders(orderProvider, clock);
+        ReadOrder readOrder = new ReadOrder(
+            orderProvider,
+            clock,
+            Configuration.getDefaultParcel()
+        );
+        MondialRelayConnectProperties mondialRelayProperties =
+            MondialRelayConnectConfiguration.getProperties();
+        MondialRelayTrackingProperties mondialRelayTrackingProperties =
+            MondialRelayConnectConfiguration.getTrackingProperties();
+        ShippingLabelProvider shippingLabelProvider =
+            new MondialRelayFetchedShippingLabels(
+                new MondialRelayShipmentResource(
+                    MondialRelayConnectConfiguration.getClient(),
+                    mondialRelayProperties
+                ),
+                mondialRelayProperties,
+                new MondialRelayTrackingResource(
+                    MondialRelayConnectConfiguration.getClient(),
+                    mondialRelayTrackingProperties
+                ),
+                mondialRelayTrackingProperties
+            );
+        CraftOrder craftOrder = new CraftOrder(
+            orderProvider,
+            shippingLabelProvider,
+            clock
+        );
+        ReadOrderLabel readOrderLabel = new ReadOrderLabel(orderProvider);
+        TrackOrderShipments trackOrderShipments = new TrackOrderShipments(
+            orderProvider,
+            shippingLabelProvider,
+            mailProvider,
+            clock
+        );
+        CraftOrderForHandDelivery craftOrderForHandDelivery = new CraftOrderForHandDelivery(orderProvider, clock);
+        HandOverOrder handOverOrder = new HandOverOrder(orderProvider, clock);
+        PurgeOrderPersonalData purgeOrderPersonalData = new PurgeOrderPersonalData(orderProvider, clock);
+        ShipOrder shipOrder = new ShipOrder(orderProvider, mailProvider, clock);
+        DeliverOrder deliverOrder = new DeliverOrder(orderProvider, clock);
+        CancelOrder cancelOrder = new CancelOrder(orderProvider, clock);
+        SettleOrders settleOrders = new SettleOrders(
+            stripeFetchedCheckouts, orderProvider, mailProvider, clock, properties.adminBaseUrl());
         ArchiveWorkshopVenue archiveWorkshopVenue = new ArchiveWorkshopVenue(workshopVenueProvider);
         ReadWorkshopSessions readWorkshopSessions = new ReadWorkshopSessions(
             workshopSessionProvider,
@@ -378,6 +462,18 @@ public class Bootstrap {
             oneShotTasksSucceeded &= new RetryWorkshopEmailsTask(retryWorkshopEmails).task();
             ranOneShotTask = true;
         }
+        if (SettleOrdersTask.activate()) {
+            oneShotTasksSucceeded &= new SettleOrdersTask(settleOrders).task();
+            ranOneShotTask = true;
+        }
+        if (TrackOrderShipmentsTask.activate()) {
+            oneShotTasksSucceeded &= new TrackOrderShipmentsTask(trackOrderShipments).task();
+            ranOneShotTask = true;
+        }
+        if (PurgeOrderPersonalDataTask.activate()) {
+            oneShotTasksSucceeded &= new PurgeOrderPersonalDataTask(purgeOrderPersonalData).task();
+            ranOneShotTask = true;
+        }
         if (ranOneShotTask) {
             Runtime.getRuntime().exit(oneShotTasksSucceeded ? 0 : 1);
         }
@@ -504,7 +600,9 @@ public class Bootstrap {
                         "ogImageUrl",
                         baseUrl + "/hero.webp",
                         "canonicalUrl",
-                        baseUrl + context.path()
+                        baseUrl + context.path(),
+                        "bookingOpeningDays",
+                        WorkshopSession.BOOKING_OPENING_DAYS
                     )
                 )
             );
@@ -614,7 +712,9 @@ public class Bootstrap {
                         "ogImageUrl",
                         baseUrl + "/hero.webp",
                         "canonicalUrl",
-                        baseUrl + context.path()
+                        baseUrl + context.path(),
+                        "bookingOpeningDays",
+                        WorkshopSession.BOOKING_OPENING_DAYS
                     )
                 )
             );
@@ -657,6 +757,14 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/cart/items/{jewel-id}",
                 new PostCartItemHandler(addJewelToCart)
+            );
+            javalinConfig.routes.post(
+                "/cart/promo-code",
+                new PostCartPromoCodeHandler(applyPromoCode)
+            );
+            javalinConfig.routes.delete(
+                "/cart/promo-code",
+                new DeleteCartPromoCodeHandler(removePromoCode)
             );
             javalinConfig.routes.patch(
                 "/cart/items/{item-id}",
@@ -720,6 +828,47 @@ public class Bootstrap {
             );
             javalinConfig.routes.before(ensureIdentityHandler);
             javalinConfig.routes.get(
+                "/orders",
+                new GetAdminOrdersHandler(readOrders)
+            );
+            // Avant « /orders/{id} » : « badge » ne doit pas être pris pour un identifiant.
+            javalinConfig.routes.get(
+                "/orders/badge",
+                new GetAdminOrdersBadgeHandler(readOrders)
+            );
+            javalinConfig.routes.get(
+                "/orders/{id}",
+                new GetAdminOrderHandler(readOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/craft",
+                new PostOrderCraftHandler(craftOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/craft-hand-delivery",
+                new PostOrderCraftForHandDeliveryHandler(craftOrderForHandDelivery)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/hand-over",
+                new PostOrderHandOverHandler(handOverOrder)
+            );
+            javalinConfig.routes.get(
+                "/orders/{id}/label",
+                new GetAdminOrderLabelHandler(readOrderLabel)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/ship",
+                new PostOrderShipHandler(shipOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/deliver",
+                new PostOrderDeliverHandler(deliverOrder)
+            );
+            javalinConfig.routes.post(
+                "/orders/{id}/cancel",
+                new PostOrderCancelHandler(cancelOrder)
+            );
+            javalinConfig.routes.get(
                 "/jewels",
                 new GetAdminJewelsHandler(readJewelIds)
             );
@@ -746,6 +895,10 @@ public class Bootstrap {
             javalinConfig.routes.patch(
                 "/jewels/{jewel-id}/tagline",
                 new PatchTaglineOfJewelHandler(updateTaglineOfJewel)
+            );
+            javalinConfig.routes.patch(
+                "/jewels/{jewel-id}/published-at",
+                new PatchPublishedAtOfJewelHandler(updatePublishedAtOfJewel)
             );
             javalinConfig.routes.patch(
                 "/jewels/{jewel-id}/price",
@@ -790,6 +943,34 @@ public class Bootstrap {
             javalinConfig.routes.delete(
                 "/charms/{id}",
                 new DeleteCharmHandler(deleteCharm)
+            );
+            javalinConfig.routes.get(
+                "/promo-codes",
+                new GetAdminPromoCodesHandler(readPromoCodes, clock)
+            );
+            javalinConfig.routes.post(
+                "/promo-codes",
+                new CreatePromoCodeHandler(createPromoCode)
+            );
+            javalinConfig.routes.get(
+                "/promo-codes/{id}",
+                new GetAdminPromoCodeHandler(readPromoCode, clock)
+            );
+            javalinConfig.routes.patch(
+                "/promo-codes/{id}",
+                new UpdatePromoCodeHandler(updatePromoCode)
+            );
+            javalinConfig.routes.delete(
+                "/promo-codes/{id}",
+                new DeletePromoCodeHandler(deletePromoCode)
+            );
+            javalinConfig.routes.post(
+                "/promo-codes/{id}/activate",
+                new SetPromoCodeActiveHandler(setPromoCodeActive, true)
+            );
+            javalinConfig.routes.post(
+                "/promo-codes/{id}/deactivate",
+                new SetPromoCodeActiveHandler(setPromoCodeActive, false)
             );
             javalinConfig.routes.get(
                 "/workshop-venues",

@@ -14,3 +14,23 @@ stringData:
   smtp-port: "465"
   smtp-security: "ssl"
   mail-from: "contact@eosa.me"
+  # Mondial Relay V2 (création de l'étiquette) : le bac à sable par défaut ; en production,
+  # https://connect-api.mondialrelay.com/api/shipment
+  mondial-relay-v2-api-url: "https://connect-api-sandbox.mondialrelay.com/api/shipment"
+  mondial-relay-v2-customer-id: "BDTEST"
+  # Mondial Relay V1 (suivi du colis) : le même web service pour les essais et la production
+  mondial-relay-v1-api-url: "https://api.mondialrelay.com/WebService.asmx"
+  mondial-relay-v1-enseigne: "BDTEST13"
+  # Adresse d'expédition imprimée sur l'étiquette
+  shipping-sender-name: "EOSA"
+  shipping-sender-line1: "change_me"
+  shipping-sender-postal-code: "54000"
+  shipping-sender-city: "Nancy"
+  shipping-sender-phone: "+33600000000"
+  shipping-sender-email: "contact@eosa.me"
+  # Poids du colis prérempli à la fabrication (grammes), à confirmer pour chaque colis
+  shipping-default-parcel-weight-grams: "150"
+  # Dimensions du colis préremplies à la fabrication (centimètres), exigées par Mondial Relay ; à confirmer pour chaque colis
+  shipping-parcel-length-cm: "12"
+  shipping-parcel-width-cm: "9"
+  shipping-parcel-depth-cm: "4"

@@ -5,15 +5,27 @@ import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.cart.SelectedCharm;
 import me.noynto.eosa.checkout.*;
+import me.noynto.eosa.order.OrderProvider;
+import me.noynto.eosa.promo.PromoCode;
+import me.noynto.eosa.promo.PromoCodeProvider;
+import me.noynto.eosa.service.PromoDiscounts;
 import me.noynto.eosa.shared.CartId;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Ouvre le paiement du panier. La remise du code de promotion est recalculée ici, sur le panier tel qu'il est : un
+ * code qui ne s'applique plus ne remise rien, comme l'a montré le panier, et jamais plus que ce qu'il permet.
+ */
 public record InitiateCheckout(
         CartProvider cartProvider,
         CheckoutProvider checkoutProvider,
-        CartShippingRuleProvider shippingRuleProvider
+        CartShippingRuleProvider shippingRuleProvider,
+        PromoCodeProvider promoCodeProvider,
+        OrderProvider orderProvider,
+        Clock clock
 ) {
 
     public Result handle(Command command) throws Exception {
@@ -56,6 +68,17 @@ public record InitiateCheckout(
         checkout.setCartId(command.cartId);
         checkout.setItems(checkoutItems);
         checkout.setShippingAmount(cart.getShipping().getAmount());
+        if (cart.getPromoCodeId() != null) {
+            PromoCode promoCode = promoCodeProvider.read(cart.getPromoCodeId()).orElse(null);
+            int uses = promoCode == null ? 0
+                    : (int) orderProvider.readIds(null, null, null, promoCode.getId()).count();
+            var evaluation = PromoDiscounts.evaluate(promoCode, cart.getTotal(), cart.getShipping().getAmount(), uses, clock.instant());
+            if (evaluation.applies()) {
+                checkout.setDiscountAmount(evaluation.discount());
+                checkout.setPromoCodeId(promoCode.getId());
+                checkout.setPromoCode(promoCode.getCode());
+            }
+        }
         checkout.setStatus(CheckoutStatus.PENDING);
         return new Result(checkoutProvider.write(checkout));
     }

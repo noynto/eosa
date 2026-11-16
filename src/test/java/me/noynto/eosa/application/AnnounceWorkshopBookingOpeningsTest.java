@@ -49,7 +49,7 @@ class AnnounceWorkshopBookingOpeningsTest {
 
     // Samedi 14 novembre 2026, 14 h 00 à Paris : réservations ouvertes le samedi 7 à 14 h 00.
     private final Instant startsAt = Instant.parse("2026-11-14T13:00:00Z");
-    private final Instant opening = Instant.parse("2026-11-07T13:00:00Z");
+    private final Instant opening = Instant.parse("2026-10-31T13:00:00Z");
     private final WorkshopSessionId sessionId = new WorkshopSessionId("session");
     private InMemoryWorkshopBookings bookings;
     private InMemoryWorkshopWaitlistEntries waitlist;

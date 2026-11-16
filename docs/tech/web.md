@@ -10,13 +10,14 @@
 | GET | `/jewels` | Liste des bijoux |
 | GET | `/jewels/{id}` | Fiche d'un bijou |
 | GET | `/jewels/{id}/card` | Fragment : carte d'un bijou |
-| GET | `/jewels/latest` | Fragment : les derniers bijoux publiés, chargé par l'accueil |
+| GET | `/jewels/latest` | Fragment : les derniers bijoux publiés, chargé par l'accueil ; l'ordre est celui de la date de première publication (`jewels.published_at`), la plus récente d'abord |
 | GET | `/jewels/{id}/related` | Fragment : la section « D'autres bijoux » de la fiche |
 | GET | `/customization/metal-colors` | Fragment : le choix de la couleur du métal, dans le formulaire d'ajout au panier |
 | GET | `/customization/charms` | Fragment : le choix des breloques, dans le formulaire d'ajout au panier |
 | GET | `/images/{id}` | Téléchargement d'une image |
 | GET | `/about` | Notre histoire |
-| GET | `/cart` | Panier |
+| GET | `/cart` | Panier, avec la remise de son code de promotion |
+| POST, DELETE | `/cart/promo-code` | Applique le code saisi (refus en fragment, 422) ou le retire ; `HX-Redirect` vers le panier |
 | POST | `/checkout` | Paiement Stripe |
 | GET | `/workshops` | Page des ateliers et prochaines sessions |
 | GET | `/workshops/sessions/{id}` | Page d'une session (lieu, réservation, liste d'attente) |
@@ -37,7 +38,14 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 |---|---|---|
 | GET/POST | `/sign-in` | Connexion (pose le cookie `identity-session-id`) |
 | GET | `/` | Redirection vers `/jewels` |
-| * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue |
+| * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue ; `PATCH /jewels/{id}/published-at` corrige la date de publication d'un bijou déjà publié (un jour, jamais dans le futur) |
+| GET | `/orders`, `/orders/{id}`, `/orders/badge` | Commandes : liste filtrée (état, recherche), détail, pastille « à fabriquer » du menu (fragment htmx) |
+| POST | `/orders/{id}/craft` | « Pièce fabriquée » : crée l'étiquette Mondial Relay (poids et dimensions du colis saisis) et passe la commande à fabriquée ; en cas d'échec, message en fragment (422) et la commande reste à fabriquer |
+| POST | `/orders/{id}/craft-hand-delivery`, `/orders/{id}/hand-over` | Remise en main propre : « Pièce fabriquée, remise en main propre » (fabriquée sans étiquette ni e-mail) puis « Remise effectuée » (fabriquée → livrée, sans expédition) ; en cas de refus, message en fragment (422) |
+| POST | `/orders/{id}/ship`, `/orders/{id}/deliver` | « Colis remis » (fabriquée → expédiée, e-mail de suivi à la cliente) et « Livrée » (expédiée → livrée) ; en cas de refus, message en fragment (422) |
+| POST | `/orders/{id}/cancel` | Annule une commande à fabriquer, fabriquée ou expédiée, avec un motif ; ni e-mail, ni remboursement |
+| GET | `/orders/{id}/label` | PDF de l'étiquette (redirection vers l'adresse protégée du transporteur), commande fabriquée ou expédiée ; ne modifie rien |
+| * | `/promo-codes*` | Codes de promotion : liste, création, modification des règles (`PATCH`), activation et désactivation (`POST .../activate`, `.../deactivate`), suppression d'un code jamais utilisé (`DELETE`) ; la page d'un code liste les commandes qui l'ont utilisé |
 | * | `/workshop-venues*` | Lieux des ateliers : création, modification, photo, archivage |
 | * | `/workshops*` | Sessions : création, modification, annulation ; réservations (annulation, présente, absente) et liste d'attente |
 | GET | `/workshops/new` | Fragment : le formulaire « Nouvelle session », chargé à l'ouverture de la fenêtre |
