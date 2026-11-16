@@ -44,6 +44,7 @@ public final class OrderMails {
         model.put("items", itemsOf(order));
         model.put("itemsAmount", amount(order.getItemsAmount()));
         putDiscount(model, order);
+        putGiftCard(model, order);
         model.put("shippingAmount", amount(order.getShippingAmount()));
         model.put("totalAmount", amount(order.getTotalAmount()));
         var address = order.getShippingAddress();
@@ -78,6 +79,7 @@ public final class OrderMails {
         model.put("pieces", pieces);
         model.put("items", itemsOf(order));
         putDiscount(model, order);
+        putGiftCard(model, order);
         model.put("totalAmount", amount(order.getTotalAmount()));
         model.put("customerName", order.getCustomerName());
         model.put("customerEmail", order.getCustomerEmail());
@@ -156,6 +158,15 @@ public final class OrderMails {
         if (hasDiscount) {
             model.put("discountAmount", "−" + amount(order.getDiscountAmount()));
             model.put("promoCode", order.getPromoCode() != null ? order.getPromoCode() : "de promotion");
+        }
+    }
+
+    /** La ligne de carte cadeau (« −20,00 € ») quand une carte a payé une part de la commande. */
+    private static void putGiftCard(Map<String, Object> model, Order order) {
+        boolean hasGiftCard = order.getGiftCardAmount() != null && order.getGiftCardAmount().signum() > 0;
+        model.put("hasGiftCard", hasGiftCard);
+        if (hasGiftCard) {
+            model.put("giftCardAmount", "−" + amount(order.getGiftCardAmount()));
         }
     }
 

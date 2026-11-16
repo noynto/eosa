@@ -3,6 +3,8 @@ Nouvelle commande {{{number}}}
 {{{pieces}}} pièce(s) à fabriquer pour {{{totalAmount}}}, commandée(s) par {{{customerName}}} ({{{customerEmail}}}).
 {{#hasDiscount}}Code de promotion {{{promoCode}}} : {{{discountAmount}}} de remise.
 {{/hasDiscount}}
+{{#hasGiftCard}}Carte cadeau : {{{giftCardAmount}}} (le total est ce que la cliente a réglé par carte bancaire).
+{{/hasGiftCard}}
 
 {{#items}}
 - {{{quantity}}} × {{{name}}}

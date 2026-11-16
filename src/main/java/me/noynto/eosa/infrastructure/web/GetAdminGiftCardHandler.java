@@ -15,8 +15,18 @@ public record GetAdminGiftCardHandler(ReadGiftCard readGiftCard, Clock clock) im
     @Override
     public void handle(Context ctx) {
         try {
-            var giftCard = readGiftCard.handle(new ReadGiftCard.Command(new GiftCardId(ctx.pathParam("id")))).giftCard();
+            var result = readGiftCard.handle(new ReadGiftCard.Command(new GiftCardId(ctx.pathParam("id"))));
+            var giftCard = result.giftCard();
             var now = clock.instant();
+            var orders = result.orders().stream().map(order -> {
+                Map<String, Object> row = new HashMap<>();
+                row.put("id", order.getId().value());
+                row.put("number", order.getNumber());
+                row.put("paidAt", OrderFormat.dateTime(order.getPaidAt()));
+                row.put("amount", OrderFormat.amount(order.getGiftCardAmount()));
+                row.put("state", OrderFormat.state(order.getState()));
+                return row;
+            }).toList();
             var movements = giftCard.getMovements().stream().map(movement -> {
                 Map<String, Object> row = new HashMap<>();
                 row.put("kind", GiftCardFormat.movementKind(movement.getKind()));
@@ -42,6 +52,8 @@ public record GetAdminGiftCardHandler(ReadGiftCard readGiftCard, Clock clock) im
             model.put("hasBuyerFirstName", giftCard.getBuyerFirstName() != null);
             model.put("buyerFirstName", giftCard.getBuyerFirstName());
             model.put("movements", movements);
+            model.put("orders", orders);
+            model.put("hasOrders", !orders.isEmpty());
             model.put("isActive", giftCard.getState() == GiftCardState.ACTIVE && !giftCard.isExpired(now));
             ctx.render("admin/gift-card.mustache", model);
         } catch (RuntimeException e) {

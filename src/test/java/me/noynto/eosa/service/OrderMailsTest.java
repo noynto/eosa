@@ -66,6 +66,32 @@ class OrderMailsTest {
     }
 
     @Test
+    void confirmationAndNotification_showTheGiftCardPartOnlyWhenACardPaidOne() {
+        var plain = order();
+        var plainMail = OrderMails.confirmation(plain);
+        var plainRendered = templates.render(plainMail.template(), plainMail.model());
+        assertFalse(plainRendered.text().contains("Carte cadeau"), plainRendered.text());
+        assertFalse(plainRendered.html().contains("Carte cadeau"), plainRendered.html());
+
+        var paidByCard = order();
+        paidByCard.setGiftCardAmount(new BigDecimal("20.00"));
+        var mail = OrderMails.confirmation(paidByCard);
+        var rendered = templates.render(mail.template(), mail.model());
+        for (String content : List.of(rendered.html(), rendered.text())) {
+            assertTrue(content.contains("Carte cadeau"), content);
+            assertTrue(content.contains("−20,00"), content);
+            assertFalse(content.contains("Code "), "pas de ligne de code de promotion : " + content);
+        }
+
+        var notification = OrderMails.notification(paidByCard, URI.create("https://admin.eosa.me"));
+        var renderedNotification = templates.render(notification.template(), notification.model());
+        for (String content : List.of(renderedNotification.html(), renderedNotification.text())) {
+            assertTrue(content.contains("Carte cadeau"), content);
+            assertTrue(content.contains("−20,00"), content);
+        }
+    }
+
+    @Test
     void confirmation_escapesWhatTheCustomerTyped() {
         var order = order();
         order.setCustomerName("Ada <script>alert(1)</script>");
