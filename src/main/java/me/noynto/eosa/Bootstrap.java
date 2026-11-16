@@ -208,8 +208,9 @@ public class Bootstrap {
         UpdateCharm updateCharm = new UpdateCharm(charmProvider);
         DeleteCharm deleteCharm = new DeleteCharm(charmProvider);
         CreatePromoCode createPromoCode = new CreatePromoCode(promoCodeProvider, clock);
-        ReadPromoCodes readPromoCodes = new ReadPromoCodes(promoCodeProvider);
-        ReadPromoCode readPromoCode = new ReadPromoCode(promoCodeProvider);
+        ReadPromoCodes readPromoCodes = new ReadPromoCodes(promoCodeProvider, orderProvider);
+        ReadPromoCode readPromoCode = new ReadPromoCode(promoCodeProvider, orderProvider);
+        DeletePromoCode deletePromoCode = new DeletePromoCode(promoCodeProvider, orderProvider);
         UpdatePromoCode updatePromoCode = new UpdatePromoCode(promoCodeProvider);
         SetPromoCodeActive setPromoCodeActive = new SetPromoCodeActive(promoCodeProvider);
         CreateWorkshopVenue createWorkshopVenue = new CreateWorkshopVenue(workshopVenueProvider);
@@ -927,6 +928,10 @@ public class Bootstrap {
             javalinConfig.routes.patch(
                 "/promo-codes/{id}",
                 new UpdatePromoCodeHandler(updatePromoCode)
+            );
+            javalinConfig.routes.delete(
+                "/promo-codes/{id}",
+                new DeletePromoCodeHandler(deletePromoCode)
             );
             javalinConfig.routes.post(
                 "/promo-codes/{id}/activate",

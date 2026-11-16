@@ -49,9 +49,9 @@ Migration : `V13__promo_codes.sql` (table `promo_codes`, colonne du panier, colo
 
 | # | Étape | Contenu |
 |---|---|---|
-| 1 | Codes et administration | Migration, `PromoCode`, provider JDBC, cas d'usage de création, modification, désactivation, lecture, pages d'administration. **Fait** : le provider n'a pas de cas d'usage de suppression, qui arrive à l'étape 3 avec le comptage des usages (un code qui a servi ne se supprime pas). Le code n'est pas modifiable après sa création ; type, valeur et limites le sont. |
-| 2 | Panier et paiement | Code appliqué au panier, `PromoDiscounts`, remise à l'écran, coupon Stripe. |
-| 3 | Commande | Colonnes de la commande, enregistrement de la remise, comptage des usages, affichage dans l'administration et les e-mails. |
+| 1 | Codes et administration | Migration, `PromoCode`, provider JDBC, cas d'usage de création, modification, désactivation, lecture, pages d'administration. **Fait** : le cas d'usage de suppression arrive à l'étape 2, avec le comptage des usages. Le code n'est pas modifiable après sa création ; type, valeur et limites le sont. |
+| 2 | Commande | Colonnes de la commande, enregistrement de la remise, comptage des usages, affichage dans l'administration et les e-mails. Passée avant le panier : sans remise, elle ne change rien, et aucune commande remisée n'est enregistrée sans son code. **Fait** : la remise est lue chez Stripe (`total_details.amount_discount`) et le code dans les métadonnées de la session (`promo_code_id`, `promo_code`, posées à l'étape 3). Le prix d'une ligne est lu **avant remise** (`amount_subtotal`) : `amount_total` est déjà remisé, la remise serait déduite deux fois. Un code n'est gardé sur la commande que s'il a remisé quelque chose. `OrderProvider.readIds` reçoit un filtre `promoCodeId` (usages comptés sur toutes les commandes, annulées comprises). Un code qui n'a jamais servi se supprime ; un code utilisé seulement se désactive (clé étrangère). |
+| 3 | Panier et paiement | Code appliqué au panier, `PromoDiscounts`, remise à l'écran, coupon Stripe. À vérifier chez Stripe en mode test : le coupon se répartit sur les lignes et épargne la livraison, et la gratuité de livraison reste calculée sur les bijoux avant remise. |
 | 4 | Textes | Mention dans les CGV (remise non cumulable, non remboursée en cas d'annulation sans paiement), FAQ. |
 
 ## Sujets juridiques à valider

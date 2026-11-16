@@ -5,6 +5,9 @@ Merci pour votre commande
 {{#items}}
 - {{{name}}} : {{{quantity}}} × {{{unitPrice}}} = {{{lineTotal}}}
 {{/items}}
+{{#hasDiscount}}
+Code {{{promoCode}}} : {{{discountAmount}}}
+{{/hasDiscount}}
 Livraison : {{{shippingAmount}}}
 Total : {{{totalAmount}}}
 {{#hasAddress}}

@@ -37,7 +37,7 @@ public record TrackOrderShipments(
 
     public Result handle() {
         Instant now = clock.instant();
-        List<OrderId> ids = orderProvider.readIds(null, Set.of(OrderState.CRAFTED, OrderState.SHIPPED), null).toList();
+        List<OrderId> ids = orderProvider.readIds(null, Set.of(OrderState.CRAFTED, OrderState.SHIPPED), null, null).toList();
 
         int shipped = 0;
         int delivered = 0;

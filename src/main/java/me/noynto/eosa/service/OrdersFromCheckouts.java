@@ -36,9 +36,10 @@ public final class OrdersFromCheckouts {
                 .map(OrderItem::getLineTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal shippingAmount = checkout.getShippingAmount() != null ? checkout.getShippingAmount() : BigDecimal.ZERO;
+        BigDecimal discountAmount = checkout.getDiscountAmount() != null ? checkout.getDiscountAmount() : BigDecimal.ZERO;
         BigDecimal totalAmount = checkout.getTotalAmount() != null
                 ? checkout.getTotalAmount()
-                : itemsAmount.add(shippingAmount);
+                : itemsAmount.subtract(discountAmount).add(shippingAmount);
 
         Order order = new Order();
         order.setState(OrderState.PAID);
@@ -54,6 +55,12 @@ public final class OrdersFromCheckouts {
         }
         order.setItems(items);
         order.setItemsAmount(itemsAmount);
+        order.setDiscountAmount(discountAmount);
+        // Le code n'est gardé que s'il a réellement remisé quelque chose.
+        if (discountAmount.signum() > 0) {
+            order.setPromoCodeId(checkout.getPromoCodeId());
+            order.setPromoCode(checkout.getPromoCode());
+        }
         order.setShippingAmount(shippingAmount);
         order.setTotalAmount(totalAmount);
         order.setPaidAt(paidAt);

@@ -16,6 +16,16 @@ class StripeLineItemMetadataTest {
     }
 
     @Test
+    void readsThePriceBeforeAndAfterTheDiscount() {
+        var item = item("""
+                {"description": "Collier Lune", "quantity": 1, "amount_subtotal": 3300, "amount_total": 2970}
+                """);
+
+        assertEquals(3300L, item.amountSubtotal());
+        assertEquals(2970L, item.amountTotal());
+    }
+
+    @Test
     void readsTheJewelAndImageOfAnExpandedProduct() {
         var item = item("""
                 {"description": "Collier Lune", "quantity": 1, "amount_total": 3300,

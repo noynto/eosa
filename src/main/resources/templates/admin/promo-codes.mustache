@@ -19,7 +19,7 @@
         <span class="text-xs text-secondary">{{discount}} de remise sur les bijoux</span>
         <span class="text-xs text-muted">{{validity}}</span>
         {{#hasMinimum}}<span class="text-xs text-muted">Dès {{minimum}} de bijoux</span>{{/hasMinimum}}
-        {{#hasMaxUses}}<span class="text-xs text-muted">{{maxUses}} usages au plus</span>{{/hasMaxUses}}
+        <span class="text-xs text-muted">{{usesLabel}}</span>
     </a>
     {{/promoCodes}}
     {{^hasPromoCodes}}

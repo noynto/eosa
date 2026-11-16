@@ -67,8 +67,33 @@
         <p class="text-xs text-muted mt-3">Créé le {{createdAt}}.</p>
     </section>
 
+    <!-- Usages -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Usages</h2>
+            <span class="text-xs text-secondary">{{usesLabel}}</span>
+        </div>
+        {{#hasOrders}}
+        <p class="text-xs text-muted mb-3">Remise totale accordée : {{totalDiscount}}. Une commande annulée garde son usage.</p>
+        <ul class="flex flex-col divide-y divide-bg-border">
+            {{#orders}}
+            <li>
+                <a href="/orders/{{id}}" class="flex flex-wrap items-center justify-between gap-2 py-2 min-h-11 text-sm hover:text-secondary transition-colors">
+                    <span class="font-medium">{{number}}</span>
+                    <span class="text-xs text-muted">{{paidAt}} · {{state}}</span>
+                    <span class="text-xs text-secondary">−{{discount}} · total {{total}}</span>
+                </a>
+            </li>
+            {{/orders}}
+        </ul>
+        {{/hasOrders}}
+        {{^hasOrders}}
+        <p class="text-xs text-muted">Aucune commande n'a encore utilisé ce code.</p>
+        {{/hasOrders}}
+    </section>
+
     <!-- Activation -->
-    <section class="bg-bg border border-bg-border rounded-xl p-5">
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
         <div class="flex items-center justify-between mb-1">
             <h2 class="text-sm font-medium">Activation</h2>
             <span id="toast-active" class="text-xs"></span>
@@ -91,6 +116,23 @@
         </button>
         {{/active}}
     </section>
+
+    <!-- Suppression -->
+    {{#canDelete}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Suppression</h2>
+            <span id="toast-delete" class="text-xs"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">Ce code n'a jamais servi : il peut être supprimé. Dès qu'une commande l'utilise, on ne peut plus que le désactiver.</p>
+        <button hx-delete="/promo-codes/{{promoCodeId}}"
+                hx-target="#toast-delete" hx-swap="innerHTML"
+                hx-confirm="Supprimer le code « {{code}} » ?"
+                class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-error hover:border-error transition-colors">
+            Supprimer ce code
+        </button>
+    </section>
+    {{/canDelete}}
 
 </div>
 

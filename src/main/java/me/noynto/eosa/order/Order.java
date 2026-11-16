@@ -2,6 +2,7 @@ package me.noynto.eosa.order;
 
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shared.PromoCodeId;
 import me.noynto.eosa.shipping.ShippingLabel;
 
 import java.math.BigDecimal;
@@ -35,6 +36,9 @@ public class Order {
     private OrderShippingAddress shippingAddress;
     private List<OrderItem> items = new ArrayList<>();
     private BigDecimal itemsAmount;
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+    private String promoCode;
+    private PromoCodeId promoCodeId;
     private BigDecimal shippingAmount;
     private BigDecimal totalAmount;
     private Instant paidAt;
@@ -135,6 +139,36 @@ public class Order {
 
     public void setItemsAmount(BigDecimal itemsAmount) {
         this.itemsAmount = itemsAmount;
+    }
+
+    /**
+     * Remise accordée par un code de promotion, déjà déduite du total payé ; zéro sans code. Le total vaut
+     * les bijoux, moins la remise, plus la livraison.
+     */
+    public BigDecimal getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(BigDecimal discountAmount) {
+        this.discountAmount = discountAmount;
+    }
+
+    /** Le code de promotion utilisé, tel qu'il s'appelait à la commande ; null sans code. */
+    public String getPromoCode() {
+        return promoCode;
+    }
+
+    public void setPromoCode(String promoCode) {
+        this.promoCode = promoCode;
+    }
+
+    /** Identifiant du code de promotion utilisé, pour compter ses usages ; null sans code. */
+    public PromoCodeId getPromoCodeId() {
+        return promoCodeId;
+    }
+
+    public void setPromoCodeId(PromoCodeId promoCodeId) {
+        this.promoCodeId = promoCodeId;
     }
 
     public BigDecimal getShippingAmount() {

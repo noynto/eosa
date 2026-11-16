@@ -43,6 +43,29 @@ class OrderMailsTest {
     }
 
     @Test
+    void confirmationAndNotification_showThePromoCodeAndItsDiscountOnlyWhenThereIsOne() {
+        var plain = order();
+        var confirmation = templates.render(OrderMails.confirmation(plain).template(), OrderMails.confirmation(plain).model());
+        assertFalse(confirmation.text().contains("Code "), confirmation.text());
+
+        var discounted = order();
+        discounted.setDiscountAmount(new BigDecimal("6.60"));
+        discounted.setPromoCode("BIENVENUE10");
+        var mail = OrderMails.confirmation(discounted);
+        var rendered = templates.render(mail.template(), mail.model());
+        for (String content : List.of(rendered.html(), rendered.text())) {
+            assertTrue(content.contains("BIENVENUE10"), content);
+            assertTrue(content.contains("−6,60"), content);
+        }
+
+        var notification = OrderMails.notification(discounted, URI.create("https://admin.eosa.me"));
+        var renderedNotification = templates.render(notification.template(), notification.model());
+        for (String content : List.of(renderedNotification.html(), renderedNotification.text())) {
+            assertTrue(content.contains("BIENVENUE10"), content);
+        }
+    }
+
+    @Test
     void confirmation_escapesWhatTheCustomerTyped() {
         var order = order();
         order.setCustomerName("Ada <script>alert(1)</script>");

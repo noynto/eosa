@@ -15,8 +15,25 @@ public record GetAdminPromoCodeHandler(ReadPromoCode readPromoCode, Clock clock)
     @Override
     public void handle(Context ctx) {
         try {
-            var promoCode = readPromoCode.handle(new ReadPromoCode.Command(new PromoCodeId(ctx.pathParam("id")))).promoCode();
+            var result = readPromoCode.handle(new ReadPromoCode.Command(new PromoCodeId(ctx.pathParam("id"))));
+            var promoCode = result.promoCode();
             Map<String, Object> model = new HashMap<>();
+            var orders = result.orders().stream().map(order -> {
+                Map<String, Object> row = new HashMap<>();
+                row.put("id", order.getId().value());
+                row.put("number", order.getNumber());
+                row.put("paidAt", OrderFormat.dateTime(order.getPaidAt()));
+                row.put("discount", OrderFormat.amount(order.getDiscountAmount()));
+                row.put("total", OrderFormat.amount(order.getTotalAmount()));
+                row.put("state", OrderFormat.state(order.getState()));
+                return row;
+            }).toList();
+            model.put("orders", orders);
+            model.put("hasOrders", !orders.isEmpty());
+            model.put("canDelete", orders.isEmpty());
+            model.put("usesLabel", orders.size() + (promoCode.getMaxUses() != null ? " / " + promoCode.getMaxUses() : "")
+                    + (orders.size() > 1 ? " usages" : " usage"));
+            model.put("totalDiscount", OrderFormat.amount(result.totalDiscount()));
             model.put("title", promoCode.getCode());
             model.put("promoCodeId", promoCode.getId().value());
             model.put("code", promoCode.getCode());

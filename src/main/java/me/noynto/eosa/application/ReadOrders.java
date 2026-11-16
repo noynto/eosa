@@ -23,7 +23,7 @@ public record ReadOrders(
     public Result handle(Command command) {
         Instant now = clock.instant();
         String search = command.search == null ? "" : command.search.strip().toLowerCase(Locale.ROOT);
-        List<Entry> entries = orderProvider.readIds(null, command.states, null)
+        List<Entry> entries = orderProvider.readIds(null, command.states, null, null)
                 .map(id -> orderProvider.read(id).orElseThrow())
                 .filter(order -> matches(order, search))
                 .map(order -> new Entry(order, isOverdue(order, now)))

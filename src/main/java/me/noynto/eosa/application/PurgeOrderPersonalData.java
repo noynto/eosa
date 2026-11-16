@@ -33,7 +33,7 @@ public record PurgeOrderPersonalData(
     public Result handle() {
         Instant now = clock.instant();
         List<OrderId> ids = orderProvider
-                .readIds(null, Set.of(OrderState.DELIVERED, OrderState.CANCELLED), null).toList();
+                .readIds(null, Set.of(OrderState.DELIVERED, OrderState.CANCELLED), null, null).toList();
 
         int purged = 0;
         int failed = 0;
