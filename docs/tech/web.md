@@ -38,7 +38,7 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 |---|---|---|
 | GET/POST | `/sign-in` | Connexion (pose le cookie `identity-session-id`) |
 | GET | `/` | Redirection vers `/jewels` |
-| * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue |
+| * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue ; `PATCH /jewels/{id}/published-at` corrige la date de publication d'un bijou déjà publié (un jour, jamais dans le futur) |
 | GET | `/orders`, `/orders/{id}`, `/orders/badge` | Commandes : liste filtrée (état, recherche), détail, pastille « à fabriquer » du menu (fragment htmx) |
 | POST | `/orders/{id}/craft` | « Pièce fabriquée » : crée l'étiquette Mondial Relay (poids et dimensions du colis saisis) et passe la commande à fabriquée ; en cas d'échec, message en fragment (422) et la commande reste à fabriquer |
 | POST | `/orders/{id}/craft-hand-delivery`, `/orders/{id}/hand-over` | Remise en main propre : « Pièce fabriquée, remise en main propre » (fabriquée sans étiquette ni e-mail) puis « Remise effectuée » (fabriquée → livrée, sans expédition) ; en cas de refus, message en fragment (422) |

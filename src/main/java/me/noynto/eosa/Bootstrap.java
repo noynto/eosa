@@ -129,6 +129,10 @@ public class Bootstrap {
         UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(
             jewelProvider
         );
+        UpdatePublishedAtOfJewel updatePublishedAtOfJewel = new UpdatePublishedAtOfJewel(
+            jewelProvider,
+            clock
+        );
         UpdatePriceOfJewel updatePriceOfJewel = new UpdatePriceOfJewel(
             jewelProvider
         );
@@ -891,6 +895,10 @@ public class Bootstrap {
             javalinConfig.routes.patch(
                 "/jewels/{jewel-id}/tagline",
                 new PatchTaglineOfJewelHandler(updateTaglineOfJewel)
+            );
+            javalinConfig.routes.patch(
+                "/jewels/{jewel-id}/published-at",
+                new PatchPublishedAtOfJewelHandler(updatePublishedAtOfJewel)
             );
             javalinConfig.routes.patch(
                 "/jewels/{jewel-id}/price",
