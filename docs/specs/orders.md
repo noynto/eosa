@@ -118,7 +118,7 @@ Les e-mails suivent les règles de [`docs/tech/emails.md`](../tech/emails.md). C
 
 ## Persistance (migration à numéroter à l'implémentation)
 
-Les migrations Flyway du dépôt s'arrêtent à `V5`. Trois sujets en attente veulent la suivante (commandes, carte cadeau, ordre des nouveautés) : on prend le numéro libre au moment d'écrire la migration.
+Chaque étape ajoute sa migration au numéro libre (`V6` pour les commandes, jusqu'à `V16` aujourd'hui) : on ne modifie jamais une migration déjà déployée.
 
 | Table | Colonnes |
 |---|---|
