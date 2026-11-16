@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +35,9 @@ public record JdbcPersistedJewels(
         if (categories != null && !categories.isEmpty()) {
             sql.append(" AND category IN (").append(placeholders(categories.size())).append(")");
         }
-        sql.append(" ORDER BY id DESC");
+        // Les plus récemment publiés d'abord ; les brouillons (jamais publiés) en tête, pour l'administration ;
+        // l'identifiant ne sert qu'à départager deux dates égales.
+        sql.append(" ORDER BY published_at DESC NULLS FIRST, id");
         List<JewelId> ids = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
@@ -64,7 +68,7 @@ public record JdbcPersistedJewels(
             return Optional.empty();
         }
         String sql = """
-                SELECT j.id, j.name, j.tagline, j.price, j.state, j.category, ji.image_id
+                SELECT j.id, j.name, j.tagline, j.price, j.state, j.category, j.published_at, ji.image_id
                 FROM jewels j
                 LEFT JOIN jewel_images ji ON ji.jewel_id = j.id
                 WHERE j.id = ?
@@ -101,9 +105,9 @@ public record JdbcPersistedJewels(
         }
         UUID id = UUID.fromString(jewel.getId().value());
         String upsertJewel = """
-                INSERT INTO jewels (id, name, tagline, price, state, category)
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, tagline = EXCLUDED.tagline, price = EXCLUDED.price, state = EXCLUDED.state, category = EXCLUDED.category
+                INSERT INTO jewels (id, name, tagline, price, state, category, published_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, tagline = EXCLUDED.tagline, price = EXCLUDED.price, state = EXCLUDED.state, category = EXCLUDED.category, published_at = EXCLUDED.published_at
                 """;
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -115,6 +119,7 @@ public record JdbcPersistedJewels(
                     statement.setBigDecimal(4, jewel.getPrice());
                     statement.setString(5, jewel.getState() != null ? jewel.getState().name() : null);
                     statement.setString(6, jewel.getCategory() != null ? jewel.getCategory().name() : null);
+                    statement.setObject(7, jewel.getPublishedAt() != null ? jewel.getPublishedAt().atOffset(ZoneOffset.UTC) : null);
                     statement.executeUpdate();
                 }
                 try (PreparedStatement statement = connection.prepareStatement("DELETE FROM jewel_images WHERE jewel_id = ?")) {
@@ -155,6 +160,8 @@ public record JdbcPersistedJewels(
         if (state != null) jewel.setState(JewelState.valueOf(state));
         String category = resultSet.getString("category");
         if (category != null) jewel.setCategory(JewelCategory.valueOf(category));
+        OffsetDateTime publishedAt = resultSet.getObject("published_at", OffsetDateTime.class);
+        if (publishedAt != null) jewel.setPublishedAt(publishedAt.toInstant());
         return jewel;
     }
 

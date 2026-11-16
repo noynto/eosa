@@ -136,7 +136,8 @@ public class Bootstrap {
             jewelProvider
         );
         UpdateStateOfJewel updateStateOfJewel = new UpdateStateOfJewel(
-            jewelProvider
+            jewelProvider,
+            clock
         );
         DownloadImage downloadImage = new DownloadImage(imageProvider);
         AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(

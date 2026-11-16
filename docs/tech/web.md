@@ -10,7 +10,7 @@
 | GET | `/jewels` | Liste des bijoux |
 | GET | `/jewels/{id}` | Fiche d'un bijou |
 | GET | `/jewels/{id}/card` | Fragment : carte d'un bijou |
-| GET | `/jewels/latest` | Fragment : les derniers bijoux publiés, chargé par l'accueil |
+| GET | `/jewels/latest` | Fragment : les derniers bijoux publiés, chargé par l'accueil ; l'ordre est celui de la date de première publication (`jewels.published_at`), la plus récente d'abord |
 | GET | `/jewels/{id}/related` | Fragment : la section « D'autres bijoux » de la fiche |
 | GET | `/customization/metal-colors` | Fragment : le choix de la couleur du métal, dans le formulaire d'ajout au panier |
 | GET | `/customization/charms` | Fragment : le choix des breloques, dans le formulaire d'ajout au panier |
