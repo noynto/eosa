@@ -20,7 +20,7 @@ Les codes sont **conçus dans EOSA** : ils vivent dans la base du site et se gè
 | 8 | Comptage des usages | Un usage est compté **quand la commande est enregistrée** (paiement confirmé), jamais à la saisie : un code n'est pas bloqué par un panier abandonné. Le compte est celui des commandes qui portent le code, sans table de plus. |
 | 9 | Commande annulée | Elle **ne libère pas** l'usage du code (le remboursement se fait dans Stripe, la remise a bien été accordée). |
 | 10 | Dépassement | Si deux clientes paient en même temps le dernier usage, les deux commandes sont **créées** (l'argent est déjà encaissé) : le dépassement est visible dans l'administration, jamais une commande refusée. |
-| 11 | Total minimal | Stripe refuse un paiement de moins de 0,50 €. Une remise qui amènerait le total (bijoux remisés + livraison) en dessous est **plafonnée** pour laisser 0,50 €. Le cas du panier entièrement couvert relève de la carte cadeau, pas de ce sujet. |
+| 11 | Total minimal | Stripe refuse un total **entre 0 et 0,50 €** (il accepte 0 €, vérifié en mode test). Une remise qui amènerait le total (bijoux remisés + livraison) en dessous de 0,50 € est **plafonnée** pour laisser 0,50 €. Le cas du panier entièrement couvert relève de la carte cadeau, pas de ce sujet. |
 | 12 | Codes | Saisis en **majuscules sans accent ni espace** (le site normalise la saisie), uniques, 3 à 30 caractères (lettres, chiffres, tiret). |
 | 13 | Désactivation | Un code se **désactive** sans être supprimé ; il ne se supprime que s'il n'a jamais servi (sinon l'historique des commandes perdrait son sens). |
 
