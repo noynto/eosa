@@ -1,0 +1,45 @@
+{{> partials/header.html.mustache}}
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                        Votre carte cadeau
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                        {{#hasName}}Merci {{name}} ! V{{/hasName}}{{^hasName}}V{{/hasName}}oici votre carte cadeau EOSA de <b>{{amount}}</b>, à offrir ou à garder. Ce message sert aussi de reçu.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td bgcolor="#F4EFE5" align="center" style="padding:20px 16px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#775546;">
+                                    Code de la carte<br>
+                                    <span style="font-family:'Courier New',Courier,monospace;font-size:22px;line-height:32px;color:#601414;">{{code}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                        Valable jusqu'au {{validUntil}} inclus, dans la boutique en ligne : saisissez le code dans votre panier. Le solde reste utilisable en plusieurs fois. La carte est au porteur : gardez le code précieusement.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 20px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td bgcolor="#601414" style="padding:12px 24px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:20px;">
+                                    <a href="{{printUrl}}" style="color:#FDFBF7;text-decoration:none;">Voir et imprimer la carte</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#775546;">
+                        Une question ? Répondez à cet e-mail ou écrivez-nous à <a href="mailto:{{contactEmail}}" style="color:#601414;">{{contactEmail}}</a>.
+                    </td>
+                </tr>
+{{> partials/footer.html.mustache}}

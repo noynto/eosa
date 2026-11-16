@@ -6,7 +6,10 @@ import io.javalin.rendering.FileRenderer;
 import io.javalin.rendering.template.JavalinMustache;
 import java.time.Clock;
 import java.time.Duration;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import me.noynto.eosa.application.*;
@@ -234,10 +237,46 @@ public class Bootstrap {
         UpdatePromoCode updatePromoCode = new UpdatePromoCode(promoCodeProvider);
         SetPromoCodeActive setPromoCodeActive = new SetPromoCodeActive(promoCodeProvider);
         GiftCardProvider giftCardProvider = jdbcConfiguration.giftCards();
+        int giftCardValidityDays = Integer.parseInt(
+            System.getenv().getOrDefault("EOSA_GIFT_CARD_VALIDITY_DAYS", "365")
+        );
+        BigDecimal giftCardMinimumAmount = new BigDecimal(
+            System.getenv().getOrDefault("EOSA_GIFT_CARD_MIN_AMOUNT", "10")
+        );
+        BigDecimal giftCardMaximumAmount = new BigDecimal(
+            System.getenv().getOrDefault("EOSA_GIFT_CARD_MAX_AMOUNT", "200")
+        );
+        List<Integer> giftCardAmounts = Arrays.stream(
+            System.getenv().getOrDefault("EOSA_GIFT_CARD_AMOUNTS", "25,50,100").split(",")
+        ).map(value -> Integer.parseInt(value.strip())).toList();
         IssueGiftCardByAdmin issueGiftCardByAdmin = new IssueGiftCardByAdmin(
             giftCardProvider,
             clock,
-            Integer.parseInt(System.getenv().getOrDefault("EOSA_GIFT_CARD_VALIDITY_DAYS", "365"))
+            giftCardValidityDays
+        );
+        PurchaseGiftCard purchaseGiftCard = new PurchaseGiftCard(
+            giftCardProvider,
+            stripeFetchedCheckouts,
+            clock,
+            giftCardValidityDays,
+            giftCardMinimumAmount,
+            giftCardMaximumAmount
+        );
+        ConfirmGiftCardPayment confirmGiftCardPayment = new ConfirmGiftCardPayment(
+            giftCardProvider,
+            stripeFetchedCheckouts,
+            mailProvider,
+            clock,
+            giftCardValidityDays,
+            properties.publicBaseUrl()
+        );
+        ReadGiftCardByToken readGiftCardByToken = new ReadGiftCardByToken(giftCardProvider, clock);
+        GiftCardPurchasePage giftCardPurchasePage = new GiftCardPurchasePage(
+            baseUrl,
+            giftCardAmounts,
+            giftCardMinimumAmount,
+            giftCardMaximumAmount,
+            giftCardValidityDays
         );
         ReadGiftCards readGiftCards = new ReadGiftCards(giftCardProvider);
         ReadGiftCard readGiftCard = new ReadGiftCard(giftCardProvider);
@@ -794,6 +833,25 @@ public class Bootstrap {
             javalinConfig.routes.get(
                 "/checkout/success",
                 new GetCheckoutSuccessHandler(confirmCheckoutSession, baseUrl)
+            );
+
+            // GIFT CARD PART
+            RequestRateLimiter giftCardRateLimiter = new RequestRateLimiter(5, Duration.ofHours(1), clock);
+            javalinConfig.routes.get(
+                "/gift-cards",
+                new GetGiftCardPurchaseHandler(giftCardPurchasePage)
+            );
+            javalinConfig.routes.post(
+                "/gift-cards",
+                new PostGiftCardHandler(purchaseGiftCard, giftCardRateLimiter, giftCardPurchasePage)
+            );
+            javalinConfig.routes.get(
+                "/gift-cards/success",
+                new GetGiftCardSuccessHandler(confirmGiftCardPayment, baseUrl)
+            );
+            javalinConfig.routes.get(
+                "/gift-cards/{token}",
+                new GetGiftCardHandler(readGiftCardByToken, clock, baseUrl)
             );
         });
         pub.start();

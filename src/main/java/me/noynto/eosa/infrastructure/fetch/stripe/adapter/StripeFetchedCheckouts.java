@@ -5,6 +5,7 @@ import me.noynto.eosa.infrastructure.fetch.stripe.resource.StripeCheckoutSession
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
 import me.noynto.eosa.shared.CheckoutSessionId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.PromoCodeId;
@@ -136,6 +137,10 @@ public record StripeFetchedCheckouts(
             checkout.setPromoCodeId(new PromoCodeId(promoCodeId));
             checkout.setPromoCode(stripeSession.metadata("promo_code"));
         }
+        String giftCardId = stripeSession.metadata("gift_card_id");
+        if (giftCardId != null && !giftCardId.isBlank()) {
+            checkout.setGiftCardId(new GiftCardId(giftCardId));
+        }
         var customer = stripeSession.customerDetails();
         if (customer != null) {
             checkout.setCustomerName(customer.name());
@@ -159,6 +164,9 @@ public record StripeFetchedCheckouts(
 
     @Override
     public Checkout write(Checkout checkout) {
+        if (checkout.getGiftCardId() != null) {
+            return writeGiftCard(checkout);
+        }
         try {
             List<StripeCheckoutSessionResource.LineItem> lineItems = checkout.getItems()
                     .stream()
@@ -195,6 +203,35 @@ public record StripeFetchedCheckouts(
             return checkout;
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la création de la session Stripe.", e);
+        }
+    }
+
+    /** Session d'achat d'une carte cadeau : une ligne, la carte en métadonnée, retour sur les pages des cartes. */
+    private Checkout writeGiftCard(Checkout checkout) {
+        if (checkout.getItems() == null || checkout.getItems().size() != 1 || checkout.getExpiresAt() == null) {
+            throw new IllegalArgumentException("Une session d'achat de carte porte une ligne et une date d'expiration.");
+        }
+        try {
+            var item = checkout.getItems().getFirst();
+            var stripeCheckoutSession = checkoutSessionResource.postGiftCard(
+                    new StripeCheckoutSessionResource.LineItem(
+                            item.getName(), item.getUnitPrice(), 1, null, null, null),
+                    checkout.getGiftCardId().value(),
+                    checkout.getCustomerEmail(),
+                    checkout.getExpiresAt().getEpochSecond(),
+                    baseUrl + "/gift-cards/success?session_id={CHECKOUT_SESSION_ID}",
+                    baseUrl + "/gift-cards");
+
+            CheckoutSession checkoutSession = new CheckoutSession();
+            checkoutSession.setUri(URI.create(stripeCheckoutSession.url()));
+            checkoutSession.setStatus(CheckoutSessionStatus.OPENED);
+            CheckoutSessionId checkoutSessionId = new CheckoutSessionId();
+            checkoutSessionId.setStripe(stripeCheckoutSession.id());
+            checkoutSession.setId(checkoutSessionId);
+            checkout.setSession(checkoutSession);
+            return checkout;
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la création de la session Stripe de la carte cadeau.", e);
         }
     }
 

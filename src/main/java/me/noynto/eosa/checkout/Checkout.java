@@ -2,9 +2,11 @@ package me.noynto.eosa.checkout;
 
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
+import me.noynto.eosa.shared.GiftCardId;
 import me.noynto.eosa.shared.PromoCodeId;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 public class Checkout {
@@ -22,8 +24,34 @@ public class Checkout {
     private String customerEmail;
     private String customerPhone;
     private CheckoutShippingAddress shippingAddress;
+    private GiftCardId giftCardId;
+    private Instant expiresAt;
 
     public Checkout() {
+    }
+
+    /**
+     * Carte cadeau achetée par cette session ; null pour un panier de bijoux. Une session d'achat de carte n'a ni
+     * panier, ni livraison, ni adresse à recueillir, et ne donne jamais une commande.
+     */
+    public GiftCardId getGiftCardId() {
+        return giftCardId;
+    }
+
+    public void setGiftCardId(GiftCardId giftCardId) {
+        this.giftCardId = giftCardId;
+    }
+
+    /**
+     * Fin de validité voulue de la session de paiement ; null pour celle que Stripe fixe par défaut (24 h). Stripe
+     * exige au moins 30 minutes après la création.
+     */
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     /**
