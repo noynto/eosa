@@ -16,7 +16,8 @@
 | GET | `/customization/charms` | Fragment : le choix des breloques, dans le formulaire d'ajout au panier |
 | GET | `/images/{id}` | Téléchargement d'une image |
 | GET | `/about` | Notre histoire |
-| GET | `/cart` | Panier |
+| GET | `/cart` | Panier, avec la remise de son code de promotion |
+| POST, DELETE | `/cart/promo-code` | Applique le code saisi (refus en fragment, 422) ou le retire ; `HX-Redirect` vers le panier |
 | POST | `/checkout` | Paiement Stripe |
 | GET | `/workshops` | Page des ateliers et prochaines sessions |
 | GET | `/workshops/sessions/{id}` | Page d'une session (lieu, réservation, liste d'attente) |

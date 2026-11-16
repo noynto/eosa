@@ -14,6 +14,7 @@ import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CartId;
 import me.noynto.eosa.shared.CheckoutId;
 import me.noynto.eosa.shared.CheckoutSessionId;
+import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -109,6 +110,23 @@ class ConfirmCheckoutSessionTest {
         assertSame(checkout, result.checkout());
         assertTrue(cart.getItems().isEmpty());
         verify(cartProvider).write(cart);
+    }
+
+    @Test
+    void handle_recordsThePromoCodeDiscountAndDetachesTheCodeFromTheCart() throws Exception {
+        checkout.setDiscountAmount(new BigDecimal("6.60"));
+        checkout.setPromoCodeId(new PromoCodeId("p-1"));
+        checkout.setPromoCode("BIENVENUE10");
+        checkout.setTotalAmount(new BigDecimal("64.30"));
+        cart.setPromoCodeId(new PromoCodeId("p-1"));
+
+        var order = confirm().order();
+
+        assertEquals(new BigDecimal("6.60"), order.getDiscountAmount());
+        assertEquals("BIENVENUE10", order.getPromoCode());
+        assertEquals("p-1", order.getPromoCodeId().value());
+        assertEquals(new BigDecimal("64.30"), order.getTotalAmount());
+        assertNull(cart.getPromoCodeId());
     }
 
     @Test
