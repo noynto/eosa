@@ -86,9 +86,9 @@ public record SettleOrders(
         // expédiée peut être bien plus ancienne que sa création : on regarde aussi les expédiées et livrées récentes.
         Instant retryBefore = now.minus(EMAIL_GRACE_PERIOD);
         Instant retryAfter = now.minus(EMAIL_RETRY_WINDOW);
-        Set<OrderId> candidates = new LinkedHashSet<>(orderProvider.readIds(null, null, retryAfter).toList());
+        Set<OrderId> candidates = new LinkedHashSet<>(orderProvider.readIds(null, null, retryAfter, null).toList());
         candidates.addAll(orderProvider.readIds(null, Set.of(OrderState.SHIPPED, OrderState.DELIVERED),
-                now.minus(SHIPPING_LOOKBACK)).toList());
+                now.minus(SHIPPING_LOOKBACK), null).toList());
         for (var orderId : candidates) {
             try {
                 Order order = orderProvider.read(orderId).orElseThrow();
@@ -134,7 +134,7 @@ public record SettleOrders(
     private Order settle(CheckoutId checkoutId, Instant now) {
         CheckoutSessionId sessionId = new CheckoutSessionId();
         sessionId.setStripe(checkoutId.getStripe());
-        if (orderProvider.readIds(sessionId, null, null).findAny().isPresent()) {
+        if (orderProvider.readIds(sessionId, null, null, null).findAny().isPresent()) {
             return null;
         }
         Checkout checkout = checkoutProvider.read(checkoutId)

@@ -5,6 +5,7 @@ import me.noynto.eosa.order.OrderProvider;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shared.PromoCodeId;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,12 +25,14 @@ class InMemoryOrders implements OrderProvider {
     private final List<Order> orders = new ArrayList<>();
 
     @Override
-    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states, Instant createdSince) {
+    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states, Instant createdSince,
+                                  PromoCodeId promoCodeId) {
         return orders.stream()
                 .filter(order -> stripeSessionId == null
                         || stripeSessionId.getStripe().equals(order.getStripeSessionId().getStripe()))
                 .filter(order -> states == null || states.contains(order.getState()))
                 .filter(order -> createdSince == null || !order.getCreatedAt().isBefore(createdSince))
+                .filter(order -> promoCodeId == null || promoCodeId.equals(order.getPromoCodeId()))
                 .sorted(Comparator.comparing(Order::getPaidAt).reversed())
                 .map(Order::getId)
                 .toList()

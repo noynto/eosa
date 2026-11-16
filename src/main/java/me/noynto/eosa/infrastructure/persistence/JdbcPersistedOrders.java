@@ -9,11 +9,13 @@ import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shared.PromoCodeId;
 import me.noynto.eosa.shipping.ShippingCarrier;
 import me.noynto.eosa.shipping.ShippingLabel;
 import me.noynto.eosa.shipping.ShippingLabelStatus;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +39,8 @@ public record JdbcPersistedOrders(
     private static final ZoneId ZONE = ZoneId.of("Europe/Paris");
 
     @Override
-    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states, Instant createdSince) {
+    public Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states, Instant createdSince,
+                                  PromoCodeId promoCodeId) {
         StringBuilder sql = new StringBuilder("SELECT id FROM orders WHERE TRUE");
         if (stripeSessionId != null) {
             sql.append(" AND stripe_session_id = ?");
@@ -47,6 +50,9 @@ public record JdbcPersistedOrders(
         }
         if (createdSince != null) {
             sql.append(" AND created_at >= ?");
+        }
+        if (promoCodeId != null) {
+            sql.append(" AND promo_code_id = ?");
         }
         sql.append(" ORDER BY created_at DESC, id");
 
@@ -66,7 +72,10 @@ public record JdbcPersistedOrders(
                 }
             }
             if (createdSince != null) {
-                statement.setObject(index, toOffsetDateTime(createdSince));
+                statement.setObject(index++, toOffsetDateTime(createdSince));
+            }
+            if (promoCodeId != null) {
+                statement.setObject(index, UUID.fromString(promoCodeId.value()));
             }
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -94,7 +103,7 @@ public record JdbcPersistedOrders(
                        confirmation_sent_at, notification_sent_at, crafted_at, carrier, tracking_number,
                        parcel_weight_grams, label_reference, label_status, shipped_at, delivered_at, cancelled_at,
                        cancel_reason, shipping_sent_at, personal_data_purged_at, hand_delivery,
-                       parcel_length_cm, parcel_width_cm, parcel_depth_cm
+                       parcel_length_cm, parcel_width_cm, parcel_depth_cm, promo_code_id, promo_code, discount_amount
                 FROM orders WHERE id = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -127,10 +136,11 @@ public record JdbcPersistedOrders(
         String sql = """
                 INSERT INTO orders (id, number, state, stripe_session_id, customer_name, customer_email, customer_phone,
                                     shipping_name, shipping_line1, shipping_line2, shipping_postal_code, shipping_city,
-                                    shipping_country, items_amount, shipping_amount, total_amount, paid_at)
+                                    shipping_country, items_amount, shipping_amount, total_amount, paid_at,
+                                    promo_code_id, promo_code, discount_amount)
                 VALUES (?, ? || (SELECT CASE WHEN n < 10000 THEN lpad(n::text, 4, '0') ELSE n::text END
                                  FROM (SELECT nextval('order_number_seq') AS n) sequence),
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (stripe_session_id) DO NOTHING
                 RETURNING number, created_at
                 """;
@@ -152,10 +162,13 @@ public record JdbcPersistedOrders(
                     statement.setBigDecimal(15, order.getShippingAmount());
                     statement.setBigDecimal(16, order.getTotalAmount());
                     statement.setObject(17, toOffsetDateTime(order.getPaidAt()));
+                    statement.setObject(18, order.getPromoCodeId() != null ? UUID.fromString(order.getPromoCodeId().value()) : null);
+                    statement.setString(19, order.getPromoCode());
+                    statement.setBigDecimal(20, order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO);
                     try (ResultSet resultSet = statement.executeQuery()) {
                         if (!resultSet.next()) {
                             connection.rollback();
-                            return readIds(order.getStripeSessionId(), null, null)
+                            return readIds(order.getStripeSessionId(), null, null, null)
                                     .findFirst()
                                     .flatMap(this::read)
                                     .orElseThrow(() -> new RuntimeException("Commande introuvable pour la session de paiement."));
@@ -332,6 +345,10 @@ public record JdbcPersistedOrders(
         order.setShippingSentAt(toInstant(resultSet, "shipping_sent_at"));
         order.setPersonalDataPurgedAt(toInstant(resultSet, "personal_data_purged_at"));
         order.setHandDelivery(resultSet.getBoolean("hand_delivery"));
+        order.setDiscountAmount(resultSet.getBigDecimal("discount_amount"));
+        order.setPromoCode(resultSet.getString("promo_code"));
+        String promoCodeId = resultSet.getString("promo_code_id");
+        if (promoCodeId != null) order.setPromoCodeId(new PromoCodeId(promoCodeId));
         String trackingNumber = resultSet.getString("tracking_number");
         if (trackingNumber != null) {
             ShippingLabel label = new ShippingLabel();

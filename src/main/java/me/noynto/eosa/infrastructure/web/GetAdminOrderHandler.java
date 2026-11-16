@@ -118,6 +118,14 @@ public record GetAdminOrderHandler(
         }).toList();
         model.put("items", items);
         model.put("itemsAmount", OrderFormat.amount(order.getItemsAmount()));
+        boolean hasDiscount = order.getDiscountAmount() != null && order.getDiscountAmount().signum() > 0;
+        model.put("hasDiscount", hasDiscount);
+        if (hasDiscount) {
+            model.put("discountAmount", "−" + OrderFormat.amount(order.getDiscountAmount()));
+            model.put("hasPromoCode", order.getPromoCode() != null);
+            model.put("promoCode", order.getPromoCode());
+            model.put("promoCodeId", order.getPromoCodeId() != null ? order.getPromoCodeId().value() : null);
+        }
         model.put("shippingAmount", OrderFormat.amount(order.getShippingAmount()));
         model.put("totalAmount", OrderFormat.amount(order.getTotalAmount()));
         ctx.render("admin/order.mustache", model);

@@ -6,6 +6,7 @@ import me.noynto.eosa.checkout.CheckoutSession;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.PromoCodeId;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -39,6 +40,40 @@ class OrdersFromCheckoutsTest {
         assertEquals("cs_test_1", order.getStripeSessionId().getStripe());
         assertNull(order.getId());
         assertNull(order.getNumber());
+    }
+
+    @Test
+    void keepsThePromoCodeAndItsDiscount() {
+        var checkout = checkout();
+        checkout.setItems(List.of(item("Collier Lune", "33.00", 2)));
+        checkout.setShippingAmount(new BigDecimal("4.90"));
+        checkout.setDiscountAmount(new BigDecimal("6.60"));
+        checkout.setPromoCodeId(new PromoCodeId("p-1"));
+        checkout.setPromoCode("BIENVENUE10");
+
+        var order = OrdersFromCheckouts.fromPaidCheckout(checkout, paidAt);
+
+        assertEquals(new BigDecimal("66.00"), order.getItemsAmount());
+        assertEquals(new BigDecimal("6.60"), order.getDiscountAmount());
+        assertEquals("BIENVENUE10", order.getPromoCode());
+        assertEquals("p-1", order.getPromoCodeId().value());
+        // Sans total de Stripe : bijoux, moins la remise, plus la livraison.
+        assertEquals(new BigDecimal("64.30"), order.getTotalAmount());
+    }
+
+    @Test
+    void ignoresThePromoCodeWhenItDidNotDiscountAnything() {
+        var checkout = checkout();
+        checkout.setItems(List.of(item("Collier Lune", "33.00", 1)));
+        checkout.setDiscountAmount(BigDecimal.ZERO);
+        checkout.setPromoCodeId(new PromoCodeId("p-1"));
+        checkout.setPromoCode("VIDE");
+
+        var order = OrdersFromCheckouts.fromPaidCheckout(checkout, paidAt);
+
+        assertEquals(0, order.getDiscountAmount().signum());
+        assertNull(order.getPromoCode());
+        assertNull(order.getPromoCodeId());
     }
 
     @Test

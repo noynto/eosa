@@ -8,6 +8,7 @@
                     <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
                         {{pieces}} pièce(s) à fabriquer pour {{totalAmount}}, commandée(s) par {{customerName}}
                         (<a href="mailto:{{customerEmail}}" style="color:#775546;">{{customerEmail}}</a>).
+                        {{#hasDiscount}}<br>Code de promotion {{promoCode}} : {{discountAmount}} de remise.{{/hasDiscount}}
                     </td>
                 </tr>
                 <tr>

@@ -43,6 +43,7 @@ public final class OrderMails {
         model.put("number", order.getNumber());
         model.put("items", itemsOf(order));
         model.put("itemsAmount", amount(order.getItemsAmount()));
+        putDiscount(model, order);
         model.put("shippingAmount", amount(order.getShippingAmount()));
         model.put("totalAmount", amount(order.getTotalAmount()));
         var address = order.getShippingAddress();
@@ -76,6 +77,7 @@ public final class OrderMails {
         model.put("number", order.getNumber());
         model.put("pieces", pieces);
         model.put("items", itemsOf(order));
+        putDiscount(model, order);
         model.put("totalAmount", amount(order.getTotalAmount()));
         model.put("customerName", order.getCustomerName());
         model.put("customerEmail", order.getCustomerEmail());
@@ -147,6 +149,16 @@ public final class OrderMails {
     }
 
     /** « 70,90 € » */
+    /** La ligne de remise (« −10,00 € ») quand un code de promotion a remisé la commande. */
+    private static void putDiscount(Map<String, Object> model, Order order) {
+        boolean hasDiscount = order.getDiscountAmount() != null && order.getDiscountAmount().signum() > 0;
+        model.put("hasDiscount", hasDiscount);
+        if (hasDiscount) {
+            model.put("discountAmount", "−" + amount(order.getDiscountAmount()));
+            model.put("promoCode", order.getPromoCode() != null ? order.getPromoCode() : "de promotion");
+        }
+    }
+
     static String amount(BigDecimal amount) {
         return NumberFormat.getCurrencyInstance(Locale.FRANCE).format(amount);
     }

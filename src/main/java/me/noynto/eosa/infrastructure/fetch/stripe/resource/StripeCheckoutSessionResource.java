@@ -93,8 +93,15 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
             @SerializedName("amount_total") Long amountTotal,
             @SerializedName("shipping_cost") ShippingCost shippingCost,
             @SerializedName("shipping_details") ShippingDetails shippingDetails,
-            @SerializedName("collected_information") CollectedInformation collectedInformation
+            @SerializedName("collected_information") CollectedInformation collectedInformation,
+            @SerializedName("total_details") TotalDetails totalDetails,
+            java.util.Map<String, String> metadata
     ) {
+
+        /** Valeur d'une métadonnée de la session (posée à sa création), ou null. */
+        public String metadata(String key) {
+            return metadata == null ? null : metadata.get(key);
+        }
 
         /**
          * Adresse de livraison : selon la version de l'API du compte Stripe, elle est dans
@@ -112,6 +119,10 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
             String email,
             String name,
             String phone
+    ) {}
+
+    public record TotalDetails(
+            @SerializedName("amount_discount") Long amountDiscount
     ) {}
 
     public record ShippingCost(
@@ -138,6 +149,7 @@ public record StripeCheckoutSessionResource(StripeHttpClient http) {
     public record PurchasedItem(
             String description,
             long quantity,
+            @SerializedName("amount_subtotal") Long amountSubtotal,
             @SerializedName("amount_total") long amountTotal,
             Price price
     ) {

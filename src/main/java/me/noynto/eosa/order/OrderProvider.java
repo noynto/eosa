@@ -2,6 +2,7 @@ package me.noynto.eosa.order;
 
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.OrderId;
+import me.noynto.eosa.shared.PromoCodeId;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -12,9 +13,11 @@ public interface OrderProvider {
 
     /**
      * Identifiants des commandes, de la plus récente à la plus ancienne. Chaque filtre est ignoré
-     * s'il est null.
+     * s'il est null. Avec {@code promoCodeId}, seules les commandes passées avec ce code de promotion, quel que
+     * soit leur état : une commande annulée garde son usage.
      */
-    Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states, Instant createdSince);
+    Stream<OrderId> readIds(CheckoutSessionId stripeSessionId, Set<OrderState> states, Instant createdSince,
+                            PromoCodeId promoCodeId);
 
     Optional<Order> read(OrderId orderId);
 

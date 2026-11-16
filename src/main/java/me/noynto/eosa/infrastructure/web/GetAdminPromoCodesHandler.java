@@ -13,16 +13,18 @@ public record GetAdminPromoCodesHandler(ReadPromoCodes readPromoCodes, Clock clo
     @Override
     public void handle(Context ctx) {
         var now = clock.instant();
-        var rows = readPromoCodes.handle().promoCodes().stream().map(promoCode -> {
+        var rows = readPromoCodes.handle().entries().stream().map(entry -> {
+            var promoCode = entry.promoCode();
             Map<String, Object> row = new HashMap<>();
+            row.put("uses", entry.uses());
+            row.put("usesLabel", entry.uses() + (promoCode.getMaxUses() != null ? " / " + promoCode.getMaxUses() : "")
+                    + (entry.uses() > 1 ? " usages" : " usage"));
             row.put("id", promoCode.getId().value());
             row.put("code", promoCode.getCode());
             row.put("discount", PromoCodeFormat.discount(promoCode));
             row.put("validity", PromoCodeFormat.validity(promoCode));
             row.put("status", PromoCodeFormat.status(promoCode, now));
             row.put("isActive", "Actif".equals(PromoCodeFormat.status(promoCode, now)));
-            row.put("hasMaxUses", promoCode.getMaxUses() != null);
-            row.put("maxUses", promoCode.getMaxUses());
             row.put("hasMinimum", promoCode.getMinimumAmount() != null);
             row.put("minimum", promoCode.getMinimumAmount() == null ? null : OrderFormat.amount(promoCode.getMinimumAmount()));
             return row;

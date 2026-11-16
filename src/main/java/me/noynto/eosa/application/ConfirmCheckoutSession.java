@@ -54,7 +54,7 @@ public record ConfirmCheckoutSession(
         // 2. Enregistre la commande, une seule fois par session de paiement : recharger la page ne crée rien de plus
         //    et n'envoie aucun e-mail de plus.
         Instant now = clock.instant();
-        Order order = orderProvider.readIds(checkoutSessionId, null, null)
+        Order order = orderProvider.readIds(checkoutSessionId, null, null, null)
                 .findFirst()
                 .flatMap(orderProvider::read)
                 .orElse(null);

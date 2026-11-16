@@ -70,6 +70,23 @@ class StripeCheckoutMappingTest {
     }
 
     @Test
+    void readsTheDiscountAndThePromoCodeOfTheSession() {
+        var checkout = adapter.toCheckout(session("""
+                {
+                  "id": "cs_test_4",
+                  "payment_status": "paid",
+                  "amount_total": 6090,
+                  "total_details": {"amount_discount": 1000},
+                  "metadata": {"promo_code_id": "p-1", "promo_code": "BIENVENUE10"}
+                }
+                """));
+
+        assertEquals(new BigDecimal("10.00"), checkout.getDiscountAmount());
+        assertEquals("p-1", checkout.getPromoCodeId().value());
+        assertEquals("BIENVENUE10", checkout.getPromoCode());
+    }
+
+    @Test
     void leavesAmountsAndAddressEmptyWhenStripeDidNotGiveThem() {
         var checkout = adapter.toCheckout(session("""
                 {"id": "cs_test_3", "payment_status": "unpaid"}
@@ -78,6 +95,8 @@ class StripeCheckoutMappingTest {
         assertEquals(CheckoutStatus.PENDING, checkout.getStatus());
         assertNull(checkout.getTotalAmount());
         assertNull(checkout.getShippingAmount());
+        assertNull(checkout.getDiscountAmount());
+        assertNull(checkout.getPromoCodeId());
         assertNull(checkout.getShippingAddress());
         assertNull(checkout.getCustomerEmail());
     }

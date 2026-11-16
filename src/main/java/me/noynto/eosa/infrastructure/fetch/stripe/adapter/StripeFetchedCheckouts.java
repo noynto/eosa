@@ -7,6 +7,7 @@ import me.noynto.eosa.shared.CheckoutId;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.JewelId;
+import me.noynto.eosa.shared.PromoCodeId;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -78,8 +79,10 @@ public record StripeFetchedCheckouts(
                         checkoutItem.setImageId(new ImageId(imageId));
                     }
                     if (item.quantity() > 0) {
+                        // Le prix du bijou, avant la remise : amount_total est déjà remisé quand un coupon s'applique.
+                        long amount = item.amountSubtotal() != null ? item.amountSubtotal() : item.amountTotal();
                         checkoutItem.setUnitPrice(
-                            BigDecimal.valueOf(item.amountTotal())
+                            BigDecimal.valueOf(amount)
                                 .divide(BigDecimal.valueOf(100))
                                 .divide(BigDecimal.valueOf(item.quantity()))
                         );
@@ -123,6 +126,15 @@ public record StripeFetchedCheckouts(
         }
         if (stripeSession.shippingCost() != null && stripeSession.shippingCost().amountTotal() != null) {
             checkout.setShippingAmount(fromStripeAmount(stripeSession.shippingCost().amountTotal()));
+        }
+        if (stripeSession.totalDetails() != null && stripeSession.totalDetails().amountDiscount() != null) {
+            checkout.setDiscountAmount(fromStripeAmount(stripeSession.totalDetails().amountDiscount()));
+        }
+        // Posées à la création de la session quand un code de promotion s'applique.
+        String promoCodeId = stripeSession.metadata("promo_code_id");
+        if (promoCodeId != null && !promoCodeId.isBlank()) {
+            checkout.setPromoCodeId(new PromoCodeId(promoCodeId));
+            checkout.setPromoCode(stripeSession.metadata("promo_code"));
         }
         var customer = stripeSession.customerDetails();
         if (customer != null) {
