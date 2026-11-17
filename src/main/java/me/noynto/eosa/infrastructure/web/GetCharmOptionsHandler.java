@@ -22,7 +22,7 @@ public record GetCharmOptionsHandler(ReadCharms readCharms) implements Handler {
             option.put("name", charm.getName());
             option.put("hasImage", hasImage);
             option.put("imageId", hasImage ? charm.getImageId().value() : "");
-            option.put("price", charm.getPrice().stripTrailingZeros().toPlainString());
+            option.put("price", PriceFormat.price(charm.getPrice()));
             return option;
         }).toList();
         Map<String, Object> model = new HashMap<>();

@@ -43,7 +43,7 @@ public record GetJewelHandler(ReadJewel readJewel, String baseUrl) implements Ha
             model.put("description", jewel.getTagline() != null ? jewel.getTagline() : "Bijoux faits main à Nancy — colliers, bracelets et pierres en matières nobles, conçus pour durer.");
             model.put("ogImageUrl", hasImages ? baseUrl + "/images/" + jewel.getImageIds().getFirst().value() : baseUrl + "/hero.webp");
             model.put("canonicalUrl", baseUrl + ctx.path());
-            model.put("price", jewel.getPrice().stripTrailingZeros().toPlainString());
+            model.put("price", PriceFormat.price(jewel.getPrice()));
             model.put("jsonLd", JsonLd.of(Map.of(
                     "@context", "https://schema.org",
                     "@type", "Product",

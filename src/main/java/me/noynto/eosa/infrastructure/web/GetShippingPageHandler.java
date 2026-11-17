@@ -12,8 +12,8 @@ public record GetShippingPageHandler(CartShippingRuleProvider shippingRuleProvid
     @Override
     public void handle(Context ctx) {
         var rule = shippingRuleProvider.get();
-        String freeThreshold = rule.getFreeThreshold().stripTrailingZeros().toPlainString();
-        String shippingAmount = rule.getAmount().stripTrailingZeros().toPlainString();
+        String freeThreshold = PriceFormat.price(rule.getFreeThreshold());
+        String shippingAmount = PriceFormat.price(rule.getAmount());
 
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Eosa — Livraison");

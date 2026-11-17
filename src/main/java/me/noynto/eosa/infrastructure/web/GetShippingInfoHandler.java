@@ -11,7 +11,7 @@ public record GetShippingInfoHandler(CartShippingRuleProvider shippingRuleProvid
     @Override
     public void handle(Context ctx) {
         var rule = shippingRuleProvider.get();
-        ctx.render("shipping-info.mustache", Map.of("freeThreshold", rule.getFreeThreshold().stripTrailingZeros().toPlainString()));
+        ctx.render("shipping-info.mustache", Map.of("freeThreshold", PriceFormat.price(rule.getFreeThreshold())));
     }
 
 }
