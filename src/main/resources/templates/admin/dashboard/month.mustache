@@ -1,0 +1,28 @@
+<section aria-labelledby="month" class="mb-8">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 mb-3">
+        <h2 id="month" class="text-xs text-muted tracking-widest uppercase">{{month}}</h2>
+        <span class="text-xs text-muted">Commandes payées, annulées exclues, livraison comprise</span>
+    </div>
+    <dl class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-bg border border-bg-border rounded-xl p-4">
+            <dt class="text-xs text-secondary">Chiffre d'affaires</dt>
+            <dd class="font-serif text-3xl mt-1">{{revenue}}</dd>
+            <dd class="text-xs text-muted mt-1">dont {{shipping}} de livraison</dd>
+        </div>
+        <div class="bg-bg border border-bg-border rounded-xl p-4">
+            <dt class="text-xs text-secondary">Commandes</dt>
+            <dd class="font-serif text-3xl mt-1">{{orders}}</dd>
+            <dd class="text-xs text-muted mt-1">le mois dernier : {{previousOrders}}</dd>
+        </div>
+        <div class="bg-bg border border-bg-border rounded-xl p-4">
+            <dt class="text-xs text-secondary">Panier moyen</dt>
+            <dd class="font-serif text-3xl mt-1">{{averageBasket}}</dd>
+            <dd class="text-xs text-muted mt-1">bijoux seulement : {{averageItems}}</dd>
+        </div>
+        <div class="bg-bg border border-bg-border rounded-xl p-4">
+            <dt class="text-xs text-secondary">Remises accordées</dt>
+            <dd class="font-serif text-3xl mt-1">{{discounts}}</dd>
+            <dd class="text-xs text-muted mt-1">codes {{promoDiscount}} · cartes cadeau {{giftCardPart}}</dd>
+        </div>
+    </dl>
+</section>

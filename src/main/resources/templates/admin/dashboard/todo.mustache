@@ -1,0 +1,36 @@
+<section aria-labelledby="todo" class="mb-8">
+    <h2 id="todo" class="text-xs text-muted tracking-widest uppercase mb-3">À faire</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <a href="/orders?state=PAID" class="bg-bg border border-bg-border rounded-xl p-5 flex flex-col gap-1 hover:border-secondary transition-colors">
+            <span class="font-serif text-4xl leading-none">{{toCraft}}</span>
+            <span class="text-sm font-medium">{{toCraftLabel}}</span>
+            {{#hasToCraft}}
+            <span class="text-xs text-secondary">
+                {{#hasCraftOverdue}}<span class="text-error font-medium">{{craftOverdue}} en retard</span> · {{/hasCraftOverdue}}à finir avant le {{craftDeadline}}
+            </span>
+            {{/hasToCraft}}
+            {{^hasToCraft}}<span class="text-xs text-muted">Rien à fabriquer</span>{{/hasToCraft}}
+        </a>
+
+        <a href="/orders?state=CRAFTED" class="bg-bg border border-bg-border rounded-xl p-5 flex flex-col gap-1 hover:border-secondary transition-colors">
+            <span class="font-serif text-4xl leading-none">{{toShip}}</span>
+            <span class="text-sm font-medium">{{toShipLabel}}</span>
+            {{#hasToShip}}
+            <span class="text-xs text-secondary">
+                {{#hasShipOverdue}}<span class="text-error font-medium">{{shipOverdue}} en retard</span>{{/hasShipOverdue}}
+                {{^hasShipOverdue}}Étiquettes prêtes, dans les délais{{/hasShipOverdue}}
+            </span>
+            {{/hasToShip}}
+            {{^hasToShip}}<span class="text-xs text-muted">Rien à expédier</span>{{/hasToShip}}
+        </a>
+
+        <a href="/orders?state=SHIPPED" class="bg-bg border border-bg-border rounded-xl p-5 flex flex-col gap-1 hover:border-secondary transition-colors">
+            <span class="font-serif text-4xl leading-none">{{inTransit}}</span>
+            <span class="text-sm font-medium">{{inTransitLabel}}</span>
+            {{#hasInTransit}}<span class="text-xs text-secondary">Le suivi se met à jour toutes les 15 minutes</span>{{/hasInTransit}}
+            {{^hasInTransit}}<span class="text-xs text-muted">Aucun colis en route</span>{{/hasInTransit}}
+        </a>
+
+    </div>
+</section>

@@ -3,6 +3,7 @@ package me.noynto.eosa.service;
 import me.noynto.eosa.checkout.Checkout;
 import me.noynto.eosa.checkout.CheckoutItem;
 import me.noynto.eosa.checkout.CheckoutSession;
+import me.noynto.eosa.checkout.CheckoutShippingAddress;
 import me.noynto.eosa.order.OrderState;
 import me.noynto.eosa.shared.CheckoutSessionId;
 import me.noynto.eosa.shared.JewelId;
@@ -41,6 +42,21 @@ class OrdersFromCheckoutsTest {
         assertEquals("cs_test_1", order.getStripeSessionId().getStripe());
         assertNull(order.getId());
         assertNull(order.getNumber());
+    }
+
+    @Test
+    void usesTheNameOfTheDeliveryAddressWhenStripeGaveNoCustomerName() {
+        var checkout = checkout();
+        checkout.setShippingAddress(new CheckoutShippingAddress(
+                "Ada Lovelace", "1 rue des Arts", null, "54000", "Nancy", "FR"));
+
+        assertEquals("Ada Lovelace", OrdersFromCheckouts.fromPaidCheckout(checkout, paidAt).getCustomerName());
+
+        checkout.setCustomerName("   ");
+        assertEquals("Ada Lovelace", OrdersFromCheckouts.fromPaidCheckout(checkout, paidAt).getCustomerName());
+
+        checkout.setCustomerName("Grace Hopper");
+        assertEquals("Grace Hopper", OrdersFromCheckouts.fromPaidCheckout(checkout, paidAt).getCustomerName());
     }
 
     @Test

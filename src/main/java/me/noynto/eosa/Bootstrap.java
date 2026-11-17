@@ -311,6 +311,24 @@ public class Bootstrap {
             imageProvider
         );
         ReadOrders readOrders = new ReadOrders(orderProvider, clock);
+        ReadDashboardTodo readDashboardTodo = new ReadDashboardTodo(orderProvider, clock);
+        ReadDashboardAlerts readDashboardAlerts = new ReadDashboardAlerts(orderProvider, giftCardProvider, clock);
+        ReadDashboardMonth readDashboardMonth = new ReadDashboardMonth(orderProvider, clock);
+        ReadDashboardLatestOrders readDashboardLatestOrders = new ReadDashboardLatestOrders(orderProvider);
+        ReadDashboardWorkshops readDashboardWorkshops = new ReadDashboardWorkshops(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            clock
+        );
+        ReadDashboardOffers readDashboardOffers = new ReadDashboardOffers(
+            giftCardProvider,
+            promoCodeProvider,
+            orderProvider,
+            jewelProvider,
+            clock
+        );
         ReadOrder readOrder = new ReadOrder(
             orderProvider,
             clock,
@@ -886,7 +904,17 @@ public class Bootstrap {
                 return mustache.render(filePath, modelWithPublicUrl, ctx);
             });
             javalinConfig.routes.before(SecureRequestHandler.of(properties.adminBaseUrl()));
-            javalinConfig.routes.get("/", ctx -> ctx.redirect("/jewels"));
+            javalinConfig.routes.get("/", new GetAdminDashboardHandler(clock));
+            // Les blocs du tableau de bord, chargés par htmx : un cas d'usage par bloc.
+            javalinConfig.routes.get("/dashboard/alerts", new GetAdminDashboardAlertsHandler(readDashboardAlerts));
+            javalinConfig.routes.get("/dashboard/todo", new GetAdminDashboardTodoHandler(readDashboardTodo));
+            javalinConfig.routes.get("/dashboard/month", new GetAdminDashboardMonthHandler(readDashboardMonth));
+            javalinConfig.routes.get("/dashboard/orders", new GetAdminDashboardOrdersHandler(readDashboardLatestOrders));
+            javalinConfig.routes.get(
+                "/dashboard/workshops",
+                new GetAdminDashboardWorkshopsHandler(readDashboardWorkshops, clock)
+            );
+            javalinConfig.routes.get("/dashboard/offers", new GetAdminDashboardOffersHandler(readDashboardOffers));
             javalinConfig.routes.get(
                 "/images/{id}",
                 new GetImageHandler(downloadImage)

@@ -1,0 +1,53 @@
+{{> ../partials/header-admin}}
+
+<div class="max-w-5xl">
+
+    <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-6">
+        <h1 class="text-xl font-medium">Tableau de bord</h1>
+        <p class="text-xs text-secondary">{{today}}</p>
+    </div>
+
+    <!-- Alerte : chargée à part, rien ne s'affiche quand tout va bien (réponse 204) -->
+    <div hx-get="/dashboard/alerts" hx-trigger="load" hx-swap="outerHTML"></div>
+
+    <!-- À faire -->
+    <div hx-get="/dashboard/todo" hx-trigger="load" hx-swap="outerHTML" class="mb-8" aria-busy="true">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="h-32 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+            <div class="h-32 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+            <div class="h-32 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Le mois en cours -->
+    <div hx-get="/dashboard/month" hx-trigger="load" hx-swap="outerHTML" class="mb-8" aria-busy="true">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="h-28 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+            <div class="h-28 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+            <div class="h-28 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+            <div class="h-28 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Dernières commandes et prochains ateliers -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8">
+        <div hx-get="/dashboard/orders" hx-trigger="load" hx-swap="outerHTML" class="lg:col-span-3" aria-busy="true">
+            <div class="h-72 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+        </div>
+        <div hx-get="/dashboard/workshops" hx-trigger="load" hx-swap="outerHTML" class="lg:col-span-2" aria-busy="true">
+            <div class="h-72 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Offres et catalogue -->
+    <div hx-get="/dashboard/offers" hx-trigger="load" hx-swap="outerHTML" class="mb-4" aria-busy="true">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="h-36 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+            <div class="h-36 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+            <div class="h-36 rounded-xl bg-bg border border-bg-border animate-pulse"></div>
+        </div>
+    </div>
+
+</div>
+
+{{> ../partials/footer-admin}}

@@ -45,7 +45,12 @@ public final class OrdersFromCheckouts {
         Order order = new Order();
         order.setState(OrderState.PAID);
         order.setStripeSessionId(checkout.getSession().getId());
-        order.setCustomerName(checkout.getCustomerName());
+        // Une commande à 0 € (panier couvert par une carte cadeau) n'a pas de paiement par carte bancaire : Stripe ne
+        // donne alors pas le nom du payeur, seulement celui du destinataire de l'adresse de livraison.
+        boolean hasCustomerName = checkout.getCustomerName() != null && !checkout.getCustomerName().isBlank();
+        order.setCustomerName(hasCustomerName || checkout.getShippingAddress() == null
+                ? checkout.getCustomerName()
+                : checkout.getShippingAddress().name());
         order.setCustomerEmail(checkout.getCustomerEmail());
         order.setCustomerPhone(checkout.getCustomerPhone());
         if (checkout.getShippingAddress() != null) {
