@@ -46,6 +46,9 @@ public record GetIndexHandler(ReadCategoryStats readCategoryStats, String baseUr
     }
 
     private static String pieceLabel(int count) {
+        if (count == 0) {
+            return "Bientôt";
+        }
         return count + " pièce" + (count > 1 ? "s" : "");
     }
 

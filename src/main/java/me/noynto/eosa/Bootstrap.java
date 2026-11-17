@@ -3,6 +3,7 @@ package me.noynto.eosa;
 import com.github.mustachejava.DefaultMustacheFactory;
 import io.javalin.Javalin;
 import io.javalin.rendering.FileRenderer;
+import me.noynto.eosa.service.BusinessTime;
 import io.javalin.rendering.template.JavalinMustache;
 import java.time.Clock;
 import java.time.Duration;
@@ -578,9 +579,15 @@ public class Bootstrap {
                 "/public",
                 io.javalin.http.staticfiles.Location.CLASSPATH
             );
-            javalinConfig.fileRenderer(
-                new JavalinMustache(new DefaultMustacheFactory("templates"))
+            // Every public template gets the current year (footer copyright), from the clock.
+            FileRenderer publicMustache = new JavalinMustache(
+                new DefaultMustacheFactory("templates")
             );
+            javalinConfig.fileRenderer((filePath, model, ctx) -> {
+                Map<String, Object> modelWithYear = new HashMap<>(model);
+                modelWithYear.put("currentYear", clock.instant().atZone(BusinessTime.ZONE).getYear());
+                return publicMustache.render(filePath, modelWithYear, ctx);
+            });
             javalinConfig.routes.before(SecureRequestHandler.of(properties.publicBaseUrl()));
             javalinConfig.routes.get(
                 "/",

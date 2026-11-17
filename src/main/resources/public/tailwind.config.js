@@ -19,6 +19,11 @@ tailwind.config = {
                 // 6,3:1 sur bg.
                 error: '#B3261E',
             },
+            // Hauteur minimale de la photo d'une introduction de page (hero) : 480 px, et 440 px pour une session.
+            minHeight: {
+                hero: '30rem',
+                'hero-sm': '27.5rem',
+            },
             fontFamily: {
                 sans: ['DM Sans', 'system-ui', 'sans-serif'],
                 serif: ['Cormorant Garamond', 'Georgia', 'serif'],
