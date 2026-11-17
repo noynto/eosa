@@ -12,7 +12,7 @@
     </div>
 
     <!-- Résumé -->
-    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
             <div class="text-xs text-muted mb-1">Payée le</div>
             <div class="text-sm font-medium">{{paidAt}}</div>
@@ -243,7 +243,10 @@
         <h2 class="text-sm font-medium mb-1">Annuler la commande</h2>
         <p class="text-xs text-muted mb-3">Aucun e-mail n'est envoyé à la cliente et rien n'est remboursé : le remboursement se fait dans Stripe, à la main. Une étiquette déjà créée reste chez le transporteur. Cette action est irréversible.</p>
         {{#hasGiftCard}}
-        <p class="text-xs text-error mb-3" role="note">Cette commande a été payée en partie avec une carte cadeau ({{giftCardAmountPlain}}). Le remboursement Stripe ne rend pas cette part : après l'annulation, recréditez la carte{{#hasGiftCardId}} depuis <a href="/gift-cards/{{giftCardId}}" class="underline underline-offset-4">sa page</a>{{/hasGiftCardId}}, avec le numéro de la commande comme motif.</p>
+        <div class="mb-3 rounded-lg border border-error px-4 py-3 text-xs" role="note">
+            <p class="text-sm font-medium text-error mb-1">Carte cadeau à recréditer</p>
+            <p class="text-secondary">Cette commande a été payée en partie avec une carte cadeau ({{giftCardAmountPlain}}). Le remboursement Stripe ne rend pas cette part : après l'annulation, recréditez la carte{{#hasGiftCardId}} depuis <a href="/gift-cards/{{giftCardId}}" class="underline underline-offset-4">sa page</a>{{/hasGiftCardId}}, avec le numéro de la commande comme motif.</p>
+        </div>
         {{/hasGiftCard}}
         <form hx-post="/orders/{{id}}/cancel" hx-target="#cancel-error" hx-swap="innerHTML"
               hx-confirm="Annuler la commande {{number}} ? Cette action est irréversible."

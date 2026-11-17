@@ -3,6 +3,7 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadGiftCard;
+import me.noynto.eosa.giftcard.GiftCardMovementKind;
 import me.noynto.eosa.giftcard.GiftCardState;
 import me.noynto.eosa.shared.GiftCardId;
 
@@ -32,6 +33,7 @@ public record GetAdminGiftCardHandler(ReadGiftCard readGiftCard, Clock clock) im
                 row.put("kind", GiftCardFormat.movementKind(movement.getKind()));
                 row.put("sign", GiftCardFormat.movementSign(movement.getKind()));
                 row.put("amount", OrderFormat.amount(movement.getAmount()));
+                row.put("noEffect", movement.getKind() == GiftCardMovementKind.USED);
                 row.put("date", OrderFormat.dateTime(movement.getCreatedAt()));
                 row.put("hasReason", movement.getReason() != null);
                 row.put("reason", movement.getReason());

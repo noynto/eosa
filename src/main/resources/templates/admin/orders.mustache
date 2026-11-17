@@ -4,17 +4,17 @@
     <h1 class="text-xl font-medium">Commandes</h1>
 </div>
 
-<form method="get" action="/orders" class="flex flex-col sm:flex-row gap-3 mb-4">
+<form method="get" action="/orders" class="flex flex-wrap gap-3 mb-4">
     <label for="state" class="sr-only">État</label>
     <select id="state" name="state" onchange="this.form.submit()"
-            class="bg-bg border border-outline rounded-lg px-3 min-h-11 md:min-h-9 text-sm text-primary focus:border-secondary">
+            class="w-full sm:w-auto bg-bg border border-outline rounded-lg px-3 min-h-11 md:min-h-9 text-sm text-primary focus:border-secondary">
         {{#filters}}
         <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
         {{/filters}}
     </select>
     <label for="q" class="sr-only">Rechercher</label>
     <input id="q" name="q" type="search" value="{{search}}" placeholder="Numéro, nom ou e-mail"
-           class="flex-1 bg-bg border border-outline rounded-lg px-3 min-h-11 md:min-h-9 text-sm text-primary focus:border-secondary">
+           class="flex-1 min-w-0 bg-bg border border-outline rounded-lg px-3 min-h-11 md:min-h-9 text-sm text-primary focus:border-secondary">
     <button type="submit"
             class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
         Rechercher

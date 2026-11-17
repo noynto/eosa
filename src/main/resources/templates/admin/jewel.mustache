@@ -82,7 +82,7 @@
     {{> partials/jewel-images}}
 
     <!-- État -->
-    <section class="bg-bg border border-bg-border rounded-xl p-5">
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mt-4">
         <div class="flex items-center justify-between mb-3">
             <h2 class="text-sm font-medium">État</h2>
             <span id="toast-state" class="text-xs text-success"></span>
@@ -100,6 +100,9 @@
                 Enregistrer
             </button>
         </form>
+        {{^statePublishedSelected}}
+        <p class="text-xs text-error mt-3">Ce bijou n'est pas publié : il n'apparaît pas dans la boutique.</p>
+        {{/statePublishedSelected}}
     </section>
 
     {{#hasPublishedAt}}
