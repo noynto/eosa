@@ -37,6 +37,7 @@ class GiftCardMailsTest {
             assertTrue(body.contains("16 novembre 2027"), body);
             assertTrue(body.contains("https://eosa.test/gift-cards/tok-123"), body);
             assertTrue(body.contains("Merci Léa"), body);
+            assertTrue(body.contains("TVA non applicable, art. 293 B du Code général des impôts"), body);
         }
         assertFalse(rendered.text().contains("<"), "la version texte ne contient pas de HTML");
     }
