@@ -21,7 +21,7 @@ public record GetJewelCardHandler(ReadJewel readJewel) implements Handler {
             model.put("hasImage", hasImage);
             model.put("mainImageId", hasImage ? jewel.getImageIds().getFirst().value() : "");
             model.put("name", jewel.getName());
-            model.put("price", jewel.getPrice().stripTrailingZeros().toPlainString());
+            model.put("price", PriceFormat.price(jewel.getPrice()));
             model.put("hasTagline", hasTagline);
             model.put("tagline", hasTagline ? jewel.getTagline() : "");
             ctx.render("partials/jewel-card.mustache", model);

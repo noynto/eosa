@@ -38,10 +38,10 @@ public record GetIndexHandler(ReadCategoryStats readCategoryStats, String baseUr
         )));
         model.put("necklacesCountLabel", pieceLabel(necklaces.count()));
         model.put("necklacesHasMinPrice", necklaces.minPrice() != null);
-        model.put("necklacesMinPrice", necklaces.minPrice() != null ? necklaces.minPrice().stripTrailingZeros().toPlainString() : "");
+        model.put("necklacesMinPrice", necklaces.minPrice() != null ? PriceFormat.price(necklaces.minPrice()) : "");
         model.put("braceletsCountLabel", pieceLabel(bracelets.count()));
         model.put("braceletsHasMinPrice", bracelets.minPrice() != null);
-        model.put("braceletsMinPrice", bracelets.minPrice() != null ? bracelets.minPrice().stripTrailingZeros().toPlainString() : "");
+        model.put("braceletsMinPrice", bracelets.minPrice() != null ? PriceFormat.price(bracelets.minPrice()) : "");
         ctx.render("index.mustache", model);
     }
 

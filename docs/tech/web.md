@@ -69,7 +69,7 @@ L'administration est une PWA installable : son service worker (`public/sw.js`) n
 - Un `{{> partial}}` se résout depuis le dossier du template qui l'inclut : un template de `admin/` écrit `{{> ../partials/header-admin}}`.
 - Chaque page inclut son propre en-tête et pied de page (`partials/header-main`, `footer-main`, `header-admin`, `footer-admin`), sans gabarit englobant.
 - Les templates de la boutique reçoivent `currentYear` (l'année de l'horloge, fuseau de Paris) pour le pied de page, ajoutée à chaque modèle par le `FileRenderer` de `Bootstrap`.
-- Les montants du panier se préparent par `GetCartHandler.price` : « 42 » pour un montant rond, « 4,90 » sinon (virgule, deux décimales).
+- Les prix de la boutique (fiche, carte, panier, breloques, livraison) se préparent par `PriceFormat.price` : « 42 » pour un montant rond, « 4,90 » sinon (virgule, deux décimales).
 - Les styles sont en Tailwind, chargé dans la page (`public/tailwind.min.js` + `tailwind.config.js` pour les couleurs et polices de la marque).
 
 ## htmx

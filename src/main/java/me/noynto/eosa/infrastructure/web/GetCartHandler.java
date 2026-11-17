@@ -8,10 +8,11 @@ import me.noynto.eosa.cart.CartShipping;
 import me.noynto.eosa.shared.CartId;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static me.noynto.eosa.infrastructure.web.PriceFormat.price;
 
 public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handler {
 
@@ -106,15 +107,6 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
         model.put("hasRemainingForFreeShipping", hasRemainingForFreeShipping);
         model.put("remaining", hasRemainingForFreeShipping ? price(remaining) : "");
         ctx.render("cart.mustache", model);
-    }
-
-    /** « 42 » pour un montant rond, « 4,90 » sinon : la virgule du français, deux décimales. */
-    static String price(BigDecimal amount) {
-        BigDecimal stripped = amount.stripTrailingZeros();
-        if (stripped.scale() <= 0) {
-            return stripped.toPlainString();
-        }
-        return amount.setScale(2, RoundingMode.HALF_UP).toPlainString().replace('.', ',');
     }
 
     /** Le code d'une carte saisie dans le panier n'est jamais réaffiché en clair : « ••••••••AB3K ». */

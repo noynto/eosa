@@ -33,7 +33,7 @@ public record GetCheckoutSuccessHandler(
             Map<String, Object> line = new HashMap<>();
             line.put("name", item.getName());
             line.put("quantity", item.getQuantity());
-            line.put("lineTotal", item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())).stripTrailingZeros().toPlainString());
+            line.put("lineTotal", PriceFormat.price(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))));
             return line;
         }).toList() : List.of();
 
