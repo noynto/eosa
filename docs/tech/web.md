@@ -94,6 +94,8 @@ Toute modification de template gère les trois tailles :
 | Tablette | 640–1024 px | Tablettes en portrait, grands téléphones en paysage |
 | Ordinateur | ≥ 1024 px | Tablettes en paysage, ordinateurs |
 
+L'en-tête de la boutique garde le bouton « Menu » jusqu'à 1024 px : cinq liens ne tiennent pas en ligne à 768 px.
+
 Le parcours principal se vérifie à 390, 768 et 1280 px avant de considérer un travail d'interface terminé.
 
 Une grille à colonnes proportionnelles qui contient une image s'écrit `md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]`, pas `[1.2fr_1fr]` : une colonne `fr` ne descend pas sous la largeur naturelle de son contenu, et la photo d'un bijou élargissait la fiche à 987 px sur un écran de 768 px. La colonne qui porte l'image reçoit aussi `min-w-0`.

@@ -36,7 +36,10 @@
     <a href="{{publicUrl}}" class="text-xs text-secondary hover:text-primary transition-colors">← Voir le site</a>
 </header>
 
-<nav class="md:hidden bg-bg border-b border-bg-border px-4 py-2 flex gap-1 overflow-x-auto shrink-0">
+<!-- Neuf rubriques défilent : un dégradé sur le bord droit montre qu'il y en a d'autres, et le retrait à droite
+     (pr-10) laisse la dernière sortir de sous le dégradé. -->
+<div class="md:hidden relative shrink-0">
+<nav class="bg-bg border-b border-bg-border pl-4 pr-10 py-2 flex gap-1 overflow-x-auto" aria-label="Administration">
     <a href="/"
        class="flex items-center gap-1.5 px-3 min-h-11 rounded-lg text-xs text-secondary hover:bg-bg-soft hover:text-primary transition-colors whitespace-nowrap">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
@@ -84,6 +87,8 @@
         Lieux
     </a>
 </nav>
+<div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-bg" aria-hidden="true"></div>
+</div>
 
 <div class="flex flex-1 overflow-hidden">
 
