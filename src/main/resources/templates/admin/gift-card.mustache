@@ -41,7 +41,7 @@
             <li class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2 text-sm">
                 <span class="font-medium">{{kind}}</span>
                 <span class="text-xs text-muted">{{date}}</span>
-                <span class="text-secondary">{{sign}}{{amount}}</span>
+                <span class="text-secondary">{{sign}}{{amount}}{{#noEffect}} · sans effet sur le solde{{/noEffect}}</span>
                 {{#hasReason}}<span class="basis-full text-xs text-muted">{{reason}}</span>{{/hasReason}}
             </li>
             {{/movements}}
