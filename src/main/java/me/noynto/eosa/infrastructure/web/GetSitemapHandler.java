@@ -11,7 +11,7 @@ import java.util.Map;
 public record GetSitemapHandler(ReadSitemap readSitemap, String baseUrl) implements Handler {
 
     private static final List<String> STATIC_PATHS = List.of(
-            "/", "/jewels", "/jewels/necklaces", "/jewels/bracelets", "/about", "/workshops",
+            "/", "/jewels", "/jewels/necklaces", "/jewels/bracelets", "/about", "/workshops", "/gift-cards",
             "/faq", "/contact", "/shipping", "/returns", "/legal", "/terms", "/privacy"
     );
 
