@@ -7,10 +7,6 @@ public record GetGiftCardPurchaseHandler(GiftCardPurchasePage page) implements H
 
     @Override
     public void handle(Context ctx) {
-        if (!page.offer().enabled()) {
-            ctx.status(404);
-            return;
-        }
         page.render(ctx, null, null, null, null, null);
     }
 

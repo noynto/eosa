@@ -289,9 +289,7 @@ public class Bootstrap {
             properties.publicBaseUrl()
         );
         ReadGiftCardByToken readGiftCardByToken = new ReadGiftCardByToken(giftCardProvider, clock);
-        // La vente de cartes cadeau n'existe pas pour le public tant que cet interrupteur n'est pas levé.
         GiftCardOffer giftCardOffer = new GiftCardOffer(
-            Boolean.parseBoolean(System.getenv().getOrDefault("EOSA_GIFT_CARDS_ENABLED", "false")),
             giftCardAmounts,
             giftCardMinimumAmount,
             giftCardMaximumAmount,
@@ -644,7 +642,7 @@ public class Bootstrap {
             );
             javalinConfig.routes.get(
                 "/sitemap.xml",
-                new GetSitemapHandler(readSitemap, baseUrl, giftCardOffer)
+                new GetSitemapHandler(readSitemap, baseUrl)
             );
 
             // LEGAL PART
@@ -673,7 +671,7 @@ public class Bootstrap {
                 context.render("cgv.mustache", model);
             });
             javalinConfig.routes.get("/privacy", context -> {
-                Map<String, Object> model = new HashMap<>(giftCardOffer.textModel());
+                Map<String, Object> model = new HashMap<>();
                 model.put("title", "Eosa — Politique de confidentialité");
                 model.put("description", "Politique de confidentialité du site Eosa.");
                 model.put("ogImageUrl", baseUrl + "/hero.webp");

@@ -8,8 +8,7 @@ import java.util.Map;
 
 /**
  * La page d'achat d'une carte cadeau, rendue par la page elle-même ({@link GetGiftCardPurchaseHandler}) et par
- * le formulaire qui la refuse ({@link PostGiftCardHandler}) : ce qui a été saisi reste dans les champs. Elle
- * n'existe que si l'offre est ouverte ({@link GiftCardOffer#enabled()}).
+ * le formulaire qui la refuse ({@link PostGiftCardHandler}) : ce qui a été saisi reste dans les champs.
  */
 public record GiftCardPurchasePage(
         String baseUrl,
