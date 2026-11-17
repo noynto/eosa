@@ -29,5 +29,6 @@ L'administration applique les [fondations](foundations.md) avec un niveau d'expr
 ## Couleur et expression
 
 - La couleur principale est le bordeaux de la marque (`primary`), avec `accent` pour le texte posé dessus : l'administration se reconnaît comme EOSA sans couleurs supplémentaires.
+- Les chiffres d'un bloc (tableau de bord) sont en DM Sans `font-medium`, jamais en serif : les chiffres à l'ancienne de Cormorant font un « 0 » qui ressemble à un « o », et un texte dans une police qui ne sert nulle part ailleurs dans l'administration reste invisible tant qu'elle n'est pas chargée.
 - Les états (survol, focus, appui, désactivé) suivent les [fondations](foundations.md#états-dinteraction) sur chaque élément interactif.
 - Les réponses htmx suivent les conventions de [web](../tech/web.md#htmx) : `HX-Refresh` ou `HX-Redirect` en cas de succès, fragment 422 en `error` en cas de refus.

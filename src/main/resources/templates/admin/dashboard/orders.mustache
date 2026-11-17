@@ -12,7 +12,7 @@
                     <span class="text-sm font-medium">{{number}}</span>
                     <span class="text-xs text-secondary">{{#hasCustomer}}· {{customer}}{{/hasCustomer}}{{#hasCode}} · code {{code}}{{/hasCode}}{{#hasGiftCard}} · carte cadeau{{/hasGiftCard}}</span>
                 </span>
-                <span class="flex items-center gap-3">
+                <span class="flex items-center gap-3 ml-auto">
                     <span class="text-xs border border-bg-border rounded-full px-2 py-0.5 {{#delivered}}text-success{{/delivered}}{{#cancelled}}text-error{{/cancelled}}{{^delivered}}{{^cancelled}}text-secondary{{/cancelled}}{{/delivered}}">{{state}}</span>
                     <span class="text-sm w-20 text-right">{{total}}</span>
                 </span>
