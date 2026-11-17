@@ -1,0 +1,20 @@
+<div class="bg-bg border border-error rounded-xl p-4 mb-6 flex flex-col gap-2" role="alert">
+    {{#hasOrders}}
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <p class="text-sm"><span class="font-medium text-error">{{orderCount}} {{ordersLabel}}</span>
+            <span class="text-secondary">· la tâche de rattrapage les renvoie.</span></p>
+        <span class="flex flex-wrap gap-x-3 text-xs">
+            {{#orders}}<a href="/orders/{{id}}" class="text-secondary underline underline-offset-4 hover:text-primary transition-colors">{{number}}</a>{{/orders}}
+        </span>
+    </div>
+    {{/hasOrders}}
+    {{#hasGiftCards}}
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <p class="text-sm"><span class="font-medium text-error">{{giftCardCount}} {{giftCardsLabel}}</span>
+            <span class="text-secondary">· la tâche de rattrapage les renvoie.</span></p>
+        <span class="flex flex-wrap gap-x-3 text-xs">
+            {{#giftCards}}<a href="/gift-cards/{{id}}" class="text-secondary underline underline-offset-4 hover:text-primary transition-colors">Voir la carte</a>{{/giftCards}}
+        </span>
+    </div>
+    {{/hasGiftCards}}
+</div>

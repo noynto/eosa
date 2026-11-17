@@ -1,3 +1,2 @@
 - conceptualiser des patterns de collier, et concevoir un chemin utilisateur complet de la couleur du métal, aux couleurs de perles et enfin un pattern d'assemblage pour concevoir son collier du plus que l'on peut.
 - SEO hors site : créer la fiche Google Business Profile et dérouler le reste de la checklist (voir `docs/tech/seo.md`).
-- ajouter un tableau de bord principale dans l'administration

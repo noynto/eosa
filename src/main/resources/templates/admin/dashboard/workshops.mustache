@@ -1,0 +1,28 @@
+<section aria-labelledby="next-workshops" class="lg:col-span-2 bg-bg border border-bg-border rounded-xl p-5">
+    <div class="flex items-center justify-between gap-3 mb-2">
+        <h2 id="next-workshops" class="text-sm font-medium">Prochains ateliers</h2>
+        <a href="/workshops" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors">Sessions</a>
+    </div>
+    {{#hasSessions}}
+    <ul class="flex flex-col">
+        {{#sessions}}
+        <li class="border-b border-bg-border last:border-0">
+            <a href="/workshops/{{id}}" class="block py-3 hover:text-secondary transition-colors">
+                <span class="flex items-baseline justify-between gap-3">
+                    <span class="text-sm font-medium">{{date}}</span>
+                    <span class="text-xs text-secondary">{{timeRange}}</span>
+                </span>
+                <span class="block text-xs text-secondary">{{venue}}</span>
+                <span class="flex items-center gap-3 mt-2">
+                    <span class="flex-1 h-1.5 rounded-full bg-bg-border" role="img" aria-label="{{ariaLabel}}"><span class="block h-1.5 rounded-full bg-primary" style="width:{{percent}}%"></span></span>
+                    <span class="text-xs text-secondary whitespace-nowrap">{{status}}</span>
+                </span>
+            </a>
+        </li>
+        {{/sessions}}
+    </ul>
+    {{/hasSessions}}
+    {{^hasSessions}}
+    <p class="text-xs text-muted py-4">Aucun atelier à venir.</p>
+    {{/hasSessions}}
+</section>

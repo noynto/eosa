@@ -41,7 +41,8 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 | Méthode | Chemin | Rôle |
 |---|---|---|
 | GET/POST | `/sign-in` | Connexion (pose le cookie `identity-session-id`) |
-| GET | `/` | Redirection vers `/jewels` |
+| GET | `/` | Tableau de bord : une coquille dont chaque bloc se charge par htmx, avec son propre cas d'usage |
+| GET | `/dashboard/alerts`, `/dashboard/todo`, `/dashboard/month`, `/dashboard/orders`, `/dashboard/workshops`, `/dashboard/offers` | Blocs du tableau de bord (fragments htmx) : e-mails non partis (204 quand tout va bien), à faire (fabriquer, expédier, suivre), chiffres du mois (livraison comprise, part de carte cadeau comprise, annulées exclues), dernières commandes, prochains ateliers, cartes cadeau, codes de promotion et catalogue |
 | * | `/jewels*`, `/metal-colors*`, `/charms*` | Catalogue ; `PATCH /jewels/{id}/published-at` corrige la date de publication d'un bijou déjà publié (un jour, jamais dans le futur) |
 | GET | `/orders`, `/orders/{id}`, `/orders/badge` | Commandes : liste filtrée (état, recherche), détail, pastille « à fabriquer » du menu (fragment htmx) |
 | POST | `/orders/{id}/craft` | « Pièce fabriquée » : crée l'étiquette Mondial Relay (poids et dimensions du colis saisis) et passe la commande à fabriquée ; en cas d'échec, message en fragment (422) et la commande reste à fabriquer |

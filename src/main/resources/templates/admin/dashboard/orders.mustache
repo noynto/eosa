@@ -1,0 +1,27 @@
+<section aria-labelledby="latest-orders" class="lg:col-span-3 bg-bg border border-bg-border rounded-xl p-5">
+    <div class="flex items-center justify-between gap-3 mb-2">
+        <h2 id="latest-orders" class="text-sm font-medium">Dernières commandes</h2>
+        <a href="/orders?state=all" class="text-xs text-secondary underline underline-offset-4 hover:text-primary transition-colors">Toutes les commandes</a>
+    </div>
+    {{#hasOrders}}
+    <ul class="flex flex-col">
+        {{#orders}}
+        <li class="border-b border-bg-border last:border-0">
+            <a href="/orders/{{id}}" class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-3 min-h-11 hover:text-secondary transition-colors">
+                <span class="min-w-0">
+                    <span class="text-sm font-medium">{{number}}</span>
+                    <span class="text-xs text-secondary">{{#hasCustomer}}· {{customer}}{{/hasCustomer}}{{#hasCode}} · code {{code}}{{/hasCode}}{{#hasGiftCard}} · carte cadeau{{/hasGiftCard}}</span>
+                </span>
+                <span class="flex items-center gap-3">
+                    <span class="text-xs border border-bg-border rounded-full px-2 py-0.5 {{#delivered}}text-success{{/delivered}}{{#cancelled}}text-error{{/cancelled}}{{^delivered}}{{^cancelled}}text-secondary{{/cancelled}}{{/delivered}}">{{state}}</span>
+                    <span class="text-sm w-20 text-right">{{total}}</span>
+                </span>
+            </a>
+        </li>
+        {{/orders}}
+    </ul>
+    {{/hasOrders}}
+    {{^hasOrders}}
+    <p class="text-xs text-muted py-4">Aucune commande pour l'instant.</p>
+    {{/hasOrders}}
+</section>

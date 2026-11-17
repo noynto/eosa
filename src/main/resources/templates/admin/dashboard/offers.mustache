@@ -1,0 +1,36 @@
+<section aria-labelledby="offers" class="mb-4">
+    <h2 id="offers" class="text-xs text-muted tracking-widest uppercase mb-3">Offres et catalogue</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <a href="/gift-cards" class="bg-bg border border-bg-border rounded-xl p-5 flex flex-col gap-3 hover:border-secondary transition-colors">
+            <span class="text-sm font-medium">Cartes cadeau</span>
+            <span>
+                <span class="font-serif text-3xl">{{giftCardsToHonour}}</span>
+                <span class="block text-xs text-secondary">à honorer : solde des cartes utilisables</span>
+            </span>
+            <span class="text-xs text-muted">{{giftCardsUsable}} {{giftCardsUsableLabel}} · {{giftCardsIssued}} {{giftCardsIssuedLabel}}{{#hasGiftCardExpiry}} · la prochaine expire le {{giftCardExpiry}}{{/hasGiftCardExpiry}}</span>
+        </a>
+
+        <a href="/promo-codes" class="bg-bg border border-bg-border rounded-xl p-5 flex flex-col gap-3 hover:border-secondary transition-colors">
+            <span class="text-sm font-medium">Codes de promotion</span>
+            <span>
+                <span class="font-serif text-3xl">{{promoInForce}} {{promoInForceLabel}}</span>
+                <span class="block text-xs text-secondary">{{promoUses}} {{promoUsesLabel}} ce mois-ci · {{promoDiscount}} de remise</span>
+            </span>
+            {{#hasTopCode}}
+            <span class="text-xs text-muted">{{topCode}} : {{topCodeUses}}{{#hasTopCodeEnd}} · fin le {{topCodeEnd}}{{/hasTopCodeEnd}}</span>
+            {{/hasTopCode}}
+            {{^hasTopCode}}<span class="text-xs text-muted">Aucun code utilisé ce mois-ci</span>{{/hasTopCode}}
+        </a>
+
+        <a href="/jewels" class="bg-bg border border-bg-border rounded-xl p-5 flex flex-col gap-3 hover:border-secondary transition-colors">
+            <span class="text-sm font-medium">Catalogue</span>
+            <span>
+                <span class="font-serif text-3xl">{{published}} {{publishedLabel}}</span>
+                <span class="block text-xs text-secondary">{{necklaces}} {{necklacesLabel}} · {{bracelets}} {{braceletsLabel}}</span>
+            </span>
+            <span class="text-xs text-muted">{{drafted}} {{draftedLabel}} · {{archived}} {{archivedLabel}}{{#hasLastPublished}} · dernier publié le {{lastPublished}}{{/hasLastPublished}}</span>
+        </a>
+
+    </div>
+</section>
