@@ -9,9 +9,12 @@
 
 <section class="px-5 md:px-8 pb-12 grid md:grid-cols-[1.6fr_1fr] gap-6">
 
-    <div class="flex flex-col gap-3.5">
+    <div class="flex flex-col gap-3.5 {{^hasItems}}md:col-span-2{{/hasItems}}">
         {{^hasItems}}
-            <div class="py-16 text-center text-secondary text-sm">Votre panier est vide.</div>
+            <div class="py-16 flex flex-col items-center gap-5 text-center">
+                <p class="text-secondary text-sm">Votre panier est vide.</p>
+                <a href="/jewels" class="inline-flex items-center justify-center min-h-11 bg-secondary text-bg px-6 py-3.5 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir la collection</a>
+            </div>
         {{/hasItems}}
         {{#items}}
             <div class="bg-bg border border-bg-border rounded-3xl p-4 grid grid-cols-[80px_1fr_auto] md:grid-cols-[100px_1fr_auto] gap-4 md:gap-5 items-center">
@@ -24,7 +27,7 @@
                     <div class="font-serif text-lg mb-1">{{name}}</div>
                     {{#hasMetalColor}}
                     <div class="flex items-center gap-1.5 text-xs text-secondary mb-2">
-                        {{#hasMetalColorImage}}<img src="/images/{{metalColorImageId}}" class="w-4 h-4 rounded-full object-cover">{{/hasMetalColorImage}}
+                        {{#hasMetalColorImage}}<img src="/images/{{metalColorImageId}}" alt="" class="w-4 h-4 rounded-full object-cover">{{/hasMetalColorImage}}
                         <span>{{metalColorName}}</span>
                     </div>
                     {{/hasMetalColor}}
@@ -32,7 +35,7 @@
                     <div class="flex flex-col gap-1 mb-2">
                         {{#charms}}
                         <div class="flex items-center gap-1.5 text-xs text-secondary">
-                            {{#hasImage}}<img src="/images/{{imageId}}" class="w-4 h-4 rounded-full object-cover">{{/hasImage}}
+                            {{#hasImage}}<img src="/images/{{imageId}}" alt="" class="w-4 h-4 rounded-full object-cover">{{/hasImage}}
                             <span>+ {{name}} ({{price}} €)</span>
                         </div>
                         {{/charms}}
@@ -40,17 +43,17 @@
                     {{/hasCharms}}
                     <div class="flex gap-3 items-center mt-3">
                         <div class="flex items-center bg-bg-soft rounded-full">
-                            <button class="w-7 h-7 text-secondary text-sm"
+                            <button class="w-11 h-11 text-secondary text-sm" aria-label="Retirer une unité"
                                     hx-patch="/cart/items/{{id}}"
                                     hx-vals='{"quantity": "{{decrementedQuantity}}"}'
                                     hx-target="body" hx-swap="outerHTML">−</button>
                             <span class="px-3 text-primary text-sm">{{quantity}}</span>
-                            <button class="w-7 h-7 text-secondary text-sm"
+                            <button class="w-11 h-11 text-secondary text-sm" aria-label="Ajouter une unité"
                                     hx-patch="/cart/items/{{id}}"
                                     hx-vals='{"quantity": "{{incrementedQuantity}}"}'
                                     hx-target="body" hx-swap="outerHTML">+</button>
                         </div>
-                        <button class="text-xs text-muted hover:text-secondary transition-colors"
+                        <button class="min-h-11 text-xs text-muted hover:text-secondary transition-colors"
                                 hx-delete="/cart/items/{{id}}"
                                 hx-target="body" hx-swap="outerHTML">Retirer</button>
                     </div>
@@ -60,6 +63,7 @@
         {{/items}}
     </div>
 
+    {{#hasItems}}
     <aside>
         <div class="bg-bg-soft p-6 rounded-3xl md:sticky md:top-5">
             <div class="font-serif text-xl mb-5">Récapitulatif</div>
@@ -142,14 +146,9 @@
                 <span class="text-sm">Total</span>
                 <span class="font-serif text-3xl">{{total}} €</span>
             </div>
-            {{^hasItems}}
-                <button disabled class="w-full bg-bg-soft text-muted py-4 rounded-full text-sm font-medium cursor-not-allowed opacity-60">Passer au paiement →</button>
-            {{/hasItems}}
-            {{#hasItems}}
-                <form method="post" action="/checkout">
-                    <button type="submit" class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">Passer au paiement →</button>
-                </form>
-            {{/hasItems}}
+            <form method="post" action="/checkout">
+                <button type="submit" class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">Passer au paiement →</button>
+            </form>
             <div class="mt-4 flex flex-col gap-2 text-xs text-secondary">
                 {{#hasRemainingForFreeShipping}}
                     <div>★ Plus que {{remaining}} € pour la livraison gratuite</div>
@@ -161,6 +160,7 @@
             </div>
         </div>
     </aside>
+    {{/hasItems}}
 
 </section>
 

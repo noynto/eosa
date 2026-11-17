@@ -8,6 +8,7 @@ import me.noynto.eosa.cart.CartShipping;
 import me.noynto.eosa.shared.CartId;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,12 +52,12 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
             line.put("quantity", item.quantity());
             line.put("decrementedQuantity", item.quantity() - 1);
             line.put("incrementedQuantity", item.quantity() + 1);
-            line.put("lineTotal", item.effectiveUnitPrice().multiply(BigDecimal.valueOf(item.quantity())).stripTrailingZeros().toPlainString());
+            line.put("lineTotal", price(item.effectiveUnitPrice().multiply(BigDecimal.valueOf(item.quantity()))));
             List<Map<String, Object>> charms = item.charms().stream().map(charm -> {
                 boolean hasCharmImage = charm.imageId() != null;
                 Map<String, Object> charmLine = new HashMap<>();
                 charmLine.put("name", charm.name());
-                charmLine.put("price", charm.price().stripTrailingZeros().toPlainString());
+                charmLine.put("price", price(charm.price()));
                 charmLine.put("hasImage", hasCharmImage);
                 charmLine.put("imageId", hasCharmImage ? charm.imageId().value() : "");
                 return charmLine;
@@ -74,14 +75,14 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
         model.put("itemCountLabel", cart.getItems().size() + " article" + (cart.getItems().size() > 1 ? "s" : ""));
         model.put("hasItems", hasItems);
         model.put("items", items);
-        model.put("subtotal", subtotal.stripTrailingZeros().toPlainString());
+        model.put("subtotal", price(subtotal));
         // Le code saisi, qu'il remise ou non : refusé, il reste affiché avec la raison et peut être retiré.
         boolean hasPromoCode = result.promoCode() != null;
         boolean hasDiscount = discount.signum() > 0;
         model.put("hasPromoCode", hasPromoCode);
         model.put("promoCode", hasPromoCode ? result.promoCode().getCode() : "");
         model.put("hasDiscount", hasDiscount);
-        model.put("discount", hasDiscount ? discount.stripTrailingZeros().toPlainString() : "");
+        model.put("discount", hasDiscount ? price(discount) : "");
         model.put("hasPromoRefusal", hasPromoCode && result.refusal() != null);
         model.put("promoRefusal", result.refusal() != null ? result.refusal() : "");
         // Une carte cadeau, comme un code de promotion : saisie ou refusée, elle reste affichée avec la raison.
@@ -90,21 +91,30 @@ public record GetCartHandler(ReadCart readCart, String baseUrl) implements Handl
         model.put("hasGiftCard", hasGiftCard);
         model.put("giftCardCode", hasGiftCard ? maskedCode(result.giftCard().getCode()) : "");
         model.put("hasGiftCardDeduction", hasGiftCardDeduction);
-        model.put("giftCardDeduction", hasGiftCardDeduction ? giftCardDeduction.stripTrailingZeros().toPlainString() : "");
+        model.put("giftCardDeduction", hasGiftCardDeduction ? price(giftCardDeduction) : "");
         model.put("hasGiftCardRefusal", hasGiftCard && result.giftCardRefusal() != null);
         model.put("giftCardRefusal", result.giftCardRefusal() != null ? result.giftCardRefusal() : "");
         BigDecimal giftCardRemaining = hasGiftCardDeduction ? result.giftCard().balance().subtract(giftCardDeduction) : BigDecimal.ZERO;
         model.put("hasGiftCardRemaining", hasGiftCardDeduction && giftCardRemaining.signum() > 0);
-        model.put("giftCardRemaining", giftCardRemaining.stripTrailingZeros().toPlainString());
+        model.put("giftCardRemaining", price(giftCardRemaining));
         // Un code de promotion ou une carte cadeau, jamais les deux : on saisit l'un tant que l'autre est absent.
         model.put("canEnterPromoCode", hasItems && !hasPromoCode && !hasGiftCard);
         model.put("canEnterGiftCard", hasItems && !hasPromoCode && !hasGiftCard);
         model.put("isShippingPaid", isShippingPaid);
-        model.put("shippingAmount", isShippingPaid ? shippingAmount.stripTrailingZeros().toPlainString() : "");
-        model.put("total", total.stripTrailingZeros().toPlainString());
+        model.put("shippingAmount", isShippingPaid ? price(shippingAmount) : "");
+        model.put("total", price(total));
         model.put("hasRemainingForFreeShipping", hasRemainingForFreeShipping);
-        model.put("remaining", hasRemainingForFreeShipping ? remaining.stripTrailingZeros().toPlainString() : "");
+        model.put("remaining", hasRemainingForFreeShipping ? price(remaining) : "");
         ctx.render("cart.mustache", model);
+    }
+
+    /** « 42 » pour un montant rond, « 4,90 » sinon : la virgule du français, deux décimales. */
+    static String price(BigDecimal amount) {
+        BigDecimal stripped = amount.stripTrailingZeros();
+        if (stripped.scale() <= 0) {
+            return stripped.toPlainString();
+        }
+        return amount.setScale(2, RoundingMode.HALF_UP).toPlainString().replace('.', ',');
     }
 
     /** Le code d'une carte saisie dans le panier n'est jamais réaffiché en clair : « ••••••••AB3K ». */

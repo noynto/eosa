@@ -49,4 +49,3 @@ Le JSON est sérialisé par Gson, qui échappe `<`, `>`, `&`, `'` : c'est le seu
 2. **Pages par pierre** : une page par pierre utilisée (signification, bijoux qui la portent). Les recherches sur la signification des pierres sont nombreuses et mènent naturellement aux bijoux.
 3. **Adresses lisibles** : les bijoux ont une URL en identifiant (`/jewels/<uuid>`) ; une adresse avec le nom (`/jewels/collier-amethyste`) se lit et se partage mieux.
 4. **Vitesse d'affichage** : Tailwind est compilé dans le navigateur (`tailwind.min.js`), ce qui retarde l'affichage, pénalisé par Google (Core Web Vitals). Le compiler au build en un fichier CSS est le plus gros gain technique, et permettrait aussi une `Content-Security-Policy`.
-5. **Bandeau « Site en cours de développement »** : à retirer dès que le site est prêt ; il dessert la confiance des visiteurs.
