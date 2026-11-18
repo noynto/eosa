@@ -151,6 +151,7 @@ public class Bootstrap {
             clock
         );
         DownloadImage downloadImage = new DownloadImage(imageProvider);
+        DownloadVideoRange downloadVideoRange = new DownloadVideoRange(jdbcConfiguration.videos());
         AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(
             identityProvider,
             identitySessionProvider,
@@ -647,6 +648,10 @@ public class Bootstrap {
             javalinConfig.routes.get(
                 "/images/{id}",
                 new GetImageHandler(downloadImage)
+            );
+            javalinConfig.routes.get(
+                "/videos/{id}",
+                new GetVideoHandler(downloadVideoRange)
             );
 
             // SEO

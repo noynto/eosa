@@ -16,7 +16,7 @@ Une collection regroupe des bijoux et porte une **vidéo** qui s'affiche en têt
 | 4 | Dépublication et archivage | **Archiver une collection n'archive pas ses bijoux** : ils restent en vente, seule la vidéo quitte l'accueil. Le lien entre la collection et ses bijoux est conservé. |
 | 5 | Bijoux et collections (proposé) | **Un bijou peut appartenir à plusieurs collections** (un classique reconduit d'une saison à l'autre), par une table de liaison. Sans collection, un bijou reste publiable seul, comme aujourd'hui. |
 | 6 | Stockage de la vidéo | Une colonne **`BYTEA`** dans la base, **sans large object**, réglée en stockage `EXTERNAL` (`ALTER COLUMN content SET STORAGE EXTERNAL`) : pas de compression inutile sur du H.264, lecture d'une plage par `substring(content FROM ? FOR ?)`. |
-| 7 | Mesure préalable | Le fonctionnement de `substring` sur une colonne `EXTERNAL` découle de la documentation PostgreSQL et **n'est pas encore testé** : la première étape le mesure sur une vidéo réelle. Si la lecture partielle est mauvaise, repli sur une table `video_chunks` (un morceau par ligne), sans changement visible côté handler. |
+| 7 | Mesure préalable | **Mesuré le 18 novembre 2026** (PostgreSQL 17, 8 Mio de données incompressibles) : une tranche de 256 Kio lit environ 1 ms et 37 pages de 8 Ko (la taille de la tranche, pas du fichier), au début, au milieu et à la fin ; soit environ 32 ms de base pour toute la vidéo. Le repli sur une table `video_chunks` n'est donc pas nécessaire. De bout en bout (JDBC et handler), la vidéo entière sort en 0,25 s en local. |
 | 8 | Envoi au navigateur | Le handler gère **`Range`** (réponse `206`, `Content-Range`, `Accept-Ranges: bytes`, `Content-Length` de la plage), car Safari et iOS l'exigent. Il lit la base par **tranches de 256 Kio** (une requête `substring` par tranche) et les écrit au fur et à mesure. Sans `Range`, réponse `200` complète. `Cache-Control` long, l'URL contenant l'identifiant de la vidéo. |
 | 9 | Format et taille | MP4 H.264, 1080p maximum, 5 à 10 secondes, **sans piste audio**, **8 Mo maximum** (refusé au-delà, avec un message). Lecture en `autoplay muted loop playsinline`. |
 | 10 | Image de repli | Chaque vidéo est envoyée avec une **image d'affiche** (`poster`), affichée pendant le chargement et quand le visiteur demande moins de mouvement (`prefers-reduced-motion`) : dans ce cas la vidéo ne se lance pas. |
@@ -83,9 +83,9 @@ Une collection regroupe des bijoux et porte une **vidéo** qui s'affiche en têt
 
 Une branche et une pull request par étape.
 
-### Étape 1 — Vidéo : stockage, lecture par plage, mesure
+### Étape 1 — Vidéo : stockage, lecture par plage, mesure (faite)
 
-Table `videos`, `JdbcPersistedVideos`, `GET /videos/{id}` avec `Range` et tranches de 256 Kio. **Mesure** de `substring` sur une colonne `EXTERNAL` avec une vidéo de 8 Mo (durée de lecture d'une plage au début, au milieu et à la fin) ; la conclusion est écrite dans ce document (décision 7). Tests : `Range` valide, ouvert (`bytes=100-`), suffixe (`bytes=-500`), hors limites (`416`).
+Table `videos` (`V20`), `Video` (métadonnées seulement, le contenu ne se lit que par plages) et `VideoProvider` (`write`, `read`, `readRange`, `delete`), `JdbcPersistedVideos`, cas d'usage `DownloadVideoRange` (calcule la plage et rend le contenu par tranches de 256 Kio, chacune par une requête) et `GET /videos/{id}`. La mesure est en décision 7. Tests : plage fermée, ouverte (`bytes=100-`), suffixe (`bytes=-500`), à cheval sur deux tranches, hors limites (`416`), plage illisible (vidéo entière). Pas encore d'envoi de vidéo : il vient avec l'étape 2.
 
 ### Étape 2 — Collection, administration
 

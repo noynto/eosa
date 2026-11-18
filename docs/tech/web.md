@@ -15,6 +15,7 @@
 | GET | `/customization/metal-colors` | Fragment : le choix de la couleur du métal, dans le formulaire d'ajout au panier |
 | GET | `/customization/charms` | Fragment : le choix des breloques, dans le formulaire d'ajout au panier |
 | GET | `/images/{id}` | Téléchargement d'une image |
+| GET | `/videos/{id}` | Vidéo, en entier ou par plage (`Range` : 206, `Content-Range`, 416 hors limites), lue par tranches de 256 Kio |
 | GET | `/about` | Notre histoire |
 | GET | `/cart` | Panier, avec la remise de son code de promotion |
 | POST, DELETE | `/cart/promo-code` | Applique le code saisi (refus en fragment, 422) ou le retire ; `HX-Redirect` vers le panier |
