@@ -1,0 +1,104 @@
+# Spécifications : collection
+
+Statut : **à valider** (écrite le 18 novembre 2026). Aucun code n'est écrit ; ce document fixe le fonctionnement, ses dépendances et l'ordre de mise en place. Les points marqués « proposé » attendent la validation de l'administratrice.
+
+## Contexte
+
+Une collection regroupe des bijoux et porte une **vidéo** qui s'affiche en tête de la page d'accueil (le « hero »). Elle est nommée avec la saison et l'année (« Été 2027 »). Elle a trois états comme un bijou : brouillon, publiée, archivée. **Publier une collection publie les bijoux qu'elle contient.**
+
+## Décisions
+
+| # | Sujet | Décision |
+|---|---|---|
+| 1 | Hero de l'accueil | La **collection publiée la plus récente** (date de publication) fournit la vidéo. Quand aucune collection n'est publiée, ou qu'elle n'a pas de vidéo, la page garde `hero.webp`. |
+| 2 | États | `DRAFTED` → `PUBLISHED` → `ARCHIVED`, comme `JewelState`. Une collection en brouillon n'est visible que dans l'administration. |
+| 3 | Publication | Publier une collection passe en `PUBLISHED` ses bijoux qui sont en `DRAFTED`. Un bijou `ARCHIVED` n'est pas touché (l'administratrice l'a retiré exprès). Une collection **sans vidéo ne peut pas être publiée** (proposé : le hero en dépend). |
+| 4 | Dépublication et archivage | **Archiver une collection n'archive pas ses bijoux** : ils restent en vente, seule la vidéo quitte l'accueil. Le lien entre la collection et ses bijoux est conservé. |
+| 5 | Bijoux et collections (proposé) | **Un bijou peut appartenir à plusieurs collections** (un classique reconduit d'une saison à l'autre), par une table de liaison. Sans collection, un bijou reste publiable seul, comme aujourd'hui. |
+| 6 | Stockage de la vidéo | Une colonne **`BYTEA`** dans la base, **sans large object**, réglée en stockage `EXTERNAL` (`ALTER COLUMN content SET STORAGE EXTERNAL`) : pas de compression inutile sur du H.264, lecture d'une plage par `substring(content FROM ? FOR ?)`. |
+| 7 | Mesure préalable | Le fonctionnement de `substring` sur une colonne `EXTERNAL` découle de la documentation PostgreSQL et **n'est pas encore testé** : la première étape le mesure sur une vidéo réelle. Si la lecture partielle est mauvaise, repli sur une table `video_chunks` (un morceau par ligne), sans changement visible côté handler. |
+| 8 | Envoi au navigateur | Le handler gère **`Range`** (réponse `206`, `Content-Range`, `Accept-Ranges: bytes`, `Content-Length` de la plage), car Safari et iOS l'exigent. Il lit la base par **tranches de 256 Kio** (une requête `substring` par tranche) et les écrit au fur et à mesure. Sans `Range`, réponse `200` complète. `Cache-Control` long, l'URL contenant l'identifiant de la vidéo. |
+| 9 | Format et taille | MP4 H.264, 1080p maximum, 5 à 10 secondes, **sans piste audio**, **8 Mo maximum** (refusé au-delà, avec un message). Lecture en `autoplay muted loop playsinline`. |
+| 10 | Image de repli | Chaque vidéo est envoyée avec une **image d'affiche** (`poster`), affichée pendant le chargement et quand le visiteur demande moins de mouvement (`prefers-reduced-motion`) : dans ce cas la vidéo ne se lance pas. |
+| 11 | Hors périmètre | Plusieurs vidéos par collection, vidéo avec son, transcodage dans l'application, page publique d'une collection, planification de la publication à une date. |
+
+## Ce que le code actuel apporte et impose
+
+1. Les **images** sont déjà en base (`images(id, name, format, content BYTEA)`) et servies par `GET /images/{id}` (`GetImageHandler`, cas d'usage `DownloadImage`). La vidéo suit le même principe dans sa propre table, avec en plus les lectures par plage.
+2. `hero.webp` est un fichier statique de `src/main/resources/public` ; il reste le repli (décision 1).
+3. Un cas d'usage n'en injecte pas un autre (README) : « publier une collection » modifie la collection et ses bijoux **dans un seul cas d'usage**, qui injecte les deux providers.
+4. La page d'accueil ne charge que ce qui la concerne : le hero est un cas d'usage de lecture appelé par `GetIndexHandler`, ou un fragment htmx si l'on veut garder le handler à un seul cas d'usage.
+5. Le disque de PostgreSQL en production est de 1 Gi : à 8 Mo par vidéo, quelques collections par an restent négligeables, mais l'archivage doit permettre de **supprimer la vidéo** d'une collection archivée.
+
+## Vocabulaire
+
+| Terme | Sens |
+|---|---|
+| Collection (`Collection`) | Un nom, une saison, une année, une vidéo, une image d'affiche, un état, une date de publication et la liste de ses bijoux. |
+| Vidéo (`Video`) | Le fichier MP4 stocké en base : nom, format, taille, contenu. |
+| Hero | Le bandeau de tête de la page d'accueil. |
+
+## Parcours
+
+### Administration
+
+- **Liste** `GET /collections` : nom, état, nombre de bijoux, date de publication.
+- **Fiche** `GET /collections/{id}` : nom, saison (Printemps, Été, Automne, Hiver) et année, vidéo et affiche à envoyer, bijoux à cocher, boutons **Publier**, **Archiver**, **Repasser en brouillon**.
+- **Envoi de la vidéo** : un formulaire `multipart`, contrôle du type (`video/mp4`) et de la taille (8 Mo), message d'erreur en ligne (`InlineError`).
+- Les actions sont des `POST`, avec confirmation (`hx-confirm`) pour la publication, qui publie les bijoux.
+
+### Boutique
+
+- **Accueil** `GET /` : le hero joue la vidéo de la collection publiée la plus récente, sinon montre `hero.webp`. Le texte et les boutons du hero ne changent pas.
+- **Vidéo** `GET /videos/{id}` : handler public à gestion de `Range` (décision 8).
+- La page d'accueil reste lisible sans vidéo (réseau lent, `prefers-reduced-motion`) : l'affiche remplace le mouvement, le contraste du texte sur l'image est vérifié.
+
+## Règles métier
+
+- Le nom est obligatoire ; l'année est comprise entre 2024 et 2100 ; une même saison et année ne sont pas utilisées par deux collections.
+- Publier : la collection doit avoir une vidéo et une affiche ; elle passe `PUBLISHED` avec la date du jour (`Clock`), ses bijoux `DRAFTED` passent `PUBLISHED` avec leur date de publication.
+- Archiver : permis depuis `PUBLISHED` ; les bijoux ne changent pas.
+- Une collection `PUBLISHED` sans bijou est permise (la vidéo seule).
+- Supprimer une collection supprime la liaison, jamais les bijoux.
+
+## Persistance — migrations suivantes (`V20` et au-delà, noms à confirmer)
+
+- `V20__collections.sql` : `collections(id, name, season, year, state, published_at, video_id, poster_image_id, created_at)` et `collection_jewels(collection_id, jewel_id)` (clé primaire composée, suppression en cascade).
+- `V21__videos.sql` : `videos(id, name, format, size, content BYTEA)` et `ALTER TABLE videos ALTER COLUMN content SET STORAGE EXTERNAL`.
+
+## Organisation du code
+
+- Domaine : `collection/Collection`, `CollectionState`, `CollectionProvider` ; `video/Video`, `VideoProvider` (avec une lecture de plage).
+- Cas d'usage : `CreateCollection`, `UpdateCollection`, `UploadCollectionVideo`, `PublishCollection`, `ArchiveCollection`, `ReadCollections`, `ReadHero`, `DownloadVideoRange`.
+- Handlers de l'administration et de la boutique, un par cas d'usage.
+- Implémentations : `JdbcPersistedCollections`, `JdbcPersistedVideos`.
+
+## Sujets à traiter
+
+- **Poids de la page d'accueil** : 8 Mo de vidéo sur mobile ; ne charger la vidéo qu'après l'affiche (`preload="metadata"`) et pas du tout en mode économie de données ou `prefers-reduced-motion`.
+- **SEO** : le hero ne doit pas devenir l'image Open Graph à lui seul ; `hero.webp` reste `ogImageUrl` ([SEO](../tech/seo.md)).
+- **Droits** : la vidéo ne doit contenir que des images et musiques dont EOSA détient les droits (pas de piste audio, donc pas de musique).
+
+## Étapes de mise en place
+
+Une branche et une pull request par étape.
+
+### Étape 1 — Vidéo : stockage, lecture par plage, mesure
+
+Table `videos`, `JdbcPersistedVideos`, `GET /videos/{id}` avec `Range` et tranches de 256 Kio. **Mesure** de `substring` sur une colonne `EXTERNAL` avec une vidéo de 8 Mo (durée de lecture d'une plage au début, au milieu et à la fin) ; la conclusion est écrite dans ce document (décision 7). Tests : `Range` valide, ouvert (`bytes=100-`), suffixe (`bytes=-500`), hors limites (`416`).
+
+### Étape 2 — Collection, administration
+
+Migrations, domaine, cas d'usage de création, de modification, d'envoi de la vidéo et de l'affiche, liste et fiche d'administration. États et liaison avec les bijoux, sans effet sur la boutique.
+
+### Étape 3 — Publication et archivage
+
+`PublishCollection` (publie les bijoux `DRAFTED`) et `ArchiveCollection`, boutons et confirmation dans la fiche, tests des règles de la section « Règles métier ».
+
+### Étape 4 — Hero de l'accueil
+
+`ReadHero`, vidéo dans `index.mustache` avec affiche, `prefers-reduced-motion`, repli sur `hero.webp`, vérification à 390, 768 et 1280 px et contraste du texte.
+
+### Étape 5 — Documentation
+
+Mettre à jour [Web](../tech/web.md) (routes), [Architecture](../tech/architecture.md) et ce document (statut).
