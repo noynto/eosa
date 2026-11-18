@@ -1,0 +1,117 @@
+{{> ../partials/header-admin}}
+
+<div class="max-w-2xl">
+
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <a href="/collections" class="text-xs text-muted hover:text-secondary transition-colors">← Collections</a>
+        <span class="text-muted">/</span>
+        <h1 class="text-xl font-medium">{{name}}</h1>
+        <span class="text-xs border rounded-full px-2 py-0.5 {{#published}}text-success border-success{{/published}}{{^published}}text-muted border-bg-border{{/published}}">{{stateLabel}}</span>
+    </div>
+
+    <!-- Informations -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-medium">Informations</h2>
+            <span id="toast-information" class="text-xs text-success"></span>
+        </div>
+        <form hx-patch="/collections/{{collectionId}}"
+              hx-target="#toast-information" hx-swap="innerHTML"
+              class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1.5">
+                <label for="name" class="text-xs text-secondary">Nom</label>
+                <input id="name" name="name" type="text" required value="{{name}}"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
+            </div>
+            <div class="grid grid-cols-[1fr_6rem] gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="season" class="text-xs text-secondary">Saison</label>
+                    <select id="season" name="season" required
+                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                        {{#seasons}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/seasons}}
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="year" class="text-xs text-secondary">Année</label>
+                    <input id="year" name="year" type="number" min="2024" max="2100" step="1" required value="{{year}}"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Vidéo et affiche -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Vidéo et affiche</h2>
+            <span id="toast-media" class="text-xs"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">Vidéo MP4 de 5 à 10 secondes, sans son, 8 Mo au plus. L'affiche s'affiche pendant le chargement de la vidéo et pour les visiteurs qui limitent les animations.</p>
+        {{#hasVideo}}
+        <video controls muted playsinline preload="metadata" {{#hasPoster}}poster="/images/{{posterImageId}}"{{/hasPoster}}
+               class="w-full aspect-[16/9] rounded-lg bg-bg-soft mb-3">
+            <source src="/videos/{{videoId}}" type="video/mp4">
+        </video>
+        {{/hasVideo}}
+        {{^hasVideo}}
+        {{#hasPoster}}
+        <div class="aspect-[16/9] rounded-lg overflow-hidden bg-bg-soft mb-3">
+            <img src="/images/{{posterImageId}}" alt="Affiche de la collection {{name}}" class="w-full h-full object-cover">
+        </div>
+        {{/hasPoster}}
+        {{/hasVideo}}
+        <form hx-post="/collections/{{collectionId}}/media"
+              hx-encoding="multipart/form-data"
+              hx-target="#toast-media" hx-swap="innerHTML"
+              class="flex flex-col gap-2">
+            <label class="flex items-center gap-2 bg-bg-soft border border-bg-border border-dashed rounded-lg px-3 min-h-11 cursor-pointer hover:border-secondary transition-colors min-w-0">
+                <span class="file-label text-xs text-secondary truncate">{{#hasVideo}}Remplacer la vidéo (MP4)…{{/hasVideo}}{{^hasVideo}}Choisir une vidéo (MP4)…{{/hasVideo}}</span>
+                <input type="file" name="video" accept="video/mp4" class="hidden"
+                       onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files[0]?.name??'Choisir une vidéo (MP4)…'; l.classList.replace('text-secondary','text-primary');">
+            </label>
+            <label class="flex items-center gap-2 bg-bg-soft border border-bg-border border-dashed rounded-lg px-3 min-h-11 cursor-pointer hover:border-secondary transition-colors min-w-0">
+                <span class="file-label text-xs text-secondary truncate">{{#hasPoster}}Remplacer l'affiche…{{/hasPoster}}{{^hasPoster}}Choisir une affiche…{{/hasPoster}}</span>
+                <input type="file" name="poster" accept="image/jpeg,image/png,image/webp,image/avif" class="hidden"
+                       onchange="const l=this.closest('label').querySelector('.file-label'); l.textContent=this.files[0]?.name??'Choisir une affiche…'; l.classList.replace('text-secondary','text-primary');">
+            </label>
+            <div>
+                <button type="submit"
+                        class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Envoyer
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Bijoux -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div hx-get="/collections/{{collectionId}}/jewels" hx-trigger="load" hx-swap="outerHTML">
+            <p class="text-xs text-muted">Chargement des bijoux…</p>
+        </div>
+    </section>
+
+    <!-- Suppression -->
+    {{^published}}
+    <section class="bg-bg border border-bg-border rounded-xl p-5">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Suppression</h2>
+            <span id="toast-delete" class="text-xs"></span>
+        </div>
+        <p class="text-xs text-muted mb-3">Supprime la collection, sa vidéo et son affiche. Ses bijoux restent dans la boutique, avec leur état.</p>
+        <button hx-delete="/collections/{{collectionId}}"
+                hx-target="#toast-delete" hx-swap="innerHTML"
+                hx-confirm="Supprimer « {{name}} » ? Cette action est irréversible."
+                class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-error hover:border-error transition-colors">
+            Supprimer cette collection
+        </button>
+    </section>
+    {{/published}}
+
+</div>
+
+{{> ../partials/footer-admin}}

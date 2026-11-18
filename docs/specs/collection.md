@@ -92,7 +92,11 @@ Table `videos` (`V20`), `Video` (métadonnées seulement, le contenu ne se lit q
 Deux pull requests, sans effet sur la boutique.
 
 - **2a, domaine et persistance (faite)** : migration `V21`, `Collection`, `CollectionState`, `CollectionSeason`, `CollectionProvider` (`readIds(états)`, `read`, `write`, `delete`), `JdbcPersistedCollections`, cas d'usage `CreateCollection` (brouillon ; nom, saison et année requis ; une collection par saison et année), `UpdateCollection` (nom, saison, année, bijoux ; ne touche ni l'état ni la vidéo), `ReadCollection`, `ReadCollections`. Le câblage dans `Bootstrap` vient avec les handlers.
-- **2b, administration** : liste et fiche, envoi de la vidéo et de l'affiche ensemble (type et taille contrôlés), choix des bijoux, suppression d'une collection.
+- **2b, administration (faite)** : liste `/collections` et fiche `/collections/{id}` avec trois sections indépendantes (informations, vidéo et affiche, bijoux) et la suppression.
+  - `UpdateCollection` ne touche plus aux bijoux : `UpdateJewelsOfCollection` les remplace, et le bloc des bijoux de la fiche est un fragment htmx (`ReadCollectionJewelChoices` : tous les bijoux, cochés ou non), pour qu'enregistrer le nom ne vide jamais la liste.
+  - `UploadCollectionMedia` envoie la vidéo et/ou l'affiche (au moins une) : MP4 de 8 Mo au plus (refusé sans lire plus de 8 Mo + 1 octet en mémoire), affiche JPEG, PNG, WebP ou AVIF. Chaque média remplace le précédent, supprimé une fois la collection enregistrée.
+  - `DeleteCollection` supprime la collection, sa vidéo et son affiche, jamais ses bijoux ; **une collection publiée ne se supprime pas** (on l'archive d'abord, étape 3).
+  - Testé de bout en bout en local (création, doublon, modification, vidéo de 8 Mio acceptée et de 8 Mio + 1 refusée, remplacement, suppression) et vu à 390, 768 et 1280 px. L'aperçu vidéo n'a pas été vu avec un vrai MP4.
 
 ### Étape 3 — Publication et archivage
 
