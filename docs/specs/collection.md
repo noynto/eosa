@@ -98,9 +98,14 @@ Deux pull requests, sans effet sur la boutique.
   - `DeleteCollection` supprime la collection, sa vidéo et son affiche, jamais ses bijoux ; **une collection publiée ne se supprime pas** (on l'archive d'abord, étape 3).
   - Testé de bout en bout en local (création, doublon, modification, vidéo de 8 Mio acceptée et de 8 Mio + 1 refusée, remplacement, suppression) et vu à 390, 768 et 1280 px. L'aperçu vidéo n'a pas été vu avec un vrai MP4.
 
-### Étape 3 — Publication et archivage
+### Étape 3 — Publication et archivage (faite)
 
-`PublishCollection` (publie les bijoux `DRAFTED`) et `ArchiveCollection`, boutons et confirmation dans la fiche, tests des règles de la section « Règles métier ».
+`PublishCollection` et `ArchiveCollection`, section « Publication » de la fiche avec confirmation (`POST /collections/{id}/publish` et `/archive`).
+
+- **Publier** (depuis un brouillon ou une collection archivée) : il faut une vidéo et une affiche. Les bijoux `DRAFTED` passent `PUBLISHED` (avec leur date de première publication, conservée s'ils en ont déjà une) ; les bijoux `ARCHIVED` et `PUBLISHED` ne changent pas. **Si un bijou en brouillon est incomplet** (nom, catégorie, accroche, prix, une image, les règles de `UpdateStateOfJewel`), la publication est **refusée avec un message qui nomme chaque bijou et ce qui lui manque**, et rien n'est écrit. La collection reçoit la date du jour : republier une collection archivée la remet donc en tête de l'accueil.
+- **Archiver** : seulement depuis `PUBLISHED` ; ni les bijoux ni la date de publication ne changent. Une collection publiée n'est ni repassée en brouillon ni supprimée.
+- Testé de bout en bout en local : refus sans vidéo, refus avec un bijou incomplet (rien d'écrit), publication (collection et bijou publiés et datés), refus de republier, de supprimer ou d'archiver hors des états permis, archivage (le bijou reste publié), republication.
+- Les bijoux sont écrits avant la collection : si l'écriture de la collection échoue, republier la collection ne change plus rien aux bijoux (pas de transaction entre deux providers).
 
 ### Étape 4 — Hero de l'accueil
 

@@ -52,7 +52,7 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 | POST | `/orders/{id}/cancel` | Annule une commande à fabriquer, fabriquée ou expédiée, avec un motif ; ni e-mail, ni remboursement |
 | GET | `/orders/{id}/label` | PDF de l'étiquette (redirection vers l'adresse protégée du transporteur), commande fabriquée ou expédiée ; ne modifie rien |
 | * | `/promo-codes*` | Codes de promotion : liste, création, modification des règles (`PATCH`), activation et désactivation (`POST .../activate`, `.../deactivate`), suppression d'un code jamais utilisé (`DELETE`) ; la page d'un code liste les commandes qui l'ont utilisé |
-| * | `/collections*` | Collections : liste, création, modification (`PATCH`), vidéo et affiche (`POST .../media`, multipart, MP4 de 8 Mo au plus), bijoux (`PATCH .../jewels`), suppression d'une collection non publiée (`DELETE`) ; `GET .../jewels` est le fragment htmx de la liste à cocher |
+| * | `/collections*` | Collections : liste, création, modification (`PATCH`), vidéo et affiche (`POST .../media`, multipart, MP4 de 8 Mo au plus), bijoux (`PATCH .../jewels`), publication et archivage (`POST .../publish`, `.../archive` ; la publication publie les bijoux en brouillon et est refusée si l'un est incomplet), suppression d'une collection non publiée (`DELETE`) ; `GET .../jewels` est le fragment htmx de la liste à cocher |
 | GET | `/videos/{id}` | Vidéo d'une collection, par plage (même handler que la boutique), pour l'aperçu de la fiche |
 | * | `/gift-cards*` | Cartes cadeau : liste, émission d'une carte offerte (`POST`), détail avec journal, recrédit (`POST .../restore`) et annulation (`POST .../void`) |
 | * | `/workshop-venues*` | Lieux des ateliers : création, modification, photo, archivage |

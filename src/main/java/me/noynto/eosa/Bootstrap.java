@@ -160,7 +160,9 @@ public class Bootstrap {
         UpdateCollection updateCollection = new UpdateCollection(collectionProvider);
         UpdateJewelsOfCollection updateJewelsOfCollection = new UpdateJewelsOfCollection(collectionProvider, jewelProvider);
         UploadCollectionMedia uploadCollectionMedia = new UploadCollectionMedia(collectionProvider, videoProvider, imageProvider);
-        DeleteCollection deleteCollection = new DeleteCollection(collectionProvider, videoProvider, imageProvider);
+        PublishCollection publishCollection = new PublishCollection(collectionProvider, jewelProvider, clock);
+        ArchiveCollection archiveCollection = new ArchiveCollection(collectionProvider);
+        DeleteCollection deleteCollection =new DeleteCollection(collectionProvider, videoProvider, imageProvider);
         ReadCollection readCollection = new ReadCollection(collectionProvider);
         ReadCollections readCollections = new ReadCollections(collectionProvider);
         ReadCollectionJewelChoices readCollectionJewelChoices = new ReadCollectionJewelChoices(collectionProvider, jewelProvider);
@@ -1131,6 +1133,8 @@ public class Bootstrap {
             javalinConfig.routes.get("/collections/{id}/jewels", new GetAdminCollectionJewelsHandler(readCollectionJewelChoices));
             javalinConfig.routes.patch("/collections/{id}/jewels", new UpdateJewelsOfCollectionHandler(updateJewelsOfCollection));
             javalinConfig.routes.post("/collections/{id}/media", new UploadCollectionMediaHandler(uploadCollectionMedia));
+            javalinConfig.routes.post("/collections/{id}/publish", new PublishCollectionHandler(publishCollection));
+            javalinConfig.routes.post("/collections/{id}/archive", new ArchiveCollectionHandler(archiveCollection));
             javalinConfig.routes.get(
                 "/workshop-venues",
                 new GetAdminWorkshopVenuesHandler(readWorkshopVenues)
