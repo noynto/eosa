@@ -107,9 +107,14 @@ Deux pull requests, sans effet sur la boutique.
 - Testé de bout en bout en local : refus sans vidéo, refus avec un bijou incomplet (rien d'écrit), publication (collection et bijou publiés et datés), refus de republier, de supprimer ou d'archiver hors des états permis, archivage (le bijou reste publié), republication.
 - Les bijoux sont écrits avant la collection : si l'écriture de la collection échoue, republier la collection ne change plus rien aux bijoux (pas de transaction entre deux providers).
 
-### Étape 4 — Hero de l'accueil
+### Étape 4 — Hero de l'accueil (faite)
 
-`ReadHero`, vidéo dans `index.mustache` avec affiche, `prefers-reduced-motion`, repli sur `hero.webp`, vérification à 390, 768 et 1280 px et contraste du texte.
+- **Cas d'usage** : `ReadCategoryStats` devient `ReadHome` (mêmes statistiques par catégorie, plus le hero). Le hero est le premier élément de la page : le charger par htmx l'aurait fait apparaître après coup, avec l'image fixe d'abord. `GetIndexHandler` garde donc un seul cas d'usage, qui lit avec deux providers (comme `ReadWorkshopSession`). Le hero est la collection **publiée la plus récente qui a sa vidéo et son affiche** ; sans elle, l'accueil garde `hero.webp`.
+- **Page** : la vidéo prend la place de l'image à gauche du hero (le texte et les boutons ne changent pas : pas de texte sur la vidéo, donc pas de contraste à vérifier). Elle est muette, en boucle, `playsinline`, avec l'affiche pour `poster`.
+- **Animations réduites et économie de données** : si le visiteur demande moins de mouvement (`prefers-reduced-motion`) ou économise ses données (`saveData`), la vidéo n'est ni chargée ni lancée ; l'affiche reste et le bouton permet de la lire.
+- **Bouton lecture / pause** (44 px, `aria-label` qui suit l'état) : une animation de plus de 5 secondes doit pouvoir se mettre en pause (WCAG 2.2.2).
+- **Pas de changement** : `og:image` reste `hero.webp` ; le nom de la collection n'est pas affiché (`aria-label` de la vidéo seulement).
+- Testé en local avec une vraie vidéo : lecture à 390, 768 et 1280 px, affiche seule avec le bouton « Lire » en animations réduites, brouillon et collection archivée sans effet sur l'accueil, retour à `hero.webp` après archivage.
 
 ### Étape 5 — Documentation
 

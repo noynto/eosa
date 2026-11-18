@@ -2,20 +2,21 @@ package me.noynto.eosa.infrastructure.web;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import me.noynto.eosa.application.ReadCategoryStats;
+import me.noynto.eosa.application.ReadHome;
 import me.noynto.eosa.jewel.JewelCategory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record GetIndexHandler(ReadCategoryStats readCategoryStats, String baseUrl) implements Handler {
+public record GetIndexHandler(ReadHome readHome, String baseUrl) implements Handler {
 
     @Override
     public void handle(Context ctx) {
-        var stats = readCategoryStats.handle(new ReadCategoryStats.Query(
+        var home = readHome.handle(new ReadHome.Query(
                 List.of(JewelCategory.NECKLACE, JewelCategory.BRACELET)
-        )).stats();
+        ));
+        var stats = home.stats();
         var necklaces = stats.get(0);
         var bracelets = stats.get(1);
 
@@ -42,6 +43,13 @@ public record GetIndexHandler(ReadCategoryStats readCategoryStats, String baseUr
         model.put("braceletsCountLabel", pieceLabel(bracelets.count()));
         model.put("braceletsHasMinPrice", bracelets.minPrice() != null);
         model.put("braceletsMinPrice", bracelets.minPrice() != null ? PriceFormat.price(bracelets.minPrice()) : "");
+        // Sans collection publiée qui ait sa vidéo, le hero garde l'image fixe.
+        model.put("hasHeroVideo", home.hero().isPresent());
+        home.hero().ifPresent(hero -> {
+            model.put("heroCollectionName", hero.collectionName());
+            model.put("heroVideoId", hero.videoId().value());
+            model.put("heroPosterId", hero.posterImageId().value());
+        });
         ctx.render("index.mustache", model);
     }
 

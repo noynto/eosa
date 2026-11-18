@@ -181,7 +181,7 @@ public class Bootstrap {
         EnsureIdentityHandler ensureIdentityHandler = new EnsureIdentityHandler(
             ensureIdentityHasValidSession
         );
-        ReadCategoryStats readCategoryStats = new ReadCategoryStats(jewelProvider);
+        ReadHome readHome = new ReadHome(jewelProvider, collectionProvider);
         GetOrCreateCart getOrCreateCart = new GetOrCreateCart(
             cartProvider,
             shippingRuleProvider
@@ -606,7 +606,7 @@ public class Bootstrap {
             javalinConfig.routes.before(SecureRequestHandler.of(properties.publicBaseUrl()));
             javalinConfig.routes.get(
                 "/",
-                new GetIndexHandler(readCategoryStats, baseUrl)
+                new GetIndexHandler(readHome, baseUrl)
             );
             javalinConfig.routes.get(
                 "/jewels/latest",
