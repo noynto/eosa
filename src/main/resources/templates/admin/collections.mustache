@@ -1,0 +1,73 @@
+{{> ../partials/header-admin}}
+
+<div class="flex items-center justify-between gap-3 mb-6">
+    <h1 class="text-xl font-medium">Collections</h1>
+    <button onclick="document.getElementById('modal').classList.remove('hidden')"
+            class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors shrink-0">
+        + Nouvelle collection
+    </button>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {{#collections}}
+    <a href="/collections/{{id}}"
+       class="bg-bg border border-bg-border rounded-xl overflow-hidden flex flex-col hover:border-secondary transition-colors {{#archived}}opacity-60{{/archived}}">
+        <div class="aspect-[16/9] bg-bg-soft">
+            {{#hasPoster}}<img src="/images/{{posterImageId}}" alt="" class="w-full h-full object-cover">{{/hasPoster}}
+        </div>
+        <div class="p-4 flex flex-col gap-1">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-medium truncate">{{name}}</span>
+                <span class="text-xs border rounded-full px-2 py-0.5 shrink-0 {{#published}}text-success border-success{{/published}}{{^published}}text-muted border-bg-border{{/published}}">{{stateLabel}}</span>
+            </div>
+            <span class="text-xs text-secondary">{{jewelCountLabel}}{{^hasVideo}} · Sans vidéo{{/hasVideo}}</span>
+        </div>
+    </a>
+    {{/collections}}
+    {{^hasCollections}}
+    <p class="col-span-full px-4 py-8 text-sm text-muted text-center">Aucune collection pour l'instant.</p>
+    {{/hasCollections}}
+</div>
+
+<!-- Modal création -->
+<div id="modal" class="hidden fixed inset-0 bg-primary/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+     onclick="if(event.target===this){this.classList.add('hidden')}">
+    <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg">
+        <h2 class="text-sm font-medium mb-4">Nouvelle collection</h2>
+        <form hx-post="/collections" hx-target="#create-error" hx-swap="innerHTML" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+                <label for="name" class="text-xs text-secondary">Nom</label>
+                <input id="name" name="name" type="text" required autofocus placeholder="ex. Été {{year}}"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary">
+            </div>
+            <div class="grid grid-cols-[1fr_6rem] gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label for="season" class="text-xs text-secondary">Saison</label>
+                    <select id="season" name="season" required
+                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                        {{#seasons}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/seasons}}
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="year" class="text-xs text-secondary">Année</label>
+                    <input id="year" name="year" type="number" min="2024" max="2100" step="1" required value="{{year}}"
+                           class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
+                </div>
+            </div>
+            <p class="text-xs text-muted">La vidéo, l'affiche et les bijoux se complètent ensuite sur la fiche de la collection.</p>
+            <span id="create-error"></span>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                        class="px-4 min-h-11 md:min-h-9 rounded-lg text-sm text-secondary hover:text-primary transition-colors">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="bg-primary text-accent px-5 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Créer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{> ../partials/footer-admin}}

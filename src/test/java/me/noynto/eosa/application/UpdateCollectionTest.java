@@ -4,8 +4,6 @@ import me.noynto.eosa.collection.Collection;
 import me.noynto.eosa.collection.CollectionProvider;
 import me.noynto.eosa.collection.CollectionSeason;
 import me.noynto.eosa.collection.CollectionState;
-import me.noynto.eosa.jewel.Jewel;
-import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.shared.CollectionId;
 import me.noynto.eosa.shared.JewelId;
 import org.junit.jupiter.api.Test;
@@ -30,46 +28,21 @@ class UpdateCollectionTest {
     final CollectionId collectionId = new CollectionId("c1");
 
     @Mock CollectionProvider collectionProvider;
-    @Mock JewelProvider jewelProvider;
 
     @Test
-    void handle_updatesTheFieldsAndKeepsTheStateAndTheMedia() {
+    void handle_updatesTheFieldsAndKeepsTheStateAndTheJewels() {
         var collection = collection(collectionId, CollectionSeason.SUMMER, 2027);
         collection.setState(CollectionState.PUBLISHED);
+        collection.setJewelIds(List.of(new JewelId("j1")));
         when(collectionProvider.read(collectionId)).thenReturn(Optional.of(collection));
         when(collectionProvider.readIds(null)).thenReturn(Stream.of(collectionId));
         when(collectionProvider.write(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = update(" Été 2027, suite ", CollectionSeason.SUMMER, 2027, List.of()).collection();
+        var result = update(" Été 2027, suite ", CollectionSeason.SUMMER, 2027).collection();
 
         assertEquals("Été 2027, suite", result.getName());
         assertEquals(CollectionState.PUBLISHED, result.getState());
-    }
-
-    @Test
-    void handle_keepsEachJewelOnce() {
-        var collection = collection(collectionId, CollectionSeason.SUMMER, 2027);
-        var jewelId = new JewelId("j1");
-        when(collectionProvider.read(collectionId)).thenReturn(Optional.of(collection));
-        when(collectionProvider.readIds(null)).thenReturn(Stream.of(collectionId));
-        when(jewelProvider.read(jewelId)).thenReturn(Optional.of(new Jewel()));
-        when(collectionProvider.write(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        var result = update("Été 2027", CollectionSeason.SUMMER, 2027, List.of(jewelId, jewelId)).collection();
-
-        assertEquals(List.of(jewelId), result.getJewelIds());
-    }
-
-    @Test
-    void handle_throwsWhenAJewelDoesNotExist() {
-        var collection = collection(collectionId, CollectionSeason.SUMMER, 2027);
-        var unknown = new JewelId("unknown");
-        when(collectionProvider.read(collectionId)).thenReturn(Optional.of(collection));
-        when(collectionProvider.readIds(null)).thenReturn(Stream.of(collectionId));
-        when(jewelProvider.read(unknown)).thenReturn(Optional.empty());
-
-        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été 2027", CollectionSeason.SUMMER, 2027, List.of(unknown)));
-        verify(collectionProvider, never()).write(any());
+        assertEquals(List.of(new JewelId("j1")), result.getJewelIds());
     }
 
     @Test
@@ -79,7 +52,7 @@ class UpdateCollectionTest {
         when(collectionProvider.readIds(null)).thenReturn(Stream.of(collectionId, other));
         when(collectionProvider.read(other)).thenReturn(Optional.of(collection(other, CollectionSeason.SUMMER, 2027)));
 
-        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été 2027", CollectionSeason.SUMMER, 2027, List.of()));
+        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été 2027", CollectionSeason.SUMMER, 2027));
         verify(collectionProvider, never()).write(any());
     }
 
@@ -87,19 +60,18 @@ class UpdateCollectionTest {
     void handle_throwsWhenTheCollectionDoesNotExist() {
         when(collectionProvider.read(collectionId)).thenReturn(Optional.empty());
 
-        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été 2027", CollectionSeason.SUMMER, 2027, List.of()));
+        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été 2027", CollectionSeason.SUMMER, 2027));
     }
 
     @Test
     void handle_throwsWhenTheNameSeasonOrYearIsInvalid() {
-        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("", CollectionSeason.SUMMER, 2027, List.of()));
-        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été", null, 2027, List.of()));
-        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été", CollectionSeason.SUMMER, 1999, List.of()));
+        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("", CollectionSeason.SUMMER, 2027));
+        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été", null, 2027));
+        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été", CollectionSeason.SUMMER, 1999));
     }
 
-    private UpdateCollection.Result update(String name, CollectionSeason season, int year, List<JewelId> jewelIds) {
-        return new UpdateCollection(collectionProvider, jewelProvider).handle(
-                new UpdateCollection.Command(collectionId, name, season, year, jewelIds));
+    private UpdateCollection.Result update(String name, CollectionSeason season, int year) {
+        return new UpdateCollection(collectionProvider).handle(new UpdateCollection.Command(collectionId, name, season, year));
     }
 
     private static Collection collection(CollectionId id, CollectionSeason season, int year) {

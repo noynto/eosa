@@ -3,15 +3,10 @@ package me.noynto.eosa.application;
 import me.noynto.eosa.collection.Collection;
 import me.noynto.eosa.collection.CollectionProvider;
 import me.noynto.eosa.collection.CollectionSeason;
-import me.noynto.eosa.jewel.JewelProvider;
 import me.noynto.eosa.shared.CollectionId;
-import me.noynto.eosa.shared.JewelId;
-
-import java.util.List;
 
 public record UpdateCollection(
-        CollectionProvider collectionProvider,
-        JewelProvider jewelProvider
+        CollectionProvider collectionProvider
 ) {
 
     public Result handle(Command command) {
@@ -39,17 +34,9 @@ public record UpdateCollection(
             throw new InvalidCommand("Une autre collection existe déjà pour cette saison et cette année.");
         }
 
-        List<JewelId> jewelIds = command.jewelIds == null ? List.of() : command.jewelIds.stream().distinct().toList();
-        for (JewelId jewelId : jewelIds) {
-            if (jewelProvider.read(jewelId).isEmpty()) {
-                throw new InvalidCommand("Le bijou " + jewelId.value() + " n'existe pas.");
-            }
-        }
-
         collection.setName(command.name().trim());
         collection.setSeason(command.season());
         collection.setYear(command.year());
-        collection.setJewelIds(jewelIds);
         return new Result(collectionProvider.write(collection));
     }
 
@@ -62,8 +49,7 @@ public record UpdateCollection(
             CollectionId collectionId,
             String name,
             CollectionSeason season,
-            int year,
-            List<JewelId> jewelIds
+            int year
     ) {
     }
 

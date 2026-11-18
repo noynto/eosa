@@ -17,6 +17,8 @@ import me.noynto.eosa.application.*;
 import me.noynto.eosa.cart.CartProvider;
 import me.noynto.eosa.cart.CartShippingRuleProvider;
 import me.noynto.eosa.charm.CharmProvider;
+import me.noynto.eosa.collection.CollectionProvider;
+import me.noynto.eosa.video.VideoProvider;
 import me.noynto.eosa.hash.CryptProvider;
 import me.noynto.eosa.identity.IdentityProvider;
 import me.noynto.eosa.identity.IdentitySessionProvider;
@@ -151,7 +153,17 @@ public class Bootstrap {
             clock
         );
         DownloadImage downloadImage = new DownloadImage(imageProvider);
-        DownloadVideoRange downloadVideoRange = new DownloadVideoRange(jdbcConfiguration.videos());
+        VideoProvider videoProvider = jdbcConfiguration.videos();
+        CollectionProvider collectionProvider = jdbcConfiguration.collections();
+        DownloadVideoRange downloadVideoRange = new DownloadVideoRange(videoProvider);
+        CreateCollection createCollection = new CreateCollection(collectionProvider);
+        UpdateCollection updateCollection = new UpdateCollection(collectionProvider);
+        UpdateJewelsOfCollection updateJewelsOfCollection = new UpdateJewelsOfCollection(collectionProvider, jewelProvider);
+        UploadCollectionMedia uploadCollectionMedia = new UploadCollectionMedia(collectionProvider, videoProvider, imageProvider);
+        DeleteCollection deleteCollection = new DeleteCollection(collectionProvider, videoProvider, imageProvider);
+        ReadCollection readCollection = new ReadCollection(collectionProvider);
+        ReadCollections readCollections = new ReadCollections(collectionProvider);
+        ReadCollectionJewelChoices readCollectionJewelChoices = new ReadCollectionJewelChoices(collectionProvider, jewelProvider);
         AuthenticateIdentity authenticateIdentity = new AuthenticateIdentity(
             identityProvider,
             identitySessionProvider,
@@ -1110,6 +1122,15 @@ public class Bootstrap {
                 "/gift-cards/{id}/restore",
                 new RestoreGiftCardBalanceHandler(restoreGiftCardBalance)
             );
+            javalinConfig.routes.get("/videos/{id}", new GetVideoHandler(downloadVideoRange));
+            javalinConfig.routes.get("/collections", new GetAdminCollectionsHandler(readCollections, clock));
+            javalinConfig.routes.post("/collections", new CreateCollectionHandler(createCollection));
+            javalinConfig.routes.get("/collections/{id}", new GetAdminCollectionHandler(readCollection));
+            javalinConfig.routes.patch("/collections/{id}", new UpdateCollectionHandler(updateCollection));
+            javalinConfig.routes.delete("/collections/{id}", new DeleteCollectionHandler(deleteCollection));
+            javalinConfig.routes.get("/collections/{id}/jewels", new GetAdminCollectionJewelsHandler(readCollectionJewelChoices));
+            javalinConfig.routes.patch("/collections/{id}/jewels", new UpdateJewelsOfCollectionHandler(updateJewelsOfCollection));
+            javalinConfig.routes.post("/collections/{id}/media", new UploadCollectionMediaHandler(uploadCollectionMedia));
             javalinConfig.routes.get(
                 "/workshop-venues",
                 new GetAdminWorkshopVenuesHandler(readWorkshopVenues)

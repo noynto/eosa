@@ -1,0 +1,33 @@
+<div>
+    <div class="flex items-center justify-between mb-1">
+        <h2 class="text-sm font-medium">Bijoux</h2>
+        <span id="toast-jewels" class="text-xs"></span>
+    </div>
+    <p class="text-xs text-muted mb-3">Un bijou peut figurer dans plusieurs collections. Publier la collection publiera ceux qui sont en brouillon.</p>
+    {{#hasJewels}}
+    <form hx-patch="/collections/{{collectionId}}/jewels"
+          hx-target="#toast-jewels" hx-swap="innerHTML"
+          class="flex flex-col gap-3">
+        <div class="flex flex-col">
+            {{#jewels}}
+            <label class="flex items-center gap-3 min-h-11 md:min-h-9 cursor-pointer">
+                <input type="checkbox" name="jewelIds" value="{{id}}" {{#selected}}checked{{/selected}} class="accent-primary w-4 h-4 shrink-0">
+                <span class="w-8 h-8 rounded-lg overflow-hidden bg-bg-soft shrink-0">
+                    {{#hasImage}}<img src="/images/{{imageId}}" alt="" class="w-full h-full object-cover">{{/hasImage}}
+                </span>
+                <span class="text-sm text-primary truncate">{{name}}</span>
+                <span class="text-xs text-muted ml-auto shrink-0">{{stateLabel}}</span>
+            </label>
+            {{/jewels}}
+        </div>
+        <div>
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                Enregistrer les bijoux
+            </button>
+        </div>
+    </form>
+    {{/hasJewels}}
+    {{^hasJewels}}
+    <p class="text-sm text-muted">Aucun bijou dans la boutique pour l'instant.</p>
+    {{/hasJewels}}
+</div>

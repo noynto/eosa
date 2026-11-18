@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedCarts;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedCharms;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedCollections;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentities;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedIdentitySessions;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedImages;
@@ -87,6 +88,10 @@ public class JdbcConfiguration {
 
     public JdbcPersistedImages images() {
         return new JdbcPersistedImages(dataSource);
+    }
+
+    public JdbcPersistedCollections collections() {
+        return new JdbcPersistedCollections(dataSource);
     }
 
     public JdbcPersistedVideos videos() {
