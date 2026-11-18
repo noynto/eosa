@@ -95,6 +95,32 @@
         </div>
     </section>
 
+    <!-- Publication -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-medium">Publication</h2>
+            <span id="toast-publication" class="text-xs"></span>
+        </div>
+        {{^published}}
+        <p class="text-xs text-muted mb-3">{{#archived}}Cette collection est archivée. La republier la remet en tête de l'accueil, à la date du jour.{{/archived}}{{^archived}}Cette collection est un brouillon.{{/archived}} La publier la place en tête de l'accueil et publie ses bijoux en brouillon ; il lui faut une vidéo et une affiche, et ses bijoux en brouillon doivent être complets. Les bijoux archivés ne changent pas.</p>
+        <button hx-post="/collections/{{collectionId}}/publish"
+                hx-target="#toast-publication" hx-swap="innerHTML"
+                hx-confirm="Publier « {{name}} » ? Ses bijoux en brouillon seront publiés dans la boutique."
+                class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+            Publier cette collection
+        </button>
+        {{/published}}
+        {{#published}}
+        <p class="text-xs text-muted mb-3">Cette collection est en tête de l'accueil tant qu'aucune collection plus récente n'est publiée. L'archiver retire sa vidéo de l'accueil ; ses bijoux restent en vente.</p>
+        <button hx-post="/collections/{{collectionId}}/archive"
+                hx-target="#toast-publication" hx-swap="innerHTML"
+                hx-confirm="Archiver « {{name}} » ? Sa vidéo quittera l'accueil ; ses bijoux restent en vente."
+                class="border border-outline px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm text-secondary hover:border-secondary hover:text-primary transition-colors">
+            Archiver cette collection
+        </button>
+        {{/published}}
+    </section>
+
     <!-- Suppression -->
     {{^published}}
     <section class="bg-bg border border-bg-border rounded-xl p-5">

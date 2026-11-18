@@ -25,6 +25,7 @@ public record GetAdminCollectionHandler(ReadCollection readCollection) implement
             model.put("seasons", CollectionLabels.seasonOptions(collection.getSeason()));
             model.put("stateLabel", CollectionLabels.state(collection.getState()));
             model.put("published", collection.getState() == CollectionState.PUBLISHED);
+            model.put("archived", collection.getState() == CollectionState.ARCHIVED);
             model.put("hasVideo", hasVideo);
             model.put("videoId", hasVideo ? collection.getVideoId().value() : "");
             model.put("hasPoster", hasPoster);
