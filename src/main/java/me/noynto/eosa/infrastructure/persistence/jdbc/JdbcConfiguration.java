@@ -10,6 +10,7 @@ import me.noynto.eosa.infrastructure.persistence.JdbcPersistedImages;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedJewels;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedMetalColors;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedOrders;
+import me.noynto.eosa.infrastructure.persistence.JdbcPersistedVideos;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopBookings;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedWorkshopSessions;
 import me.noynto.eosa.infrastructure.persistence.JdbcPersistedGiftCards;
@@ -86,6 +87,10 @@ public class JdbcConfiguration {
 
     public JdbcPersistedImages images() {
         return new JdbcPersistedImages(dataSource);
+    }
+
+    public JdbcPersistedVideos videos() {
+        return new JdbcPersistedVideos(dataSource);
     }
 
     public JdbcPersistedCarts carts() {
