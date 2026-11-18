@@ -61,10 +61,10 @@ Une collection regroupe des bijoux et porte une **vidéo** qui s'affiche en têt
 - Une collection `PUBLISHED` sans bijou est permise (la vidéo seule).
 - Supprimer une collection supprime la liaison, jamais les bijoux.
 
-## Persistance — migrations suivantes (`V20` et au-delà, noms à confirmer)
+## Persistance — migrations
 
-- `V20__collections.sql` : `collections(id, name, season, year, state, published_at, video_id, poster_image_id, created_at)` et `collection_jewels(collection_id, jewel_id)` (clé primaire composée, suppression en cascade).
-- `V21__videos.sql` : `videos(id, name, format, size, content BYTEA)` et `ALTER TABLE videos ALTER COLUMN content SET STORAGE EXTERNAL`.
+- `V20__videos.sql` (faite) : `videos(id, name, format, size, content BYTEA)` et `ALTER TABLE videos ALTER COLUMN content SET STORAGE EXTERNAL`.
+- `V21__collections.sql` (faite) : `collections(id, name, season, year, state, published_at, video_id, poster_image_id)`, unique sur `(season, year)`, la vidéo et l'affiche en `ON DELETE SET NULL` ; `collection_jewels(collection_id, jewel_id)` (clé primaire composée, suppression en cascade des deux côtés).
 
 ## Organisation du code
 
@@ -89,7 +89,10 @@ Table `videos` (`V20`), `Video` (métadonnées seulement, le contenu ne se lit q
 
 ### Étape 2 — Collection, administration
 
-Migrations, domaine, cas d'usage de création, de modification, d'envoi de la vidéo et de l'affiche, liste et fiche d'administration. États et liaison avec les bijoux, sans effet sur la boutique.
+Deux pull requests, sans effet sur la boutique.
+
+- **2a, domaine et persistance (faite)** : migration `V21`, `Collection`, `CollectionState`, `CollectionSeason`, `CollectionProvider` (`readIds(états)`, `read`, `write`, `delete`), `JdbcPersistedCollections`, cas d'usage `CreateCollection` (brouillon ; nom, saison et année requis ; une collection par saison et année), `UpdateCollection` (nom, saison, année, bijoux ; ne touche ni l'état ni la vidéo), `ReadCollection`, `ReadCollections`. Le câblage dans `Bootstrap` vient avec les handlers.
+- **2b, administration** : liste et fiche, envoi de la vidéo et de l'affiche ensemble (type et taille contrôlés), choix des bijoux, suppression d'une collection.
 
 ### Étape 3 — Publication et archivage
 
