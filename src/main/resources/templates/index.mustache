@@ -3,7 +3,48 @@
 <!-- Hero -->
 <section class="grid md:grid-cols-[1.2fr_1fr] border-b border-bg-border">
     <div class="bg-bg-soft relative overflow-hidden min-h-64 md:min-h-0 lg:min-h-hero border-b md:border-b-0 md:border-r border-bg-border">
+        {{#hasHeroVideo}}
+        <!-- Vidéo de la collection publiée la plus récente. Elle ne se charge ni ne se lance pour qui demande moins de
+             mouvement ou économise ses données : l'affiche reste, et le bouton permet de la lancer. -->
+        <video id="hero-video" muted loop playsinline preload="none" poster="/images/{{heroPosterId}}"
+               aria-label="Collection {{heroCollectionName}}"
+               class="w-full h-full object-cover lg:absolute lg:inset-0">
+            <source src="/videos/{{heroVideoId}}" type="video/mp4">
+        </video>
+        <button id="hero-toggle" type="button" aria-label="Lire la vidéo"
+                class="absolute bottom-3 right-3 w-11 h-11 rounded-full bg-bg/80 text-primary inline-flex items-center justify-center hover:bg-bg transition-colors">
+            <svg id="hero-icon-play" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>
+            <svg id="hero-icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+        </button>
+        <script>
+            (function () {
+                var video = document.getElementById('hero-video');
+                var toggle = document.getElementById('hero-toggle');
+                var play = document.getElementById('hero-icon-play');
+                var pause = document.getElementById('hero-icon-pause');
+                function show(playing) {
+                    play.classList.toggle('hidden', playing);
+                    pause.classList.toggle('hidden', !playing);
+                    toggle.setAttribute('aria-label', playing ? 'Mettre la vidéo en pause' : 'Lire la vidéo');
+                }
+                var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                    || (navigator.connection && navigator.connection.saveData);
+                show(false);
+                if (!calm) {
+                    video.preload = 'metadata';
+                    video.play().catch(function () { show(false); });
+                }
+                video.addEventListener('play', function () { show(true); });
+                video.addEventListener('pause', function () { show(false); });
+                toggle.addEventListener('click', function () {
+                    if (video.paused) { video.play(); } else { video.pause(); }
+                });
+            })();
+        </script>
+        {{/hasHeroVideo}}
+        {{^hasHeroVideo}}
         <img src="/hero.webp" alt="Bijoux Eosa" class="w-full h-full object-cover lg:absolute lg:inset-0"/>
+        {{/hasHeroVideo}}
     </div>
     <div class="px-8 md:px-12 py-12 md:py-16 flex flex-col justify-center">
         <p class="text-xs text-secondary tracking-widest mb-5">NOUVELLE COLLECTION</p>
