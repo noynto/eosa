@@ -1,3 +1,4 @@
-- ajouter la notion de collection, elle contient une liste de bijoux, elle contient une vidéo dans un format adapter à entre en hero de la page d'accueil, elle est généralement nommé aver la saison et l'année, elle a des états brouillon, publié et archived comme pour les bijoux au passage publié une collection publit les bijoux qu'elle contient.
+- sur l'accueil principale ajouter une section sur les cartes cadeaux ?
+- sur l'accueil principale ajouter une section sur les ateliers ?
 - conceptualiser des patterns de collier, et concevoir un chemin utilisateur complet de la couleur du métal, aux couleurs de perles et enfin un pattern d'assemblage pour concevoir son collier du plus que l'on peut.
 - SEO hors site : créer la fiche Google Business Profile et dérouler le reste de la checklist (voir `docs/tech/seo.md`).
