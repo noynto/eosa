@@ -14,6 +14,8 @@ public class Collection {
 
     public static final int MIN_YEAR = 2024;
     public static final int MAX_YEAR = 2100;
+    public static final int MAX_HEADLINE_LENGTH = 80;
+    public static final int MAX_BLURB_LENGTH = 240;
 
     private CollectionId id;
     private String name;
@@ -23,6 +25,8 @@ public class Collection {
     private Instant publishedAt;
     private VideoId videoId;
     private ImageId posterImageId;
+    private String headline;
+    private String blurb;
     private List<JewelId> jewelIds = new ArrayList<>();
 
     public Collection() {
@@ -92,6 +96,24 @@ public class Collection {
 
     public void setPosterImageId(ImageId posterImageId) {
         this.posterImageId = posterImageId;
+    }
+
+    /** Titre d'accroche du hero ; null quand l'administratrice n'en a pas écrit. */
+    public String getHeadline() {
+        return headline;
+    }
+
+    public void setHeadline(String headline) {
+        this.headline = headline;
+    }
+
+    /** Court paragraphe sous le titre du hero ; null quand il n'y en a pas. */
+    public String getBlurb() {
+        return blurb;
+    }
+
+    public void setBlurb(String blurb) {
+        this.blurb = blurb;
     }
 
     public List<JewelId> getJewelIds() {

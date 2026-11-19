@@ -58,6 +58,31 @@ class ReadHomeTest {
     }
 
     @Test
+    void handle_carriesTheHeadlineAndBlurbOfTheHeroCollection() {
+        publishedJewels(JewelCategory.NECKLACE);
+        var withText = collection("c1", "Été 2027", "v1", "p1");
+        withText.setHeadline("Lumière d'été");
+        withText.setBlurb("Des pierres claires.");
+        publishedCollections(withText);
+
+        var hero = handle(List.of(JewelCategory.NECKLACE)).hero().orElseThrow();
+
+        assertEquals("Lumière d'été", hero.headline());
+        assertEquals("Des pierres claires.", hero.blurb());
+    }
+
+    @Test
+    void handle_leavesTheHeadlineAndBlurbEmptyWhenTheCollectionHasNone() {
+        publishedJewels(JewelCategory.NECKLACE);
+        publishedCollections(collection("c1", "Été 2027", "v1", "p1"));
+
+        var hero = handle(List.of(JewelCategory.NECKLACE)).hero().orElseThrow();
+
+        assertNull(hero.headline());
+        assertNull(hero.blurb());
+    }
+
+    @Test
     void handle_takesTheHeroFromTheMostRecentPublishedCollection() {
         publishedJewels(JewelCategory.NECKLACE);
         publishedCollections(collection("c-new", "Été 2027", "v-new", "p-new"), collection("c-old", "Hiver 2026", "v-old", "p-old"));

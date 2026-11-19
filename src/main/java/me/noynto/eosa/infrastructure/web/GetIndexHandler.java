@@ -45,10 +45,19 @@ public record GetIndexHandler(ReadHome readHome, String baseUrl) implements Hand
         model.put("braceletsMinPrice", bracelets.minPrice() != null ? PriceFormat.price(bracelets.minPrice()) : "");
         // Sans collection publiée qui ait sa vidéo, le hero garde l'image fixe.
         model.put("hasHeroVideo", home.hero().isPresent());
+        model.put("heroLabel", "Nouvelle collection");
+        model.put("hasHeroHeadline", false);
+        model.put("hasHeroBlurb", false);
         home.hero().ifPresent(hero -> {
             model.put("heroCollectionName", hero.collectionName());
             model.put("heroVideoId", hero.videoId().value());
             model.put("heroPosterId", hero.posterImageId().value());
+            model.put("heroLabel", "Collection " + hero.collectionName());
+            // Sans texte propre à la collection, le hero garde le titre et le paragraphe par défaut.
+            model.put("hasHeroHeadline", hero.headline() != null);
+            model.put("heroHeadline", hero.headline());
+            model.put("hasHeroBlurb", hero.blurb() != null);
+            model.put("heroBlurb", hero.blurb());
         });
         ctx.render("index.mustache", model);
     }

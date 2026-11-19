@@ -63,7 +63,7 @@ public record JdbcPersistedCollections(
         } catch (IllegalArgumentException e) {
             return Optional.empty();
         }
-        String sql = "SELECT id, name, season, year, state, published_at, video_id, poster_image_id FROM collections WHERE id = ?";
+        String sql = "SELECT id, name, season, year, state, published_at, video_id, poster_image_id, headline, blurb FROM collections WHERE id = ?";
         String jewelsSql = "SELECT jewel_id FROM collection_jewels WHERE collection_id = ? ORDER BY jewel_id";
         try (Connection connection = dataSource.getConnection()) {
             Collection collection;
@@ -99,11 +99,11 @@ public record JdbcPersistedCollections(
         }
         UUID id = UUID.fromString(collection.getId().value());
         String upsert = """
-                INSERT INTO collections (id, name, season, year, state, published_at, video_id, poster_image_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO collections (id, name, season, year, state, published_at, video_id, poster_image_id, headline, blurb)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, season = EXCLUDED.season, year = EXCLUDED.year,
                     state = EXCLUDED.state, published_at = EXCLUDED.published_at, video_id = EXCLUDED.video_id,
-                    poster_image_id = EXCLUDED.poster_image_id
+                    poster_image_id = EXCLUDED.poster_image_id, headline = EXCLUDED.headline, blurb = EXCLUDED.blurb
                 """;
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -117,6 +117,8 @@ public record JdbcPersistedCollections(
                     statement.setObject(6, collection.getPublishedAt() != null ? collection.getPublishedAt().atOffset(ZoneOffset.UTC) : null);
                     statement.setObject(7, collection.getVideoId() != null ? UUID.fromString(collection.getVideoId().value()) : null);
                     statement.setObject(8, collection.getPosterImageId() != null ? UUID.fromString(collection.getPosterImageId().value()) : null);
+                    statement.setString(9, collection.getHeadline());
+                    statement.setString(10, collection.getBlurb());
                     statement.executeUpdate();
                 }
                 try (PreparedStatement statement = connection.prepareStatement("DELETE FROM collection_jewels WHERE collection_id = ?")) {
@@ -170,6 +172,8 @@ public record JdbcPersistedCollections(
         collection.setVideoId(videoId != null ? new VideoId(videoId) : null);
         String posterImageId = resultSet.getString("poster_image_id");
         collection.setPosterImageId(posterImageId != null ? new ImageId(posterImageId) : null);
+        collection.setHeadline(resultSet.getString("headline"));
+        collection.setBlurb(resultSet.getString("blurb"));
         return collection;
     }
 

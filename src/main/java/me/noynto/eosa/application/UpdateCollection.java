@@ -23,6 +23,15 @@ public record UpdateCollection(
             throw new InvalidCommand("L'année de la collection doit être comprise entre " + Collection.MIN_YEAR + " et " + Collection.MAX_YEAR + ".");
         }
 
+        String headline = command.headline == null || command.headline.isBlank() ? null : command.headline.trim();
+        if (headline != null && headline.length() > Collection.MAX_HEADLINE_LENGTH) {
+            throw new InvalidCommand("Le titre d'accroche ne peut pas dépasser " + Collection.MAX_HEADLINE_LENGTH + " caractères.");
+        }
+        String blurb = command.blurb == null || command.blurb.isBlank() ? null : command.blurb.trim();
+        if (blurb != null && blurb.length() > Collection.MAX_BLURB_LENGTH) {
+            throw new InvalidCommand("Le paragraphe ne peut pas dépasser " + Collection.MAX_BLURB_LENGTH + " caractères.");
+        }
+
         Collection collection = collectionProvider.read(command.collectionId)
                 .orElseThrow(() -> new InvalidCommand("La collection " + command.collectionId.value() + " n'existe pas."));
 
@@ -37,6 +46,8 @@ public record UpdateCollection(
         collection.setName(command.name().trim());
         collection.setSeason(command.season());
         collection.setYear(command.year());
+        collection.setHeadline(headline);
+        collection.setBlurb(blurb);
         return new Result(collectionProvider.write(collection));
     }
 
@@ -49,7 +60,9 @@ public record UpdateCollection(
             CollectionId collectionId,
             String name,
             CollectionSeason season,
-            int year
+            int year,
+            String headline,
+            String blurb
     ) {
     }
 

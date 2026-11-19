@@ -3,6 +3,7 @@ package me.noynto.eosa.infrastructure.web;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import me.noynto.eosa.application.ReadCollection;
+import me.noynto.eosa.collection.Collection;
 import me.noynto.eosa.collection.CollectionState;
 import me.noynto.eosa.shared.CollectionId;
 
@@ -22,6 +23,10 @@ public record GetAdminCollectionHandler(ReadCollection readCollection) implement
             model.put("collectionId", collection.getId().value());
             model.put("name", collection.getName());
             model.put("year", collection.getYear());
+            model.put("headline", collection.getHeadline() != null ? collection.getHeadline() : "");
+            model.put("blurb", collection.getBlurb() != null ? collection.getBlurb() : "");
+            model.put("maxHeadlineLength", Collection.MAX_HEADLINE_LENGTH);
+            model.put("maxBlurbLength", Collection.MAX_BLURB_LENGTH);
             model.put("seasons", CollectionLabels.seasonOptions(collection.getSeason()));
             model.put("stateLabel", CollectionLabels.state(collection.getState()));
             model.put("published", collection.getState() == CollectionState.PUBLISHED);
