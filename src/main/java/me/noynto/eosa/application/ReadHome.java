@@ -51,7 +51,8 @@ public record ReadHome(
     }
 
     private static Hero toHero(Collection collection) {
-        return new Hero(collection.getName(), collection.getVideoId(), collection.getPosterImageId());
+        return new Hero(collection.getName(), collection.getHeadline(), collection.getBlurb(),
+                collection.getVideoId(), collection.getPosterImageId());
     }
 
     public record Query(
@@ -76,8 +77,14 @@ public record ReadHome(
     ) {
     }
 
+    /**
+     * @param headline titre d'accroche, null quand la collection n'en a pas
+     * @param blurb    court paragraphe, null quand la collection n'en a pas
+     */
     public record Hero(
             String collectionName,
+            String headline,
+            String blurb,
             VideoId videoId,
             ImageId posterImageId
     ) {

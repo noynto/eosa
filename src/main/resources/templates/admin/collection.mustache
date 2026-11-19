@@ -37,6 +37,17 @@
                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
             </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="headline" class="text-xs text-secondary">Titre d'accroche (facultatif, {{maxHeadlineLength}} caractères au plus)</label>
+                <input id="headline" name="headline" type="text" maxlength="{{maxHeadlineLength}}" value="{{headline}}"
+                       class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="blurb" class="text-xs text-secondary">Paragraphe (facultatif, {{maxBlurbLength}} caractères au plus)</label>
+                <textarea id="blurb" name="blurb" rows="3" maxlength="{{maxBlurbLength}}"
+                          class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">{{blurb}}</textarea>
+                <p class="text-xs text-muted">Affichés sur l'accueil quand la collection est publiée. Sans titre, l'accueil garde « Bijoux qui rayonnent. ».</p>
+            </div>
             <div>
                 <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                     Enregistrer

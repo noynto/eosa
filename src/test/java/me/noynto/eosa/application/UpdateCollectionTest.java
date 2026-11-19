@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -70,8 +71,34 @@ class UpdateCollectionTest {
         assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été", CollectionSeason.SUMMER, 1999));
     }
 
+    @Test
+    void handle_savesTheTrimmedHeadlineAndBlurbAndTurnsBlankIntoNull() {
+        when(collectionProvider.read(collectionId)).thenReturn(Optional.of(collection(collectionId, CollectionSeason.SUMMER, 2027)));
+        when(collectionProvider.readIds(null)).thenReturn(Stream.of(collectionId));
+        when(collectionProvider.write(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var written = update("Été 2027", CollectionSeason.SUMMER, 2027, " Lumière d'été ", "  ").collection();
+
+        assertEquals("Lumière d'été", written.getHeadline());
+        assertNull(written.getBlurb());
+    }
+
+    @Test
+    void handle_throwsWhenTheHeadlineOrTheBlurbIsTooLong() {
+        var headline = "x".repeat(Collection.MAX_HEADLINE_LENGTH + 1);
+        var blurb = "x".repeat(Collection.MAX_BLURB_LENGTH + 1);
+
+        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été", CollectionSeason.SUMMER, 2027, headline, null));
+        assertThrows(UpdateCollection.InvalidCommand.class, () -> update("Été", CollectionSeason.SUMMER, 2027, null, blurb));
+        verify(collectionProvider, never()).write(any());
+    }
+
     private UpdateCollection.Result update(String name, CollectionSeason season, int year) {
-        return new UpdateCollection(collectionProvider).handle(new UpdateCollection.Command(collectionId, name, season, year));
+        return update(name, season, year, null, null);
+    }
+
+    private UpdateCollection.Result update(String name, CollectionSeason season, int year, String headline, String blurb) {
+        return new UpdateCollection(collectionProvider).handle(new UpdateCollection.Command(collectionId, name, season, year, headline, blurb));
     }
 
     private static Collection collection(CollectionId id, CollectionSeason season, int year) {

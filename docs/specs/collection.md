@@ -119,13 +119,14 @@ Deux pull requests, sans effet sur la boutique.
 - **Pas de changement** : `og:image` reste `hero.webp` ; le nom de la collection n'est pas affiché (`aria-label` de la vidéo seulement).
 - Testé en local avec une vraie vidéo : lecture à 390, 768 et 1280 px, affiche seule avec le bouton « Lire » en animations réduites, brouillon et collection archivée sans effet sur l'accueil, retour à `hero.webp` après archivage.
 
-### Étape 4b — Hero plein écran (à faire)
+### Étape 4b — Hero plein écran (faite)
 
 - **Migration** `V22__collection_text.sql` : `headline` et `blurb` (texte, nulls permis) sur `collections`.
-- **Domaine et cas d'usage** : `Collection` porte `headline` et `blurb` ; `UpdateCollection` les valide (longueurs, vides = absents) ; `ReadCollection` les renvoie ; `ReadHome.Hero` ajoute collection, titre et paragraphe.
-- **Administration** : deux champs dans la section d'informations de la fiche.
+- **Domaine et cas d'usage** : `Collection` porte `headline` et `blurb` (longueurs maximales en constantes) ; `UpdateCollection` les valide (vide = absent) ; `ReadHome.Hero` ajoute titre et paragraphe.
+- **Administration** : deux champs dans la section « Informations » de la fiche.
 - **Page** : `index.mustache` passe à un hero plein écran (décisions 12 à 14) ; les deux cas (vidéo, `hero.webp`) partagent la même mise en page.
-- **Vérification** : contraste mesuré sur une capture de la vidéo, 390, 768 et 1280 px, animations réduites.
+- **Voile** : `from-primary-dark/75 from-60%`. À 70 % et 35 %, l'étiquette de 12 px tombait à 3,7–4,2:1 sur `hero.webp` à 1280 px ; avec ce réglage, le fond derrière l'étiquette mesure au moins 8,6:1 (texte crème), le paragraphe 6,1:1 (mesure faite sur les pixels des captures avec `hero.webp`, la photo la plus claire disponible ; à refaire sur une vraie vidéo claire).
+- Testé en local : collection avec et sans texte, repli `hero.webp`, 390, 768 et 1280 px.
 
 ### Étape 5 — Documentation
 

@@ -1,18 +1,40 @@
 {{> partials/header-main}}
 
 <!-- Hero -->
-<section class="grid md:grid-cols-[1.2fr_1fr] border-b border-bg-border">
-    <div class="bg-bg-soft relative overflow-hidden min-h-64 md:min-h-0 lg:min-h-hero border-b md:border-b-0 md:border-r border-bg-border">
-        {{#hasHeroVideo}}
-        <!-- Vidéo de la collection publiée la plus récente. Elle ne se charge ni ne se lance pour qui demande moins de
-             mouvement ou économise ses données : l'affiche reste, et le bouton permet de la lancer. -->
-        <video id="hero-video" muted loop playsinline preload="none" poster="/images/{{heroPosterId}}"
-               aria-label="Collection {{heroCollectionName}}"
-               class="w-full h-full object-cover lg:absolute lg:inset-0">
-            <source src="/videos/{{heroVideoId}}" type="video/mp4">
-        </video>
-        <button id="hero-toggle" type="button" aria-label="Lire la vidéo"
-                class="absolute bottom-3 right-3 w-11 h-11 rounded-full bg-bg/80 text-primary inline-flex items-center justify-center hover:bg-bg transition-colors">
+<!-- Le hero tient environ 85 % de la hauteur visible. Le voile sombre derrière le texte garantit un contraste d'au
+     moins 4,5:1 sur n'importe quelle image de la vidéo ; il s'efface vers le haut pour laisser voir la vidéo. -->
+<section class="relative isolate overflow-hidden min-h-[85svh] flex items-end border-b border-bg-border bg-primary-dark">
+    {{#hasHeroVideo}}
+    <!-- Vidéo de la collection publiée la plus récente. Elle ne se charge ni ne se lance pour qui demande moins de
+         mouvement ou économise ses données : l'affiche reste, et le bouton permet de la lancer. -->
+    <video id="hero-video" muted loop playsinline preload="none" poster="/images/{{heroPosterId}}"
+           aria-label="Collection {{heroCollectionName}}"
+           class="absolute inset-0 w-full h-full object-cover -z-20">
+        <source src="/videos/{{heroVideoId}}" type="video/mp4">
+    </video>
+    {{/hasHeroVideo}}
+    {{^hasHeroVideo}}
+    <img src="/hero.webp" alt="Bijoux Eosa" class="absolute inset-0 w-full h-full object-cover -z-20"/>
+    {{/hasHeroVideo}}
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-primary-dark/75 from-60% to-transparent" aria-hidden="true"></div>
+
+    <div class="w-full px-6 md:px-12 pb-10 md:pb-16 pt-32">
+        <p class="text-xs text-bg tracking-widest mb-4 uppercase">{{heroLabel}}</p>
+        <h1 class="font-serif text-5xl md:text-7xl font-normal leading-[1.05] text-bg mb-5 max-w-2xl">
+            {{#hasHeroHeadline}}{{heroHeadline}}{{/hasHeroHeadline}}{{^hasHeroHeadline}}Bijoux qui<br/>rayonnent.{{/hasHeroHeadline}}
+        </h1>
+        <p class="text-sm md:text-base text-bg leading-relaxed mb-8 max-w-md">
+            {{#hasHeroBlurb}}{{heroBlurb}}{{/hasHeroBlurb}}{{^hasHeroBlurb}}Colliers, bracelets et pierres, faits main à Nancy. Des pièces en matières nobles, conçues pour durer.{{/hasHeroBlurb}}
+        </p>
+        <div class="flex gap-3 flex-wrap">
+            <a href="/jewels" class="bg-bg text-primary px-6 py-3 rounded-full text-sm font-medium hover:bg-bg-soft transition-colors">Voir la collection</a>
+            <a href="/about" class="border border-bg text-bg px-6 py-3 rounded-full text-sm hover:bg-bg/10 transition-colors">Notre histoire</a>
+        </div>
+    </div>
+
+    {{#hasHeroVideo}}
+    <button id="hero-toggle" type="button" aria-label="Lire la vidéo"
+            class="absolute top-4 right-4 md:top-auto md:bottom-6 md:right-8 w-11 h-11 rounded-full bg-bg/80 text-primary inline-flex items-center justify-center hover:bg-bg transition-colors">
             <svg id="hero-icon-play" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>
             <svg id="hero-icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
         </button>
@@ -41,24 +63,7 @@
                 });
             })();
         </script>
-        {{/hasHeroVideo}}
-        {{^hasHeroVideo}}
-        <img src="/hero.webp" alt="Bijoux Eosa" class="w-full h-full object-cover lg:absolute lg:inset-0"/>
-        {{/hasHeroVideo}}
-    </div>
-    <div class="px-8 md:px-12 py-12 md:py-16 flex flex-col justify-center">
-        <p class="text-xs text-secondary tracking-widest mb-5">NOUVELLE COLLECTION</p>
-        <h1 class="font-serif text-5xl md:text-6xl font-normal leading-[1.05] mb-6">
-            Bijoux qui<br/>rayonnent.
-        </h1>
-        <p class="text-sm text-secondary leading-relaxed mb-8 max-w-xs">
-            Colliers, bracelets et pierres, faits main à Nancy. Des pièces en matières nobles, conçues pour durer.
-        </p>
-        <div class="flex gap-3 flex-wrap">
-            <a href="/jewels" class="bg-secondary text-bg px-6 py-3 rounded-full text-sm font-medium hover:bg-primary transition-colors">Voir la collection</a>
-            <a href="/about" class="border border-bg-border px-6 py-3 rounded-full text-sm text-secondary hover:border-secondary transition-colors">Notre histoire</a>
-        </div>
-    </div>
+    {{/hasHeroVideo}}
 </section>
 
 <!-- Nos univers -->

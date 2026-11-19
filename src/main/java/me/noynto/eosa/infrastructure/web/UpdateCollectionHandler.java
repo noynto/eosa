@@ -14,7 +14,9 @@ public record UpdateCollectionHandler(UpdateCollection updateCollection) impleme
                     new CollectionId(ctx.pathParam("id")),
                     ctx.formParam("name"),
                     CollectionLabels.parseSeason(ctx.formParam("season")),
-                    CollectionLabels.parseYear(ctx.formParam("year"))
+                    CollectionLabels.parseYear(ctx.formParam("year")),
+                    ctx.formParam("headline"),
+                    ctx.formParam("blurb")
             ));
             ctx.html("<span class=\"text-success text-xs\">Sauvegardé</span>");
         } catch (RuntimeException e) {
