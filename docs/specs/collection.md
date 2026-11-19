@@ -1,6 +1,6 @@
 # Spécifications : collection
 
-Statut : **à valider** (écrite le 18 novembre 2026). Aucun code n'est écrit ; ce document fixe le fonctionnement, ses dépendances et l'ordre de mise en place. Les points marqués « proposé » attendent la validation de l'administratrice.
+Statut : **en place** (écrite le 18 novembre 2026, mise en place le 19 novembre 2026 en étapes 1 à 4b). Ce document garde le fonctionnement, ses décisions et l'ordre suivi. À revoir avec une vraie vidéo : le contraste du texte sur une image claire et le cadrage mobile (voir l'étape 4b).
 
 ## Contexte
 
@@ -72,7 +72,7 @@ Une collection regroupe des bijoux et porte une **vidéo** qui s'affiche en têt
 ## Organisation du code
 
 - Domaine : `collection/Collection`, `CollectionState`, `CollectionProvider` ; `video/Video`, `VideoProvider` (avec une lecture de plage).
-- Cas d'usage : `CreateCollection`, `UpdateCollection`, `UploadCollectionVideo`, `PublishCollection`, `ArchiveCollection`, `ReadCollections`, `ReadHero`, `DownloadVideoRange`.
+- Cas d'usage : `CreateCollection`, `UpdateCollection`, `UpdateJewelsOfCollection`, `UploadCollectionMedia`, `PublishCollection`, `ArchiveCollection`, `DeleteCollection`, `ReadCollection`, `ReadCollections`, `ReadCollectionJewelChoices`, `ReadHome` (le hero de l'accueil), `DownloadVideoRange`.
 - Handlers de l'administration et de la boutique, un par cas d'usage.
 - Implémentations : `JdbcPersistedCollections`, `JdbcPersistedVideos`.
 
@@ -128,6 +128,6 @@ Deux pull requests, sans effet sur la boutique.
 - **Voile** : `from-primary-dark/75 from-60%`. À 70 % et 35 %, l'étiquette de 12 px tombait à 3,7–4,2:1 sur `hero.webp` à 1280 px ; avec ce réglage, le fond derrière l'étiquette mesure au moins 8,6:1 (texte crème), le paragraphe 6,1:1 (mesure faite sur les pixels des captures avec `hero.webp`, la photo la plus claire disponible ; à refaire sur une vraie vidéo claire).
 - Testé en local : collection avec et sans texte, repli `hero.webp`, 390, 768 et 1280 px.
 
-### Étape 5 — Documentation
+### Étape 5 — Documentation (faite)
 
-Mettre à jour [Web](../tech/web.md) (routes), [Architecture](../tech/architecture.md) et ce document (statut).
+[Web](../tech/web.md) (routes) et [Architecture](../tech/architecture.md) étaient tenus à jour à chaque étape ; le statut de ce document, le README et le `TODO` sont à jour.
