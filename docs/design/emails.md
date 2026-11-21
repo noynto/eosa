@@ -37,6 +37,7 @@ Contrastes : voir [fondations](foundations.md#contrastes-mesurés) ; le bouton (
 | Texte | DM Sans 15 px, interligne 24 px, `#3D0A0A`. |
 | Encadré | Tableau de fond `#F4EFE5`, rayon 16 px, 20 px de marge intérieure ; son titre en Cormorant Garamond 20 px. Pour les informations clés : lieu, date, récapitulatif. |
 | Bouton | Cellule `bgcolor="#775546"`, rayon 24 px, lien `inline-block` de 14 px × 28 px de marge intérieure et 20 px d'interligne (48 px de haut), DM Sans 15 px graisse 500, texte `#FDFBF7`, sans soulignement. Une seule action principale par e-mail. |
+| Chiffres importants | Montants, total, numéros de suivi et de commande en **DM Sans** (graisse 500 pour les mettre en avant), jamais en Cormorant Garamond : ses chiffres elzéviriens, de hauteurs variables, rendent « 00581108 » ou « 64,30 € » difficiles à lire. |
 | Note | DM Sans 14 px, interligne 22 px, `#775546` : une information utile qui n'est pas l'action principale (délai de confirmation, annulation, désinscription). Les liens y sont en `#601414`, soulignés. |
 | Mention | DM Sans 12 px, interligne 19 px, `#7B6A4E` : mention sans conséquence (« ce message n'a été envoyé que pour tester »). |
 | Lien dans un texte | Couleur `#601414`, **soulignement conservé**. |
