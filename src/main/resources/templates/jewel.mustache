@@ -25,7 +25,7 @@
 
         <div class="flex-1 bg-bg-soft aspect-square rounded-3xl relative overflow-hidden">
             {{#hasImages}}
-                <img id="main-image" src="/images/{{mainImageId}}" class="w-full h-full object-cover" alt="{{name}}">
+                <img id="main-image" src="/images/{{mainImageId}}" class="w-full h-full object-cover cursor-zoom-in" alt="{{name}}">
             {{/hasImages}}
             {{^hasImages}}
                 <svg viewBox="0 0 400 400" class="w-full h-full">
@@ -33,10 +33,14 @@
                     <circle cx="200" cy="180" r="80" fill="#B8A88E" opacity="0.3"/>
                 </svg>
             {{/hasImages}}
-            <div class="absolute bottom-4 right-4 bg-bg px-3.5 py-2 rounded-full text-xs text-primary flex items-center gap-1.5">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M11 8v6M8 11h6"/></svg>
+            {{#hasImages}}
+            <!-- Agrandit l'image affichée ; sans photo, il n'y a rien à agrandir. -->
+            <button type="button" id="zoom-open" aria-haspopup="dialog"
+                    class="absolute bottom-4 right-4 bg-bg px-3.5 min-h-11 rounded-full text-xs text-primary inline-flex items-center gap-1.5 hover:bg-bg-soft transition-colors">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#601414" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M11 8v6M8 11h6"/></svg>
                 Zoom
-            </div>
+            </button>
+            {{/hasImages}}
         </div>
     </div>
 
@@ -87,6 +91,33 @@
     </div>
 
 </section>
+
+{{#hasImages}}
+<!-- Image agrandie : fenêtre native, qui se ferme avec Échap, par le bouton ou en cliquant dessus, et rend le focus au bouton « Zoom ». -->
+<dialog id="zoom-dialog" aria-label="{{name}}, image agrandie"
+        class="m-0 p-0 border-0 w-full h-full max-w-none max-h-none bg-primary-dark/95">
+    <img id="zoom-image" src="" alt="{{name}}" class="w-full h-full object-contain p-4 md:p-8 cursor-zoom-out">
+    <button type="button" aria-label="Fermer l'image agrandie"
+            class="absolute top-4 right-4 w-11 h-11 rounded-full bg-bg/80 text-primary inline-flex items-center justify-center hover:bg-bg transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+</dialog>
+<script>
+    (function () {
+        var dialog = document.getElementById('zoom-dialog');
+        var image = document.getElementById('zoom-image');
+        var main = document.getElementById('main-image');
+        function open() {
+            // L'image affichée au moment du clic : elle change quand on choisit une vignette.
+            image.src = main.src;
+            dialog.showModal();
+        }
+        document.getElementById('zoom-open').addEventListener('click', open);
+        main.addEventListener('click', open);
+        dialog.addEventListener('click', function () { dialog.close(); });
+    })();
+</script>
+{{/hasImages}}
 
 <section class="px-5 md:px-8 py-10 border-t border-bg-border">
     <h2 class="font-serif text-2xl font-normal mb-5">Détails</h2>
