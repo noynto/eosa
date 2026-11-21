@@ -2,3 +2,4 @@
 - sur l'accueil principale ajouter une section sur les ateliers ?
 - conceptualiser des patterns de collier, et concevoir un chemin utilisateur complet de la couleur du métal, aux couleurs de perles et enfin un pattern d'assemblage pour concevoir son collier du plus que l'on peut.
 - SEO hors site : créer la fiche Google Business Profile et dérouler le reste de la checklist (voir `docs/tech/seo.md`).
+- le bouton zoom sur la fiche bijou ne fonctionne pas.

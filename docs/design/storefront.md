@@ -14,13 +14,15 @@ La boutique applique les [fondations](foundations.md) avec un niveau d'expressio
 
 - **Éditoriale** : grands titres en serif (Cormorant Garamond), surtitre en petites capitales espacées, beaucoup d'espace blanc, fond crème `bg`.
 - **L'image d'abord** : photos grandes, sans cadre ni ombre, recadrées en `object-cover` à un format fixe (`aspect-[4/3]` pour une carte, pleine hauteur pour une introduction) ; zoom de 2 % au survol, 500 ms au plus.
-- **Sobriété** : deux couleurs d'action (`secondary`, puis `primary` au survol), pas de dégradé, pas d'ombre sur le contenu de la page.
+- **Sobriété** : deux couleurs d'action (`secondary`, puis `primary` au survol), pas de dégradé, pas d'ombre sur le contenu de la page. Seule exception : le voile du hero de l'accueil (voir les motifs).
 
 ## Motifs de la boutique
 
 | Motif | Règles |
 |---|---|
 | Introduction de page | Grille photo + texte (`md:grid-cols-[1fr_1.1fr]`) ; surtitre, titre Display, deux paragraphes au plus, une action principale |
+| Hero de l'accueil | Plein écran (`min-h-[85svh]`) : vidéo ou photo en fond (`object-cover`), texte crème en bas à gauche posé sur un voile `from-primary-dark/75 from-60% to-transparent`, qui garantit un contraste d'au moins 4,5:1 sur n'importe quelle image (mesuré à 8,6:1 sur la photo la plus claire). Texte en HTML, une action principale (pilule crème) et une secondaire (pilule à contour crème), bouton lecture / pause de 44 px s'il y a une vidéo |
+| Bande éditoriale | Bande pleine largeur coupée en deux (`grid md:grid-cols-2 border-t`), photo d'un côté, texte de l'autre, une action : « L'atelier » ; « Un cadeau » remplace la photo par une carte stylisée sur fond `bg-soft`, faute de photo (à remplacer par une photo si l'on en a une) |
 | En-tête de section | Numéro discret en serif (`01`, `02`…) suivi d'un titre Headline ; numéros dans l'ordre de la page |
 | Carte (bijou, session d'atelier) | Image en tête, texte dessous (`p-5`), `rounded-2xl`, contour `bg-border` ; l'action en bas de carte |
 | Action principale | Bouton pilule `rounded-full bg-secondary text-bg px-6 py-3.5 text-sm font-medium`, survol `bg-primary` ; une seule par écran ou par carte |
