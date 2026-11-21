@@ -26,6 +26,7 @@
 | GET | `/gift-cards/{token}` | Page imprimable d'une carte, ouverte par son jeton (jamais par son code) |
 | GET | `/workshops` | Page des ateliers et prochaines sessions |
 | GET | `/workshops/sessions/{id}` | Page d'une session (lieu, réservation, liste d'attente) |
+| GET | `/workshops/upcoming` | Fragment : la section « Prochains ateliers » de l'accueil (les trois prochaines sessions programmées, dont chaque carte se charge ensuite par `.../card`) ; vide, donc sans section, quand aucune session n'est à venir |
 | GET | `/workshops/sessions/{id}/card` | Fragment : carte d'une session (rafraîchie toutes les 30 s) |
 | POST | `/workshops/sessions/{id}/bookings` | Demande de réservation (champ piège + limite par IP) |
 | POST | `/workshops/sessions/{id}/waitlist` | Inscription en liste d'attente (avant l'ouverture ou session complète) |
