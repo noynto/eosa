@@ -1,17 +1,22 @@
 {{> partials/header.html.mustache}}
                 <tr>
-                    <td style="padding:0 32px 16px 32px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;color:#601414;">
+                    <td style="padding:0 32px 8px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;letter-spacing:0.16em;text-transform:uppercase;color:#775546;">
+                        Commande
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:0 32px 16px 32px;font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:30px;line-height:34px;font-weight:400;color:#601414;">
                         Merci pour votre commande
                     </td>
                 </tr>
                 <tr>
                     <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
-                        {{#hasName}}Merci {{name}}, c{{/hasName}}{{^hasName}}C{{/hasName}}'est bien reçu. Votre commande porte le numéro <b>{{number}}</b>.
+                        {{#hasName}}Merci {{name}}, c{{/hasName}}{{^hasName}}C{{/hasName}}'est bien reçu. Votre commande porte le numéro <span style="font-weight:500;">{{number}}</span>.
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding:0 32px 20px 32px;">
-                        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5" width="100%">
+                    <td style="padding:0 32px 24px 32px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5" width="100%" style="border-radius:16px;border-collapse:separate;">
                             {{#items}}
                             <tr>
                                 <td style="padding:12px 20px 0 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
@@ -52,10 +57,10 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td style="padding:4px 20px 16px 20px;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:26px;color:#601414;">
+                                <td style="padding:8px 20px 20px 20px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:18px;line-height:28px;font-weight:500;color:#601414;">
                                     Total
                                 </td>
-                                <td align="right" style="padding:4px 20px 16px 0;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:26px;color:#601414;">
+                                <td align="right" style="padding:8px 20px 20px 0;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:18px;line-height:28px;font-weight:500;color:#601414;">
                                     {{totalAmount}}
                                 </td>
                             </tr>
@@ -64,7 +69,7 @@
                 </tr>
                 {{#hasAddress}}
                 <tr>
-                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
+                    <td style="padding:0 32px 24px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#3D0A0A;">
                         <span style="color:#775546;">Adresse de livraison</span><br>
                         {{addressName}}<br>
                         {{addressLine1}}<br>
@@ -75,15 +80,15 @@
                 </tr>
                 {{/hasAddress}}
                 <tr>
-                    <td style="padding:0 32px 12px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
+                    <td style="padding:0 32px 20px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:24px;color:#3D0A0A;">
                         Chaque pièce est fabriquée à la commande : comptez 48 h au maximum pour la fabrication, puis 24 h pour
                         l'expédition, soit un envoi sous 72 h ouvrées au plus (les week-ends et les jours fériés ne comptent pas).
                         Vous recevrez un e-mail avec le lien de suivi dès que votre colis sera remis au transporteur.
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding:0 32px 32px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#775546;">
-                        Une question ? Répondez à cet e-mail ou écrivez-nous à <a href="mailto:{{contactEmail}}" style="color:#601414;">{{contactEmail}}</a>.
+                    <td style="padding:0 32px 28px 32px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#775546;">
+                        Une question ? Répondez à cet e-mail ou écrivez-nous à <a href="mailto:{{contactEmail}}" style="color:#601414;text-decoration:underline;">{{contactEmail}}</a>.
                     </td>
                 </tr>
 {{> partials/footer.html.mustache}}

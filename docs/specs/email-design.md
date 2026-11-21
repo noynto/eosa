@@ -75,7 +75,13 @@ Les 7 gabarits : `workshop-booking-request`, `workshop-booking-confirmation`, `w
 
 - **Terminé quand** : les 7 e-mails sont vérifiés dans Mailpit, avec leurs captures à 390 et 600 px et le score de compatibilité de chacun.
 
-### Étape 3 — E-mails des commandes et de la carte cadeau (à faire)
+### Étape 3 — E-mails des commandes et de la carte cadeau (faite)
+
+Faite le 21 novembre 2026 : `order-confirmation`, `order-shipped`, `gift-card` et `order-notification` (le gabarit `test` l'était à l'étape 1). Le récapitulatif de commande est un encadré arrondi, le code de la carte cadeau est centré dans un encadré. Les textes sont inchangés ; les tests existants qui rendent ces gabarits et en vérifient le contenu passent. Mesuré dans Mailpit (données d'exemple, programme jetable hors dépôt) : de **92,3 % à 93,9 %** de prise en charge ; captures vues à 390 et 600 px.
+
+**Correction en cours de route** : Cormorant Garamond a des chiffres elzéviriens (hauteurs variables) qui rendaient le numéro de suivi « 00581108 » et le total difficiles à lire ; ces chiffres sont en DM Sans (règle ajoutée à `docs/design/emails.md`).
+
+Prévu à l'origine :
 
 `order-confirmation`, `order-shipped`, `gift-card`, `order-notification` (interne, plus sobre) et `test`. Le récapitulatif de commande (lignes, remise, livraison, total) devient un encadré arrondi ; le code de la carte cadeau est mis en avant.
 

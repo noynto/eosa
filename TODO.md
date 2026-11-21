@@ -1,3 +1,3 @@
 - conceptualiser des patterns de collier, et concevoir un chemin utilisateur complet de la couleur du métal, aux couleurs de perles et enfin un pattern d'assemblage pour concevoir son collier du plus que l'on peut.
 - SEO hors site : créer la fiche Google Business Profile et dérouler le reste de la checklist (voir `docs/tech/seo.md`).
-- améliorer le design des emails dans le sens des règles d'UI et d'UX avec Material 3 Expressive, quitte à descendre un peu en compatibilité avec toutes les boites mails et faire en sorte que la police du logo puisse être dans le mail.
+- un élement tout bête après l'auth dans l'admin arriver sur le tableau de bord et plus la liste des bijoux.
