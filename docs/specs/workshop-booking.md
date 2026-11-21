@@ -28,6 +28,8 @@ Deux risques sont à maîtriser : **les fausses réservations** (robot, blague, 
 | 12 | E-mails | Envoyés depuis **`contact@eosa.me`** via le **SMTP Infomaniak**. |
 | 13 | Parcours | **Séparé du panier** : un atelier ne se met pas dans le panier et n'utilise pas le checkout des bijoux. |
 | 14 | Périmètre | Le rappel par e-mail, la liste d'attente, les valeurs par défaut des sessions et la mise à jour des CGV/FAQ font partie **de cette même livraison**. |
+| 15 | Délai entre deux e-mails à la liste d'attente | Une inscrite qui a reçu un e-mail il y a **moins de 6 heures** (`last_notified_at`) n'en reçoit pas un nouveau « Place libérée » ni une relance : elle est sautée. L'ouverture des réservations (une fois par session) et l'annulation de la session ne sont pas concernées. **Pas de rattrapage** : une inscrite sautée est prévenue à la prochaine place libérée ou à la prochaine relance, une fois le délai passé. Décidé le 21 novembre 2026. |
+| 16 | Relance manuelle | L'administratrice peut **relancer toute la liste d'attente** d'une session par un e-mail générique « Il reste des places », **seulement s'il reste au moins une place** et que les réservations sont ouvertes. Le délai de la décision 15 s'applique aussi. Décidé le 21 novembre 2026. |
 
 ## Vocabulaire
 
@@ -126,6 +128,8 @@ Il n'y a pas de compte participante : le lien d'annulation contient le jeton de 
 - **Avant l'ouverture des réservations** (« Me prévenir à l'ouverture des réservations »), ou **quand une session ouverte est complète**, la participante laisse prénom et e-mail (une inscription par e-mail et par session). Elle voit ensuite « Nous vous écrirons dès que vous pourrez réserver ».
 - **À l'ouverture des réservations**, toutes les inscrites reçoivent l'e-mail « Les réservations sont ouvertes » (une seule fois par session, au plus une minute après l'ouverture) ; les premières qui réservent obtiennent les places. Celles qui arrivent trop tard restent sur la liste et sont prévenues si une place se libère.
 - Quand une place se libère (annulation, réservation expirée, capacité augmentée par l'admin), **toutes les inscrites encore en attente reçoivent un e-mail** avec un lien vers la session : la première qui réserve obtient la place. Ce choix est plus simple qu'une file nominative avec délai réservé et convient aux petits groupes.
+- **Délai** (décision 15) : une inscrite déjà prévenue il y a moins de 6 heures est sautée pour « Place libérée » ; sans rattrapage. L'e-mail d'ouverture et l'e-mail de session annulée n'y sont pas soumis.
+- **Relance manuelle** (décision 16) : voir [Étape 11](#étape-11--relance-de-la-liste-dattente-).
 - Une inscrite qui réserve sa place est retirée de la liste d'attente.
 - Le lien de chaque e-mail permet aussi de se désinscrire de la liste (jeton dédié).
 - Aucune notification n'est envoyée une fois la session commencée.
@@ -143,6 +147,7 @@ Tous envoyés depuis `contact@eosa.me` (nom affiché « EOSA »), avec `Reply-To
 | Annulation (admin) | L'admin annule une réservation | Votre réservation a été annulée. |
 | Session annulée | L'admin annule une session | La session chez {café} du {date} est annulée, lien vers les prochaines dates. |
 | Place libérée | Une place se libère sur une session complète | Lien vers la session, « premier arrivé, premier servi », lien de désinscription. |
+| Il reste des places | Relance manuelle de la liste d'attente | « Il reste {n} place(s) pour l'atelier du {date} chez {café} » ; lieu, date, heure ; lien vers la session, « premier arrivé, premier servi » ; lien de désinscription. Texte générique, sans message libre. |
 
 Envoi : l'e-mail est envoyé après l'enregistrement en base, et chaque envoi est tracé par une colonne `…_sent_at`.
 
@@ -178,6 +183,7 @@ Toutes les routes sont sur le serveur admin, protégées par `EnsureIdentityHand
 | POST | `/workshops/{id}/bookings/{bookingId}/attended` | Dès le début de la séance : marquer présente. |
 | POST | `/workshops/{id}/bookings/{bookingId}/no-show` | **À partir de début + 30 min** seulement (tolérance pour les retards) : marquer absente. L'adresse ne peut alors plus réserver en ligne. Avant ce délai, le bouton est désactivé et affiche l'heure à laquelle il sera disponible ; la route refuse aussi la demande. |
 | POST | `/workshops/{id}/attended` | Raccourci : marquer présentes toutes les inscrites restées `CONFIRMED`. |
+| POST | `/workshops/{id}/waitlist/remind` | Relancer la liste d'attente (décision 16) : refusé, sans rien envoyer, si la session est annulée, commencée, pas encore ouverte aux réservations ou complète. Répond « N personnes prévenues » et, le cas échéant, « M déjà prévenues il y a moins de 6 h ». |
 
 Les actions destructives (annulation, absence) demandent une confirmation dans l'interface. Une absence marquée par erreur peut être corrigée en « présente ».
 
@@ -239,7 +245,7 @@ Conformément à l'architecture existante :
   - lieux : `CreateWorkshopVenue`, `UpdateWorkshopVenue`, `UpdateDefaultsOfWorkshopVenue`, `AddImageToWorkshopVenue`, `ArchiveWorkshopVenue`, `ReadWorkshopVenues`, `ReadWorkshopVenue` ;
   - sessions : `CreateWorkshopSession`, `UpdateWorkshopSession`, `CancelWorkshopSession`, `ReadWorkshopSessions`, `ReadWorkshopSession` ;
   - réservations : `RequestWorkshopBooking`, `ConfirmWorkshopBooking`, `ExpirePendingWorkshopBookings`, `CancelWorkshopBookingByParticipant`, `CancelWorkshopBookingByAdmin`, `MarkWorkshopBookingAttended`, `MarkWorkshopBookingNoShow` ;
-  - liste d'attente : `JoinWorkshopWaitlist`, `LeaveWorkshopWaitlist` (la liste est prévenue par les cas d'usage qui libèrent une place) ;
+  - liste d'attente : `JoinWorkshopWaitlist`, `LeaveWorkshopWaitlist`, `RemindWorkshopWaitlist` (la liste est aussi prévenue par les cas d'usage qui libèrent une place) ;
   - e-mails : `SendWorkshopReminders`, `RetryWorkshopEmails` (les autres e-mails partent des cas d'usage de réservation, d'annulation et de confirmation).
 - **`service/`** : `WorkshopMails` (contenu des e-mails de réservation, d'annulation, de place libérée) et `WorkshopPlaces` (places occupées et libres d'une session), des fonctions statiques sans provider (voir [architecture](../tech/architecture.md#services-statiques-service)).
 - **`infrastructure/persistence/`** : `JdbcPersistedWorkshopVenues`, `JdbcPersistedWorkshopSessions`, `JdbcPersistedWorkshopBookings`, `JdbcPersistedWorkshopWaitlistEntries`.
@@ -368,6 +374,29 @@ Fait : CGV (article 11 — Ateliers), FAQ, page `/workshops` (bouton « Voir les
 - Mise à jour de `CLAUDE.md` (routes et variables d'environnement).
 - Création des vrais lieux et d'une première session.
 - **Terminé quand** : une vraie réservation de test en production (puis annulée) fonctionne de bout en bout.
+
+### Étape 11 — Relance de la liste d'attente ✅
+
+Écrite et faite le 21 novembre 2026, après l'état des lieux de la liste d'attente : une inscription garde `created_at`, `last_notified_at` (date du dernier e-mail, quel qu'en soit le motif, écrasée à chaque envoi) et `removed_at` ; l'administration ne montre qu'un état « Prévenue » / « En attente », sans action.
+
+1. **Délai entre deux e-mails** (décision 15).
+   - `WorkshopWaitlistEntry` : constante `MIN_DELAY_BETWEEN_EMAILS` (6 heures) et méthode `canBeEmailed(now)` : vraie si `lastNotifiedAt` est vide ou plus ancienne que le délai.
+   - Les quatre cas d'usage qui envoient « Place libérée » (`CancelWorkshopBookingByParticipant`, `CancelWorkshopBookingByAdmin`, `ExpirePendingWorkshopBookings`, `UpdateWorkshopSession`) sautent l'inscription quand `canBeEmailed` est faux (chacun dans sa boucle, sans aide partagée). `AnnounceWorkshopBookingOpenings` et l'annulation de session ne changent pas.
+   - Une inscrite sautée n'est pas rattrapée : aucune tâche, aucune colonne en plus.
+2. **Relance** (décision 16).
+   - Cas d'usage `RemindWorkshopWaitlist` : `Command(workshopSessionId)`, `Result(notified, skipped, freePlaces)`. Il lit la session, son lieu, ses réservations (`WorkshopPlaces.free`) et la liste d'attente, avec ses propres providers.
+   - Refuse (`InvalidCommand`, rien d'envoyé) : session absente ou annulée, déjà commencée, réservations pas encore ouvertes (`isBookable(now)` faux), aucune place libre (« La session est complète : il n'y a pas de place à annoncer. »).
+   - Pour chaque inscrite en attente : si `canBeEmailed(now)` est faux, elle est comptée dans `skipped` ; sinon l'e-mail part, puis `lastNotifiedAt = now` est écrit. Un envoi qui échoue est journalisé, non compté et non retenté (comme « Place libérée »).
+   - `WorkshopMails.waitlistReminder(entry, session, venue, freePlaces, publicBaseUrl)` et les gabarits `workshop-waitlist-reminder.html.mustache` / `.txt.mustache` (sujet « Il reste des places — Atelier EOSA chez {café} »).
+   - `RemindWorkshopWaitlistHandler` (`POST /workshops/{id}/waitlist/remind`, administration) : un seul cas d'usage ; réponse `ctx.html` avec le nombre de personnes prévenues et sautées, `InlineError` en cas de refus.
+3. **Administration** (`admin/partials/workshop-waitlist.mustache`).
+   - Bouton « Relancer la liste d'attente » (44 px sur mobile), `hx-confirm` (« Envoyer un e-mail à N personnes ? » indique le nombre d'inscrites en attente), résultat à côté du bouton. Le bouton est toujours affiché quand la liste n'est pas vide : la vérification de la place se fait au clic, côté serveur.
+   - L'état de chaque inscrite devient « Prévenue le 21 nov. à 14 h 03 » (date de `last_notified_at`) au lieu de « Prévenue » : on voit tout de suite qui sera sautée.
+4. **Légal** : l'e-mail est un e-mail de service lié à la demande de la personne (« me prévenir si une place se libère »), au texte fixe, avec lien de désinscription ; le délai de 6 heures borne la fréquence. Pas de message libre, qui sortirait de ce cadre.
+5. **Tests** : `RemindWorkshopWaitlistTest` (envoi, refus pour session annulée, commencée, pas ouverte, complète ; inscrites sautées ; échec d'envoi), `canBeEmailed`, et un test par cas d'usage de « Place libérée » qui saute une inscrite prévenue récemment.
+6. **Documentation** : [Web](../tech/web.md) (route d'administration), cette spec (statut), `TODO.md` (retirer la ligne).
+- Vérifié en local (Mailpit) : trois inscrites dont une prévenue depuis 1 h → deux e-mails « Il reste des places » (« il reste 10 places »), « 2 personnes prévenues, 1 déjà prévenue il y a moins de 6 h » ; une seconde relance n'envoie rien ; une session annulée est refusée (422) ; interface vue à 390 et 1280 px. Non vérifié en local : le refus pour une session complète ou pas encore ouverte (couvert par les tests du cas d'usage).
+- **Terminé quand** : sur une session non complète avec trois inscrites dont une prévenue depuis moins de 6 heures, « Relancer » en prévient deux et le dit ; sur une session complète, il refuse ; une annulation qui libère une place ne renvoie pas d'e-mail à l'inscrite prévenue il y a une heure.
 
 ## V2 — Empreinte bancaire (reportée)
 

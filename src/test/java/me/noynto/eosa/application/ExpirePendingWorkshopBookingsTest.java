@@ -31,6 +31,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,6 +81,18 @@ class ExpirePendingWorkshopBookingsTest {
         assertEquals("workshop-waitlist-place-available", mails.getValue().template());
         assertEquals(now, rosa.getLastNotifiedAt());
         assertNull(lise.getLastNotifiedAt());
+    }
+
+    @Test
+    void handle_doesNotWarnAWaitingPersonWarnedLessThanSixHoursAgo() {
+        booking("stale", "session-a", WorkshopBookingState.PENDING, now.minus(Duration.ofMinutes(31)));
+        var rosa = waiting("rosa@example.com", "session-a");
+        rosa.setLastNotifiedAt(now.minus(Duration.ofHours(1)));
+
+        expirePendingWorkshopBookings().handle();
+
+        verify(mailProvider, never()).send(any());
+        assertEquals(now.minus(Duration.ofHours(1)), rosa.getLastNotifiedAt());
     }
 
     private void session(String id) {

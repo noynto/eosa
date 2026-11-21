@@ -61,6 +61,7 @@ Les pages d'aide (`/faq`, `/terms`, `/privacy`, `/returns`, `/contact`, `/legal`
 | GET | `/workshops/new` | Fragment : le formulaire « Nouvelle session », chargé à l'ouverture de la fenêtre |
 | GET | `/workshops/{id}/bookings` | Fragment : la section « Inscrites » de la page d'une session |
 | GET | `/workshops/{id}/waitlist` | Fragment : la section « Liste d'attente » de la page d'une session |
+| POST | `/workshops/{id}/waitlist/remind` | Relance de la liste d'attente : e-mail « Il reste des places » aux inscrites, refusé si la session est annulée, commencée, pas encore ouverte ou complète ; les personnes prévenues il y a moins de 6 h sont ignorées |
 | GET | `/workshop-venues/options` | Fragment : les lieux de la liste de choix du lieu (paramètre `selected` : lieu actuel) |
 | GET | `/images/{id}` | Images (miniatures) |
 

@@ -75,6 +75,20 @@ class WorkshopMailsTest {
         assertEquals("https://eosa.me/workshops/waitlist/token-rosa/leave", mail.model().get("leaveUrl"));
     }
 
+    @Test
+    void waitlistReminder_saysHowManyPlacesAreLeftAndLinksToTheSession() {
+        var one = WorkshopMails.waitlistReminder(entry(), session, venue, 1, baseUrl);
+        var several = WorkshopMails.waitlistReminder(entry(), session, venue, 3, baseUrl);
+
+        assertEquals("rosa@example.com", one.to());
+        assertEquals("workshop-waitlist-reminder", one.template());
+        assertEquals("Il reste des places — Atelier EOSA chez Café des Arts", one.subject());
+        assertEquals("il reste une place", one.model().get("placesLabel"));
+        assertEquals("il reste 3 places", several.model().get("placesLabel"));
+        assertEquals("https://eosa.me/workshops/sessions/session", one.model().get("sessionUrl"));
+        assertEquals("https://eosa.me/workshops/waitlist/token-rosa/leave", one.model().get("leaveUrl"));
+    }
+
     private static WorkshopSession session() {
         var session = new WorkshopSession();
         session.setId(new WorkshopSessionId("session"));

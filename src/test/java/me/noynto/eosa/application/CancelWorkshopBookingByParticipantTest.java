@@ -161,6 +161,25 @@ class CancelWorkshopBookingByParticipantTest {
         assertEquals(now, rosa.getLastNotifiedAt());
     }
 
+    @Test
+    void handle_skipsAWaitingPersonWarnedLessThanSixHoursAgo() {
+        var rosa = new WorkshopWaitlistEntry();
+        rosa.setSessionId(sessionId);
+        rosa.setFirstName("Rosa");
+        rosa.setEmail("rosa@example.com");
+        rosa.setToken("token-rosa");
+        rosa.setCreatedAt(startsAt.minus(Duration.ofDays(4)));
+        var now = startsAt.minus(Duration.ofDays(3));
+        rosa.setLastNotifiedAt(now.minus(Duration.ofHours(1)));
+        waitlist.write(rosa);
+
+        cancelAt(now);
+
+        // Seul l'e-mail d'annulation part : la liste d'attente a déjà été prévenue tout à l'heure.
+        verify(mailProvider, times(1)).send(any());
+        assertEquals(now.minus(Duration.ofHours(1)), rosa.getLastNotifiedAt());
+    }
+
     private CancelWorkshopBookingByParticipant.Outcome cancelAt(Instant now) {
         return useCase(Clock.fixed(now, ZoneOffset.UTC)).handle(new CancelWorkshopBookingByParticipant.Command("token")).outcome();
     }
