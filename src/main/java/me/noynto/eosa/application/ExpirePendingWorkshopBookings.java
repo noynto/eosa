@@ -90,6 +90,9 @@ public record ExpirePendingWorkshopBookings(
         WorkshopVenue workshopVenue = workshopVenueProvider.read(workshopSession.getVenueId()).orElseThrow();
         for (var entryId : workshopWaitlistEntryProvider.readIds(workshopSession.getId(), null, null, true).toList()) {
             WorkshopWaitlistEntry entry = workshopWaitlistEntryProvider.read(entryId).orElseThrow();
+            if (!entry.canBeEmailed(now)) {
+                continue;
+            }
             try {
                 mailProvider.send(WorkshopMails.waitlistPlaceAvailable(entry, workshopSession, workshopVenue, publicBaseUrl));
                 entry.setLastNotifiedAt(now);

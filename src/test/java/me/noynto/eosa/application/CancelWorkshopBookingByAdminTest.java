@@ -107,6 +107,22 @@ class CancelWorkshopBookingByAdminTest {
     }
 
     @Test
+    void handle_skipsAWaitingPersonWarnedLessThanSixHoursAgo() {
+        var recent = waiting("recent@example.com", "token-recent");
+        recent.setLastNotifiedAt(now.minus(Duration.ofHours(1)));
+        var old = waiting("old@example.com", "token-old");
+        old.setLastNotifiedAt(now.minus(Duration.ofHours(7)));
+
+        cancelWorkshopBookingByAdmin().handle(new CancelWorkshopBookingByAdmin.Command(sessionId, booking.getId()));
+
+        var mails = ArgumentCaptor.forClass(Mail.class);
+        verify(mailProvider, times(2)).send(mails.capture());
+        assertEquals("old@example.com", mails.getAllValues().get(1).to());
+        assertEquals(now.minus(Duration.ofHours(1)), recent.getLastNotifiedAt());
+        assertEquals(now, old.getLastNotifiedAt());
+    }
+
+    @Test
     void handle_doesNotWarnTheWaitingListOnceTheSessionHasStarted() {
         session.setStartsAt(now.minus(Duration.ofMinutes(5)));
         var rosa = waiting("rosa@example.com", "token-rosa");

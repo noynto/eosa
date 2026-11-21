@@ -31,6 +31,8 @@ public record GetAdminWorkshopWaitlistHandler(ReadWorkshopWaitlist readWorkshopW
                         row.put("email", entry.getEmail());
                         row.put("joinedAt", JOINED_AT.format(entry.getCreatedAt().atZone(WorkshopSession.ZONE)));
                         row.put("notified", entry.getLastNotifiedAt() != null);
+                        row.put("notifiedAt", entry.getLastNotifiedAt() != null
+                                ? JOINED_AT.format(entry.getLastNotifiedAt().atZone(WorkshopSession.ZONE)) : "");
                         return row;
                     })
                     .toList();
@@ -39,6 +41,8 @@ public record GetAdminWorkshopWaitlistHandler(ReadWorkshopWaitlist readWorkshopW
             return;
         }
         Map<String, Object> model = new HashMap<>();
+        model.put("workshopSessionId", ctx.pathParam("id"));
+        model.put("waitlistCount", waitlist.size());
         model.put("waitlist", waitlist);
         model.put("hasWaitlist", !waitlist.isEmpty());
         ctx.render("admin/partials/workshop-waitlist.mustache", model);

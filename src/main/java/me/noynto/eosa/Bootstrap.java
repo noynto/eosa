@@ -451,6 +451,15 @@ public class Bootstrap {
             clock,
             properties.publicBaseUrl()
         );
+        RemindWorkshopWaitlist remindWorkshopWaitlist = new RemindWorkshopWaitlist(
+            workshopSessionProvider,
+            workshopVenueProvider,
+            workshopBookingProvider,
+            workshopWaitlistEntryProvider,
+            mailProvider,
+            clock,
+            properties.publicBaseUrl()
+        );
         CancelWorkshopBookingByParticipant cancelWorkshopBookingByParticipant = new CancelWorkshopBookingByParticipant(
             workshopBookingProvider,
             workshopSessionProvider,
@@ -1212,6 +1221,10 @@ public class Bootstrap {
             javalinConfig.routes.post(
                 "/workshops/{id}/bookings/{bookingId}/cancel",
                 new CancelWorkshopBookingByAdminHandler(cancelWorkshopBookingByAdmin)
+            );
+            javalinConfig.routes.post(
+                "/workshops/{id}/waitlist/remind",
+                new RemindWorkshopWaitlistHandler(remindWorkshopWaitlist)
             );
             javalinConfig.routes.post(
                 "/workshops/{id}/bookings/{bookingId}/attended",

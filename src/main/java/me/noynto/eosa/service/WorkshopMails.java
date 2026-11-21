@@ -97,6 +97,28 @@ public final class WorkshopMails {
     }
 
     /**
+     * Relance manuelle de la liste d'attente : il reste des places sur une session ouverte aux réservations.
+     */
+    public static Mail waitlistReminder(WorkshopWaitlistEntry entry, WorkshopSession session, WorkshopVenue venue, int freePlaces, URI publicBaseUrl) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("preheader", "Il reste des places pour l'atelier du "
+                + WorkshopDates.dateInSentence(session.getStartsAt()) + " chez " + venue.getName() + ".");
+        model.put("firstName", entry.getFirstName());
+        model.put("placesLabel", freePlaces == 1 ? "il reste une place" : "il reste " + freePlaces + " places");
+        model.put("venueName", venue.getName());
+        model.put("date", WorkshopDates.date(session.getStartsAt()));
+        model.put("timeRange", WorkshopDates.timeRange(session));
+        model.put("sessionUrl", publicBaseUrl + "/workshops/sessions/" + session.getId().value());
+        model.put("leaveUrl", publicBaseUrl + "/workshops/waitlist/" + entry.getToken() + "/leave");
+        return new Mail(
+                entry.getEmail(),
+                "Il reste des places — Atelier EOSA chez " + venue.getName(),
+                "workshop-waitlist-reminder",
+                model
+        );
+    }
+
+    /**
      * Une place s'est libérée, pour une personne en liste d'attente.
      */
     public static Mail waitlistPlaceAvailable(WorkshopWaitlistEntry entry, WorkshopSession session, WorkshopVenue venue, URI publicBaseUrl) {

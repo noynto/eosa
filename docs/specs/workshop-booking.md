@@ -129,7 +129,7 @@ Il n'y a pas de compte participante : le lien d'annulation contient le jeton de 
 - **À l'ouverture des réservations**, toutes les inscrites reçoivent l'e-mail « Les réservations sont ouvertes » (une seule fois par session, au plus une minute après l'ouverture) ; les premières qui réservent obtiennent les places. Celles qui arrivent trop tard restent sur la liste et sont prévenues si une place se libère.
 - Quand une place se libère (annulation, réservation expirée, capacité augmentée par l'admin), **toutes les inscrites encore en attente reçoivent un e-mail** avec un lien vers la session : la première qui réserve obtient la place. Ce choix est plus simple qu'une file nominative avec délai réservé et convient aux petits groupes.
 - **Délai** (décision 15) : une inscrite déjà prévenue il y a moins de 6 heures est sautée pour « Place libérée » ; sans rattrapage. L'e-mail d'ouverture et l'e-mail de session annulée n'y sont pas soumis.
-- **Relance manuelle** (décision 16) : voir [Étape 11](#étape-11--relance-de-la-liste-dattente-à-valider).
+- **Relance manuelle** (décision 16) : voir [Étape 11](#étape-11--relance-de-la-liste-dattente-).
 - Une inscrite qui réserve sa place est retirée de la liste d'attente.
 - Le lien de chaque e-mail permet aussi de se désinscrire de la liste (jeton dédié).
 - Aucune notification n'est envoyée une fois la session commencée.
@@ -375,9 +375,9 @@ Fait : CGV (article 11 — Ateliers), FAQ, page `/workshops` (bouton « Voir les
 - Création des vrais lieux et d'une première session.
 - **Terminé quand** : une vraie réservation de test en production (puis annulée) fonctionne de bout en bout.
 
-### Étape 11 — Relance de la liste d'attente (à valider)
+### Étape 11 — Relance de la liste d'attente ✅
 
-Écrite le 21 novembre 2026, après l'état des lieux de la liste d'attente : une inscription garde `created_at`, `last_notified_at` (date du dernier e-mail, quel qu'en soit le motif, écrasée à chaque envoi) et `removed_at` ; l'administration ne montre qu'un état « Prévenue » / « En attente », sans action.
+Écrite et faite le 21 novembre 2026, après l'état des lieux de la liste d'attente : une inscription garde `created_at`, `last_notified_at` (date du dernier e-mail, quel qu'en soit le motif, écrasée à chaque envoi) et `removed_at` ; l'administration ne montre qu'un état « Prévenue » / « En attente », sans action.
 
 1. **Délai entre deux e-mails** (décision 15).
    - `WorkshopWaitlistEntry` : constante `MIN_DELAY_BETWEEN_EMAILS` (6 heures) et méthode `canBeEmailed(now)` : vraie si `lastNotifiedAt` est vide ou plus ancienne que le délai.
@@ -395,6 +395,7 @@ Fait : CGV (article 11 — Ateliers), FAQ, page `/workshops` (bouton « Voir les
 4. **Légal** : l'e-mail est un e-mail de service lié à la demande de la personne (« me prévenir si une place se libère »), au texte fixe, avec lien de désinscription ; le délai de 6 heures borne la fréquence. Pas de message libre, qui sortirait de ce cadre.
 5. **Tests** : `RemindWorkshopWaitlistTest` (envoi, refus pour session annulée, commencée, pas ouverte, complète ; inscrites sautées ; échec d'envoi), `canBeEmailed`, et un test par cas d'usage de « Place libérée » qui saute une inscrite prévenue récemment.
 6. **Documentation** : [Web](../tech/web.md) (route d'administration), cette spec (statut), `TODO.md` (retirer la ligne).
+- Vérifié en local (Mailpit) : trois inscrites dont une prévenue depuis 1 h → deux e-mails « Il reste des places » (« il reste 10 places »), « 2 personnes prévenues, 1 déjà prévenue il y a moins de 6 h » ; une seconde relance n'envoie rien ; une session annulée est refusée (422) ; interface vue à 390 et 1280 px. Non vérifié en local : le refus pour une session complète ou pas encore ouverte (couvert par les tests du cas d'usage).
 - **Terminé quand** : sur une session non complète avec trois inscrites dont une prévenue depuis moins de 6 heures, « Relancer » en prévient deux et le dit ; sur une session complète, il refuse ; une annulation qui libère une place ne renvoie pas d'e-mail à l'inscrite prévenue il y a une heure.
 
 ## V2 — Empreinte bancaire (reportée)

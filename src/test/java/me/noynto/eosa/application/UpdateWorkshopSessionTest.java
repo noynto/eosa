@@ -103,6 +103,30 @@ class UpdateWorkshopSessionTest {
     }
 
     @Test
+    void handle_doesNotWarnAWaitingPersonWarnedLessThanSixHoursAgo() {
+        var now = Instant.parse("2026-11-10T10:00:00Z");
+        when(workshopSessionProvider.read(sessionId)).thenReturn(Optional.of(scheduledSession()));
+        when(workshopVenueProvider.read(venueId)).thenReturn(Optional.of(venue(venueId, false)));
+        bookedPlaces(3);
+        when(workshopSessionProvider.write(any())).thenAnswer(inv -> inv.getArgument(0));
+        var rosa = new WorkshopWaitlistEntry();
+        rosa.setSessionId(sessionId);
+        rosa.setFirstName("Rosa");
+        rosa.setEmail("rosa@example.com");
+        rosa.setToken("token-rosa");
+        rosa.setCreatedAt(now.minus(Duration.ofDays(1)));
+        rosa.setLastNotifiedAt(now.minus(Duration.ofHours(1)));
+        waitlist.write(rosa);
+
+        updateWorkshopSession(Clock.fixed(now, ZoneOffset.UTC)).handle(new UpdateWorkshopSession.Command(
+                sessionId, venueId, startsAt, 120, 12
+        ));
+
+        verify(mailProvider, never()).send(any());
+        assertEquals(now.minus(Duration.ofHours(1)), rosa.getLastNotifiedAt());
+    }
+
+    @Test
     void handle_warnsNobodyWhenTheNewCapacityIsAlreadyFull() {
         var now = Instant.parse("2026-11-10T10:00:00Z");
         var session = scheduledSession();
