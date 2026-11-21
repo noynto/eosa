@@ -65,7 +65,11 @@ Prévu à l'origine :
 - **Essai** : le gabarit `test` reprend le nouveau design avec un bouton, un encadré et un titre, pour les vérifier dans Mailpit (390 et 600 px, contrôle de compatibilité).
 - **Terminé quand** : `docker compose run --rm send-test-email` produit dans Mailpit un e-mail avec le logo en Bagel Fat One, une carte arrondie et un bouton en pilule, et le contrôle de compatibilité reste vers 90 % ou plus.
 
-### Étape 2 — E-mails des ateliers (à faire)
+### Étape 2 — E-mails des ateliers (faite)
+
+Faite le 21 novembre 2026. Surtitre « ATELIER EOSA » pour les e-mails de réservation, « LISTE D'ATTENTE » pour ceux de la liste d'attente. Les textes sont inchangés ; les notes de bas de page (délai, annulation, désinscription) passent en style « Note » de 14 px (au lieu de 13 px) parce qu'elles portent une action. Mesuré dans Mailpit (rendus avec des données d'exemple, par un programme jetable hors dépôt) : de **91,6 % à 92,7 %** de prise en charge selon l'e-mail (objectif 90 %) ; captures vues à 390 et 600 px (4 sur 8 regardées une à une : confirmation de réservation, annulation, relance de la liste d'attente, demande de confirmation).
+
+Prévu à l'origine :
 
 Les 7 gabarits : `workshop-booking-request`, `workshop-booking-confirmation`, `workshop-booking-reminder`, `workshop-booking-cancellation`, `workshop-waitlist-booking-open`, `workshop-waitlist-place-available`, `workshop-waitlist-reminder`. Surtitre « ATELIER EOSA », encadré lieu/date/heure, bouton principal en pilule.
 

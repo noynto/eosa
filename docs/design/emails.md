@@ -37,7 +37,8 @@ Contrastes : voir [fondations](foundations.md#contrastes-mesurés) ; le bouton (
 | Texte | DM Sans 15 px, interligne 24 px, `#3D0A0A`. |
 | Encadré | Tableau de fond `#F4EFE5`, rayon 16 px, 20 px de marge intérieure ; son titre en Cormorant Garamond 20 px. Pour les informations clés : lieu, date, récapitulatif. |
 | Bouton | Cellule `bgcolor="#775546"`, rayon 24 px, lien `inline-block` de 14 px × 28 px de marge intérieure et 20 px d'interligne (48 px de haut), DM Sans 15 px graisse 500, texte `#FDFBF7`, sans soulignement. Une seule action principale par e-mail. |
-| Mention | DM Sans 12 px, interligne 19 px, `#7B6A4E`. |
+| Note | DM Sans 14 px, interligne 22 px, `#775546` : une information utile qui n'est pas l'action principale (délai de confirmation, annulation, désinscription). Les liens y sont en `#601414`, soulignés. |
+| Mention | DM Sans 12 px, interligne 19 px, `#7B6A4E` : mention sans conséquence (« ce message n'a été envoyé que pour tester »). |
 | Lien dans un texte | Couleur `#601414`, **soulignement conservé**. |
 
 Le gabarit `test.html.mustache` montre chacun de ces éléments : c'est le modèle à recopier.
