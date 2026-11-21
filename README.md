@@ -81,6 +81,7 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Fondations](docs/design/foundations.md) | Jetons communs selon Material 3 : couleurs et contrastes, typographie, arrondis, élévation, mouvement, états, accessibilité, écarts à corriger |
 | [Boutique](docs/design/storefront.md) | Application éditoriale et sobre à la vitrine : ce qu'on prend à Material, motifs de la boutique |
+| [E-mails](docs/design/emails.md) | Design des e-mails : logo en image, polices avec repli, carte et bouton arrondis, valeurs, accessibilité, compatibilité visée |
 | [Administration](docs/design/admin.md) | Composants Material 3 et leur équivalent en Tailwind + htmx, densité, cibles tactiles |
 
 ### Technique — [`docs/tech/`](docs/tech/)

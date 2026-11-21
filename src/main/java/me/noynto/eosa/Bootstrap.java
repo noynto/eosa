@@ -99,7 +99,7 @@ public class Bootstrap {
         // CLIENTS
         MailProvider mailProvider = new SmtpSentMails(
             SmtpConfiguration.getProperties(),
-            new MailTemplates()
+            new MailTemplates(properties.publicBaseUrl())
         );
         StripeProperties stripeProperties = StripeConfiguration.getProperties(
             properties

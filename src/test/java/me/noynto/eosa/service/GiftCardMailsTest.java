@@ -31,7 +31,7 @@ class GiftCardMailsTest {
 
         assertEquals("lea@example.com", mail.to());
         assertEquals("Votre carte cadeau EOSA", mail.subject());
-        var rendered = new MailTemplates().render(mail.template(), mail.model());
+        var rendered = new MailTemplates(URI.create("https://eosa.me")).render(mail.template(), mail.model());
         for (var body : new String[]{rendered.html(), rendered.text()}) {
             assertTrue(body.contains("ABCDEFGH2345"), body);
             assertTrue(body.contains("16 novembre 2027"), body);
@@ -46,7 +46,7 @@ class GiftCardMailsTest {
     void delivery_worksWithoutAFirstName() {
         var mail = GiftCardMails.delivery(card(null), URI.create("https://eosa.test"));
 
-        var rendered = new MailTemplates().render(mail.template(), mail.model());
+        var rendered = new MailTemplates(URI.create("https://eosa.me")).render(mail.template(), mail.model());
         assertTrue(rendered.text().contains("Voici votre carte cadeau"), rendered.text());
     }
 

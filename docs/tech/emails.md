@@ -11,12 +11,28 @@ L'application envoie ses e-mails depuis `contact@eosa.me` par le SMTP d'Infomani
 ## Écrire un template
 
 - Commencer par `{{> partials/header.html.mustache}}` et finir par `{{> partials/footer.html.mustache}}` (version texte : `{{> partials/footer.txt.mustache}}`). Le nom complet avec l'extension est obligatoire : mustache.java n'ajoute pas l'extension à un nom qui contient déjà un point.
-- Le contenu est une suite de lignes de tableau, chacune `<tr><td style="padding:…">` : jamais de `margin`, jamais de `border-radius`, jamais de `font-weight`.
-- Couleurs de fond par l'attribut `bgcolor`, bordures dessinées par des cellules colorées, police et taille répétées sur chaque `<td>`.
-- Bouton : un tableau d'une cellule `bgcolor="#601414"` contenant le lien, sans coins arrondis.
+- Le design (couleurs, polices, formes, éléments) est décrit dans [Design : e-mails](../design/emails.md), et le gabarit `test.html.mustache` le montre en entier : s'en inspirer.
+- Le contenu est une suite de lignes de tableau, chacune `<tr><td style="padding:…">`, sans `margin` (Outlook l'ignore). `border-radius` et `font-weight` (400 ou 500) sont permis : Outlook pour Windows les ignore sans casser la mise en page.
+- Couleurs de fond par l'attribut `bgcolor` (avec `border-radius` dans le `style` pour arrondir), police et taille répétées sur chaque `<td>`, `role="presentation"` sur les tableaux de mise en page.
+- Bouton : un tableau d'une cellule `bgcolor="#775546"` (`border-radius:24px`, `mso-padding-alt:14px 28px`) contenant un lien `display:inline-block;padding:14px 28px`.
+- Chaque modèle reçoit `baseUrl` (adresse publique du site) et `logoUrl` de `MailTemplates` : ne pas les ajouter dans `WorkshopMails` ni dans les autres services d'e-mail. Les adresses `/fonts/…` et `/mail/logo.png` sont celles des fichiers statiques du site.
 - Version texte : les valeurs en `{{{triple}}}` (sinon `&` devient `&amp;` dans les adresses web).
-- Le contrôle de compatibilité HTML de Mailpit doit rester vers 95 %. Les 5 % restants (padding, line-height, body, max-width, fond) sont nécessaires à tout e-mail lisible ; 100 % n'est pas atteignable.
-- Les polices de la marque ne s'affichent pas dans Gmail ni dans Outlook sur Windows : les familles de secours (Georgia, Helvetica) font partie du rendu prévu.
+- Le contrôle de compatibilité HTML de Mailpit doit rester à **90 % de prise en charge ou plus**. Les écarts voulus sont `@font-face`, `border-radius`, `overflow` et `<style>` ; 100 % n'est pas atteignable.
+- Les polices de la marque ne s'affichent pas dans Gmail ni dans Outlook sur Windows : les familles de secours (Georgia, Helvetica) font partie du rendu prévu. Le logo est une image, donc identique partout où les images s'affichent.
+
+## Regénérer le logo
+
+Le logo `src/main/resources/public/mail/logo.png` (224 × 72 px, « eosa. » en Bagel Fat One sur le fond de la carte) vient de `scripts/mail-logo.js`. Pour le refaire, par exemple si la couleur ou la police de la marque change, avec Chromium dans Docker :
+
+```bash
+mkdir -p /tmp/mail-logo && chmod 777 /tmp/mail-logo
+docker run --rm -v "$PWD":/repo:ro -v /tmp/mail-logo:/out ghcr.io/puppeteer/puppeteer:latest sh -c \
+  "NODE_PATH=\$(npm root -g) node /repo/scripts/mail-logo.js \
+   /repo/src/main/resources/public/fonts/hYkPPucsQOr5dy02WmQr5Zkd4Blsvw.woff2 /out/logo.png"
+cp /tmp/mail-logo/logo.png src/main/resources/public/mail/logo.png
+```
+
+Les images d'un e-mail sont chargées par la messagerie depuis `eosa.me` : le fichier doit rester servi par la boutique.
 
 ## Tester
 
