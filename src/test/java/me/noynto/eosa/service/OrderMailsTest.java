@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OrderMailsTest {
 
-    private final MailTemplates templates = new MailTemplates();
+    private final MailTemplates templates = new MailTemplates(URI.create("https://eosa.me"));
 
     @Test
     void confirmation_goesToTheCustomerWithNumberLinesAmountsAddressAndDelays() {

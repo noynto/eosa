@@ -45,7 +45,7 @@ Détails dans [Développement](docs/tech/development.md).
 - **Templates** ([détails](docs/tech/web.md)) : modèles de vue en `Map<String, Object>` construites à la main ; Mustache n'a pas de logique, tout se calcule en Java ; un `{{> partial}}` se résout depuis le dossier du template qui l'inclut.
 - **Sécurité** ([détails](docs/tech/security.md)) : SQL uniquement en `PreparedStatement` avec des paramètres `?` ; aucun HTML concaténé en Java (un fragment se rend avec Mustache, une erreur htmx avec `InlineError`) ; pas de `{{{…}}}` dans un template HTML (sauf `{{{jsonLd}}}`) ; une action qui modifie des données n'est jamais un `GET` ; `SecureRequestHandler` refuse les requêtes venues d'un autre site.
 - **Liens envoyés par e-mail** : ils n'agissent que sur un `POST` (les messageries ouvrent les liens d'elles-mêmes) et portent un jeton aléatoire, jamais un identifiant.
-- **Templates d'e-mail** ([détails](docs/tech/emails.md)) : mise en page en tableaux, padding sur les `<td>` seulement, attributs `bgcolor`, ni margin, ni border-radius, ni font-weight ; partials appelés par leur nom de fichier complet.
+- **Templates d'e-mail** ([détails](docs/tech/emails.md)) : mise en page en tableaux, padding sur les `<td>` seulement (pas de margin), attributs `bgcolor`, `border-radius` permis (Outlook pour Windows l'ignore), logo en image et polices de la marque avec repli ([design](docs/design/emails.md)) ; partials appelés par leur nom de fichier complet.
 - **Traitements périodiques** ([détails](docs/tech/scheduled-tasks.md)) : des tâches one-shot activées par une variable d'environnement et lancées par des CronJobs Kubernetes, jamais un planificateur dans l'application ; une tâche est idempotente.
 - **Design system** ([fondations](docs/design/foundations.md)) : méthode Material 3, sans composant JavaScript ; uniquement les jetons de `tailwind.config.js` (aucune couleur, taille ou arrondi arbitraire) ; contrastes WCAG AA, focus clavier toujours visible, cibles tactiles de 44 px minimum. La boutique reste éditoriale et sobre ([boutique](docs/design/storefront.md)), l'administration suit les composants Material ([administration](docs/design/admin.md)).
 - **Responsive** : toute modification de template gère mobile (< 640 px, minimum 390 px), tablette (640–1024 px) et ordinateur (≥ 1024 px) ; le parcours principal se vérifie à 390, 768 et 1280 px.
@@ -81,6 +81,7 @@ Détails dans [Développement](docs/tech/development.md).
 |---|---|
 | [Fondations](docs/design/foundations.md) | Jetons communs selon Material 3 : couleurs et contrastes, typographie, arrondis, élévation, mouvement, états, accessibilité, écarts à corriger |
 | [Boutique](docs/design/storefront.md) | Application éditoriale et sobre à la vitrine : ce qu'on prend à Material, motifs de la boutique |
+| [E-mails](docs/design/emails.md) | Design des e-mails : logo en image, polices avec repli, carte et bouton arrondis, valeurs, accessibilité, compatibilité visée |
 | [Administration](docs/design/admin.md) | Composants Material 3 et leur équivalent en Tailwind + htmx, densité, cibles tactiles |
 
 ### Technique — [`docs/tech/`](docs/tech/)

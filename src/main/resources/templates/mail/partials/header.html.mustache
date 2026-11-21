@@ -6,26 +6,31 @@
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     <title>EOSA</title>
+    <!-- Polices de la marque, pour les messageries qui chargent les polices web (Apple Mail, iOS Mail…). Gmail et Outlook
+         les ignorent et prennent les familles de secours (Georgia, Helvetica) : le logo, lui, est une image. -->
+    <style>
+        @font-face { font-family: 'Cormorant Garamond'; font-style: normal; font-weight: 400; src: url({{baseUrl}}/fonts/co3bmX5slCNuHLi8bLeY9MK7whWMhyjYqXtK.woff2) format('woff2'); }
+        @font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 400; src: url({{baseUrl}}/fonts/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K4.woff2) format('woff2'); }
+        @font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 500; src: url({{baseUrl}}/fonts/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K4.woff2) format('woff2'); }
+    </style>
 </head>
 <!--
-    Gabarit volontairement « à l'ancienne » pour être lu partout (Gmail, Outlook, Apple Mail…) :
-    mise en page en tableaux, attributs HTML plutôt que CSS quand c'est possible (bgcolor, width,
-    marges du body, bordures en cellules colorées), espacements par padding sur les <td> uniquement (pas de margin), pas de
-    border-radius ni de font-weight. Chaque bloc de contenu est une ligne <tr><td> de la carte.
+    Mise en page en tableaux pour être lue partout (Gmail, Outlook, Apple Mail…), avec le design Material 3 Expressive
+    de la boutique : carte arrondie, encadrés arrondis, boutons en pilule (docs/design/emails.md). Outlook pour Windows
+    ignore les rayons et affiche des angles droits, sans casser la mise en page. Espacements par padding sur les <td>
+    (pas de margin). Chaque bloc de contenu est une ligne <tr><td> de la carte.
 -->
-<body bgcolor="#F4EFE5" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<body bgcolor="#F4EFE5" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="margin:0;padding:0;">
 <!-- Aperçu affiché par les messageries à côté de l'objet -->
 <div style="display:none;mso-hide:all;">{{preheader}}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#F4EFE5">
     <tr>
         <td align="center" style="padding:32px 16px;">
             <!--[if mso]><table role="presentation" width="560" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
-            <!-- Bordure de la carte : un tableau de la couleur de la bordure, avec 1 px de cellpadding. -->
-            <table role="presentation" width="100%" cellpadding="1" cellspacing="0" bgcolor="#F0E6D6" style="max-width:560px;">
-            <tr><td>
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="max-width:560px;border:1px solid #F0E6D6;border-radius:24px;border-collapse:separate;overflow:hidden;">
                 <tr>
-                    <td style="padding:28px 32px 24px 32px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:32px;color:#601414;">
-                        eosa.
+                    <td style="padding:32px 32px 24px 32px;">
+                        <!-- Logo en image (Bagel Fat One) : « eosa. » en Georgia si les images sont bloquées. -->
+                        <a href="{{baseUrl}}" style="text-decoration:none;"><img src="{{logoUrl}}" width="112" height="36" alt="eosa." style="display:block;border:0;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:36px;color:#601414;"></a>
                     </td>
                 </tr>

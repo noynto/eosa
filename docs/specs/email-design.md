@@ -53,7 +53,11 @@ Gmail et Outlook pour Windows ne chargent pas les polices web : aucune écriture
 
 ## Étapes de mise en place
 
-### Étape 1 — Fondations (à faire)
+### Étape 1 — Fondations (faite)
+
+Faite le 21 novembre 2026 : logo (`public/mail/logo.png`, généré par `scripts/mail-logo.js`), `MailTemplates(publicBaseUrl)` avec `baseUrl` et `logoUrl`, en-tête et pied, gabarit `test`, `docs/design/emails.md`, règles de `docs/tech/emails.md` et du README. Mesuré dans Mailpit sur le gabarit `test` : **92,4 %** de prise en charge (objectif 90 %) ; rendu vu à 390 et 600 px, avec les polices de la marque (Apple Mail et iOS Mail) et avec celles de repli (Gmail, Outlook), et avec l'image du logo bloquée (le texte alternatif « eosa. » reste lisible). Non vérifié : de vraies messageries.
+
+Prévu à l'origine :
 
 - **Logo** : générer `src/main/resources/public/mail/logo.png` (224 × 72 px, fond `#FDFBF7`, « eosa. » en Bagel Fat One `#601414`) à partir du fichier de police déjà dans `public/fonts/`, avec un Chromium sans interface ; documenter la commande dans `docs/tech/emails.md` pour pouvoir le regénérer.
 - **Code** : `MailTemplates(publicBaseUrl)` ajoute `baseUrl` et `logoUrl` à chaque modèle ; `Bootstrap` lui passe l'adresse publique ; test dans `MailTemplatesTest`.
