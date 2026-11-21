@@ -37,7 +37,8 @@ public record PostSignInHandler(
                     null,
                     SameSite.STRICT
             ));
-            ctx.redirect("/jewels");
+            // La connexion mène au tableau de bord (alertes, travail à faire, commandes…), pas à la liste des bijoux.
+            ctx.redirect("/");
         } catch (AuthenticateIdentity.InvalidCredentials e) {
             ctx.redirect("/sign-in?error=1");
         }
