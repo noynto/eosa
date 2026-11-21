@@ -173,4 +173,7 @@
     </div>
 </section>
 
+<!-- Prochains ateliers : le fragment est vide, et la section absente, quand aucune session n'est programmée. -->
+<div hx-get="/workshops/upcoming" hx-trigger="load" hx-swap="outerHTML"></div>
+
 {{> partials/footer-main}}

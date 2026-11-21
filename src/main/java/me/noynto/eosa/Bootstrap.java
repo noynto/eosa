@@ -395,6 +395,10 @@ public class Bootstrap {
             workshopWaitlistEntryProvider,
             clock
         );
+        ReadUpcomingWorkshopSessionIds readUpcomingWorkshopSessionIds = new ReadUpcomingWorkshopSessionIds(
+            workshopSessionProvider,
+            clock
+        );
         JoinWorkshopWaitlist joinWorkshopWaitlist = new JoinWorkshopWaitlist(
             workshopSessionProvider,
             workshopBookingProvider,
@@ -780,6 +784,10 @@ public class Bootstrap {
             javalinConfig.routes.get(
                 "/workshops",
                 new GetWorkshopsHandler(readWorkshopSessions, clock, baseUrl)
+            );
+            javalinConfig.routes.get(
+                "/workshops/upcoming",
+                new GetUpcomingWorkshopsHandler(readUpcomingWorkshopSessionIds)
             );
             javalinConfig.routes.get(
                 "/workshops/sessions/{id}/card",
