@@ -33,46 +33,46 @@
     <div class="bg-bg rounded-xl border border-bg-border p-6 w-full max-w-sm shadow-lg max-h-full overflow-y-auto">
         <h2 class="text-sm font-medium mb-4">Nouveau code</h2>
         <form hx-post="/promo-codes" hx-target="#create-error" hx-swap="innerHTML" class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-1.5 min-w-0">
                 <label for="code" class="text-xs text-secondary">Code</label>
                 <input id="code" name="code" type="text" required autofocus placeholder="ex. BIENVENUE10" maxlength="30"
                        class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary uppercase">
                 <p class="text-xs text-muted">Lettres, chiffres et tirets ; la saisie de la cliente n'est pas sensible à la casse.</p>
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1.5 min-w-0">
                     <label for="type" class="text-xs text-secondary">Type</label>
                     <select id="type" name="type"
-                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary">
+                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                         <option value="PERCENT">Pourcentage</option>
                         <option value="AMOUNT">Montant fixe (€)</option>
                     </select>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1.5 min-w-0">
                     <label for="value" class="text-xs text-secondary">Valeur</label>
                     <input id="value" name="value" type="text" inputmode="decimal" required placeholder="10"
                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="flex flex-col gap-1.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5 min-w-0">
                     <label for="startsOn" class="text-xs text-secondary">Valable dès le</label>
                     <input id="startsOn" name="startsOn" type="date"
                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1.5 min-w-0">
                     <label for="endsOn" class="text-xs text-secondary">Jusqu'au (inclus)</label>
                     <input id="endsOn" name="endsOn" type="date"
                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary focus:border-secondary w-full">
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1.5 min-w-0">
                     <label for="minimumAmount" class="text-xs text-secondary">Minimum de bijoux (€)</label>
                     <input id="minimumAmount" name="minimumAmount" type="text" inputmode="decimal" placeholder="aucun"
                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1.5 min-w-0">
                     <label for="maxUses" class="text-xs text-secondary">Usages au plus</label>
                     <input id="maxUses" name="maxUses" type="number" min="1" step="1" placeholder="illimité"
                            class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full">
