@@ -1,8 +1,8 @@
 // Service worker of the administration PWA (admin.eosa.me).
 //
-// Bump VERSION whenever this file changes: the new worker then replaces the old one and
-// deletes its caches.
-const VERSION = 'v2';
+// Bump VERSION whenever this file changes, or whenever a precached file (PRECACHE below, like
+// offline.html) changes: the new worker then replaces the old one and deletes its caches.
+const VERSION = 'v3';
 const STATIC_CACHE = `eosa-admin-static-${VERSION}`;
 const IMAGE_CACHE = `eosa-admin-images-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
@@ -13,6 +13,8 @@ const PRECACHE = [
     '/tailwind.min.js',
     '/tailwind.config.js',
     '/fonts.css',
+    // Bagel Fat One (latin), la police du logo de la page hors connexion.
+    '/fonts/hYkPPucsQOr5dy02WmQr5Zkd4Blsvw.woff2',
     '/favicon.jpg',
     '/icon-192.png',
 ];
