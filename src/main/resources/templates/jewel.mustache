@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <form hx-post="/cart/items/{{jewelId}}" hx-swap="none" class="flex flex-col gap-4">
+        <form hx-post="/cart/items/{{jewelId}}" hx-swap="none" class="flex flex-col gap-6">
             <!-- Les options sont les mêmes pour tous les bijoux : elles se chargent à part, dans le formulaire. -->
             <div hx-get="/customization/metal-colors" hx-trigger="load" hx-swap="outerHTML" class="flex flex-col gap-2">
                 <div class="w-28 h-3 rounded-full bg-bg-soft animate-pulse"></div>
@@ -71,7 +71,14 @@
                     <div class="w-24 h-8 rounded-full bg-bg-soft animate-pulse"></div>
                 </div>
             </div>
-            <button type="submit" class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">Ajouter au panier — {{price}} €</button>
+            <!-- La sélection et son prix : rechargés à chaque changement d'un choix du formulaire. Au chargement, le
+                 serveur prend la première couleur de métal, comme le formulaire qui la coche. -->
+            <div hx-get="/jewels/{{jewelId}}/selection" hx-trigger="load, change from:closest form" hx-include="closest form"
+                 hx-swap="innerHTML" aria-live="polite"
+                 class="bg-bg-soft rounded-2xl px-5 py-4 flex items-center justify-between gap-4 min-h-16">
+                <div class="w-40 h-3 rounded-full bg-bg-border animate-pulse"></div>
+            </div>
+            <button type="submit" class="w-full bg-primary text-accent py-4 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors">Ajouter au panier</button>
         </form>
 
         <div class="bg-bg-soft px-5 py-4 rounded-2xl flex flex-col gap-2.5 text-sm text-secondary">

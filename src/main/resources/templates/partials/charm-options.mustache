@@ -1,16 +1,20 @@
 {{#hasCharms}}
-<div class="flex flex-col gap-2">
-    <span class="text-xs text-secondary">Breloques (optionnel)</span>
-    <div class="flex flex-wrap gap-2">
+<fieldset class="flex flex-col gap-3 min-w-0">
+    <legend class="font-serif text-xl mb-3">Une breloque ? <span class="font-sans text-sm text-secondary">Facultatif</span></legend>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {{#charms}}
-        <label class="cursor-pointer">
-            <input type="checkbox" name="charmIds" value="{{id}}" class="peer hidden">
-            <div class="flex items-center gap-2 bg-bg-soft border-2 border-transparent rounded-full px-3 py-1.5 text-xs peer-checked:border-primary peer-checked:bg-primary/10 transition-colors">
-                {{#hasImage}}<img src="/images/{{imageId}}" class="w-5 h-5 rounded-full object-cover" alt="">{{/hasImage}}
-                <span>{{name}} (+{{price}} €)</span>
-            </div>
+        <label class="group cursor-pointer block">
+            <input type="checkbox" name="charmIds" value="{{id}}" class="peer sr-only">
+            <span class="flex items-center gap-3 min-h-16 px-4 rounded-2xl border border-outline hover:border-secondary bg-bg peer-checked:border-transparent peer-checked:bg-bg-soft peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-secondary transition-colors">
+                <span class="w-5 h-5 rounded border-2 border-secondary flex items-center justify-center flex-shrink-0 group-has-[:checked]:bg-primary group-has-[:checked]:border-primary">
+                    <svg class="hidden group-has-[:checked]:block text-bg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>
+                </span>
+                {{#hasImage}}<img src="/images/{{imageId}}" class="w-10 h-10 rounded-full object-cover flex-shrink-0" alt="">{{/hasImage}}
+                <span class="flex flex-col"><span class="text-sm font-medium">{{name}}</span><span class="text-xs text-secondary">+ {{price}} €</span></span>
+            </span>
         </label>
         {{/charms}}
     </div>
-</div>
+    <p class="text-xs text-secondary">Sans breloque, votre bijou est livré tel qu'il est présenté.</p>
+</fieldset>
 {{/hasCharms}}

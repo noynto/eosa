@@ -14,6 +14,7 @@
 | GET | `/jewels/{id}/related` | Fragment : la section « D'autres bijoux » de la fiche |
 | GET | `/customization/metal-colors` | Fragment : le choix de la couleur du métal, dans le formulaire d'ajout au panier |
 | GET | `/customization/charms` | Fragment : le choix des breloques, dans le formulaire d'ajout au panier |
+| GET | `/jewels/{id}/selection` | Fragment : « Votre sélection » (métal, breloques) et le prix total, recalculé à chaque changement du formulaire (`metalColorId`, `charmIds`) |
 | GET | `/images/{id}` | Téléchargement d'une image |
 | GET | `/videos/{id}` | Vidéo, en entier ou par plage (`Range` : 206, `Content-Range`, 416 hors limites), lue par tranches de 256 Kio |
 | GET | `/about` | Notre histoire |
