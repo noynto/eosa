@@ -3,7 +3,7 @@
 <!-- Hero -->
 <!-- Le hero tient environ 85 % de la hauteur visible. Le voile sombre derrière le texte garantit un contraste d'au
      moins 4,5:1 sur n'importe quelle image de la vidéo ; il s'efface vers le haut pour laisser voir la vidéo. -->
-<section class="relative isolate overflow-hidden min-h-[85svh] flex items-end border-b border-bg-border bg-primary-dark">
+<section class="relative isolate overflow-hidden min-h-hero-screen flex items-end border-b border-bg-border bg-primary-dark">
     {{#hasHeroVideo}}
     <!-- Vidéo de la collection publiée la plus récente. Elle ne se charge ni ne se lance pour qui demande moins de
          mouvement ou économise ses données : l'affiche reste, et le bouton permet de la lancer. -->
@@ -18,7 +18,8 @@
     {{/hasHeroVideo}}
     <div class="absolute inset-0 -z-10 bg-gradient-to-t from-primary-dark/75 from-60% to-transparent" aria-hidden="true"></div>
 
-    <div class="w-full px-6 md:px-12 pb-10 md:pb-16 pt-32">
+    <!-- Même marge gauche que l'en-tête et les sections (px-5 md:px-8) : tout le texte de la page s'aligne. -->
+    <div class="w-full px-5 md:px-8 pb-10 md:pb-16 pt-32">
         <p class="text-xs text-bg tracking-widest mb-4 uppercase">{{heroLabel}}</p>
         <h1 class="font-serif text-5xl md:text-7xl font-normal leading-[1.05] text-bg mb-5 max-w-2xl">
             {{#hasHeroHeadline}}{{heroHeadline}}{{/hasHeroHeadline}}{{^hasHeroHeadline}}Bijoux qui<br/>rayonnent.{{/hasHeroHeadline}}
@@ -77,9 +78,9 @@
         <a href="/jewels/necklaces" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
             <div class="w-14 h-14 flex-shrink-0">
                 <svg viewBox="0 0 56 56" class="w-full h-full">
-                    <path d="M8 18 Q28 50 48 18" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
-                    <circle cx="28" cy="44" r="6" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
-                    <circle cx="28" cy="44" r="3" fill="#601414"/>
+                    <path d="M8 18 Q28 50 48 18" class="stroke-primary" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
+                    <circle cx="28" cy="44" r="6" class="stroke-primary fill-bg-soft" stroke-width="1.5"/>
+                    <circle cx="28" cy="44" r="3" class="fill-primary"/>
                 </svg>
             </div>
             <div>
@@ -95,10 +96,10 @@
         <a href="/jewels/bracelets" class="border border-bg-border rounded-2xl p-5 flex items-center gap-5 hover:border-secondary transition-colors">
             <div class="w-14 h-14 flex-shrink-0">
                 <svg viewBox="0 0 56 56" class="w-full h-full">
-                    <ellipse cx="28" cy="28" rx="18" ry="10" stroke="#601414" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
-                    <circle cx="10" cy="28" r="3.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
-                    <circle cx="28" cy="18" r="2.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
-                    <circle cx="46" cy="28" r="3.5" stroke="#601414" stroke-width="1.5" fill="#F4EFE5"/>
+                    <ellipse cx="28" cy="28" rx="18" ry="10" class="stroke-primary" stroke-width="1.5" fill="none" stroke-dasharray="2.5 2"/>
+                    <circle cx="10" cy="28" r="3.5" class="stroke-primary fill-bg-soft" stroke-width="1.5"/>
+                    <circle cx="28" cy="18" r="2.5" class="stroke-primary fill-bg-soft" stroke-width="1.5"/>
+                    <circle cx="46" cy="28" r="3.5" class="stroke-primary fill-bg-soft" stroke-width="1.5"/>
                 </svg>
             </div>
             <div>
