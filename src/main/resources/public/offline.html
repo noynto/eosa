@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eosa — Hors connexion</title>
+    <!-- fonts.css et la police du logo sont pré-chargés par le service worker (sw.js) : ils sont là sans réseau. -->
+    <link rel="stylesheet" href="/fonts.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'DM Sans', system-ui, sans-serif; background: #FDFBF7; color: #601414; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; }
-        .logo { font-size: 3rem; letter-spacing: -0.02em; margin-bottom: 2rem; }
+        .logo { font-family: 'Bagel Fat One', cursive; font-size: 3rem; margin-bottom: 2rem; }
         h1 { font-family: Georgia, serif; font-size: 1.75rem; font-weight: 400; margin-bottom: 1rem; }
         p { color: #775546; font-size: 0.875rem; line-height: 1.6; max-width: 320px; margin-bottom: 2rem; }
         a { background: #601414; color: #FFEFAE; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.875rem; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="logo">eosa</div>
+    <div class="logo">eosa.</div>
     <h1>Vous êtes hors connexion</h1>
     <p>L'administration a besoin d'une connexion internet. Vérifiez votre réseau et réessayez.</p>
     <a href="/" onclick="location.reload()">Réessayer</a>
