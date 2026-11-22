@@ -25,11 +25,15 @@
 </head>
 <body class="bg-bg font-sans text-primary antialiased">
 
-<div hx-get="/shipping/banner" hx-trigger="load" hx-swap="outerHTML" class="bg-primary py-1.5">
-    <div class="mx-auto w-48 h-3 rounded-full bg-primary-dark opacity-40 animate-pulse"></div>
-</div>
+<!-- Lien d'évitement : premier élément atteint au clavier, visible seulement quand il a le focus. -->
+<a href="#contenu"
+   class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 bg-bg text-primary border border-outline rounded-full px-5 min-h-11 inline-flex items-center text-sm font-medium">Aller au contenu</a>
 
 <header class="border-b border-bg-border">
+    <!-- La bannière de livraison est dans l'en-tête : tout le contenu de la page est ainsi dans un repère. -->
+    <div hx-get="/shipping/banner" hx-trigger="load" hx-swap="outerHTML" class="bg-primary py-1.5">
+        <div class="mx-auto w-48 h-3 rounded-full bg-primary-dark opacity-40 animate-pulse"></div>
+    </div>
     <div class="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center px-5 md:px-8 py-4 gap-4">
         <!-- Cinq liens : ils ne tiennent pas dans la colonne de gauche à 768 px, le menu de la tablette est donc
              celui du mobile (bouton « Menu ») ; la navigation en ligne commence à 1024 px. -->
@@ -90,3 +94,6 @@
         })();
     </script>
 </header>
+
+<!-- Le contenu de la page ; fermé au début du pied de page (partials/footer-main). -->
+<main id="contenu">
