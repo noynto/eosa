@@ -30,22 +30,23 @@
 </div>
 
 <header class="border-b border-bg-border">
-    <input type="checkbox" id="mobile-menu-toggle" class="peer hidden">
     <div class="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center px-5 md:px-8 py-4 gap-4">
         <!-- Cinq liens : ils ne tiennent pas dans la colonne de gauche à 768 px, le menu de la tablette est donc
              celui du mobile (bouton « Menu ») ; la navigation en ligne commence à 1024 px. -->
-        <nav class="hidden lg:flex gap-6 text-sm text-secondary">
+        <nav aria-label="Navigation principale" class="hidden lg:flex gap-6 text-sm text-secondary">
             <a href="/jewels/necklaces" class="hover:text-primary transition-colors">Colliers</a>
             <a href="/jewels/bracelets" class="hover:text-primary transition-colors">Bracelets</a>
             <a href="/about" class="hover:text-primary transition-colors">Notre histoire</a>
             <a href="/workshops" class="hover:text-primary transition-colors">Ateliers</a>
             <a href="/gift-cards" class="hover:text-primary transition-colors">Carte cadeau</a>
         </nav>
-        <label for="mobile-menu-toggle" class="lg:hidden flex flex-col justify-center gap-1.5 cursor-pointer w-11 h-11 -ml-3 pl-3" aria-label="Menu">
+        <!-- Un vrai bouton : atteignable au clavier, avec son état annoncé (aria-expanded). Le script est en bas de l'en-tête. -->
+        <button type="button" id="mobile-menu-button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu"
+                class="lg:hidden flex flex-col justify-center gap-1.5 cursor-pointer w-11 h-11 -ml-3 pl-3">
             <span class="w-5 h-px bg-primary block"></span>
             <span class="w-4 h-px bg-primary block"></span>
             <span class="w-5 h-px bg-primary block"></span>
-        </label>
+        </button>
         <div class="text-center">
             <a href="/" class="font-display text-4xl text-primary leading-none">eosa.</a>
         </div>
@@ -60,11 +61,32 @@
             </a>
         </div>
     </div>
-    <nav class="hidden peer-checked:flex lg:hidden flex-col border-t border-bg-border text-sm text-secondary">
+    <nav id="mobile-menu" aria-label="Navigation principale" class="hidden lg:hidden flex-col border-t border-bg-border text-sm text-secondary">
         <a href="/jewels/necklaces" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Colliers</a>
         <a href="/jewels/bracelets" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Bracelets</a>
         <a href="/about" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Notre histoire</a>
         <a href="/workshops" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Ateliers</a>
         <a href="/gift-cards" class="px-5 py-3.5 hover:text-primary hover:bg-bg-soft transition-colors">Carte cadeau</a>
     </nav>
+    <script>
+        (function () {
+            var button = document.getElementById('mobile-menu-button');
+            var menu = document.getElementById('mobile-menu');
+            function show(open) {
+                button.setAttribute('aria-expanded', open ? 'true' : 'false');
+                menu.classList.toggle('hidden', !open);
+                menu.classList.toggle('flex', open);
+            }
+            button.addEventListener('click', function () {
+                show(button.getAttribute('aria-expanded') !== 'true');
+            });
+            // Échap referme le menu et rend le focus au bouton.
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+                    show(false);
+                    button.focus();
+                }
+            });
+        })();
+    </script>
 </header>
