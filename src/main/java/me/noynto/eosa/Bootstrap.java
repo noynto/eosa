@@ -255,6 +255,7 @@ public class Bootstrap {
             imageProvider
         );
         ReadCharms readCharms = new ReadCharms(charmProvider);
+        ReadJewelSelection readJewelSelection = new ReadJewelSelection(jewelProvider, metalColorProvider, charmProvider);
         UpdateCharm updateCharm = new UpdateCharm(charmProvider);
         DeleteCharm deleteCharm = new DeleteCharm(charmProvider);
         CreatePromoCode createPromoCode = new CreatePromoCode(promoCodeProvider, clock);
@@ -663,6 +664,10 @@ public class Bootstrap {
             javalinConfig.routes.get(
                 "/jewels/{id}/related",
                 new GetRelatedJewelsHandler(readRelatedJewels)
+            );
+            javalinConfig.routes.get(
+                "/jewels/{id}/selection",
+                new GetJewelSelectionHandler(readJewelSelection)
             );
             javalinConfig.routes.get(
                 "/customization/metal-colors",

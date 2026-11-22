@@ -5,7 +5,7 @@ Le design d'EOSA suit la méthode de Material 3 (Expressive) sans en utiliser le
 Principes :
 
 - **Minimalisme** : un élément ne s'ajoute que s'il sert la lecture ou l'action ; pas de décoration sans rôle.
-- **Jetons uniquement** : couleurs, tailles de texte, arrondis et ombres viennent des jetons ci-dessous (déclarés dans `src/main/resources/public/tailwind.config.js`) ; jamais de valeur arbitraire (`text-[13px]`, `rounded-[20px]`, `red-600`).
+- **Jetons uniquement** : couleurs, tailles de texte, arrondis et ombres viennent des jetons ci-dessous (déclarés dans `src/main/resources/public/tailwind.config.js`) ; jamais de valeur arbitraire (`text-[13px]`, `rounded-[20px]`, `red-600`). L'échelle d'espacement par défaut de Tailwind (`w-14`, `min-h-16`, `gap-3`…) est permise : seules les valeurs entre crochets et les couleurs en dur sont interdites.
 - **Accessible par défaut** : contrastes WCAG AA, focus toujours visible, cibles tactiles confortables, messages annoncés aux lecteurs d'écran.
 
 ## Couleurs

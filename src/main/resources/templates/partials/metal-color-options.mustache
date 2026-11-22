@@ -1,16 +1,16 @@
 {{#hasMetalColors}}
-<div class="flex flex-col gap-2">
-    <span class="text-xs text-secondary">Couleur du métal</span>
-    <div class="flex flex-wrap gap-x-4 gap-y-3">
+<fieldset class="flex flex-col gap-3 min-w-0">
+    <legend class="font-serif text-xl mb-3">Couleur du métal</legend>
+    <div class="flex flex-wrap gap-3">
         {{#metalColors}}
-        <label class="cursor-pointer flex flex-col items-center gap-1">
-            <input type="radio" name="metalColorId" value="{{id}}" class="peer hidden" {{#selected}}checked{{/selected}}>
-            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-transparent peer-checked:border-primary bg-bg-soft">
+        <label class="cursor-pointer flex flex-col items-center gap-1.5 min-w-16">
+            <input type="radio" name="metalColorId" value="{{id}}" class="peer sr-only" {{#selected}}checked{{/selected}}>
+            <span class="block w-14 h-14 rounded-full overflow-hidden border-2 border-outline hover:border-secondary bg-bg-soft peer-checked:border-transparent peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-offset-bg peer-checked:ring-primary peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-secondary">
                 {{#hasImage}}<img src="/images/{{imageId}}" class="w-full h-full object-cover" alt="">{{/hasImage}}
-            </div>
-            <span class="text-xs text-secondary peer-checked:text-primary peer-checked:font-medium">{{name}}</span>
+            </span>
+            <span class="text-sm text-secondary peer-checked:text-primary peer-checked:font-medium">{{name}}</span>
         </label>
         {{/metalColors}}
     </div>
-</div>
+</fieldset>
 {{/hasMetalColors}}
