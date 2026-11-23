@@ -7,6 +7,7 @@ import me.noynto.eosa.image.ImageProvider;
 import me.noynto.eosa.shared.CollectionId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.VideoId;
+import me.noynto.eosa.video.Mp4Samples;
 import me.noynto.eosa.video.Video;
 import me.noynto.eosa.video.VideoProvider;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -35,7 +37,7 @@ class UploadCollectionMediaTest {
     @Test
     void handle_storesTheVideoAndThePosterOnTheCollection() {
         when(collectionProvider.read(collectionId)).thenReturn(Optional.of(collection()));
-        var video = video("video/mp4", 100);
+        var video = h264Video();
         var poster = poster("image/webp");
         when(videoProvider.write(video)).thenAnswer(invocation -> withId(video, "v1"));
         when(imageProvider.upload(poster)).thenAnswer(invocation -> withId(poster, "i1"));
@@ -55,7 +57,7 @@ class UploadCollectionMediaTest {
         collection.setVideoId(new VideoId("old-video"));
         collection.setPosterImageId(new ImageId("old-poster"));
         when(collectionProvider.read(collectionId)).thenReturn(Optional.of(collection));
-        var video = video("video/mp4", 100);
+        var video = h264Video();
         var poster = poster("image/png");
         when(videoProvider.write(video)).thenAnswer(invocation -> withId(video, "v2"));
         when(imageProvider.upload(poster)).thenAnswer(invocation -> withId(poster, "i2"));
@@ -72,7 +74,7 @@ class UploadCollectionMediaTest {
         var collection = collection();
         collection.setPosterImageId(new ImageId("poster"));
         when(collectionProvider.read(collectionId)).thenReturn(Optional.of(collection));
-        var video = video("video/mp4", 100);
+        var video = h264Video();
         when(videoProvider.write(video)).thenAnswer(invocation -> withId(video, "v1"));
         when(collectionProvider.write(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -101,6 +103,23 @@ class UploadCollectionMediaTest {
     }
 
     @Test
+    void handle_refusesAnMp4EncodedInH265AndSaysSo() {
+        var error = assertThrows(UploadCollectionMedia.InvalidCommand.class, () -> handle(mp4("hvc1"), null));
+
+        assertTrue(error.getMessage().contains("H.265"), error.getMessage());
+        assertTrue(error.getMessage().contains("H.264"), error.getMessage());
+        verify(videoProvider, never()).write(any());
+        verify(collectionProvider, never()).write(any());
+    }
+
+    @Test
+    void handle_refusesAnMp4WhoseCodecCannotBeRead() {
+        // Un « MP4 » sans contenu lisible : le type déclaré ne suffit pas.
+        assertThrows(UploadCollectionMedia.InvalidCommand.class, () -> handle(video("video/mp4", 100), null));
+        verify(videoProvider, never()).write(any());
+    }
+
+    @Test
     void handle_refusesAPosterWhoseFormatIsNotAnImage() {
         assertThrows(UploadCollectionMedia.InvalidCommand.class, () -> handle(null, poster("image/svg+xml")));
         verify(imageProvider, never()).upload(any());
@@ -115,7 +134,7 @@ class UploadCollectionMediaTest {
     void handle_throwsWhenTheCollectionDoesNotExist() {
         when(collectionProvider.read(collectionId)).thenReturn(Optional.empty());
 
-        assertThrows(UploadCollectionMedia.InvalidCommand.class, () -> handle(video("video/mp4", 100), null));
+        assertThrows(UploadCollectionMedia.InvalidCommand.class, () -> handle(h264Video(), null));
         verify(videoProvider, never()).write(any());
     }
 
@@ -134,6 +153,17 @@ class UploadCollectionMediaTest {
         var video = new Video();
         video.setFormat(format);
         video.setContent(new byte[size]);
+        return video;
+    }
+
+    private static Video h264Video() {
+        return mp4("avc1");
+    }
+
+    private static Video mp4(String codec) {
+        var video = new Video();
+        video.setFormat("video/mp4");
+        video.setContent(Mp4Samples.withVideoCodec(codec));
         return video;
     }
 

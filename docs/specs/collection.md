@@ -24,6 +24,7 @@ Une collection regroupe des bijoux et porte une **vidéo** qui s'affiche en têt
 | 12 | Hero plein écran | Le hero prend **environ 85 % de la hauteur visible** (`min-h-hero-screen`), vidéo en fond (`object-cover`, recadrée au centre : **une seule vidéo**, pas de version verticale), texte en HTML par-dessus, boutons existants. Un **voile** de la couleur sombre de la marque à 70 % en bas, qui s'efface vers le haut, garantit le contraste du texte (≥ 4,5:1, même sur une image blanche). Le bouton lecture / pause reste (en haut à droite sur mobile pour ne pas gêner le texte). Prototype validé le 19 novembre 2026. |
 | 13 | Texte de la collection | Une collection porte un **titre d'accroche** (80 caractères maximum) et un **court paragraphe** (240 caractères maximum), saisis dans l'administration. Ils sont facultatifs : sans eux le hero affiche le texte actuel (« Bijoux qui rayonnent. »). L'étiquette au-dessus du titre est « Collection » suivi du nom de la collection. |
 | 14 | Sans collection publiée | Même plein écran avec `hero.webp` en fond, le voile et le texte actuel (étiquette « Nouvelle collection »). |
+| 15 | Codec contrôlé à l'envoi | Un MP4 peut contenir du **H.265 (HEVC)**, que Firefox ne lit pas sans décodeur matériel (erreur `NS_ERROR_DOM_MEDIA_METADATA_ERR`, constatée en production le 23 novembre 2026 sur une vidéo `hvc1` de 1080p à 9,9 Mbit/s) et que d'autres navigateurs refusent aussi. Le type déclaré par le navigateur (`video/mp4`) ne le dit pas : `Mp4Codec` lit le nom du codec de la piste vidéo (table `stsd`) et `UploadCollectionMedia` **refuse tout ce qui n'est pas du H.264** (`avc1`, `avc3`), avec le nom du codec trouvé. Export conseillé : `ffmpeg -i entree.mp4 -an -c:v libx264 -preset slow -crf 24 -pix_fmt yuv420p -movflags +faststart sortie.mp4` (la même vidéo passe de 7,3 à 2,9 Mo). |
 
 ## Ce que le code actuel apporte et impose
 
@@ -47,7 +48,7 @@ Une collection regroupe des bijoux et porte une **vidéo** qui s'affiche en têt
 
 - **Liste** `GET /collections` : nom, état, nombre de bijoux, date de publication.
 - **Fiche** `GET /collections/{id}` : nom, saison (Printemps, Été, Automne, Hiver) et année, vidéo et affiche à envoyer, bijoux à cocher, boutons **Publier**, **Archiver**, **Repasser en brouillon**.
-- **Envoi de la vidéo** : un formulaire `multipart`, contrôle du type (`video/mp4`) et de la taille (8 Mo), message d'erreur en ligne (`InlineError`).
+- **Envoi de la vidéo** : un formulaire `multipart`, contrôle du type (`video/mp4`), de la taille (8 Mo) et du codec (H.264 seulement, décision 15), message d'erreur en ligne (`InlineError`).
 - Les actions sont des `POST`, avec confirmation (`hx-confirm`) pour la publication, qui publie les bijoux.
 
 ### Boutique
@@ -97,7 +98,7 @@ Deux pull requests, sans effet sur la boutique.
 - **2a, domaine et persistance (faite)** : migration `V21`, `Collection`, `CollectionState`, `CollectionSeason`, `CollectionProvider` (`readIds(états)`, `read`, `write`, `delete`), `JdbcPersistedCollections`, cas d'usage `CreateCollection` (brouillon ; nom, saison et année requis ; une collection par saison et année), `UpdateCollection` (nom, saison, année, bijoux ; ne touche ni l'état ni la vidéo), `ReadCollection`, `ReadCollections`. Le câblage dans `Bootstrap` vient avec les handlers.
 - **2b, administration (faite)** : liste `/collections` et fiche `/collections/{id}` avec trois sections indépendantes (informations, vidéo et affiche, bijoux) et la suppression.
   - `UpdateCollection` ne touche plus aux bijoux : `UpdateJewelsOfCollection` les remplace, et le bloc des bijoux de la fiche est un fragment htmx (`ReadCollectionJewelChoices` : tous les bijoux, cochés ou non), pour qu'enregistrer le nom ne vide jamais la liste.
-  - `UploadCollectionMedia` envoie la vidéo et/ou l'affiche (au moins une) : MP4 de 8 Mo au plus (refusé sans lire plus de 8 Mo + 1 octet en mémoire), affiche JPEG, PNG, WebP ou AVIF. Chaque média remplace le précédent, supprimé une fois la collection enregistrée.
+  - `UploadCollectionMedia` envoie la vidéo et/ou l'affiche (au moins une) : MP4 en H.264 de 8 Mo au plus (refusé sans lire plus de 8 Mo + 1 octet en mémoire ; le codec se lit avec `Mp4Codec`), affiche JPEG, PNG, WebP ou AVIF. Chaque média remplace le précédent, supprimé une fois la collection enregistrée.
   - `DeleteCollection` supprime la collection, sa vidéo et son affiche, jamais ses bijoux ; **une collection publiée ne se supprime pas** (on l'archive d'abord, étape 3).
   - Testé de bout en bout en local (création, doublon, modification, vidéo de 8 Mio acceptée et de 8 Mio + 1 refusée, remplacement, suppression) et vu à 390, 768 et 1280 px. L'aperçu vidéo n'a pas été vu avec un vrai MP4.
 
