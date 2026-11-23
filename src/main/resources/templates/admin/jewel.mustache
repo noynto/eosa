@@ -6,7 +6,7 @@
         <div class="flex items-center gap-3">
             <a href="/jewels" class="text-xs text-muted hover:text-secondary transition-colors">← Produits</a>
             <span class="text-muted">/</span>
-            <h1 class="text-xl font-medium">{{name}}</h1>
+            <h1 id="jewel-title" class="text-xl font-medium">{{name}}</h1>
         </div>
         <a href="/jewels/{{jewelId}}" target="_blank"
            class="flex items-center gap-1.5 text-xs text-secondary hover:text-primary border border-bg-border rounded-lg px-3 py-1.5 transition-colors">
@@ -14,6 +14,23 @@
             Voir la page
         </a>
     </div>
+
+    <!-- Nom -->
+    <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-medium"><label for="jewel-name">Nom</label></h2>
+            <span id="toast-name" class="text-xs text-success"></span>
+        </div>
+        <form hx-patch="/jewels/{{jewelId}}/name"
+              hx-target="#toast-name" hx-swap="innerHTML"
+              class="flex items-center gap-3">
+            <input id="jewel-name" name="name" type="text" required value="{{name}}" autocomplete="off"
+                   class="bg-bg-soft border border-outline rounded-lg px-3 py-2 text-sm text-primary placeholder-muted focus:border-secondary w-full min-w-0">
+            <button type="submit" class="bg-primary text-accent px-4 min-h-11 md:min-h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                Enregistrer
+            </button>
+        </form>
+    </section>
 
     <!-- Accroche -->
     <section class="bg-bg border border-bg-border rounded-xl p-5 mb-4">

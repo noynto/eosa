@@ -138,6 +138,9 @@ public class Bootstrap {
         UpdateTaglineOfJewel updateTaglineOfJewel = new UpdateTaglineOfJewel(
             jewelProvider
         );
+        UpdateNameOfJewel updateNameOfJewel = new UpdateNameOfJewel(
+            jewelProvider
+        );
         UpdatePublishedAtOfJewel updatePublishedAtOfJewel = new UpdatePublishedAtOfJewel(
             jewelProvider,
             clock
@@ -1045,6 +1048,10 @@ public class Bootstrap {
             javalinConfig.routes.delete(
                 "/jewels/{jewel-id}/images/{image-id}",
                 new DeleteImageOfJewelHandler(removeImageFromJewel)
+            );
+            javalinConfig.routes.patch(
+                "/jewels/{jewel-id}/name",
+                new PatchNameOfJewelHandler(updateNameOfJewel)
             );
             javalinConfig.routes.patch(
                 "/jewels/{jewel-id}/tagline",
