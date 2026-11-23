@@ -7,6 +7,7 @@ import me.noynto.eosa.image.ImageProvider;
 import me.noynto.eosa.shared.CollectionId;
 import me.noynto.eosa.shared.ImageId;
 import me.noynto.eosa.shared.VideoId;
+import me.noynto.eosa.video.Mp4Codec;
 import me.noynto.eosa.video.Video;
 import me.noynto.eosa.video.VideoProvider;
 
@@ -36,6 +37,13 @@ public record UploadCollectionMedia(
             }
             if (command.video.getContent().length > Video.MAX_SIZE) {
                 throw new InvalidCommand("La vidéo dépasse " + Video.MAX_SIZE / (1024 * 1024) + " Mo.");
+            }
+            // Un MP4 peut contenir du H.265, que Firefox ne lit pas : seul le H.264 est lu partout.
+            String codec = Mp4Codec.videoCodec(command.video.getContent())
+                    .orElseThrow(() -> new InvalidCommand("Le codec de la vidéo n'a pas pu être lu : envoyez un MP4 en H.264."));
+            if (!Mp4Codec.isH264(codec)) {
+                throw new InvalidCommand("La vidéo est encodée en " + Mp4Codec.label(codec) + ", que tous les navigateurs ne savent pas lire. "
+                        + "Exportez-la en H.264, par exemple : ffmpeg -i entree.mp4 -an -c:v libx264 -pix_fmt yuv420p -movflags +faststart sortie.mp4");
             }
         }
         if (command.poster != null && !Image.ACCEPTED_FORMATS.contains(command.poster.getFormat())) {
